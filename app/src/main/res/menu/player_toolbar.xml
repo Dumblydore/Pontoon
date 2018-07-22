@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_share"
+        android:title="@string/action_share"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_quality"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/action_quality">
+        <menu>
+            <item
+                android:id="@+id/action_p1080"
+                android:title="1080p" />
+            <item
+                android:id="@+id/action_p720"
+                android:title="720p" />
+            <item
+                android:id="@+id/action_p480"
+                android:title="480p" />
+            <item
+                android:id="@+id/action_p360"
+                android:title="360p" />
+        </menu>
+    </item>
+</menu>

@@ -1,0 +1,75 @@
+<resources>
+    <string name="app_name">Pontoon</string>
+
+    <!-- Login -->
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="login_login">Login</string>
+    <string name="videos_toolbar_title">Subscriptions</string>
+
+    <string name="login_error_missingUsername">Enter Username</string>
+    <string name="login_error_missingPassword">Enter Password</string>
+    <string name="login_error_credentials">Invalid login, check your Username/Password</string>
+    <string name="login_error_network">Check your connection</string>
+    <string name="login_error_service">There\'s an issue with the service, try again later</string>
+    <string name="login_error_general">@string/error_general</string>
+
+    <!-- Home -->
+    <string name="subscriptions_error_noSubscriptions">No Subscriptions Available</string>
+    <string name="subscriptions_error_network">Unable to load Subscriptions</string>
+    <string name="subscriptions_error_general">@string/error_general</string>
+
+    <string name="video_error_network">Unable to load Videos</string>
+    <string name="video_error_service">No Videos available</string>
+    <string name="video_error_general">@string/error_general</string>
+
+    <!-- Player -->
+    <string name="player_releaseDate">Posted on %s.</string>
+
+    <!-- Creator -->
+    <string name="creator_error_noCreator">Couldn\'t load creator.</string>
+    <string name="creator_error_noVideos">This creator has no videos.</string>
+    <string name="creator_error_general">@string/error_general</string>
+
+    <!-- User -->
+    <string name="tab_activity">Activity</string>
+    <string name="tab_playlist">Playlist</string>
+    <string name="tab_subscriptions">Subscriptions</string>
+
+    <!--History-->
+    <string name="history_title">History</string>
+    <string name="history_error_noVideos">You haven\'t watched any videos</string>
+    <string name="history_error_general">@string/error_general</string>
+
+    <!---->
+    <string name="action_profile">My Profile</string>
+    <string name="action_prefs">Preferences</string>
+    <string name="action_logout">Logout</string>
+
+    <string name="nav_videos">Videos</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_history">History</string>
+
+    <!-- Settings -->
+    <string name="settings_appearance">Appearance"</string>
+    <string name="settings_screen">Screen Color"</string>
+    <string name="settings_theme">Theme Color"</string>
+    <string name="settings_general">General"</string>
+    <string name="settings_hide">Hide Watched Videos From Subscription Feed"</string>
+    <string name="settings_picture">Picture-in-Picture"</string>
+    <string name="settings_default">Default Quality"</string>
+    <string name="settings_quality">Quality over Wifi"</string>
+    <string name="settings_misc">Misc."</string>
+    <string name="settings_about">About"</string>
+
+    <string name="error_general">Something happened, Not sure what it was.</string>
+
+    <!-- Play Icon -->
+    <string name="play_icon_upper_path_data">M 44 32 L 44 64 L 100 64 L 100 64 Z</string>
+    <string name="play_icon_bottom_path_data">M 44 96 L 44 64 L 100 64 L 100 64 Z</string>
+    <!-- Pause Icon -->
+    <string name="pause_icon_upper_path_data">M 32 40 L 32 56  L 96 56 L 96 40 Z</string>
+    <string name="pause_icon_bottom_path_data">M 32 88 L 32 72 L 96 72 L 96 88 Z</string>
+    <string name="action_share">Share</string>
+    <string name="action_quality">Quality</string>
+</resources>

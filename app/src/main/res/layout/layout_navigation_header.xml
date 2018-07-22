@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="170dp"
+    android:background="?android:attr/colorPrimary">
+
+    <ImageView
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_gravity="bottom"
+        android:rotation="180" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:padding="8dp">
+
+
+        <ImageView
+            android:id="@+id/header.icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="9dp"
+            android:scaleType="centerCrop"
+            tools:src="?android:attr/colorAccent" />
+
+        <TextView
+            android:id="@+id/header.title"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="48dp"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:orientation="vertical"
+            android:textColor="?android:attr/textColorPrimaryInverse"
+            android:textSize="16sp"
+            tools:text="Song name" />
+
+    </FrameLayout>
+
+</FrameLayout>

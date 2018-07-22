@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LazyLayout">
+        <attr name="error_layout" format="reference" />
+        <attr name="loading_layout" format="reference" />
+        <attr name="lazy_duration" format="integer" />
+
+        <attr name="lazy_state" format="enum">
+            <enum name="error" value="-1" />
+            <enum name="loading" value="0" />
+            <enum name="success" value="1" />
+        </attr>
+    </declare-styleable>
+</resources>

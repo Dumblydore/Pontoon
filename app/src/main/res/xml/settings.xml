@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.preference.PreferenceCategory
+        android:key="settings_appearance"
+        android:title="@string/settings_appearance">
+        <ListPreference
+            android:key="settings_screen"
+            android:title="@string/settings_screen" />
+        <ListPreference
+            android:key="settings_theme"
+            android:title="@string/settings_theme" />
+    </android.preference.PreferenceCategory>
+    <android.preference.PreferenceCategory
+        android:key="settings_general"
+        android:title="@string/settings_general">
+        <android.preference.SwitchPreference
+            android:key="settings_hide"
+            android:title="@string/settings_hide" />
+        <android.preference.ListPreference
+            android:key="settings_picture"
+            android:title="@string/settings_picture" />
+        <android.preference.ListPreference
+            android:key="settings_default"
+            android:title="@string/settings_default" />
+        <android.preference.ListPreference
+            android:key="settings_quality"
+            android:title="@string/settings_quality" />
+    </android.preference.PreferenceCategory>
+    <android.preference.PreferenceCategory
+        android:key="settings_misc"
+        android:title="@string/settings_misc">
+        <Preference
+            android:key="settings_about"
+            android:title="@string/settings_about" />
+    </android.preference.PreferenceCategory>
+</android.preference.PreferenceScreen>

@@ -1,0 +1,214 @@
+package me.mauricee.pontoon.main
+
+import android.media.AudioManager
+import android.net.Uri
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
+import android.view.TextureView
+import androidx.core.net.toUri
+import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.extractor.ExtractorsFactory
+import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView
+import com.google.android.exoplayer2.upstream.DataSource
+import com.jakewharton.rxrelay2.BehaviorRelay
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.main.player.PlayerContract
+import me.mauricee.pontoon.model.video.Playback
+import me.mauricee.pontoon.model.video.Quality
+import me.mauricee.pontoon.model.video.Video
+import java.util.concurrent.TimeUnit
+
+class Player(private val exoPlayer: SimpleExoPlayer,
+             private val sourceFactory: DataSource.Factory,
+             private val extractorsFactory: ExtractorsFactory,
+             private val audioManager: AudioManager,
+             private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
+        Player.EventListener {
+
+    @PlaybackStateCompat.State
+    private var state: Int = PlaybackStateCompat.STATE_NONE
+        set(value) {
+            if (field != value) {
+                field = value
+                stateSubject.accept(value)
+                PlaybackStateCompat.Builder(mediaSession.controller.playbackState)
+                        .setState(value, exoPlayer.currentPosition, 1f)
+                        .build().also(mediaSession::setPlaybackState)
+            }
+        }
+
+    private val stateSubject = BehaviorRelay.create<Int>()
+    val playbackState: Observable<Int> = stateSubject
+
+    private val previewImageRelay = BehaviorRelay.create<String>()
+    val previewImage: Observable<String>
+        get() = previewImageRelay
+
+    private val durationRelay = BehaviorRelay.create<Long>()
+    val duration: Observable<Long>
+        get() = durationRelay
+
+    var currentlyPlaying: Playback? = null
+        set(value) {
+            if (value?.video?.id != field?.video?.id && value != null) {
+                load(value)
+            }
+            field = value
+            //TODO Handle null case???
+        }
+
+    private var controllerTimeout: Disposable? = null
+
+    var controlsVisible: Boolean = false
+        set(value) {
+            field = value
+            controller?.controlsVisible(value)
+        }
+
+    var controller: ControlView? = null
+        set(value) {
+            field = value
+            field?.apply { controlsVisible(controlsVisible) }
+        }
+
+    init {
+        mediaSession.setPlaybackState(PlaybackStateCompat.Builder().setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
+                .setActions(PlaybackStateCompat.ACTION_PAUSE or
+                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                        PlaybackStateCompat.ACTION_PLAY)
+                .build())
+        mediaSession.setCallback(this)
+        exoPlayer.addListener(this)
+    }
+
+    fun isPlaying() = state == PlaybackStateCompat.STATE_PLAYING
+
+    fun isActive() = state != PlaybackStateCompat.STATE_NONE
+
+    fun setQuality(quality: QualityLevel) {
+        currentlyPlaying?.apply {
+            val progress = exoPlayer.currentPosition
+            when (quality) {
+                QualityLevel.p1080 -> this.quality.p1080
+                QualityLevel.p720 -> this.quality.p720
+                QualityLevel.p480 -> this.quality.p480
+                QualityLevel.p360 -> this.quality.p360
+            }.let(String::toUri).also { load(it) }
+            exoPlayer.seekTo(progress)
+        }
+    }
+
+    fun bindToView(view: TextureView) {
+        exoPlayer.setVideoTextureView(view)
+    }
+
+    private fun setMetadata(video: Video) {
+        previewImageRelay.accept(video.thumbnail)
+    }
+
+    private fun load(playback: Playback) {
+        load(playback.quality.p1080.toUri())
+        setMetadata(playback.video)
+        previewImageRelay.accept(playback.video.thumbnail)
+    }
+
+    private fun load(uri: Uri) {
+        HlsMediaSource(uri, sourceFactory, null, null)
+                .also { exoPlayer.prepare(it) }
+        mediaSession.isActive = true
+        exoPlayer.playWhenReady = true
+    }
+
+    override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
+    }
+
+    override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
+    }
+
+    override fun onPlayerError(error: ExoPlaybackException?) {
+        state = PlaybackStateCompat.STATE_ERROR
+    }
+
+    override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+        state = when (playbackState) {
+            Player.STATE_READY -> {
+                durationRelay.accept(exoPlayer.duration)
+                if (playWhenReady) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
+            }
+            Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
+            Player.STATE_ENDED -> PlaybackStateCompat.STATE_STOPPED
+            Player.STATE_IDLE -> PlaybackStateCompat.STATE_NONE
+            else -> PlaybackStateCompat.STATE_NONE
+        }
+    }
+
+    override fun onLoadingChanged(isLoading: Boolean) {
+
+    }
+
+    override fun onPositionDiscontinuity() {
+    }
+
+    override fun onRepeatModeChanged(repeatMode: Int) {
+    }
+
+    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
+    }
+
+    override fun onPlay() {
+//        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+//                .setAcceptsDelayedFocusGain(false)
+//                .setWillPauseWhenDucked(true)
+//                .build()
+//        audioManager.requestAudioFocus()
+        exoPlayer.playWhenReady = true
+        state = PlaybackStateCompat.STATE_PLAYING
+    }
+
+    override fun onPause() {
+        exoPlayer.playWhenReady = false
+        state = PlaybackStateCompat.STATE_PAUSED
+    }
+
+    fun playPause() {
+        if (exoPlayer.playWhenReady) onPause() else onPlay()
+    }
+
+    fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
+            .map { exoPlayer.currentPosition }.startWith(exoPlayer.currentPosition)
+
+    fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
+            .map { exoPlayer.bufferedPosition }.startWith(exoPlayer.bufferedPosition)
+
+    fun setProgress(progress: Long) {
+        exoPlayer.seekTo(progress)
+    }
+
+    fun toggleControls() {
+        controllerTimeout?.dispose()
+        controllerTimeout = (if (controlsVisible) false.toObservable()
+        else Observable.timer(3, TimeUnit.SECONDS, Schedulers.computation()).map { false }
+                .startWith(true))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { controller?.controlsVisible(it) }
+    }
+
+    interface ControlView {
+        fun controlsVisible(isVisible: Boolean)
+    }
+
+    enum class QualityLevel {
+        p1080,
+        p720,
+        p480,
+        p360
+    }
+}

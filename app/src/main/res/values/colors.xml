@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Text Color for Light Background -->
+    <color name="textDarkPrimary">#FFFFFF</color> <!--DE for %87 opacity-->
+    <color name="textDarkSecondary">#B2FFFFFF</color> <!--8A for %54 opacity-->
+    <color name="textDarkDisabled">#80FFFFFF</color> <!--61 for %38 opacity-->
+
+    <!-- White Text Color for Dark Background -->
+    <color name="textLightPrimary">#DE000000</color> <!--%100 opacity-->
+    <color name="textLightSecondary">#8A000000</color> <!--B2 for %70 opacity-->
+    <color name="textLightDisabled">#61000000</color> <!--80 for %50 opacity-->
+
+    <color name="colorPrimaryBg">#50000000</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="colorIcons">#FFFFFF</color>
+    <color name="colorDivider">#1FFFFFFF</color>
+
+
+    <color name="colorPrimary">#2d4057</color>
+    <color name="colorPrimaryDark">#192638</color>
+    <color name="colorAccent">#00afec</color>
+    <color name="colorError">#ff5722</color>
+</resources>
