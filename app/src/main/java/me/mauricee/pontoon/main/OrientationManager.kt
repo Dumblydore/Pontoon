@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.main
 
-import android.content.Context
 import android.content.pm.ActivityInfo
 import javax.inject.Inject
 

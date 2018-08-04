@@ -9,14 +9,13 @@ import kotlinx.android.synthetic.main.lazy_error_layout.view.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.main.VideoAdapter
+import me.mauricee.pontoon.main.VideoPageAdapter
 import javax.inject.Inject
 
 class HistoryFragment : BaseFragment<HistoryPresenter>(), HistoryContract.View {
 
     @Inject
-    lateinit var videoAdapter: VideoAdapter
+    lateinit var videoAdapter: VideoPageAdapter
 
     override val actions: Observable<HistoryContract.Action>
         get() = videoAdapter.actions.map(HistoryContract.Action::PlayVideo)
@@ -33,10 +32,10 @@ class HistoryFragment : BaseFragment<HistoryPresenter>(), HistoryContract.View {
         is HistoryContract.State.Loading -> {}//history_container_lazy.state = LazyLayout.LOADING
         is HistoryContract.State.DisplayVideos -> {
             history_container_lazy.state = LazyLayout.SUCCESS
-            videoAdapter += state.videos
+            videoAdapter.submitList(state.videos)
         }
         is HistoryContract.State.Error -> {
-//            history_container_lazy.state = LazyLayout.ERROR
+            history_container_lazy.state = LazyLayout.ERROR
             history_container_lazy.lazy_error_text.setText(state.type.msg)
         }
     }

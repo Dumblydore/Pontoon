@@ -8,11 +8,9 @@ import android.view.TextureView
 import androidx.core.net.toUri
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.extractor.ExtractorsFactory
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.Observable
@@ -20,15 +18,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.main.player.PlayerContract
 import me.mauricee.pontoon.model.video.Playback
-import me.mauricee.pontoon.model.video.Quality
 import me.mauricee.pontoon.model.video.Video
 import java.util.concurrent.TimeUnit
 
 class Player(private val exoPlayer: SimpleExoPlayer,
              private val sourceFactory: DataSource.Factory,
-             private val extractorsFactory: ExtractorsFactory,
              private val audioManager: AudioManager,
              private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener {
@@ -79,6 +74,23 @@ class Player(private val exoPlayer: SimpleExoPlayer,
             field?.apply { controlsVisible(controlsVisible) }
         }
 
+    var quality: QualityLevel = QualityLevel.p1080
+        set(value) {
+            if (value != field) {
+                currentlyPlaying?.apply {
+                    val progress = exoPlayer.currentPosition
+                    when (value) {
+                        QualityLevel.p1080 -> this.quality.p1080
+                        QualityLevel.p720 -> this.quality.p720
+                        QualityLevel.p480 -> this.quality.p480
+                        QualityLevel.p360 -> this.quality.p360
+                    }.let(String::toUri).also { load(it) }
+                    exoPlayer.seekTo(progress)
+                }
+            }
+            field = value
+        }
+
     init {
         mediaSession.setPlaybackState(PlaybackStateCompat.Builder().setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
                 .setActions(PlaybackStateCompat.ACTION_PAUSE or
@@ -93,19 +105,6 @@ class Player(private val exoPlayer: SimpleExoPlayer,
 
     fun isActive() = state != PlaybackStateCompat.STATE_NONE
 
-    fun setQuality(quality: QualityLevel) {
-        currentlyPlaying?.apply {
-            val progress = exoPlayer.currentPosition
-            when (quality) {
-                QualityLevel.p1080 -> this.quality.p1080
-                QualityLevel.p720 -> this.quality.p720
-                QualityLevel.p480 -> this.quality.p480
-                QualityLevel.p360 -> this.quality.p360
-            }.let(String::toUri).also { load(it) }
-            exoPlayer.seekTo(progress)
-        }
-    }
-
     fun bindToView(view: TextureView) {
         exoPlayer.setVideoTextureView(view)
     }
@@ -115,7 +114,13 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     }
 
     private fun load(playback: Playback) {
-        load(playback.quality.p1080.toUri())
+        when (quality) {
+            QualityLevel.p1080 -> playback.quality.p1080
+            QualityLevel.p720 -> playback.quality.p720
+            QualityLevel.p480 -> playback.quality.p480
+            QualityLevel.p360 -> playback.quality.p360
+        }.toUri().let(::load)
+
         setMetadata(playback.video)
         previewImageRelay.accept(playback.video.thumbnail)
     }

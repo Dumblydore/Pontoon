@@ -2,6 +2,7 @@ package me.mauricee.pontoon.main.videos
 
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.video.VideoRepository
 import retrofit2.HttpException
@@ -24,7 +25,7 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
         videoRepository.getVideos(false, *it.toTypedArray())
                 .map<VideoContract.State>(VideoContract.State::DisplayVideos)
                 .startWith(VideoContract.State.DisplaySubscriptions(it))
-    }.onErrorReturn(::processError)
+    }.doOnError{loge("error", it)}.onErrorReturn(::processError)
 
     private fun processError(e: Throwable): VideoContract.State.Error = when (e) {
         is VideoRepository.NoSubscriptionsException -> VideoContract.State.Error.Type.NoVideos

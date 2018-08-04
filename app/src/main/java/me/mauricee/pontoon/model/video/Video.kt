@@ -3,8 +3,8 @@ package me.mauricee.pontoon.model.video
 import androidx.paging.DataSource
 import androidx.room.*
 import io.reactivex.Maybe
+import io.reactivex.Single
 import me.mauricee.pontoon.domain.floatplane.Video
-import me.mauricee.pontoon.model.user.UserRepository
 import org.threeten.bp.Instant
 
 @Entity(tableName = "Video")
@@ -24,8 +24,14 @@ interface VideoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg videos: VideoEntity)
 
+    @Query("SELECT COUNT(id) FROM Video")
+    fun getNumberOfRows(): Int
+
     @Query("SELECT * FROM Video WHERE id = :id")
     fun getVideo(id: String): Maybe<VideoEntity>
+
+    @Query("SELECT * FROM Video WHERE creator = :creator AND title LIKE :query")
+    fun search(query: String, creator: String): Single<List<VideoEntity>>
 
     @Query("SELECT * FROM Video WHERE creator = :creator")
     fun getVideoByCreator(creator: String): DataSource.Factory<Int, VideoEntity>
@@ -33,13 +39,7 @@ interface VideoDao {
     @Query("SELECT * FROM Video WHERE creator = (:creators)")
     fun getVideoByCreators(vararg creators: String): DataSource.Factory<Int, VideoEntity>
 
-}
+    @Query("SELECT * FROM Video, History ORDER BY history.watched DESC")
+    fun history(): DataSource.Factory<Int, VideoHistory>
 
-data class Quality(val p360: String, val p480: String, val p720: String, val p1080: String)
-data class Video(val id: String, val title: String, val description: String, val releaseDate: Instant,
-                 val duration: Long, val creator: UserRepository.Creator, val thumbnail: String) {
-    constructor(video: Video, creator: UserRepository.Creator) : this(video.guid, video.title, video.description, video.releaseDate, video.duration, creator, video.defaultThumbnail)
-    constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail)
 }
-
-data class Playback(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality) {}

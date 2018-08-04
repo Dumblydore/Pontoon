@@ -1,13 +1,11 @@
 package me.mauricee.pontoon.main.player
 
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.Observable
@@ -16,11 +14,9 @@ import kotlinx.android.synthetic.main.layout_player_controls.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.ext.isPortrait
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
-import me.mauricee.pontoon.main.MainActivity
 
 class PlayerFragment : BaseFragment<PlayerPresenter>(),
         PlayerContract.View, Player.ControlView {
@@ -46,7 +42,9 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        GlideApp.with(this).load(previewArt).into(player_preview)
+        GlideApp.with(this).load(previewArt).placeholder(R.drawable.ic_default_thumbnail)
+                .error(R.drawable.ic_default_thumbnail)
+                .into(player_preview)
         view.player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
     }
 
@@ -73,6 +71,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_loading.isVisible = true
                 player_controls_playPause.isVisible = false
             }
+            is PlayerContract.State.Buffering -> {
+                player_controls_loading.isVisible = true
+                player_controls_playPause.isVisible = false
+            }
             is PlayerContract.State.Duration -> {
                 player_controls_duration.text = state.duration
             }
@@ -80,6 +82,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_position.text = state.progress
             }
             is PlayerContract.State.Preview -> GlideApp.with(this).load(state.path)
+                    .placeholder(R.drawable.ic_default_thumbnail).error(R.drawable.ic_default_thumbnail)
                     .transition(DrawableTransitionOptions.withCrossFade()).into(player_preview)
         }
     }

@@ -41,6 +41,8 @@ class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, VideoPage
                 itemView.item_title.text = video.title
                 itemView.item_description.text = video.creator.name
                 GlideApp.with(itemView).load(video.thumbnail)
+                        .placeholder(R.drawable.ic_default_thumbnail)
+                        .error(R.drawable.ic_default_thumbnail)
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .into(itemView.item_icon_big)
                 GlideApp.with(itemView).load(video.creator.user.profileImage)
@@ -56,7 +58,6 @@ class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, VideoPage
             override fun areItemsTheSame(oldItem: Video, newItem: Video): Boolean = oldItem.id == newItem.id
 
             override fun areContentsTheSame(oldItem: Video, newItem: Video): Boolean = newItem == oldItem
-
         }
     }
 }

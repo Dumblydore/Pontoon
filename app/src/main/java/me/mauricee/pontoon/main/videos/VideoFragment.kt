@@ -7,16 +7,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
-import com.jakewharton.rxbinding2.view.scrollChangeEvents
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_videos.*
 import kotlinx.android.synthetic.main.fragment_videos.view.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
-import me.mauricee.pontoon.ext.RxHelpers
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.main.VideoAdapter
 import me.mauricee.pontoon.main.VideoPageAdapter
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
@@ -70,9 +66,5 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
                 ?.findViewById<TextView>(R.id.lazy_error_text)
                 ?.setText(error.type.msg)
         videos_container_lazy.state = LazyLayout.ERROR
-    }
-
-    companion object {
-        fun newInstance(): VideoFragment = VideoFragment()
     }
 }

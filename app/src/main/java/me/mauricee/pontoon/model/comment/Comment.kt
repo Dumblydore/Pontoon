@@ -1,7 +1,6 @@
 package me.mauricee.pontoon.model.comment
 
 import androidx.room.*
-import io.reactivex.Flowable
 import io.reactivex.Single
 import me.mauricee.pontoon.model.user.UserRepository
 import org.threeten.bp.Instant
@@ -31,6 +30,6 @@ interface CommentDao {
 
 }
 
-data class Comment(val id: String, val video: String, val text: String,
+data class Comment(val id: String, val parent: String, val video: String, val text: String,
                    val likes: Int, val dislikes: Int, val replies: List<Comment>,
                    val user: UserRepository.User)

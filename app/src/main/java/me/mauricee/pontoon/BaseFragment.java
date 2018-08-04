@@ -1,7 +1,6 @@
 package me.mauricee.pontoon;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +27,7 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
     }
 
     @Override
+    @SuppressWarnings("UNCHECKED_CALL")
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         presenter.attachView(this);
@@ -42,10 +42,6 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
 
     @LayoutRes
     abstract protected int getLayoutId();
-
-    public boolean onBackPressed() {
-        return false;
-    }
 
     @Nullable
     protected Toolbar getToolbar() {

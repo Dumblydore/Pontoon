@@ -10,8 +10,6 @@ import android.widget.FrameLayout
 import androidx.annotation.IntDef
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
-import androidx.core.view.doOnNextLayout
-import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
 import androidx.core.view.postDelayed
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -24,7 +22,7 @@ import me.mauricee.pontoon.ext.logd
 class LazyLayout : FrameLayout {
 
     companion object {
-        private val DEFAULT_ANIMATION_DURATION: Long = 250
+        private const val DEFAULT_ANIMATION_DURATION: Long = 250
         const val ERROR = -1
         const val LOADING = 0
         const val SUCCESS = 1
@@ -61,10 +59,6 @@ class LazyLayout : FrameLayout {
                 setState(value)
             }
         }
-
-    @IntDef(ERROR, LOADING, SUCCESS)
-    @Retention
-    private annotation class State;
 
     constructor(context: Context) : super(context) {
         init(context, null)
@@ -194,15 +188,15 @@ class LazyLayout : FrameLayout {
         view.alpha = 0f
         view.bringToFront()
         return view.animate().alpha(1f)
-                .setStartDelay(DEFAULT_ANIMATION_DURATION.toLong())
-                .setDuration(DEFAULT_ANIMATION_DURATION.toLong())
+                .setStartDelay(DEFAULT_ANIMATION_DURATION)
+                .setDuration(DEFAULT_ANIMATION_DURATION)
     }
 
     private fun getInactiveAnimation(view: View,
                                      activeAnimation: ViewPropertyAnimator): ViewPropertyAnimator {
         return view.animate().alpha(0f)
-                .setStartDelay(DEFAULT_ANIMATION_DURATION.toLong())
-                .setDuration(DEFAULT_ANIMATION_DURATION.toLong())
+                .setStartDelay(DEFAULT_ANIMATION_DURATION)
+                .setDuration(DEFAULT_ANIMATION_DURATION)
                 .withEndAction {
                     view.visibility = View.GONE
                     activeAnimation.start()
@@ -212,6 +206,10 @@ class LazyLayout : FrameLayout {
     private fun children(): List<View> {
         return IntRange(0, childCount - 1).map(this::getChildAt)
     }
+
+    @IntDef(ERROR, LOADING, SUCCESS)
+    @Retention
+    private annotation class State
 
     interface StateUpdateListener {
         fun onStateUpdated(@State state: Int)

@@ -6,17 +6,12 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionInflater
-import com.bumptech.glide.Glide
-import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_details.*
-import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.ext.isPortrait
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserRepository
@@ -116,6 +111,8 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
             this@DetailsFragment.creator = creator
         }
         GlideApp.with(this).load(info.creator.user.profileImage).circleCrop()
+                .placeholder(R.drawable.ic_default_thumbnail)
+                .error(R.drawable.ic_default_thumbnail)
                 .into(player_small_icon)
     }
 

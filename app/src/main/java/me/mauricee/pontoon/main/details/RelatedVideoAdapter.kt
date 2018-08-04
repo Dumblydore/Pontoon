@@ -1,12 +1,12 @@
 package me.mauricee.pontoon.main.details
 
 
+//import me.mauricee.pontoon.glide.GlideApp
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxrelay2.PublishRelay
@@ -15,7 +15,6 @@ import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.glide.GlideApp
-//import me.mauricee.pontoon.glide.GlideApp
 import javax.inject.Inject
 
 class RelatedVideoAdapter @Inject constructor() : RecyclerView.Adapter<RelatedVideoAdapter.ViewHolder>() {
@@ -54,6 +53,8 @@ class RelatedVideoAdapter @Inject constructor() : RecyclerView.Adapter<RelatedVi
                 itemView.item_description.text = video.creator.name
                 GlideApp.with(itemView).load(video.thumbnail)
                         .transition(DrawableTransitionOptions.withCrossFade())
+                        .placeholder(R.drawable.ic_default_thumbnail)
+                        .error(R.drawable.ic_default_thumbnail)
                         .into(itemView.item_icon_big)
 
             }

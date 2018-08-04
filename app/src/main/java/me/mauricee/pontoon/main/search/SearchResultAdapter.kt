@@ -1,11 +1,9 @@
-package me.mauricee.pontoon.main
+package me.mauricee.pontoon.main.search
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxrelay2.PublishRelay
@@ -16,30 +14,20 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
-class VideoAdapter @Inject constructor() : RecyclerView.Adapter<VideoAdapter.ViewHolder>() {
+class SearchResultAdapter @Inject constructor() : RecyclerView.Adapter<SearchResultAdapter.ViewHolder>() {
 
-    private val relay = PublishRelay.create<Video>()
-    val actions: Observable<Video>
+    private val relay = PublishRelay.create<SearchContract.Action>()
+    val actions: Observable<SearchContract.Action>
         get() = relay
     private var videos: List<Video> = emptyList()
-
 
     init {
         setHasStableIds(true)
     }
 
-    operator fun plusAssign(newVideos: List<Video>) {
-        videos.size.also {
-            videos += newVideos
-            notifyItemRangeInserted(it, videos.size)
-        }
-    }
-
-    fun clear() {
-        videos.apply {
-            videos = emptyList()
-            notifyItemRangeRemoved(0, size)
-        }
+    fun update(state: SearchContract.State.Results) {
+        videos = state.list
+        state.result.dispatchUpdatesTo(this)
     }
 
 
@@ -58,7 +46,7 @@ class VideoAdapter @Inject constructor() : RecyclerView.Adapter<VideoAdapter.Vie
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            view.clicks().subscribe { relay.accept(videos[layoutPosition]) }
+            view.clicks().subscribe { relay.accept(SearchContract.Action.PlayVideo(videos[layoutPosition])) }
         }
 
         fun bind(video: Video) {
@@ -66,22 +54,17 @@ class VideoAdapter @Inject constructor() : RecyclerView.Adapter<VideoAdapter.Vie
                 itemView.item_title.text = video.title
                 itemView.item_description.text = video.creator.name
                 GlideApp.with(itemView).load(video.thumbnail)
+                        .placeholder(R.drawable.ic_default_thumbnail)
+                        .error(R.drawable.ic_default_thumbnail)
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .into(itemView.item_icon_big)
                 GlideApp.with(itemView).load(video.creator.user.profileImage)
+                        .placeholder(R.drawable.ic_default_thumbnail)
+                        .error(R.drawable.ic_default_thumbnail)
                         .circleCrop()
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .into(itemView.item_icon_small)
             }
-        }
-    }
-
-    companion object {
-        val DiffCallback = object : DiffUtil.ItemCallback<Video>() {
-            override fun areItemsTheSame(oldItem: Video, newItem: Video): Boolean = oldItem.id == newItem.id
-
-            override fun areContentsTheSame(oldItem: Video, newItem: Video): Boolean = newItem == oldItem
-
         }
     }
 }

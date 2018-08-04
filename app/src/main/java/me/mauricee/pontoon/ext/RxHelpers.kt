@@ -1,11 +1,8 @@
 package me.mauricee.pontoon.ext
 
-import androidx.core.widget.NestedScrollView
-import com.jakewharton.rxbinding2.view.ViewScrollChangeEvent
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import me.mauricee.pontoon.main.videos.VideoContract
 
 class RxHelpers {
 
@@ -19,10 +16,13 @@ class RxHelpers {
         }
 
         fun <T> applySingleSchedulers(observeOn: Scheduler = AndroidSchedulers.mainThread()): SingleTransformer<T, T> {
-            return SingleTransformer{ it.subscribeOn(Schedulers.io()).observeOn(observeOn) }
+            return SingleTransformer { it.subscribeOn(Schedulers.io()).observeOn(observeOn) }
         }
 
-
+        fun <T> applyOnErrorReturnItem(error: T): ObservableTransformer<T, T> =
+                ObservableTransformer {
+                    it.doOnError { loge("Error!", it) }.onErrorReturnItem(error)
+                }
     }
 }
 

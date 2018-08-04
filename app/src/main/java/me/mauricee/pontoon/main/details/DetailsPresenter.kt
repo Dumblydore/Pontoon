@@ -1,23 +1,15 @@
 package me.mauricee.pontoon.main.details
 
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.core.net.toUri
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
+import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.ext.loge
-import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.video.Playback
-import me.mauricee.pontoon.model.video.Quality
-import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
-import retrofit2.HttpException
 import javax.inject.Inject
 
 class DetailsPresenter @Inject constructor(private val player: Player,
@@ -53,7 +45,9 @@ class DetailsPresenter @Inject constructor(private val player: Player,
                     .map(DetailsContract.State::RelatedVideos)
 
     private fun loadComments(video: String): Observable<DetailsContract.State> =
-            commentRepository.getComments(video).onErrorReturnItem(emptyList())
+            commentRepository.getComments(video)
+                    .flatMapSingle { it.toObservable().filter { it.video == it.parent }.toList() }
+                    .onErrorReturnItem(emptyList())
                     .map(DetailsContract.State::Comments)
 
     private fun playerDuration(): Observable<DetailsContract.State> = player.duration.map {

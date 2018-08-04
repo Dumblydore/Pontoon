@@ -15,9 +15,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.transition.ChangeBounds
-import androidx.transition.Transition
-import androidx.transition.TransitionManager
+import androidx.transition.*
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
 import com.jakewharton.rxrelay2.PublishRelay
@@ -36,11 +34,12 @@ import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
 import me.mauricee.pontoon.main.player.PlayerFragment
+import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.model.user.UserRepository
-import me.mauricee.pontoon.preferences.PreferencesActivity
 import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.preferences.PreferencesActivity
 import javax.inject.Inject
 
 class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, MainContract.View {
@@ -88,7 +87,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         hide()
 
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
-                .rootFragments(listOf(VideoFragment.newInstance(), HistoryFragment(), HistoryFragment()))
+                .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
 
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
@@ -257,14 +256,14 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         //Prevent guidelines to go out of screen bound
         val percentHorizontalMoved = Math.max(-0.25F, Math.min(VideoTouchHandler.MIN_HORIZONTAL_LIMIT, percentScrollSwipe))
         val percentMarginMoved = percentHorizontalMoved + (VideoTouchHandler.MIN_MARGIN_END_LIMIT - VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
+        val movedPercent = percentHorizontalMoved  / VideoTouchHandler.MIN_HORIZONTAL_LIMIT
 
         paramsGlVertical.guidePercent = percentHorizontalMoved
         paramsGlMarginEnd.guidePercent = percentMarginMoved
 
         guidelineVertical.layoutParams = paramsGlVertical
         guidelineMarginEnd.layoutParams = paramsGlMarginEnd
-        logd("swipe $percentScrollSwipe | $percentHorizontalMoved | $percentMarginMoved")
-        main_player.alpha = 1f - percentScrollSwipe
+        main_player.alpha = movedPercent
 
     }
 
@@ -307,28 +306,30 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         main.updateParams(constraintSet) {
             setGuidelinePercent(guidelineVertical.id, VideoTouchHandler.MIN_HORIZONTAL_LIMIT - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
             setGuidelinePercent(guidelineMarginEnd.id, 0F)
-            TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
-                interpolator = AnticipateOvershootInterpolator(1.0f)
-                duration = 250
-                addListener(object : Transition.TransitionListener {
-                    override fun onTransitionResume(transition: Transition) {
-                    }
+            TransitionManager.beginDelayedTransition(main, TransitionSet()
+                    .addTransition(ChangeBounds())
+                    .addTransition(Fade()).apply {
+                        interpolator = AnticipateOvershootInterpolator(1.0f)
+                        duration = 250
+                        addListener(object : Transition.TransitionListener {
+                            override fun onTransitionResume(transition: Transition) {
+                            }
 
-                    override fun onTransitionPause(transition: Transition) {
-                    }
+                            override fun onTransitionPause(transition: Transition) {
+                            }
 
-                    override fun onTransitionCancel(transition: Transition) {
-                    }
+                            override fun onTransitionCancel(transition: Transition) {
+                            }
 
-                    override fun onTransitionStart(transition: Transition) {
-                    }
+                            override fun onTransitionStart(transition: Transition) {
+                            }
 
-                    override fun onTransitionEnd(transition: Transition) {
+                            override fun onTransitionEnd(transition: Transition) {
 //                    //Remove Video when swipe animation is ended
-                        removeFragmentByID(R.id.main_player)
-                    }
-                })
-            })
+                                removeFragmentByID(R.id.main_player)
+                            }
+                        })
+                    })
         }
     }
 
@@ -348,7 +349,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         main_drawer.getHeaderView(0).apply {
             user.let {
                 findViewById<TextView>(R.id.header_title).text = it.username
-                GlideApp.with(this).load(it.profileImage).into(findViewById(R.id.header_icon))
+                GlideApp.with(this).load(it.profileImage)
+                        .placeholder(R.drawable.ic_default_thumbnail)
+                        .error(R.drawable.ic_default_thumbnail)
+                        .into(findViewById(R.id.header_icon))
             }
         }
     }

@@ -69,6 +69,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
 
     private fun displayCreator(creator: UserRepository.Creator) {
         subscriptions += GlideApp.with(this).asBitmap().load(creator.user.profileImage)
+                .error(R.drawable.ic_default_thumbnail)
                 .toPalette().map { it.getVibrantColor(primaryColor) }
                 .flatMapObservable { ValueAnimator.ofArgb(primaryColor, it).apply { startDelay = 250 }.updates() }
                 .map { it.animatedValue as Int }

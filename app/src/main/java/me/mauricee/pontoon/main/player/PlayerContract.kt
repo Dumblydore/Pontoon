@@ -2,7 +2,6 @@ package me.mauricee.pontoon.main.player
 
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.main.Player
-import me.mauricee.pontoon.main.details.DetailsContract
 
 interface PlayerContract {
 
@@ -13,6 +12,7 @@ interface PlayerContract {
         object Paused : State()
         object Playing : State()
         object Loading : State()
+        object Buffering : State()
         class Bind(val player: Player) : State()
         class Preview(val path: String) : State()
         class Duration(val duration: String) : State()
@@ -25,6 +25,6 @@ interface PlayerContract {
         object SkipBackward: Action()
         object ToggleFullscreen: Action()
         object MinimizePlayer: Action()
-        class Quality(val type: Player.QualityLevel):  Action()
+        class Quality(val level: Player.QualityLevel):  Action()
     }
 }

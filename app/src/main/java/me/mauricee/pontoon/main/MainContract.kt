@@ -37,7 +37,7 @@ interface MainContract {
 
 //        val optionsBottomSheet: OptionsBottomSheetView
 
-        fun toCreator(user: UserRepository.Creator)
+        fun toCreator(creator: UserRepository.Creator)
 
         fun toUser(user: UserRepository.User)
 

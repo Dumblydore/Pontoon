@@ -17,6 +17,9 @@
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true" />
 
+    <include layout="@layout/layout_player_controls"
+        android:visibility="gone"/>
+
     <ProgressBar
         android:id="@+id/player_controls_loading"
         android:layout_width="100dp"
@@ -24,9 +27,5 @@
         android:layout_gravity="center"
         android:padding="16dp"
         android:indeterminateTint="@color/white" />
-
-
-    <include layout="@layout/layout_player_controls"
-        android:visibility="gone"/>
 
 </FrameLayout>

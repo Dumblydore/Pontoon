@@ -13,7 +13,7 @@ abstract class BasePresenter<S : Any, V : BaseContract.View<S, *>> : BaseContrac
     final override fun attachView(view: V) {
         subs += onViewAttached(view)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext{logd("updating state: ${it::class.java.simpleName}")}
+                .doOnNext { logd("updating state: ${it::class.java.simpleName}") }
                 .subscribe(view::updateState)
     }
 
