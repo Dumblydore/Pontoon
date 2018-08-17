@@ -21,7 +21,7 @@ class DetailsPresenter @Inject constructor(private val player: Player,
         DetailsContract.Presenter, BasePresenter<DetailsContract.State, DetailsContract.View>(eventTracker) {
 
     override fun onViewAttached(view: DetailsContract.View): Observable<DetailsContract.State> =
-            view.actions.flatMap(this::handleAction).startWith(DetailsContract.State.Loading)
+            view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(this::handleAction).startWith(DetailsContract.State.Loading)
                     .mergeWith(Observable.merge(playerProgress(), playerState(), playerDuration()))
 
     private fun handleAction(it: DetailsContract.Action): Observable<DetailsContract.State> = when (it) {

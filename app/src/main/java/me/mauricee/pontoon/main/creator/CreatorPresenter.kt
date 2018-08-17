@@ -15,7 +15,7 @@ class CreatorPresenter @Inject constructor(private val videoRepository: VideoRep
         BasePresenter<CreatorContract.State, CreatorContract.View>(eventTracker), CreatorContract.Presenter {
 
     override fun onViewAttached(view: CreatorContract.View): Observable<CreatorContract.State> =
-            view.actions.flatMap(this::handleActions)
+            view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(this::handleActions)
 
     private fun handleActions(action: CreatorContract.Action): Observable<CreatorContract.State> = when (action) {
         is CreatorContract.Action.Refresh -> getVideos(action.creator)

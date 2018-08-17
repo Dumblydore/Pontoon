@@ -17,7 +17,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     private val currentUser by lazy { accountManagerHelper.account.let { UserRepository.User(it.id, it.username, it.profileImage.path) } }
 
     override fun onViewAttached(view: MainContract.View): Observable<MainContract.State> =
-            view.actions.flatMap<MainContract.State> {
+            view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
                 when (it) {
                     is MainContract.Action.Logout -> accountManagerHelper.logout().let { MainContract.State.Logout }.toObservable()
                     is MainContract.Action.Profile -> navigator.toUser(currentUser).let { MainContract.State.CurrentUser(currentUser) }.toObservable()

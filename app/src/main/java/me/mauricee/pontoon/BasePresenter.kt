@@ -5,8 +5,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 
-abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S, *>>
-(private val eventTracker: EventTracker) : BaseContract.Presenter<V> {
+abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S, *>>(internal val eventTracker: EventTracker)
+    : BaseContract.Presenter<V> {
 
     internal val subs = CompositeDisposable()
 

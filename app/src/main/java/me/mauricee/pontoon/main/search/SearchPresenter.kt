@@ -14,9 +14,8 @@ class SearchPresenter @Inject constructor(private val searchResultDiffCallback: 
                                           eventTracker: EventTracker) :
         BasePresenter<SearchContract.State, SearchContract.View>(eventTracker), SearchContract.Presenter {
 
-    override fun onViewAttached(view: SearchContract.View): Observable<SearchContract.State> {
-        return view.actions.flatMap(::handleActions)
-    }
+    override fun onViewAttached(view: SearchContract.View): Observable<SearchContract.State> =
+            view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions)
 
     private fun handleActions(action: SearchContract.Action): Observable<SearchContract.State> =
             when (action) {

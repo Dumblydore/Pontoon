@@ -18,7 +18,7 @@ class HistoryPresenter @Inject constructor(private val videoRepository: VideoRep
             .map(::checkForEmptyList) // Not sure how PagedList handles 'isEmpty'
 //            .map<HistoryContract.State>(HistoryContract.State::DisplayVideos)
             .startWith(HistoryContract.State.Loading)
-            .mergeWith(view.actions.flatMap(::handleAction))
+            .mergeWith(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleAction))
             .onErrorReturnItem(HistoryContract.State.Error())
 
     private fun checkForEmptyList(it: PagedList<Video>) = if (it.isEmpty())

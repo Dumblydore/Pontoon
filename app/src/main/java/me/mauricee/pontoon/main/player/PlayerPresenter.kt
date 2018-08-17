@@ -17,7 +17,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         BasePresenter<PlayerContract.State, PlayerContract.View>(eventTracker), PlayerContract.Presenter {
 
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
-            Observable.merge(listOf(view.actions.flatMap(::handleActions),
+            Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
                     watchState(), watchProgress(), watchDuration(), watchPreview()))
                     .startWith(listOf(PlayerContract.State.Bind(player), PlayerContract.State.Loading))
 

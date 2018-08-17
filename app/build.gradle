@@ -18,8 +18,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username")}\""
-        resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password")}\""
+        resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username","")}\""
+        resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password","")}\""
     }
     buildTypes {
         release {

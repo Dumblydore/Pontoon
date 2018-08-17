@@ -5,9 +5,9 @@ import javax.inject.Inject
 
 class EventTracker @Inject constructor(private val container: Page) {
 
-    fun trackStart(page: Page) = trackAction(Start, page)
+    fun trackStart(page: Page) = logd("${container.trackerTag}:${page.trackerTag}/${Start.tag}")
 
-    fun trackStop(page: Page) = trackAction(Stop, page)
+    fun trackStop(page: Page) = logd("${container.trackerTag}:${page.trackerTag}/${Stop.tag}")
 
     fun trackAction(action: Action, page: Page) = logd("${container.trackerTag}:${page.trackerTag}:Action/${action.tag}")
 
@@ -29,12 +29,12 @@ class EventTracker @Inject constructor(private val container: Page) {
     }
 
     companion object {
-        private object Start : Action {
+        private object Start : State {
             override val tag: String
                 get() = "Start"
         }
 
-        private object Stop : Action {
+        private object Stop : State {
             override val tag: String
                 get() = "End"
         }
