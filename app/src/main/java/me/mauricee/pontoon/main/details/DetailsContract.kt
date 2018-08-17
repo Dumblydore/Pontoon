@@ -25,9 +25,12 @@ interface DetailsContract {
         class Duration(val duration: Int) : State()
         class PlaybackState(val state: BufferState) : State()
         class Comments(val comments: List<Comment>) : State()
-        class Error(type: ErrorType = ErrorType.General) : State()
         class RelatedVideos(val relatedVideos: List<Video>) : State()
         class Progress(val progress: Int, val bufferedProgress: Int) : State()
+        class Error(val type: ErrorType = ErrorType.General) : State() {
+            override val tag: String
+                get() = "${super.tag}_$type"
+        }
     }
 
     enum class ErrorType {

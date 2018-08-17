@@ -19,6 +19,8 @@ interface HistoryContract {
         object Loading : State()
         class DisplayVideos(val videos: PagedList<Video>) : State()
         class Error(val type: Type = Type.Unknown) : State() {
+            override val tag: String
+                get() = "${super.tag}_$type"
             enum class Type(@StringRes val msg: Int) {
                 NoVideos(R.string.history_error_noVideos),
                 Unknown(R.string.history_error_general)

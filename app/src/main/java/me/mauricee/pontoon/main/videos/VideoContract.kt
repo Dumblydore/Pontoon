@@ -25,6 +25,8 @@ interface VideoContract {
         class DisplaySubscriptions(val subscriptions: List<UserRepository.Creator>) : State()
         class DisplayVideos(val videos: PagedList<Video>) : State()
         class Error(val type: Type = Type.Unknown) : State() {
+            override val tag: String
+                get() = "${super.tag}_$type"
             enum class Type(@StringRes val msg: Int) {
                 Network(R.string.subscriptions_error_network),
                 NoVideos(R.string.subscriptions_error_noSubscriptions),

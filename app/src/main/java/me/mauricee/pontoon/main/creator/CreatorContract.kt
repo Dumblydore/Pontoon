@@ -24,6 +24,8 @@ interface CreatorContract {
         class DisplayCreator(val creator: UserRepository.Creator) : State()
         class DisplayVideos(val videos: PagedList<Video>) : State()
         class Error(val type: Type = Type.Unknown) : State() {
+            override val tag: String
+                get() = "${super.tag}_$type"
             enum class Type(@StringRes val msg: Int) {
                 Network(R.string.creator_error_noCreator),
                 NoVideos(R.string.creator_error_noVideos),
