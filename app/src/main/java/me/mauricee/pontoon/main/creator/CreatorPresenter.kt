@@ -1,9 +1,8 @@
 package me.mauricee.pontoon.main.creator
 
-import androidx.paging.PagedList
-import androidx.paging.RxPagedListBuilder
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
@@ -11,8 +10,9 @@ import javax.inject.Inject
 
 class CreatorPresenter @Inject constructor(private val videoRepository: VideoRepository,
                                            private val userRepository: UserRepository,
-                                           private val mainNavigator: MainContract.Navigator) :
-        BasePresenter<CreatorContract.State, CreatorContract.View>(), CreatorContract.Presenter {
+                                           private val mainNavigator: MainContract.Navigator,
+                                           eventTracker: EventTracker) :
+        BasePresenter<CreatorContract.State, CreatorContract.View>(eventTracker), CreatorContract.Presenter {
 
     override fun onViewAttached(view: CreatorContract.View): Observable<CreatorContract.State> =
             view.actions.flatMap(this::handleActions)

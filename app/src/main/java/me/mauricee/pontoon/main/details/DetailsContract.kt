@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.main.details
 
 import me.mauricee.pontoon.BaseContract
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
@@ -10,7 +11,7 @@ interface DetailsContract {
 
     interface Presenter : BaseContract.Presenter<View>
 
-    sealed class Action {
+    sealed class Action : EventTracker.Action {
         class Comment(val text: String, val parent: String) : Action()
         class PlayVideo(val id: String) : Action()
         class ViewUser(val user: UserRepository.User) : Action()
@@ -18,7 +19,7 @@ interface DetailsContract {
         class SeekTo(val position: Int) : Action()
     }
 
-    sealed class State {
+    sealed class State : EventTracker.State {
         object Loading : State()
         class VideoInfo(val video: Video) : State()
         class Duration(val duration: Int) : State()

@@ -4,16 +4,17 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import me.mauricee.pontoon.ext.logd
 
-abstract class BasePresenter<S : Any, V : BaseContract.View<S, *>> : BaseContract.Presenter<V> {
+abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S, *>>
+(private val eventTracker: EventTracker) : BaseContract.Presenter<V> {
 
     internal val subs = CompositeDisposable()
 
     final override fun attachView(view: V) {
-        subs += onViewAttached(view)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext { logd("updating state: ${it::class.java.simpleName}") }
+        subs += onViewAttached(view).observeOn(AndroidSchedulers.mainThread())
+                .doOnNext { eventTracker.trackState(it, view) }
+                .doOnSubscribe { eventTracker.trackStart(view) }
+                .doOnDispose { eventTracker.trackStop(view) }
                 .subscribe(view::updateState)
     }
 

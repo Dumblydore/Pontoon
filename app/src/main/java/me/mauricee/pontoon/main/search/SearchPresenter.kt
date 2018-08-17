@@ -2,6 +2,7 @@ package me.mauricee.pontoon.main.search
 
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.video.VideoRepository
 import java.util.concurrent.TimeUnit
@@ -9,8 +10,9 @@ import javax.inject.Inject
 
 class SearchPresenter @Inject constructor(private val searchResultDiffCallback: SearchResultDiffCallback,
                                           private val navigator: MainContract.Navigator,
-                                          private val videoRepository: VideoRepository) :
-        BasePresenter<SearchContract.State, SearchContract.View>(), SearchContract.Presenter {
+                                          private val videoRepository: VideoRepository,
+                                          eventTracker: EventTracker) :
+        BasePresenter<SearchContract.State, SearchContract.View>(eventTracker), SearchContract.Presenter {
 
     override fun onViewAttached(view: SearchContract.View): Observable<SearchContract.State> {
         return view.actions.flatMap(::handleActions)

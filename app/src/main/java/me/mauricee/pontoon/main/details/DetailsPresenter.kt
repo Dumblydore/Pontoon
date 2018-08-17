@@ -5,6 +5,7 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.comment.CommentRepository
@@ -15,8 +16,9 @@ import javax.inject.Inject
 class DetailsPresenter @Inject constructor(private val player: Player,
                                            private val commentRepository: CommentRepository,
                                            private val videoRepository: VideoRepository,
-                                           private val navigator: MainContract.Navigator) :
-        DetailsContract.Presenter, BasePresenter<DetailsContract.State, DetailsContract.View>() {
+                                           private val navigator: MainContract.Navigator,
+                                           eventTracker: EventTracker) :
+        DetailsContract.Presenter, BasePresenter<DetailsContract.State, DetailsContract.View>(eventTracker) {
 
     override fun onViewAttached(view: DetailsContract.View): Observable<DetailsContract.State> =
             view.actions.flatMap(this::handleAction).startWith(DetailsContract.State.Loading)

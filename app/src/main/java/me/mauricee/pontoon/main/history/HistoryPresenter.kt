@@ -3,14 +3,16 @@ package me.mauricee.pontoon.main.history
 import androidx.paging.PagedList
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
 
 class HistoryPresenter @Inject constructor(private val videoRepository: VideoRepository,
-                                           private val navigator: MainContract.Navigator) :
-        HistoryContract.Presenter, BasePresenter<HistoryContract.State, HistoryContract.View>() {
+                                           private val navigator: MainContract.Navigator,
+                                           eventTracker: EventTracker) :
+        HistoryContract.Presenter, BasePresenter<HistoryContract.State, HistoryContract.View>(eventTracker) {
 
     override fun onViewAttached(view: HistoryContract.View): Observable<HistoryContract.State> = videoRepository.watchHistory()
             .map(::checkForEmptyList) // Not sure how PagedList handles 'isEmpty'

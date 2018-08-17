@@ -3,10 +3,10 @@ package me.mauricee.pontoon.main.creator
 import androidx.annotation.StringRes
 import androidx.paging.PagedList
 import me.mauricee.pontoon.BaseContract
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.model.video.VideoRepository
 
 interface CreatorContract {
 
@@ -14,12 +14,12 @@ interface CreatorContract {
 
     interface Presenter : BaseContract.Presenter<View>
 
-    sealed class Action {
+    sealed class Action : EventTracker.Action {
         class Refresh(val creator: String, val offset: Int = 0) : Action()
         class PlayVideo(val video: Video) : Action()
     }
 
-    sealed class State {
+    sealed class State : EventTracker.State {
         object Loading : State()
         class DisplayCreator(val creator: UserRepository.Creator) : State()
         class DisplayVideos(val videos: PagedList<Video>) : State()

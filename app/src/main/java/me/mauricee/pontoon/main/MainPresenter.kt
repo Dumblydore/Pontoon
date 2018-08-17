@@ -2,16 +2,17 @@ package me.mauricee.pontoon.main
 
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(private val accountManagerHelper: AccountManagerHelper,
                                         private val player: Player,
-                                        private val navigator: MainContract.Navigator) :
-        BasePresenter<MainContract.State, MainContract.View>(), MainContract.Presenter {
+                                        private val navigator: MainContract.Navigator,
+                                        eventTracker: EventTracker) :
+        BasePresenter<MainContract.State, MainContract.View>(eventTracker), MainContract.Presenter {
 
     private val currentUser by lazy { accountManagerHelper.account.let { UserRepository.User(it.id, it.username, it.profileImage.path) } }
 

@@ -18,6 +18,7 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
 
     @Inject
     protected P presenter;
+
     protected CompositeDisposable subscriptions = new CompositeDisposable();
 
     @Nullable

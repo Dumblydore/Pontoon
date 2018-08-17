@@ -2,22 +2,26 @@ package me.mauricee.pontoon.login.login
 
 import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.R
 
 interface LoginContract {
 
-    interface View : BaseContract.View<State, Action>
+    interface View : BaseContract.View<State, Action>, EventTracker.Page
 
     interface Presenter : BaseContract.Presenter<View>
 
-    sealed class Action {
+    sealed class Action : EventTracker.Action {
         data class Login(val username: String, val password: String) : Action()
     }
 
-    sealed class State {
+    sealed class State : EventTracker.State {
         object Loading : State()
         object Success : State()
         class Error(val type: Type = Type.General) : State() {
+            override val tag: String
+                get() = "${super.tag}_$type"
+
             enum class Type(@StringRes val msg: Int) {
                 MissingUsername(R.string.login_error_missingUsername),
                 MissingPassword(R.string.login_error_missingPassword),

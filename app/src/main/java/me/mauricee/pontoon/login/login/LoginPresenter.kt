@@ -2,6 +2,7 @@ package me.mauricee.pontoon.login.login
 
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.LoginRequest
@@ -13,8 +14,9 @@ import javax.inject.Inject
 
 class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
                                          private val manager: AccountManagerHelper,
-                                         private val navigator: LoginNavigator) :
-        LoginContract.Presenter, BasePresenter<LoginContract.State, LoginContract.View>() {
+                                         private val navigator: LoginNavigator,
+                                         eventTracker: EventTracker) :
+        LoginContract.Presenter, BasePresenter<LoginContract.State, LoginContract.View>(eventTracker) {
 
     override fun onViewAttached(view: LoginContract.View): Observable<LoginContract.State> =
             view.actions.flatMap(this::handleActions)

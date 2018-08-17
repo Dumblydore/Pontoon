@@ -16,7 +16,7 @@
     
     <ImageButton
         android:id="@+id/player_controls_playPause"
-        style="@style/ExoMediaButton.Play"
+
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center" />

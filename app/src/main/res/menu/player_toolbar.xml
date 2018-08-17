@@ -5,13 +5,13 @@
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share"
         android:title="@string/action_share"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_quality"
         android:icon="@drawable/ic_settings"
         android:title="@string/action_quality">
-        <menu>
+        <menu android:checkableBehavior="single">
             <item
                 android:id="@+id/action_p1080"
                 android:title="1080p" />

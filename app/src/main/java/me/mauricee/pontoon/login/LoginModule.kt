@@ -2,16 +2,30 @@ package me.mauricee.pontoon.login
 
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.android.ContributesAndroidInjector
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.login.login.LoginFragment
-import me.mauricee.pontoon.login.login.LoginModule
 
 @Module
 abstract class LoginModule {
 
     @Binds
+    @LoginScope
     abstract fun bindLoginNavigator(activity: LoginActivity): LoginNavigator
 
-    @ContributesAndroidInjector(modules = [LoginModule::class])
+    @Binds
+    @LoginScope
+    abstract fun bindPage(activity: LoginActivity): EventTracker.Page
+
+    @ContributesAndroidInjector
     abstract fun contributeLoginFragment(): LoginFragment
+
+    @Module
+    companion object {
+
+        @Provides
+        @LoginScope
+        fun provideEventTracker(page: EventTracker.Page) = EventTracker(page)
+    }
 }

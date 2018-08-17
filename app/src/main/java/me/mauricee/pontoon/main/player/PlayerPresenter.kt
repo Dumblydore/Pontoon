@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.player
 import android.support.v4.media.session.PlaybackStateCompat
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.OrientationManager
 import me.mauricee.pontoon.main.Player
@@ -11,8 +12,9 @@ import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
                                           private val navigator: MainContract.Navigator,
-                                          private val orientationManager: OrientationManager) :
-        BasePresenter<PlayerContract.State, PlayerContract.View>(), PlayerContract.Presenter {
+                                          private val orientationManager: OrientationManager,
+                                          eventTracker: EventTracker) :
+        BasePresenter<PlayerContract.State, PlayerContract.View>(eventTracker), PlayerContract.Presenter {
 
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.flatMap(::handleActions),

@@ -9,10 +9,12 @@ import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.login.login.LoginContract.State.Error.Type.*
 
-class LoginFragment : BaseFragment<LoginContract.Presenter>(), LoginContract.View {
+class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
 
     override val actions: Observable<LoginContract.Action>
         get() = login_login.clicks().map { LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString()) }
+//                .doOnNext<LoginContract.Action>{eventTracker.trackAction(it, this)}
+
 
 
     override fun getLayoutId(): Int = R.layout.fragment_login

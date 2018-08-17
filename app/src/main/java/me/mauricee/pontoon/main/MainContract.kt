@@ -2,21 +2,25 @@ package me.mauricee.pontoon.main
 
 import androidx.annotation.IdRes
 import me.mauricee.pontoon.BaseContract
+import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 
 interface MainContract {
-    interface View : BaseContract.View<MainContract.State, MainContract.Action>
+    interface View : BaseContract.View<MainContract.State, MainContract.Action> {
+        override val trackerTag: String
+            get() = "Main"
+    }
     interface Presenter : BaseContract.Presenter<MainContract.View>
 
-    sealed class State {
+    sealed class State : EventTracker.State {
         class CurrentUser(val user: UserRepository.User) : State()
         object Preferences : State()
         object Logout : State()
     }
 
-    sealed class Action {
+    sealed class Action : EventTracker.Action {
         object Logout : Action()
         object Preferences : Action()
         object Profile : Action()

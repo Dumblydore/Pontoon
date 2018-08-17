@@ -1,11 +1,10 @@
 package me.mauricee.pontoon
 
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 
 interface BaseContract {
 
-    interface View<in S, A> {
+    interface View<in S, A> : EventTracker.Page {
         val actions: Observable<A>
             get() = Observable.empty<A>()
 
