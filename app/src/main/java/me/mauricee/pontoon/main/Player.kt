@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.main
 
+import android.content.SharedPreferences
 import android.media.AudioManager
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit
 class Player(private val exoPlayer: SimpleExoPlayer,
              private val sourceFactory: DataSource.Factory,
              private val audioManager: AudioManager,
+             private val sharedPreferences: SharedPreferences,
              private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener {
 

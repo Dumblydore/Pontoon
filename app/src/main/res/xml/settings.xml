@@ -14,17 +14,27 @@
         android:key="settings_general"
         android:title="@string/settings_general">
         <androidx.preference.SwitchPreference
+            android:defaultValue="true"
             android:key="settings_hide"
             android:title="@string/settings_hide" />
         <androidx.preference.ListPreference
+            android:defaultValue="pip_always"
+            android:entries="@array/settings_pip_options"
+            android:entryValues="@array/settings_pip_options_values"
             android:key="settings_picture"
-            android:title="@string/settings_picture" />
+            android:title="@string/settings_pip" />
         <androidx.preference.ListPreference
-            android:key="settings_default"
-            android:title="@string/settings_default" />
+            android:defaultValue="p360"
+            android:entries="@array/settings_quality"
+            android:entryValues="@array/settings_quality_values"
+            android:key="settings_quality_cell"
+            android:title="@string/settings_quality_cell" />
         <androidx.preference.ListPreference
-            android:key="settings_quality"
-            android:title="@string/settings_quality" />
+            android:defaultValue="p1080"
+            android:entries="@array/settings_quality"
+            android:entryValues="@array/settings_quality_values"
+            android:key="settings_quality_wifi"
+            android:title="@string/settings_quality_wifi" />
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:key="settings_misc"

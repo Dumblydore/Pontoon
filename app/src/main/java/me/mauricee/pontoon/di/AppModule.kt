@@ -3,13 +3,13 @@ package me.mauricee.pontoon.di
 import android.accounts.AccountManager
 import android.app.Application
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.paging.PagedList
+import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
@@ -75,7 +75,8 @@ abstract class AppModule {
         @Provides
         @JvmStatic
         fun providesSharedPreferences(context: Context): SharedPreferences =
-                context.getSharedPreferences("pontoonSharedPrefs", MODE_PRIVATE)
+                PreferenceManager.getDefaultSharedPreferences(context)
+//                context.getSharedPreferences("pontoonSharedPrefs", MODE_PRIVATE)
 
         @AppScope
         @Provides

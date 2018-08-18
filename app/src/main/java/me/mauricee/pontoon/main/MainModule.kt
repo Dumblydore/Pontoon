@@ -67,7 +67,5 @@ abstract class MainModule {
                 Player(ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector()),
                         OkHttpDataSourceFactory(okHttpClient, agent, null),
                         audioManager, session)
-
     }
-
 }
