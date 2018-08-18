@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.main.videos
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -36,7 +37,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        videos_list.layoutManager = LinearLayoutManager(requireContext())
+        videos_list.layoutManager = LayoutManager(requireContext())
         videos_list.adapter = videoAdapter
 
         videos_subscriptions.layoutManager = LinearLayoutManager(requireContext(),
@@ -63,5 +64,9 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
                 ?.findViewById<TextView>(R.id.lazy_error_text)
                 ?.setText(error.type.msg)
         videos_container_lazy.state = LazyLayout.ERROR
+    }
+
+    private class LayoutManager(context: Context) : LinearLayoutManager(context) {
+        override fun isAutoMeasureEnabled(): Boolean = true
     }
 }

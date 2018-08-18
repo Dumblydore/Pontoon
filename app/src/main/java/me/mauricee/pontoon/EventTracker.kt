@@ -5,16 +5,16 @@ import javax.inject.Inject
 
 class EventTracker @Inject constructor(private val container: Page) {
 
-    fun trackStart(page: Page) = logd("${container.trackerTag}:${page.trackerTag}/${Start.tag}")
+    fun trackStart(page: Page) = logd("${container.name}:${page.name}/${Start.tag}")
 
-    fun trackStop(page: Page) = logd("${container.trackerTag}:${page.trackerTag}/${Stop.tag}")
+    fun trackStop(page: Page) = logd("${container.name}:${page.name}/${Stop.tag}")
 
-    fun trackAction(action: Action, page: Page) = logd("${container.trackerTag}:${page.trackerTag}:Action/${action.tag}")
+    fun trackAction(action: Action, page: Page) = logd("${container.name}:${page.name}:Action/${action.tag}")
 
-    fun trackState(state: State, page: Page) = logd("${container.trackerTag}:${page.trackerTag}:State/${state.tag}")
+    fun trackState(state: State, page: Page) = logd("${container.name}:${page.name}:State/${state.tag}")
 
     interface Page {
-        val trackerTag: String
+        val name: String
             get() = javaClass.simpleName.replace(regex, "")
     }
 

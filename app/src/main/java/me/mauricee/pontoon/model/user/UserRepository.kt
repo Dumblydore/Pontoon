@@ -6,6 +6,7 @@ import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.common.CacheValidator
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
+import org.threeten.bp.Instant
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
@@ -39,7 +40,12 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                     .distinctUntilChanged().toObservable()
                     .compose(RxHelpers.applyObservableSchedulers())
 
-    private fun getCreatorsFromNetwork(vararg creatorIds: String) =
+    fun getActivity(user: User): Observable<List<Activity>> = floatPlaneApi.getActivity(user.id)
+            .flatMapSingle {
+                it.activity.toObservable().map { Activity(it.comment, it.date, it.video.id) }.toList()
+            }
+
+    fun getCreatorsFromNetwork(vararg creatorIds: String) =
             floatPlaneApi.getCreator(*creatorIds).flatMap { it.toObservable() }
                     .map { CreatorEntity(it.id, it.title, it.urlname, it.cover.path, it.about, it.description, it.owner) }
                     .toList()
@@ -54,5 +60,7 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                        val coverImage: String, val about: String, val user: User)
 
     data class User(val id: String, val username: String, val profileImage: String)
+
+    data class Activity(val comment: String, val posted: Instant, val video: String)
 }
 

@@ -10,7 +10,7 @@ import me.mauricee.pontoon.main.MainActivity
 
 class LoginActivity : DaggerAppCompatActivity(), LoginNavigator, EventTracker.Page {
 
-    override val trackerTag: String
+    override val name: String
         get() = "Login"
 
     override fun onCreate(savedInstanceState: Bundle?) {
