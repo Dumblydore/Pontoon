@@ -3,8 +3,6 @@ package me.mauricee.pontoon.main.videos
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
 

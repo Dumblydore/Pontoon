@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.widget.Toolbar
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
@@ -35,8 +34,6 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
         get() = Observable.merge(refreshes,
                 videoAdapter.actions.map(VideoContract.Action::PlayVideo), subscriptionAdapter.actions)
                 .startWith(VideoContract.Action.Refresh)
-
-    override fun getToolbar(): Toolbar? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -8,7 +8,7 @@ import javax.inject.Inject
 class PreferencesManager @Inject constructor(private val preferences: SharedPreferences) {
 
     companion object {
-        public const val DefaultQualityWifiKey = ""
+        const val DefaultQualityWifiKey = ""
     }
 
 

@@ -147,4 +147,4 @@ data class Video(val id: String, val title: String, val description: String, val
     constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail)
 }
 
-data class Playback(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality) {}
+data class Playback(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality)

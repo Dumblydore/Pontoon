@@ -19,7 +19,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
                     watchState(), watchProgress(), watchDuration(), watchPreview()))
-                    .startWith(listOf(PlayerContract.State.Bind(player), PlayerContract.State.Loading))
+                    .startWith(listOf(PlayerContract.State.Bind(player), PlayerContract.State.Loading, PlayerContract.State.Quality(player.quality)))
 
     private fun handleActions(action: PlayerContract.Action): Observable<PlayerContract.State> = when (action) {
         is PlayerContract.Action.PlayPause -> stateless { player.playPause() }
@@ -30,7 +30,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             navigator.setPlayerExpanded(false)
         }
         PlayerContract.Action.ToggleFullscreen -> stateless { orientationManager.apply { isFullscreen = !isFullscreen } }
-        is PlayerContract.Action.Quality -> stateless { player.quality = action.level }
+        is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.level; PlayerContract.State.Quality(action.level) }
     }
 
     private fun watchProgress() = player.progress().distinctUntilChanged().map { PlayerContract.State.Progress(formatMillis(it)) }
