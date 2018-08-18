@@ -41,6 +41,13 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
         subscriptions.dispose();
     }
 
+    /**
+     * Method to reset the state of the fragment. e.g: scroll back to top of a list.
+     */
+    public void reset() {
+
+    }
+
     @LayoutRes
     abstract protected int getLayoutId();
 

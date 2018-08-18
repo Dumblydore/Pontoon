@@ -9,7 +9,7 @@ import me.mauricee.pontoon.model.video.Video
 
 interface MainContract {
     interface View : BaseContract.View<MainContract.State, MainContract.Action> {
-        override val trackerTag: String
+        override val name: String
             get() = "Main"
     }
     interface Presenter : BaseContract.Presenter<MainContract.View>

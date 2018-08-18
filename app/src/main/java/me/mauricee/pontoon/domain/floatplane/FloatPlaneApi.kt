@@ -33,6 +33,9 @@ interface FloatPlaneApi {
     @GET("video/url")
     fun getVideoUrl(@Query("guid") id: String, @Query("quality") quality: String = "1080"): Observable<ResponseBody>
 
+    @GET("user/activity")
+    fun getActivity(@Query("id") id: String): Observable<Activity.Response>
+
     @POST("auth/login")
     fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
 }
