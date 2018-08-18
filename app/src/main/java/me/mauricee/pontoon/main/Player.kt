@@ -76,7 +76,8 @@ class Player(private val exoPlayer: SimpleExoPlayer,
             field?.apply { controlsVisible(controlsVisible) }
         }
 
-    var quality: QualityLevel = QualityLevel.p1080
+    var quality: QualityLevel = sharedPreferences.getString("settings_quality", "p1080")
+            .let(QualityLevel::valueOf)
         set(value) {
             if (value != field) {
                 currentlyPlaying?.apply {

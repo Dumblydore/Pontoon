@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.main
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.media.AudioManager
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlayerFactory
@@ -63,9 +64,10 @@ abstract class MainModule {
         fun player(okHttpClient: OkHttpClient,
                    session: MediaSessionCompat,
                    audioManager: AudioManager,
-                   agent: String, context: Context): Player =
+                   agent: String, sharedPreferences: SharedPreferences,
+                   context: Context): Player =
                 Player(ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector()),
                         OkHttpDataSourceFactory(okHttpClient, agent, null),
-                        audioManager, session)
+                        audioManager, sharedPreferences, session)
     }
 }
