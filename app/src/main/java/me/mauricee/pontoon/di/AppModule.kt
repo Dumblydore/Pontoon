@@ -30,8 +30,9 @@ import me.mauricee.pontoon.main.MainActivity
 import me.mauricee.pontoon.main.MainModule
 import me.mauricee.pontoon.main.MainScope
 import me.mauricee.pontoon.model.PontoonDatabase
+import me.mauricee.pontoon.preferences.PreferenceModule
 import me.mauricee.pontoon.preferences.PreferencesActivity
-import me.mauricee.pontoon.preferences.settings.PreferencesScope
+import me.mauricee.pontoon.preferences.PreferencesScope
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.aaronhe.threetengson.ThreeTenGsonAdapter
@@ -64,7 +65,7 @@ abstract class AppModule {
     abstract fun contributeMainActivity(): MainActivity
 
     @PreferencesScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [PreferenceModule::class])
     abstract fun contributePreferenceActivity(): PreferencesActivity
 
     @Module
@@ -152,8 +153,8 @@ abstract class AppModule {
         @Provides
         @JvmStatic
         fun providesFloatPlaneApi(converterFactory: GsonConverterFactory,
-                          authInterceptor: AuthInterceptor,
-                          callFactory: RxJava2CallAdapterFactory, client: OkHttpClient):
+                                  authInterceptor: AuthInterceptor,
+                                  callFactory: RxJava2CallAdapterFactory, client: OkHttpClient):
                 FloatPlaneApi = client.newBuilder().addInterceptor(authInterceptor).build()
                 .let { Retrofit.Builder().client(it) }
                 .addConverterFactory(converterFactory)

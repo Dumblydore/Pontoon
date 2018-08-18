@@ -4,7 +4,6 @@ import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnPreDraw
 import androidx.paging.PagedList
@@ -40,8 +39,6 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
     override val actions: Observable<CreatorContract.Action>
         get() = Observable.merge(refreshes, videoAdapter.actions.map(CreatorContract.Action::PlayVideo))
                 .startWith(CreatorContract.Action.Refresh(creator))
-
-    override fun getToolbar(): Toolbar? = creator_toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

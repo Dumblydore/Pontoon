@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.preferences.settings
+package me.mauricee.pontoon.preferences
 
 import javax.inject.Scope
 

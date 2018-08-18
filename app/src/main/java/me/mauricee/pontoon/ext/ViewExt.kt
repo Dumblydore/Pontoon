@@ -57,7 +57,7 @@ fun AppCompatActivity.removeFragmentByID(@IdRes containerID: Int): Boolean {
 
 fun AppCompatActivity.removeFragment(fragment: Fragment?): Boolean {
     fragment?.let {
-        val commit = supportFragmentManager.beginTransaction().remove(fragment).commit()
+        supportFragmentManager.beginTransaction().remove(fragment).commit()
         return true
     } ?: return false
 }

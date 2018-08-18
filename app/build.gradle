@@ -79,6 +79,7 @@ dependencies {
 
     //  UI
     implementation 'com.ncapdevi:frag-nav:2.4.0'
+    implementation "com.mikepenz:aboutlibraries:6.2.0-rc01"
     implementation "com.jakewharton.rxbinding2:rxbinding-kotlin:$rx_binding_version"
     implementation "com.jakewharton.rxbinding2:rxbinding-design-kotlin:$rx_binding_version"
     implementation "com.jakewharton.rxbinding2:rxbinding-support-v4-kotlin:$rx_binding_version"
