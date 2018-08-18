@@ -1,8 +1,10 @@
 package me.mauricee.pontoon.domain.floatplane
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import org.threeten.bp.Instant
 
+@Keep
 data class Comment(@SerializedName("editDate") val editDate: Instant, //:"2018-05-26T22:05:23.145Z"
                    @SerializedName("id") val id: String, //:"5b09da23060dfe3930a49b1d"
 //@SerializedName ("interactionCounts")val interactionCounts: String, //:{like: 0, dislike: 0}
@@ -14,5 +16,6 @@ data class Comment(@SerializedName("editDate") val editDate: Instant, //:"2018-0
                    @SerializedName("user") val user: String, //:"5aa1a598bd064bc2644b9a6e"
                    @SerializedName("video") val video: String  //:"8tkQAqaOMu"
 ) {
+    @Keep
     data class Container(@SerializedName("comments") val comments: List<Comment>)
 }

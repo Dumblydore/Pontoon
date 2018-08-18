@@ -1,8 +1,10 @@
 package me.mauricee.pontoon.domain.floatplane
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import org.threeten.bp.Instant
 
+@Keep
 data class Video(@SerializedName("creator") val creator: String,
                  @SerializedName("description") val description: String,
                  @SerializedName("duration") val duration: Long,

@@ -19,3 +19,16 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-dontwarn me.mauricee.pontoon.**
+-dontnote me.mauricee.pontoon.**
+-dontnote com.google.android.material.**
+-dontwarn com.jakewharton.rxbinding2.**
+-keepattributes Signature
+
+-keep ,allowoptimization,allowobfuscation,allowshrinking public class me.mauricee.pontoon.** {
+    *;
+}
+
+-assumenosideeffects class kotlin.jvm.internal.Intrinsics {
+    static void checkParameterIsNotNull(java.lang.Object, java.lang.String);
+}

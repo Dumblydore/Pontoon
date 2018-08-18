@@ -5,6 +5,7 @@ import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_user.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.LazyLayout
 
 class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
     override fun getLayoutId(): Int = R.layout.fragment_user
@@ -13,8 +14,11 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
 
     override fun updateState(state: UserContract.State) = when (state) {
         is UserContract.State.User -> user_toolbar.title = state.user.username
-        is UserContract.State.Comments -> {
+        UserContract.State.Loading -> user_container_lazy.state = LazyLayout.LOADING
+        is UserContract.State.Activity -> {
+            user_container_lazy.state = LazyLayout.SUCCESS
         }
+        is UserContract.State.Error -> user_container_lazy.state = LazyLayout.ERROR
     }
 
     companion object {

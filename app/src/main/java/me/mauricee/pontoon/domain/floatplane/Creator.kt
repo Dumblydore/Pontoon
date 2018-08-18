@@ -1,7 +1,9 @@
 package me.mauricee.pontoon.domain.floatplane
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
+@Keep
 data class Creator(@SerializedName("about") val about: String,
         @SerializedName("cover") val cover: Image,
         @SerializedName("description") val description: String,

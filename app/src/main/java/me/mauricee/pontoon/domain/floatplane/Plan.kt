@@ -1,7 +1,9 @@
 package me.mauricee.pontoon.domain.floatplane
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
+@Keep
 data class Plan(@SerializedName("currency") val currency: String,
                 @SerializedName("description") val description: String,
                 @SerializedName("id") val id: String,

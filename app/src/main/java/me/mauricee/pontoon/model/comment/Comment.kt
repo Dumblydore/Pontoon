@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.model.comment
 
+import androidx.annotation.Keep
 import androidx.room.*
 import io.reactivex.Single
 import me.mauricee.pontoon.model.user.UserRepository
@@ -30,6 +31,7 @@ interface CommentDao {
 
 }
 
+@Keep
 data class Comment(val id: String, val parent: String, val video: String, val text: String,
                    val likes: Int, val dislikes: Int, val replies: List<Comment>,
                    val user: UserRepository.User)
