@@ -28,6 +28,8 @@
 -keep ,allowoptimization,allowobfuscation,allowshrinking public class me.mauricee.pontoon.** {
     *;
 }
+-keep public class android.support.constraint.ConstraintLayout
+
 
 -assumenosideeffects class kotlin.jvm.internal.Intrinsics {
     static void checkParameterIsNotNull(java.lang.Object, java.lang.String);
