@@ -13,7 +13,7 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                                          private val creatorDao: CreatorDao,
                                          cacheValidatorB: CacheValidator.Factory) {
 
-    private val userCacheValidator = cacheValidatorB.newInstance("Users");
+    private val userCacheValidator = cacheValidatorB.newInstance("Users")
 
     fun getCreators(vararg creatorIds: String): Observable<List<Creator>> = userCacheValidator
             .check({ creatorDao.getCreatorsByIds(*creatorIds) }, { getCreatorsFromNetwork(*creatorIds) })

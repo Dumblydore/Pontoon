@@ -17,7 +17,6 @@ interface LoginContract {
 
     sealed class State : EventTracker.State {
         object Loading : State()
-        object Success : State()
         class Error(val type: Type = Type.General) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"

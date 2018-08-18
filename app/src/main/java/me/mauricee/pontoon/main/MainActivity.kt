@@ -14,7 +14,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.transition.*
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
@@ -55,7 +54,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     private val miscActions = PublishRelay.create<MainContract.Action>()
 
-    override val fragmentContainer: Int
+    private val fragmentContainer: Int
         get() = R.id.main_container
 
     override val actions: Observable<MainContract.Action>
@@ -72,7 +71,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
 
     private lateinit var controller: FragNavController
-    override fun initialFragment(): Fragment = VideoFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,11 +95,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onStop() {
         super.onStop()
         player.onPause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        subscriptions.clear()
     }
 
     override fun playVideo(video: Video, commentId: String) {

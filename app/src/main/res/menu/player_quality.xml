@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_p1080"
-        android:title="1080p" />
+        android:title="@string/quality_1080" />
     <item
         android:id="@+id/action_p720"
-        android:title="720p" />
+        android:title="@string/quality_720" />
     <item
         android:id="@+id/action_p480"
-        android:title="480p" />
+        android:title="@string/quality_480" />
     <item
         android:id="@+id/action_p360"
-        android:title="360p" />
+        android:title="@string/quality_360" />
 </menu>

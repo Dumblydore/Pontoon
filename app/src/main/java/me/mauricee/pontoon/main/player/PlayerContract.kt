@@ -18,6 +18,7 @@ interface PlayerContract {
         class Preview(val path: String) : State()
         class Duration(val duration: String) : State()
         class Progress(val progress: String) : State()
+        class Quality(val qualityLevel: Player.QualityLevel) : State()
     }
 
     sealed class Action : EventTracker.Action {

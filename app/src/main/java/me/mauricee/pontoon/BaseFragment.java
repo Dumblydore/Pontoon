@@ -19,7 +19,7 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
     @Inject
     protected P presenter;
 
-    protected CompositeDisposable subscriptions = new CompositeDisposable();
+    protected final CompositeDisposable subscriptions = new CompositeDisposable();
 
     @Nullable
     @Override
@@ -43,9 +43,4 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
 
     @LayoutRes
     abstract protected int getLayoutId();
-
-    @Nullable
-    protected Toolbar getToolbar() {
-        return null;
-    }
 }

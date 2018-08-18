@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.player
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -24,6 +25,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     private val playIcon by lazy { getDrawable(requireContext(), R.drawable.ic_media_play_dark) }
     private val pauseIcon by lazy { getDrawable(requireContext(), R.drawable.ic_media_pause_dark) }
     private val previewArt by lazy { arguments!!.getString(PreviewArtKey) }
+    private val qualityMenu by lazy { player_controls_toolbar.menu.findItem(R.id.action_quality) }
 
     override val actions: Observable<PlayerContract.Action>
         get() = Observable.merge(player_controls_fullscreen.clicks().map { PlayerContract.Action.ToggleFullscreen },
@@ -84,6 +86,14 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             is PlayerContract.State.Preview -> GlideApp.with(this).load(state.path)
                     .placeholder(R.drawable.ic_default_thumbnail).error(R.drawable.ic_default_thumbnail)
                     .transition(DrawableTransitionOptions.withCrossFade()).into(player_preview)
+            is PlayerContract.State.Quality -> {
+                when (state.qualityLevel) {
+                    Player.QualityLevel.p1080 -> qualityMenu.subMenu.findItem(R.id.action_p1080).isChecked = true
+                    Player.QualityLevel.p720 -> qualityMenu.subMenu.findItem(R.id.action_p720).isChecked = true
+                    Player.QualityLevel.p480 -> qualityMenu.subMenu.findItem(R.id.action_p480).isChecked = true
+                    Player.QualityLevel.p360 -> qualityMenu.subMenu.findItem(R.id.action_p360).isChecked = true
+                }
+            }
         }
     }
 

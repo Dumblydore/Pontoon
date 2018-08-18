@@ -64,6 +64,12 @@
 
     <string name="error_general">Something happened, Not sure what it was.</string>
 
+    <!-- Quality -->
+    <string name="quality_1080">1080p</string>
+    <string name="quality_720">720p</string>
+    <string name="quality_480">480p</string>
+    <string name="quality_360">360p</string>
+
     <!-- Play Icon -->
     <string name="play_icon_upper_path_data">M 44 32 L 44 64 L 100 64 L 100 64 Z</string>
     <string name="play_icon_bottom_path_data">M 44 96 L 44 64 L 100 64 L 100 64 Z</string>

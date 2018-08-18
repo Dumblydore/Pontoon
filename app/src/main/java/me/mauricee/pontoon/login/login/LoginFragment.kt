@@ -1,7 +1,6 @@
 package me.mauricee.pontoon.login.login
 
 import androidx.core.view.isVisible
-import androidx.core.widget.toast
 import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -21,7 +20,6 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
 
     override fun updateState(state: LoginContract.State) {
         when (state) {
-            is LoginContract.State.Success -> requireActivity().toast("Success!")
             is LoginContract.State.Error -> handleError(state)
             is LoginContract.State.Loading -> displayLoadingState()
         }

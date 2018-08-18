@@ -73,13 +73,13 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun sharedPreferences(context: Context): SharedPreferences =
+        fun providesSharedPreferences(context: Context): SharedPreferences =
                 context.getSharedPreferences("pontoonSharedPrefs", MODE_PRIVATE)
 
         @AppScope
         @Provides
         @JvmStatic
-        fun accountManager(context: Context) = AccountManager.get(context)
+        fun providesAccountManager(context: Context) = AccountManager.get(context)
 
         @Provides
         @AppScope
@@ -119,24 +119,24 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun gson(): Gson = ThreeTenGsonAdapter.registerAll(GsonBuilder().setLenient()).create()
+        fun providesGson(): Gson = ThreeTenGsonAdapter.registerAll(GsonBuilder().setLenient()).create()
 
         @AppScope
         @Provides
         @JvmStatic
-        fun rxJavaCallAdapterFactory(): RxJava2CallAdapterFactory =
+        fun providesRxJavaCallAdapterFactory(): RxJava2CallAdapterFactory =
                 RxJava2CallAdapterFactory.createAsync()
 
         @AppScope
         @Provides
         @JvmStatic
-        fun gsonConverterFactory(gson: Gson): GsonConverterFactory =
+        fun providesGsonConverterFactory(gson: Gson): GsonConverterFactory =
                 GsonConverterFactory.create(gson)
 
         @AppScope
         @Provides
         @JvmStatic
-        fun httpClient(): OkHttpClient = OkHttpClient.Builder()
+        fun providesHttpClient(): OkHttpClient = OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(15, TimeUnit.SECONDS)
                 .writeTimeout(15, TimeUnit.SECONDS)
@@ -151,7 +151,7 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun floatPlaneApi(converterFactory: GsonConverterFactory,
+        fun providesFloatPlaneApi(converterFactory: GsonConverterFactory,
                           authInterceptor: AuthInterceptor,
                           callFactory: RxJava2CallAdapterFactory, client: OkHttpClient):
                 FloatPlaneApi = client.newBuilder().addInterceptor(authInterceptor).build()
@@ -165,44 +165,44 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun database(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb").build()
+        fun providesDatabase(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb").build()
 
         @AppScope
         @Provides
         @JvmStatic
-        fun userDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.userDao
+        fun providesUserDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.userDao
 
         @AppScope
         @Provides
         @JvmStatic
-        fun creatorDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.creatorDao
+        fun providesCreatorDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.creatorDao
 
         @AppScope
         @Provides
         @JvmStatic
-        fun videoDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.videoDao
+        fun providesVideoDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.videoDao
 
         @AppScope
         @Provides
         @JvmStatic
-        fun historyDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.historyDao
+        fun providesHistoryDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.historyDao
 
         @AppScope
         @Provides
         @JvmStatic
-        fun commentDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.commentDao
+        fun providesCommentDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.commentDao
 
         @AppScope
         @Provides
         @JvmStatic
-        fun provideDateFormatter() = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+        fun providesDateFormatter() = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault())
 
         @AppScope
         @Provides
         @JvmStatic
-        fun pageConfig() = PagedList.Config.Builder().setPageSize(20)
+        fun providesPageConfig() = PagedList.Config.Builder().setPageSize(20)
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(5)
                 .build()

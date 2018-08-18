@@ -3,12 +3,12 @@ package me.mauricee.pontoon.preferences
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import dagger.android.support.DaggerAppCompatActivity
+import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.loadFragment
 import me.mauricee.pontoon.preferences.settings.SettingsFragment
 
-class PreferencesActivity : DaggerAppCompatActivity() {
+class PreferencesActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

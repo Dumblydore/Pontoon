@@ -14,9 +14,8 @@ class CacheValidator(private val key: String, private val sharedPreferences: Sha
     }
 
     fun <T> check(cacheIsActive: () -> T, onCacheInactive: () -> T): T {
-//        return if (sharedPreferences.getLong(key, LocalTime.now().toNanoOfDay()) > 0) cacheIsActive()
-//        else
-        return refresh(onCacheInactive)
+//        return //if (sharedPreferences.getLong(key, LocalTime.now().toNanoOfDay()) > 0) cacheIsActive()
+        /*else*/ return refresh(onCacheInactive)
     }
 
     @AppScope
