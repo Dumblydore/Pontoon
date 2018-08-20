@@ -5,6 +5,10 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 //apply plugin: "androidx.navigation.safeargs"
 
+def major = 0
+def minor = 8
+def patch = (project.findProperty('buildNumber') ?: "0").toInteger()
+
 Properties localProperties = new Properties()
 localProperties.load(project.rootProject.file("local.properties").newDataInputStream())
 
@@ -23,8 +27,8 @@ android {
         applicationId "me.mauricee.pontoon"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode ((major * 100) + (minor * 100) + patch)
+        versionName "$major.$minor.$patch"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username", "")}\""
         resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password", "")}\""
