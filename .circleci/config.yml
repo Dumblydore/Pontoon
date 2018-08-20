@@ -59,9 +59,9 @@ jobs:
           name: chmod permissions
           command: chmod +x ./gradlew
 
-       - run:
-           name: Build and Deploy Release
-           command: ./gradlew clean assembleRelease crashlyticsUploadDistributionRelease -P buildNumber=${CIRCLE_BUILD_NUM}
+      - run:
+          name: Build and Deploy Release
+          command: ./gradlew clean assembleRelease crashlyticsUploadDistributionRelease -P buildNumber=${CIRCLE_BUILD_NUM}
 
       - save_cache:
           paths:
