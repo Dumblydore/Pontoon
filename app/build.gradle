@@ -53,9 +53,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     //  Google
-    implementation "androidx.core:core-ktx:1.0.0-beta01"
-    implementation "androidx.fragment:fragment-ktx:1.0.0-beta01"
-    implementation "androidx.preference:preference:1.0.0-beta01"
+    implementation "androidx.core:core-ktx:$google_support_version"
+    implementation "androidx.fragment:fragment-ktx:$google_support_version"
+    implementation "androidx.preference:preference:$google_support_version"
 
     implementation "androidx.appcompat:appcompat:$google_support_version"
     implementation "androidx.recyclerview:recyclerview:$google_support_version"
@@ -139,7 +139,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha3'
 
     //  Processors
-    kapt 'androidx.room:room-compiler:2.0.0-alpha1'
+    kapt "androidx.room:room-compiler:$arch_components_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 }

@@ -1,0 +1,72 @@
+# Java Gradle CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+version: 2
+jobs:
+  build:
+    general:
+      branches:
+        only:
+          - master
+    docker:
+      # specify the version you desire here
+      - image: circleci/android:api-28
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
+      TERM: dumb
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "build.gradle" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: Install AWS CLI
+          command: |
+              sudo apt-get -y -qq install awscli
+      - run:
+          name: Get keystore from S3
+          command: |
+            mkdir keystore
+            aws configure set s3.signature_version s3v4
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/Pontoon.jks keystore --region us-west-2
+            # aws s3 cp s3://mauricee.me-server/keystore/pontoon/fabric.properties mobile --region us-west-2
+      - run:
+          name: prepare properties.local
+          command: |
+            touch local.properties
+            echo "release.keyAlias=${SIGNING_RELEASE_KEY_ALIAS}" >> local.properties
+            echo "release.keyPassword=${SIGNING_RELEASE_KEY_PASSWORD}" >> local.properties
+            echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
+            echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
+      - run:
+          name: chmod permissions
+          command: chmod +x ./gradlew
+
+      # - run:
+      #     name: Build and Deploy Release
+      #     command: ./gradlew clean assembleRelease crashlyticsUploadDistributionRelease -P buildNumber=${CIRCLE_BUILD_NUM}
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+
+      - store_artifacts:
+          path: mobile\build\outputs\apk\release
