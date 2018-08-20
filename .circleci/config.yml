@@ -31,11 +31,7 @@ jobs:
 
       # Download and cache dependencies
       - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "build.gradle" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - run:
           name: Install AWS CLI
           command: |
@@ -58,7 +54,13 @@ jobs:
       - run:
           name: chmod permissions
           command: chmod +x ./gradlew
-
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - run:
           name: Build and Deploy Release
           command: ./gradlew clean assembleRelease -P buildNumber=${CIRCLE_BUILD_NUM}
