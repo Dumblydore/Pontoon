@@ -11,7 +11,7 @@ jobs:
           - master
     docker:
       # specify the version you desire here
-      - image: circleci/android:api-28
+      - image: circleci/android:api-28-alpha
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -31,11 +31,7 @@ jobs:
 
       # Download and cache dependencies
       - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "build.gradle" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - run:
           name: Install AWS CLI
           command: |
@@ -46,7 +42,7 @@ jobs:
             mkdir keystore
             aws configure set s3.signature_version s3v4
             aws s3 cp s3://mauricee.me-server/keystore/pontoon/Pontoon.jks keystore --region us-west-2
-            # aws s3 cp s3://mauricee.me-server/keystore/pontoon/fabric.properties mobile --region us-west-2
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/debug/google-services.json app --region us-west-2
       - run:
           name: prepare properties.local
           command: |
@@ -55,13 +51,20 @@ jobs:
             echo "release.keyPassword=${SIGNING_RELEASE_KEY_PASSWORD}" >> local.properties
             echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
             echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
+            echo "release.fabric.apiKey=${FABRIC_API_KEY}" >> local.properties
       - run:
           name: chmod permissions
-          command: chmod +x ./gradlew
-
-      # - run:
-      #     name: Build and Deploy Release
-      #     command: ./gradlew clean assembleRelease crashlyticsUploadDistributionRelease -P buildNumber=${CIRCLE_BUILD_NUM}
+          command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - run:
+          name: Build and Deploy Release
+          command: ./gradlew clean assembleRelease -P buildNumber=${CIRCLE_BUILD_NUM}
 
       - save_cache:
           paths:
@@ -69,4 +72,4 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       - store_artifacts:
-          path: mobile\build\outputs\apk\release
+          path: mobile/build/outputs/apk/release
