@@ -52,6 +52,9 @@ jobs:
             echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
             echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
       - run:
+                name: test
+                command: gradle wrapper
+      - run:
           name: chmod permissions
           command: chmod +x ./gradlew
       - run:
