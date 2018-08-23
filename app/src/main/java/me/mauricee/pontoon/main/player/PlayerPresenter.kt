@@ -3,7 +3,7 @@ package me.mauricee.pontoon.main.player
 import android.support.v4.media.session.PlaybackStateCompat
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.OrientationManager
 import me.mauricee.pontoon.main.Player

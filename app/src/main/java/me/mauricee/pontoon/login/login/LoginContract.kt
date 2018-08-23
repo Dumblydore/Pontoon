@@ -2,8 +2,8 @@ package me.mauricee.pontoon.login.login
 
 import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.EventTracker
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.EventTracker
 
 interface LoginContract {
 

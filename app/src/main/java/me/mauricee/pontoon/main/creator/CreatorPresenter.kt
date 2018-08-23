@@ -2,7 +2,7 @@ package me.mauricee.pontoon.main.creator
 
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository

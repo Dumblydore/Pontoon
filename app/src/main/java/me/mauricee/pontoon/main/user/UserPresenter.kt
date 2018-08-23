@@ -3,7 +3,7 @@ package me.mauricee.pontoon.main.user
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.BasePresenter
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository

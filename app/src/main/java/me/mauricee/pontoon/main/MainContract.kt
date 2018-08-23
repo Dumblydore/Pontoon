@@ -2,7 +2,7 @@ package me.mauricee.pontoon.main
 
 import androidx.annotation.IdRes
 import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video

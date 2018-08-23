@@ -3,7 +3,7 @@ package me.mauricee.pontoon.main.history
 import androidx.annotation.StringRes
 import androidx.paging.PagedList
 import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.model.video.Video
 

@@ -6,6 +6,7 @@ import com.crashlytics.android.Crashlytics
 import dagger.android.support.DaggerAppCompatActivity
 import io.fabric.sdk.android.Fabric
 import io.reactivex.disposables.CompositeDisposable
+import me.mauricee.pontoon.analytics.EventTracker
 
 
 abstract class BaseActivity : DaggerAppCompatActivity(), EventTracker.Page {

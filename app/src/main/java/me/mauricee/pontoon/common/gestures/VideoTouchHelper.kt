@@ -5,7 +5,6 @@ import android.content.res.Resources
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainActivity
 import javax.inject.Inject
@@ -61,7 +60,6 @@ class VideoTouchHandler @Inject constructor(activity: MainActivity, private var 
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(view: View, event: MotionEvent): Boolean {
-        logd("touch received")
         if (gestureDetector.onTouchEvent(event)) {
             gestureEventsListener.onClick(view)
             //return only when player is more than threshold value i.e is already expanded
@@ -116,7 +114,6 @@ class VideoTouchHandler @Inject constructor(activity: MainActivity, private var 
             }
 
             MotionEvent.ACTION_UP -> {
-                logd("Up Percent $percentVertical")
                 isTopScroll = false
                 isSwipeScroll = false
                 if (percentMarginMoved < 0.5) {
