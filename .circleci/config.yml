@@ -72,4 +72,7 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       - store_artifacts:
-          path: mobile/build/outputs/apk/release
+          paths:
+            - app/build/outputs/apk/release/app-release.apk
+            - build/outputs/mapping/release/usage.txt
+            - build/outputs/mapping/release/mappings.txt
