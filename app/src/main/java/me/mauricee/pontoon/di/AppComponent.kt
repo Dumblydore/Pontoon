@@ -8,9 +8,10 @@ import dagger.android.support.AndroidSupportInjectionModule
 import dagger.android.support.DaggerApplication
 import me.mauricee.pontoon.Pontoon
 import me.mauricee.pontoon.analytics.EventTrackerModule
+import me.mauricee.pontoon.model.ModelModule
 
 @AppScope
-@Component(modules = [AppModule::class, EventTrackerModule::class, AndroidSupportInjectionModule::class])
+@Component(modules = [AppModule::class, ModelModule::class, EventTrackerModule::class, AndroidSupportInjectionModule::class])
 interface AppComponent : AndroidInjector<DaggerApplication> {
 
     fun inject(application: Pontoon)
