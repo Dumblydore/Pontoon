@@ -43,7 +43,7 @@ jobs:
             aws configure set s3.signature_version s3v4
             aws s3 cp s3://mauricee.me-server/keystore/pontoon/Pontoon.jks keystore --region us-west-2
             aws s3 cp s3://mauricee.me-server/keystore/pontoon/fabric.properties --region us-west-2
-            aws s3 cp s3://mauricee.me-server/keystore/pontoon/debug/google-services.json app/src/google-services.json --region us-west-2
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/debug/google-services.json ./app/src --region us-west-2
       - run:
           name: prepare properties.local
           command: |
