@@ -35,6 +35,11 @@
             android:resizeableActivity="true"
             android:supportsPictureInPicture="true" />
         <activity android:name=".preferences.PreferencesActivity"/>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="@string/fabric_apiKey"
+            />
     </application>
 
 </manifest>
