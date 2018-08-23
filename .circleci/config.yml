@@ -70,7 +70,7 @@ jobs:
 
       - run:
           name: Build and Deploy Release
-          command: ./gradlew clean assembleRelease -P buildNumber=${CIRCLE_BUILD_NUM}
+          command: ./gradlew clean assembleRelease crashlyticsUploadDistributionRelease -P buildNumber=${CIRCLE_BUILD_NUM}
 
       - save_cache:
           paths:
