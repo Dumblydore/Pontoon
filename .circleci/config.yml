@@ -108,8 +108,7 @@ workflows:
     - schedule:
         filters:
           branches:
-            only:
-              - master
+            only: master
     jobs:
       - get-keys
       - build_beta
@@ -117,8 +116,7 @@ workflows:
     - schedule:
         filters:
           branches:
-            only:
-              - release
+            only: release
     jobs:
       - get-keys
       - build_release
