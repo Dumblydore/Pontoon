@@ -114,7 +114,7 @@ workflows:
   deploy-release:
     branches:
       only:
-        - master
+        - release
     jobs:
       - get-keys
       - build-release
