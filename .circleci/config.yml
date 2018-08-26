@@ -1,7 +1,3 @@
-# Java Gradle CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
 version: 2
 jobs:
   build:
@@ -30,11 +26,9 @@ jobs:
               echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
   build_beta:
     docker:
-      # specify the version you desire here
       - image: circleci/android:api-28-alpha
     working_directory: ~/repo
     environment:
-      # Customize the JVM maximum heap limit
       _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
       TERM: dumb
@@ -69,17 +63,14 @@ jobs:
           path: app/build/outputs/mapping/release/mappings.tx
   build_release:
       docker:
-        # specify the version you desire here
         - image: circleci/android:api-28-alpha
       working_directory: ~/repo
       environment:
-        # Customize the JVM maximum heap limit
         _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
         TERM: dumb
       steps:
         - checkout
-        # Download and cache dependencies
         - restore_cache:
             key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
         - run:
