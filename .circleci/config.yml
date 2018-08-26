@@ -105,16 +105,20 @@ jobs:
 workflows:
   version: 2
   deploy-beta:
-    branches:
-      only:
-        - master
+    - schedule:
+        filters:
+          branches:
+            only:
+              - master
     jobs:
       - get-keys
       - build-beta
   deploy-release:
-    branches:
-      only:
-        - release
+    - schedule:
+        filters:
+          branches:
+            only:
+              - release
     jobs:
       - get-keys
       - build-release
