@@ -104,17 +104,21 @@ jobs:
             path: app/build/outputs/mapping/release/mappings.txt
 workflows:
   version: 2
-  beta:
-    filters:
-      branches:
-        only: master
+  build_beta:
     jobs:
       - get-keys
       - build_beta
-  release:
-    filters:
-      branches:
-        only: release
+        requires:
+          -get-keys
+        filters:
+              branches:
+                only: master
+  build_release:
     jobs:
       - get-keys
       - build_release
+        requires:
+          -get-keys
+        filters:
+          branches:
+            only: release
