@@ -105,20 +105,16 @@ jobs:
 workflows:
   version: 2
   beta:
-    triggers:
-      - schedule:
-          filters:
-            branches:
-              only: master
+    filters:
+      branches:
+        only: master
     jobs:
       - get-keys
       - build_beta
   release:
-    triggers:
-      - schedule:
-          filters:
-            branches:
-              only: release
+    filters:
+      branches:
+        only: release
     jobs:
       - get-keys
       - build_release
