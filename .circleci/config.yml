@@ -104,7 +104,7 @@ jobs:
             path: app/build/outputs/mapping/release/mappings.txt
 workflows:
   version: 2
-  deploy-beta:
+  beta:
     triggers:
       - schedule:
           filters:
@@ -113,7 +113,7 @@ workflows:
     jobs:
       - get-keys
       - build_beta
-  deploy-release:
+  release:
     triggers:
       - schedule:
           filters:
