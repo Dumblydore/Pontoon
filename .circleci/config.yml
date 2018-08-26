@@ -24,6 +24,10 @@ jobs:
               echo "release.keyPassword=${SIGNING_RELEASE_KEY_PASSWORD}" >> local.properties
               echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
               echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
+        - persist_to_workspace:
+              root: workspace
+              paths:
+                - repo
   build_beta:
     docker:
       - image: circleci/android:api-28-alpha
