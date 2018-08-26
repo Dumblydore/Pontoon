@@ -113,12 +113,9 @@ workflows:
         filters:
               branches:
                 only: master
-  build_release:
-    jobs:
-      - get-keys
       - build_release
-        requires:
-          -get-keys
-        filters:
-          branches:
-            only: release
+              requires:
+                -get-keys
+              filters:
+                branches:
+                  only: release
