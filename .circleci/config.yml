@@ -99,14 +99,3 @@ workflows:
     jobs:
       - build
       - build_beta
-        requires:
-          - build
-        filters:
-              branches:
-                only: master
-      - build_release
-              requires:
-                - build
-              filters:
-                branches:
-                  only: release
