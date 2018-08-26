@@ -2,7 +2,7 @@ package me.mauricee.pontoon.main.search
 
 import androidx.recyclerview.widget.DiffUtil
 import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.video.Video
 
 interface SearchContract {

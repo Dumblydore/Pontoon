@@ -159,10 +159,7 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-
-### AndroidStudio Patch ###
-
-!/gradle/wrapper/gradle-wrapper.jar
+google-services.json
 
 ### Kotlin ###
 # Compiled class file
@@ -181,6 +178,5 @@ fabric.properties
 *.rar
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-
 
 # End of https://www.gitignore.io/api/kotlin,android,androidstudio

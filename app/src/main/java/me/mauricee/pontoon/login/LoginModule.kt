@@ -4,7 +4,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.login.login.LoginFragment
 
 @Module

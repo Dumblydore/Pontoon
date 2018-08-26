@@ -1,6 +1,7 @@
 package me.mauricee.pontoon
 
 import io.reactivex.Observable
+import me.mauricee.pontoon.analytics.EventTracker
 
 interface BaseContract {
 

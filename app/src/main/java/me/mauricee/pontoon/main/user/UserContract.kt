@@ -2,7 +2,7 @@ package me.mauricee.pontoon.main.user
 
 import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.user.UserRepository

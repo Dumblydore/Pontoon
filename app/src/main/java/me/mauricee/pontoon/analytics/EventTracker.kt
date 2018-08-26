@@ -1,17 +1,16 @@
-package me.mauricee.pontoon
+package me.mauricee.pontoon.analytics
 
-import me.mauricee.pontoon.ext.logd
 import javax.inject.Inject
 
 class EventTracker @Inject constructor(private val container: Page) {
 
-    fun trackStart(page: Page) = logd("${container.name}:${page.name}/${Start.tag}")
+    fun trackStart(page: Page) = trackers.forEach { it.trackState(Start, page) }
 
-    fun trackStop(page: Page) = logd("${container.name}:${page.name}/${Stop.tag}")
+    fun trackStop(page: Page) = trackers.forEach { it.trackState(Stop, page) }
 
-    fun trackAction(action: Action, page: Page) = logd("${container.name}:${page.name}:Action/${action.tag}")
+    fun trackAction(action: Action, page: Page) = trackers.forEach { it.trackAction(action, page) }
 
-    fun trackState(state: State, page: Page) = logd("${container.name}:${page.name}:State/${state.tag}")
+    fun trackState(state: State, page: Page) = trackers.forEach { it.trackState(state, page) }
 
     interface Page {
         val name: String
@@ -29,6 +28,9 @@ class EventTracker @Inject constructor(private val container: Page) {
     }
 
     companion object {
+
+        val trackers: MutableList<Tracker> = mutableListOf()
+
         private object Start : State {
             override val tag: String
                 get() = "Start"
@@ -40,5 +42,10 @@ class EventTracker @Inject constructor(private val container: Page) {
         }
 
         private val regex = Regex("Fragment|Activity")
+    }
+
+    interface Tracker {
+        fun trackAction(action: Action, page: Page)
+        fun trackState(state: State, page: Page)
     }
 }

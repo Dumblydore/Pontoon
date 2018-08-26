@@ -10,7 +10,6 @@ import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
-import androidx.room.Room
 import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -29,7 +28,6 @@ import me.mauricee.pontoon.login.LoginScope
 import me.mauricee.pontoon.main.MainActivity
 import me.mauricee.pontoon.main.MainModule
 import me.mauricee.pontoon.main.MainScope
-import me.mauricee.pontoon.model.PontoonDatabase
 import me.mauricee.pontoon.preferences.PreferenceModule
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import me.mauricee.pontoon.preferences.PreferencesScope
@@ -76,7 +74,6 @@ abstract class AppModule {
         @JvmStatic
         fun providesSharedPreferences(context: Context): SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(context)
-//                context.getSharedPreferences("pontoonSharedPrefs", MODE_PRIVATE)
 
         @AppScope
         @Provides
@@ -86,37 +83,32 @@ abstract class AppModule {
         @Provides
         @AppScope
         @JvmStatic
-        fun providesSession(context: Context): MediaSessionCompat {
-            return MediaSessionCompat(context, "MusicService")
-        }
+        fun providesSession(context: Context): MediaSessionCompat =
+                MediaSessionCompat(context, "Pontoon")
 
         @Provides
         @AppScope
         @JvmStatic
-        fun providesWifiManager(context: Context): WifiManager {
-            return context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        }
+        fun providesWifiManager(context: Context): WifiManager =
+                context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
         @Provides
         @AppScope
         @JvmStatic
-        fun providesPowerManager(context: Context): PowerManager {
-            return context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        }
+        fun providesPowerManager(context: Context): PowerManager =
+                context.getSystemService(Context.POWER_SERVICE) as PowerManager
 
         @Provides
         @AppScope
         @JvmStatic
-        fun providesAudioManager(context: Context): AudioManager {
-            return context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        }
+        fun providesAudioManager(context: Context): AudioManager =
+                context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         @Provides
         @AppScope
         @JvmStatic
-        fun providesUserAgent(context: Context): String {
-            return Util.getUserAgent(context, BuildConfig.APPLICATION_ID)
-        }
+        fun providesUserAgent(context: Context): String =
+                Util.getUserAgent(context, BuildConfig.APPLICATION_ID)
 
         @AppScope
         @Provides
@@ -163,36 +155,6 @@ abstract class AppModule {
                 .addCallAdapterFactory(callFactory)
                 .baseUrl("https://www.floatplane.com/api/")
                 .build().create(FloatPlaneApi::class.java)
-
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun providesDatabase(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb").build()
-
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun providesUserDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.userDao
-
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun providesCreatorDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.creatorDao
-
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun providesVideoDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.videoDao
-
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun providesHistoryDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.historyDao
-
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun providesCommentDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.commentDao
 
         @AppScope
         @Provides

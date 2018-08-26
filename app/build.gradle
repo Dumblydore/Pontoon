@@ -3,6 +3,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+
+apply plugin: 'io.fabric'
 //apply plugin: "androidx.navigation.safeargs"
 
 def major = 0
@@ -17,7 +19,7 @@ android {
         Release {
             keyAlias localProperties.getProperty("release.keyAlias", "")
             keyPassword localProperties.getProperty("release.keyPassword", "")
-            storeFile file(localProperties.getProperty("release.storeFile", ""))
+            storeFile file(localProperties.getProperty("release.storeFile", "~/"))
             storePassword localProperties.getProperty("release.storePassword", "")
         }
     }
@@ -32,6 +34,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username", "")}\""
         resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password", "")}\""
+        resValue 'string', 'fabric_apiKey', "\"${localProperties.getProperty("release.fabric.apiKey", "")}\""
     }
     buildTypes {
         release {
@@ -45,7 +48,7 @@ android {
             pseudoLocalesEnabled true
         }
         debug {
-            versionNameSuffix 'debug'
+            versionNameSuffix '-debug'
         }
     }
 }
@@ -70,9 +73,9 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
     implementation "com.google.android.material:material:$google_support_version"
     implementation "android.arch.navigation:navigation-fragment-ktx:$nav_version"
-
     // use -ktx for Kotlin
     implementation "android.arch.navigation:navigation-ui-ktx:$nav_version"
+    implementation "com.google.firebase:firebase-core:16.0.0"
 
     // use -ktx for Kotlin
 
@@ -80,7 +83,7 @@ dependencies {
 
     //    Google Play
     implementation 'com.google.android.gms:play-services-cast-framework:15.0.1'
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
         transitive = true
     }
 
@@ -147,3 +150,5 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 }
+
+apply plugin: 'com.google.gms.google-services'

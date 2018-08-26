@@ -14,7 +14,6 @@ import androidx.core.view.isVisible
 import androidx.core.view.postDelayed
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.ext.logd
 
 /**
  * A layout view that simplifies loading, error, and success states of a view
@@ -153,7 +152,6 @@ class LazyLayout : FrameLayout {
                     else -> throw RuntimeException("Invalid LazyLayout.State")
                 }) as View
         children().firstOrNull(View::isVisible)?.let {
-            logd("updating animation: $state")
             it.alpha = 1f
             getInactiveAnimation(it, getActiveAnimation(newActiveView))
         }?.start()

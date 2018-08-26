@@ -1,7 +1,7 @@
 package me.mauricee.pontoon.main.details
 
 import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video

@@ -1,7 +1,7 @@
 package me.mauricee.pontoon.main.player
 
 import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.EventTracker
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.Player
 
 interface PlayerContract {
