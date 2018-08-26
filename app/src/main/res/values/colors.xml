@@ -22,4 +22,7 @@
     <color name="colorPrimaryDark">#192638</color>
     <color name="colorAccent">#00afec</color>
     <color name="colorError">#ff5722</color>
+
+    <color name="colorPositive">#00C853</color>
+    <color name="colorNegative">#D50000</color>
 </resources>

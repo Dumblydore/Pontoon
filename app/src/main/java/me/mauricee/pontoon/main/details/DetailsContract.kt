@@ -6,6 +6,9 @@ import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 
+
+private typealias CommentModel = Comment
+
 interface DetailsContract {
     interface View : BaseContract.View<State, Action>
 
@@ -17,6 +20,8 @@ interface DetailsContract {
         class ViewUser(val user: UserRepository.User) : Action()
         class ViewCreator(val creator: UserRepository.Creator) : Action()
         class SeekTo(val position: Int) : Action()
+        class Like(val comment: CommentModel) : Action()
+        class Dislike(val comment: CommentModel) : Action()
     }
 
     sealed class State : EventTracker.State {
@@ -27,6 +32,8 @@ interface DetailsContract {
         class Comments(val comments: List<Comment>) : State()
         class RelatedVideos(val relatedVideos: List<Video>) : State()
         class Progress(val progress: Int, val bufferedProgress: Int) : State()
+        class Like(val comment: CommentModel) : State()
+        class Dislike(val comment: CommentModel) : State()
         class Error(val type: ErrorType = ErrorType.General) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"
@@ -37,7 +44,10 @@ interface DetailsContract {
         NoComments,
         NoVideo,
         NoRelatedVideos,
-        General
+        General,
+        Post,
+        Like,
+        Dislike
     }
 
     enum class BufferState {

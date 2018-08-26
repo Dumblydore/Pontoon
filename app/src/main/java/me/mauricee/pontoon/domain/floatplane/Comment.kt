@@ -1,37 +1,39 @@
 package me.mauricee.pontoon.domain.floatplane
 
-import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import org.threeten.bp.Instant
 
-@Keep
-data class Comment(@SerializedName("editDate") val editDate: Instant, //:"2018-05-26T22:05:23.145Z"
-                   @SerializedName("id") val id: String, //:"5b09da23060dfe3930a49b1d"
-                   @SerializedName("interactionCounts") val interactionCounts: InteractionCounts, //:{like: 0, dislike: 0}
-                   @SerializedName("interactions") val interactions: List<Any>, //:[] not sure what this is supposed to be
-                   @SerializedName("postDate") val postDate: Instant, //:"2018-05-26T22:05:23.145Z"
-                   @SerializedName("replies") val replies: List<Comment>, //:[]
+data class Comment(@SerializedName("editDate") val editDate: Instant,
+                   @SerializedName("id") val id: String,
+                   @SerializedName("interactionCounts") val interactionCounts: InteractionCounts,
+                   @SerializedName("postDate") val postDate: Instant,
+                   @SerializedName("replies") val replies: List<Comment>,
                    @SerializedName("replying") val replying: String?,
-                   @SerializedName("text") val text: String, //:"I think the 4k model seems pretty interesting for a macbook pro windows equivalent. I know it's over done but it would be interesting to see a comparison."
-                   @SerializedName("user") val user: String, //:"5aa1a598bd064bc2644b9a6e"
-                   @SerializedName("video") val video: String  //:"8tkQAqaOMu"
-) {
-    @Keep
-    data class Container(@SerializedName("comments") val comments: List<Comment>)
+                   @SerializedName("text") val text: String,
+                   @SerializedName("user") val user: String,
+                   @SerializedName("video") val video: String) {
+    data class Container(@SerializedName("comments") val comments: List<Comment>, @SerializedName("userInteractions") val interactions: List<UserInteraction>)
+}
 
-    @Keep
-    data class Interaction(@SerializedName("commentGUID") val id: String, @SerializedName("type") val type: InteractionType)
-
-    @Keep
-    data class Post(@SerializedName("text") val text: String, @SerializedName("videoGUID") val id: String)
-
-    @Keep
-    data class InteractionCounts(@SerializedName("like") val like: Int, @SerializedName("dislike") val dislike: Int)
-
-    enum class InteractionType {
+data class CommentInteraction(@SerializedName("commentGUID") val id: String, @SerializedName("type") val type: Type) {
+    enum class Type {
         @SerializedName("like")
         Like,
         @SerializedName("dislike")
         Dislike
     }
+}
+
+data class CommentPost(@SerializedName("text") val text: String, @SerializedName("videoGUID") val id: String)
+
+data class InteractionCounts(@SerializedName("like") val like: Int, @SerializedName("dislike") val dislike: Int)
+
+data class InteractionResult(@SerializedName("comment") val string: String)
+
+data class UserInteraction(@SerializedName("comment") val comment: String,
+                           @SerializedName("id") val id: String,
+                           @SerializedName("type") val type: Type) {
+    data class Type(@SerializedName("displayName") val displayName: String,
+                    @SerializedName("id") val id: String,
+                    @SerializedName("name") val type: CommentInteraction.Type)
 }

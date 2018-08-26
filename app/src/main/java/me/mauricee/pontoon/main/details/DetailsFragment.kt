@@ -6,6 +6,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionInflater
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
@@ -76,17 +77,31 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
                 details.state = LazyLayout.SUCCESS
                 displayVideoInfo(state.video)
             }
-            is DetailsContract.State.Error -> {
-                details.state = LazyLayout.ERROR
-            }
+            is DetailsContract.State.Error -> handleError(state.type)
             is DetailsContract.State.Comments -> {
-                commentsAdapter.comments = state.comments
+                commentsAdapter.comments = state.comments.toMutableList()
                 scrollToSelectedComment()
             }
             is DetailsContract.State.RelatedVideos -> relatedVideosAdapter.videos = state.relatedVideos
             is DetailsContract.State.Duration -> player_progress.max = state.duration
             is DetailsContract.State.PlaybackState -> {
             }
+            is DetailsContract.State.Like -> {
+                commentsAdapter.updateComment(state.comment)
+                snack(getString(R.string.details_commentLiked, state.comment.user.username))
+            }
+            is DetailsContract.State.Dislike -> {
+                commentsAdapter.updateComment(state.comment)
+                snack(getString(R.string.details_commentDisliked, state.comment.user.username))
+            }
+        }
+    }
+
+    private fun handleError(type: DetailsContract.ErrorType) {
+        when (type) {
+            DetailsContract.ErrorType.Like -> Snackbar.make(view!!, "", Snackbar.LENGTH_LONG).show()
+            DetailsContract.ErrorType.Dislike -> Snackbar.make(view!!, "", Snackbar.LENGTH_LONG).show()
+            else -> details.state = LazyLayout.ERROR
         }
     }
 
@@ -114,6 +129,10 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
                 .placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
                 .into(player_small_icon)
+    }
+
+    private fun snack(text: CharSequence, duration: Int = Snackbar.LENGTH_SHORT) {
+        Snackbar.make(view!!, text, duration).show()
     }
 
     companion object {

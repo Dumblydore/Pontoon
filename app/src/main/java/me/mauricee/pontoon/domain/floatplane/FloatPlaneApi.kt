@@ -39,6 +39,6 @@ interface FloatPlaneApi {
     @POST("auth/login")
     fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
 
-    @POST("comment/interaction/set")
-    fun setComment(@Body interaction: Comment.Interaction)
+    @POST("video/comment/interaction/set")
+    fun setComment(@Body interaction: CommentInteraction) : Observable<InteractionResult>
 }

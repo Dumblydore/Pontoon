@@ -18,6 +18,7 @@ data class CommentEntity(
         val postDate: Instant,
         val text: String)
 
+//TODO store user interactions
 @Dao
 interface CommentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -32,6 +33,31 @@ interface CommentDao {
 }
 
 @Keep
-data class Comment(val id: String, val parent: String, val video: String, val text: String,
-                   val likes: Int, val dislikes: Int, val replies: List<Comment>,
-                   val user: UserRepository.User)
+class Comment(val id: String, val parent: String, val video: String, val text: String,
+              val editDate: Instant, val postDate: Instant,
+              val likes: Int, val dislikes: Int, val replies: List<Comment>,
+              val user: UserRepository.User, val userInteraction: List<Interaction> = emptyList()) {
+
+    fun like(): Comment = Comment(id, parent, video, text, editDate, postDate, likes + 1, dislikes, replies, user, mutableListOf(Interaction.Like, *userInteraction.toTypedArray()))
+    fun dislike(): Comment = Comment(id, parent, video, text, editDate, postDate, likes, dislikes + 1, replies, user, mutableListOf(Interaction.Dislike, *userInteraction.toTypedArray()))
+    fun toEntity(): CommentEntity = CommentEntity(id, video, parent, user.username, editDate, likes, dislikes, postDate, text)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Comment
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
+    enum class Interaction {
+        Like,
+        Dislike
+    }
+}

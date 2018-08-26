@@ -13,6 +13,8 @@ import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
 
+private typealias State = DetailsContract.State
+
 class DetailsPresenter @Inject constructor(private val player: Player,
                                            private val commentRepository: CommentRepository,
                                            private val videoRepository: VideoRepository,
@@ -30,6 +32,10 @@ class DetailsPresenter @Inject constructor(private val player: Player,
         is DetailsContract.Action.SeekTo -> stateless { player.setProgress((it.position * 1000).toLong()) }
         is DetailsContract.Action.ViewUser -> stateless { navigator.toUser(it.user) }
         is DetailsContract.Action.ViewCreator -> stateless { navigator.toCreator(it.creator) }
+        is DetailsContract.Action.Like -> commentRepository.like(it.comment).map<DetailsContract.State> { DetailsContract.State.Like(it) }
+                .onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.Like))
+        is DetailsContract.Action.Dislike -> commentRepository.dislike(it.comment).map<DetailsContract.State> { DetailsContract.State.Dislike(it) }
+                .onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.Dislike))
     }.onErrorReturnItem(DetailsContract.State.Error())
 
     private fun loadVideo(video: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> = video.id.let { id ->

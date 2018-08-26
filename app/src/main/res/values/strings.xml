@@ -26,6 +26,13 @@
     <!-- Player -->
     <string name="player_releaseDate">Posted on %s.</string>
 
+    <!-- Details -->
+    <string name="details_commentLiked">You liked %s\'s comment.</string>
+    <string name="details_commentDisliked">You disliked %s\'s comment.</string>
+    <string name="details_comment_replies">View %x replies</string>
+    <string name="details_comment_positiveDelta">+%x</string>
+    <string name="details_comment_negativeDelta">-%x</string>
+
     <!-- Creator -->
     <string name="creator_error_noCreator">Couldn\'t load creator.</string>
     <string name="creator_error_noVideos">This creator has no videos.</string>
