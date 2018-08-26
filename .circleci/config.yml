@@ -106,16 +106,16 @@ workflows:
   version: 2
   build-deploy:
     jobs:
-      - get-keys
+      - build
       - build_beta
         requires:
-          -get-keys
+          - build
         filters:
               branches:
                 only: master
       - build_release
               requires:
-                -get-keys
+                - build
               filters:
                 branches:
                   only: release
