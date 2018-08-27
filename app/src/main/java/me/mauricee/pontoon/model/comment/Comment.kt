@@ -40,6 +40,7 @@ class Comment(val id: String, val parent: String, val video: String, val text: S
 
     fun like(): Comment = Comment(id, parent, video, text, editDate, postDate, likes + 1, dislikes, replies, user, mutableListOf(Interaction.Like, *userInteraction.toTypedArray()))
     fun dislike(): Comment = Comment(id, parent, video, text, editDate, postDate, likes, dislikes + 1, replies, user, mutableListOf(Interaction.Dislike, *userInteraction.toTypedArray()))
+
     fun toEntity(): CommentEntity = CommentEntity(id, video, parent, user.username, editDate, likes, dislikes, postDate, text)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

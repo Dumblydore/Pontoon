@@ -69,15 +69,20 @@ class CommentAdapter @Inject constructor() : RecyclerView.Adapter<CommentAdapter
                 val likeTint = if (comment.userInteraction.contains(Comment.Interaction.Like))
                     R.color.colorPositive
                 else
-                    R.color.textDarkDisabled
+                    R.color.textLightDisabled
 
                 val dislikeTint = if (comment.userInteraction.contains(Comment.Interaction.Dislike))
                     R.color.colorNegative
                 else
-                    R.color.textDarkDisabled
+                    R.color.textLightDisabled
 
-                itemView.item_thumb_up.drawable.setTint(ContextCompat.getColor(itemView.context, likeTint))
-                itemView.item_thumb_down.drawable.setTint(ContextCompat.getColor(itemView.context, dislikeTint))
+                val upDrawable = ContextCompat.getDrawable(itemView.context, R.drawable.ic_thumb_up)
+                        ?.apply { setTint(ContextCompat.getColor(itemView.context, likeTint)) }?.mutate()
+                val downDrawable = ContextCompat.getDrawable(itemView.context, R.drawable.ic_thumb_down)
+                        ?.apply { setTint(ContextCompat.getColor(itemView.context, dislikeTint)) }?.mutate()
+
+                itemView.item_thumb_up.setImageDrawable(upDrawable)
+                itemView.item_thumb_down.setImageDrawable(downDrawable)
 
                 GlideApp.with(itemView).load(comment.user.profileImage)
                         .circleCrop()

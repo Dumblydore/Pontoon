@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import dagger.android.support.DaggerAppCompatActivity
-import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainActivity
 
 class LoginActivity : DaggerAppCompatActivity(), LoginNavigator, EventTracker.Page {
@@ -25,7 +25,8 @@ class LoginActivity : DaggerAppCompatActivity(), LoginNavigator, EventTracker.Pa
     companion object {
         fun navigateTo(context: Context) {
             Intent(context, LoginActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP and Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                            or  Intent.FLAG_ACTIVITY_NO_HISTORY)
                     .let(context::startActivity)
         }
     }
