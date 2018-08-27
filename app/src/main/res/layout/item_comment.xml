@@ -52,7 +52,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_thumb_up"
+        tools:src="@drawable/ic_thumb_up"
         app:layout_constraintStart_toEndOf="@+id/item.icon.small"
         app:layout_constraintTop_toBottomOf="@+id/item.comment" />
 
@@ -62,7 +62,7 @@
         android:layout_height="24dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:src="@drawable/ic_thumb_down"
+        tools:src="@drawable/ic_thumb_down"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         app:layout_constraintStart_toEndOf="@+id/item.thumb.up"
         app:layout_constraintTop_toBottomOf="@+id/item.comment" />
