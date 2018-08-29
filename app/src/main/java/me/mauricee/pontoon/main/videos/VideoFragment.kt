@@ -4,16 +4,14 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_videos.*
-import kotlinx.android.synthetic.main.fragment_videos.view.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
-import me.mauricee.pontoon.main.VideoPageAdapter
+import me.mauricee.pontoon.main.VideoAdapter
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
@@ -22,7 +20,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
     override fun getLayoutId(): Int = R.layout.fragment_videos
 
     @Inject
-    lateinit var videoAdapter: VideoPageAdapter
+    lateinit var videoAdapter: VideoAdapter
     @Inject
     lateinit var subscriptionAdapter: SubscriptionAdapter
 
@@ -47,15 +45,17 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
     }
 
     override fun updateState(state: VideoContract.State) = when (state) {
-        is VideoContract.State.Loading -> videos_container_lazy.state = LazyLayout.LOADING
+        is VideoContract.State.Loading -> {
+            videos_container_lazy.state = LazyLayout.LOADING
+            videos_container.isRefreshing = true
+        }
         is VideoContract.State.DisplayVideos -> displayVideos(state.videos)
         is VideoContract.State.Error -> processError(state)
         is VideoContract.State.DisplaySubscriptions -> subscriptionAdapter.user = state.subscriptions
     }
 
-    private fun displayVideos(videos: PagedList<Video>) {
-        view?.videos_container?.isRefreshing = false
-        videoAdapter.submitList(videos)
+    private fun displayVideos(videos: List<Video>) {
+        videoAdapter.videos = videos
         videos_container_lazy.state = LazyLayout.SUCCESS
     }
 

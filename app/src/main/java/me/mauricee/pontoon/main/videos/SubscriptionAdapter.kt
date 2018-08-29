@@ -8,7 +8,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
-import kotlinx.android.synthetic.main.item_video_card.view.*
+import kotlinx.android.synthetic.main.item_end_user_bubble.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserRepository
@@ -25,8 +25,12 @@ class SubscriptionAdapter @Inject constructor(): RecyclerView.Adapter<Subscripti
             notifyDataSetChanged()
         }
 
+    override fun getItemViewType(position: Int): Int {
+        return if (position == user.lastIndex) R.layout.item_end_user_bubble else R.layout.item_user_bubble
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_user_bubble, parent, false).let(this::ViewHolder)
+            LayoutInflater.from(parent.context).inflate(viewType, parent, false).let(this::ViewHolder)
 
     override fun getItemCount(): Int = user.size
 
@@ -35,8 +39,11 @@ class SubscriptionAdapter @Inject constructor(): RecyclerView.Adapter<Subscripti
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            view.clicks().map { VideoContract.Action.Subscription(user[layoutPosition]) }
+            view.findViewById<View>(R.id.item_icon_small).clicks()
+                    .map { VideoContract.Action.Subscription(user[layoutPosition]) }
                     .subscribe(relay::accept)
+
+            view.item_icon_viewAll?.clicks()?.map { VideoContract.Action.Creators}?.subscribe(relay::accept)
         }
 
 
@@ -44,7 +51,7 @@ class SubscriptionAdapter @Inject constructor(): RecyclerView.Adapter<Subscripti
             itemView.apply {
                 GlideApp.with(this).load(user.user.profileImage).circleCrop()
                         .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(itemView.item_icon_small)
+                        .into(itemView.findViewById(R.id.item_icon_small))
             }
         }
     }

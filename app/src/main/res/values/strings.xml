@@ -114,4 +114,6 @@
     <string name="pause_icon_bottom_path_data">M 32 88 L 32 72 L 96 72 L 96 88 Z</string>
     <string name="action_share">Share</string>
     <string name="action_quality">Quality</string>
+    <string name="item_view_all">View All</string>
+    <string name="creatorList.title">Creators</string>
 </resources>

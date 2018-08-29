@@ -5,7 +5,7 @@ import io.reactivex.Single
 
 @Entity(tableName = "Creator")
 class CreatorEntity(@PrimaryKey val id: String, val name: String,
-                    val urlName: String, val coverImage: String, val about: String,
+                    val urlName: String, val about: String,
                     val description: String, val owner: String)
 
 @Dao

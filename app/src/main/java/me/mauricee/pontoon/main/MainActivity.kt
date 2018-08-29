@@ -30,6 +30,7 @@ import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.login.LoginActivity
 import me.mauricee.pontoon.main.creator.CreatorFragment
+import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
 import me.mauricee.pontoon.main.player.PlayerFragment
@@ -113,6 +114,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun toCreator(creator: UserRepository.Creator) {
         controller.pushFragment(CreatorFragment.newInstance(creator.id))
+        animationTouchListener.isExpanded = false
+        setPlayerExpanded(false)
+    }
+
+    override fun toCreatorsList() {
+        controller.pushFragment(CreatorListFragment.newInstance())
         animationTouchListener.isExpanded = false
         setPlayerExpanded(false)
     }
@@ -295,7 +302,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
      * more than 50% horizontally
      */
     private fun dismiss() {
-        player.onPause()
+        player.onStop()
         main.updateParams(constraintSet) {
             setGuidelinePercent(guidelineVertical.id, VideoTouchHandler.MIN_HORIZONTAL_LIMIT - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
             setGuidelinePercent(guidelineMarginEnd.id, 0F)

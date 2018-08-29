@@ -23,10 +23,11 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
         is VideoContract.Action.Refresh -> getVideos()
         is VideoContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video) }
         is VideoContract.Action.Subscription -> stateless { mainNavigator.toCreator(action.creator) }
+        VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
     }
 
     private fun getVideos() = videoRepository.subscriptions.flatMap {
-        videoRepository.getVideos(false, *it.toTypedArray())
+        videoRepository.getvideosFromCreators()
                 .map<VideoContract.State>(VideoContract.State::DisplayVideos)
                 .startWith(VideoContract.State.DisplaySubscriptions(it))
     }.doOnError { loge("error", it) }.onErrorReturn(::processError)

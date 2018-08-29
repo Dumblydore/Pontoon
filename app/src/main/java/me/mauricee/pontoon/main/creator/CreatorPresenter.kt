@@ -25,7 +25,7 @@ class CreatorPresenter @Inject constructor(private val videoRepository: VideoRep
     private fun getVideos(creator: String) = userRepository.getCreators(creator)
             .map { it.first() }
             .flatMap {
-                videoRepository.getVideos(false, it)
+                videoRepository.getVideos(it)
                         .map<CreatorContract.State>(CreatorContract.State::DisplayVideos)
                         .startWith(CreatorContract.State.DisplayCreator(it))
             }

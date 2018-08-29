@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.model.video
 
-import androidx.paging.DataSource
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
 import io.reactivex.Completable
@@ -10,7 +9,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Function4
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
-import me.mauricee.pontoon.common.CacheValidator
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
@@ -24,30 +22,27 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
                                           private val videoDao: VideoDao,
                                           private val historyDao: HistoryDao,
                                           private val floatPlaneApi: FloatPlaneApi,
-                                          private val pageListConfig: PagedList.Config,
-                                          cacheValidatorBuilder: CacheValidator.Factory) {
-
-    private val videoCache = cacheValidatorBuilder.newInstance("VideoCache")
+                                          private val pageListConfig: PagedList.Config) {
 
     val subscriptions: Observable<List<UserRepository.Creator>> =
             floatPlaneApi.subscriptions.flatMapSingle(this::validateSubscriptions)
                     .map { it.map { it.creatorId }.toTypedArray() }
                     .flatMap { userRespository.getCreators(*it) }
 
-    fun getVideos(forced: Boolean = false, vararg creators: UserRepository.Creator): Observable<PagedList<Video>> =
-            videoCache.check<DataSource.Factory<Int, Video>>({ loadVideosFromCache(*creators) },
-                    { VideoDataSource.Factory(floatPlaneApi, *creators) })
-                    .let {
-                        RxPagedListBuilder(it, pageListConfig)
-                                .setFetchScheduler(Schedulers.io())
-                                .setNotifyScheduler(AndroidSchedulers.mainThread())
-                                .buildObservable()
-                    }.compose(RxHelpers.applyObservableSchedulers())
+    fun getvideosFromCreators(): Observable<List<Video>> = subscriptions.flatMapSingle {
+        it.toObservable().flatMap { creator ->
+            floatPlaneApi.getVideos(creator.id)
+                    .flatMapIterable { it }
+                    .map { Video(it, creator) }
+        }.sorted { video, video1 -> (video1.releaseDate.toEpochMilli() - video.releaseDate.toEpochMilli()).toInt() }
+                .toList()
+    }
 
-    //lol
-    private fun loadVideosFromCache(vararg creators: UserRepository.Creator) =
-            videoDao.getVideoByCreators(*creators.map { it.id }.toTypedArray())
-                    .map { Video(it, creators.first { it2 -> it.id == it2.id }) }
+    fun getVideos(creator: UserRepository.Creator): Observable<PagedList<Video>> =
+            RxPagedListBuilder(VideoDataSource.Factory(floatPlaneApi, creator), pageListConfig)
+                    .setFetchScheduler(Schedulers.io())
+                    .setNotifyScheduler(AndroidSchedulers.mainThread())
+                    .buildObservable()
 
     fun getVideo(video: String): Single<Video> = videoDao.getVideo(video)
             .switchIfEmpty(getVideoInfoFromNetwork(video))
@@ -112,7 +107,6 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
             .flatMapIterable { it }
 
 
-
     private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
             .map(::convertVideo).singleOrError()
 
@@ -128,7 +122,7 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
                 .subscribe()
     }
 
-    private inline fun convertVideo(video: me.mauricee.pontoon.domain.floatplane.Video) = VideoEntity(video.guid, video.creator, video.description, video.releaseDate, video.duration, video.defaultThumbnail, video.title)
+    private fun convertVideo(video: me.mauricee.pontoon.domain.floatplane.Video) = VideoEntity(video.guid, video.creator, video.description, video.releaseDate, video.duration, video.defaultThumbnail, video.title)
 
     private fun validateSubscriptions(subscriptions: List<Subscription>) =
             if (subscriptions.isEmpty()) Single.error(NoSubscriptionsException())

@@ -24,21 +24,26 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                         .flatMapSingle(this::loadCreators)
             }.compose(RxHelpers.applyObservableSchedulers())
 
+    fun getAllCreators(): Observable<List<Creator>> = floatPlaneApi.allCreators.flatMap { it.toObservable() }
+            .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner.id) }
+            .toList().flatMap {
+                creatorDao.insert(*it.toTypedArray())
+                loadCreators(it)
+            }.toObservable().compose(RxHelpers.applyObservableSchedulers())
+
     private fun loadCreators(creators: List<CreatorEntity>) = creators.map { it.owner }.let { ids ->
         getUsers(*ids.toTypedArray()).map { users -> Pair(creators, users) }.flatMap { pair ->
             pair.first.toObservable().map { creator ->
                 val owner = pair.second.first { creator.owner == it.id }
-                Creator(creator.id, creator.name, creator.urlName, creator.coverImage, creator.about, owner)
+                Creator(creator.id, creator.name, creator.urlName, creator.about, owner)
             }
         }.toList()
     }
 
     fun getUsers(vararg userIds: String): Observable<List<User>> =
-            Single.concat(userDao.getUsersByIds(*userIds), getUsersFromNetwork(*userIds))
-                    .filter { it.isNotEmpty() }
+            getUsersFromNetwork(*userIds).filter { it.isNotEmpty() }
                     .map { it.map { User(it.id, it.username, it.profileImage) } }
-                    .distinctUntilChanged().toObservable()
-                    .compose(RxHelpers.applyObservableSchedulers())
+                    .toObservable().compose(RxHelpers.applyObservableSchedulers())
 
     fun getActivity(user: User): Observable<List<Activity>> = floatPlaneApi.getActivity(user.id)
             .flatMapSingle {
@@ -47,7 +52,7 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
 
     fun getCreatorsFromNetwork(vararg creatorIds: String) =
             floatPlaneApi.getCreator(*creatorIds).flatMap { it.toObservable() }
-                    .map { CreatorEntity(it.id, it.title, it.urlname, it.cover.path, it.about, it.description, it.owner) }
+                    .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner) }
                     .toList()
 
     private fun getUsersFromNetwork(vararg userIds: String): Single<List<UserEntity>> =
@@ -57,7 +62,7 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                     .toList().doOnSuccess { userDao.insert(*it.toTypedArray()) }
 
     data class Creator(val id: String, val name: String, val url: String,
-                       val coverImage: String, val about: String, val user: User)
+                       val about: String, val user: User)
 
     data class User(val id: String, val username: String, val profileImage: String)
 
