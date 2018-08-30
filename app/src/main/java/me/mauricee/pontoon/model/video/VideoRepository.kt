@@ -35,7 +35,7 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
                     .flatMapIterable { it }
                     .map { Video(it, creator) }
         }.sorted { video, video1 -> (video1.releaseDate.toEpochMilli() - video.releaseDate.toEpochMilli()).toInt() }
-                .toList()
+                .toList().doOnSuccess(::cacheVideos)
     }
 
     fun getVideos(creator: UserRepository.Creator): Observable<PagedList<Video>> =
@@ -43,6 +43,8 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
                     .setFetchScheduler(Schedulers.io())
                     .setNotifyScheduler(AndroidSchedulers.mainThread())
                     .buildObservable()
+                    .doOnNext(::cacheVideos)
+
 
     fun getVideo(video: String): Single<Video> = videoDao.getVideo(video)
             .switchIfEmpty(getVideoInfoFromNetwork(video))
@@ -55,7 +57,7 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
             }.compose(RxHelpers.applySingleSchedulers())
 
     fun getRelatedVideos(video: String): Single<List<Video>> = floatPlaneApi.getRelatedVideos(video)
-            .doOnNext(::cacheVideos).flatMap { videos ->
+            .doOnNext(::cacheVideoPojos).flatMap { videos ->
                 videos.map { it.creator }.distinct().toTypedArray().let { userRespository.getCreators(*it) }
                         .flatMap { it.toObservable() }
                         .flatMap { creator ->
@@ -102,7 +104,7 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
     }
 
     private fun getAllVideos(creator: String, offset: Int): Observable<Video> = floatPlaneApi.getVideos(creator, offset)
-//            .doOnNext(::cacheVideos)
+//            .doOnNext(::cacheVideoPojos)
             .flatMapSingle<List<Video>> { if (it.isEmpty()) Single.just(emptyList()) else getAllVideos(creator, offset + it.size).toList() }
             .flatMapIterable { it }
 
@@ -110,7 +112,19 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
     private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
             .map(::convertVideo).singleOrError()
 
-    private fun cacheVideos(videos: List<me.mauricee.pontoon.domain.floatplane.Video>) {
+    private fun cacheVideos(videos: List<Video>) {
+        videos.toObservable()
+                .map(::convertVideo)
+                .toList().map { it.toTypedArray() }
+                .flatMapCompletable { Completable.fromCallable { videoDao.insert(*it) } }
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnError { loge("Error with cache", it) }
+                .onErrorComplete()
+                .subscribe()
+    }
+
+    private fun cacheVideoPojos(videos: List<me.mauricee.pontoon.domain.floatplane.Video>) {
         videos.toObservable()
                 .map(::convertVideo)
                 .toList().map { it.toTypedArray() }
@@ -123,6 +137,7 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
     }
 
     private fun convertVideo(video: me.mauricee.pontoon.domain.floatplane.Video) = VideoEntity(video.guid, video.creator, video.description, video.releaseDate, video.duration, video.defaultThumbnail, video.title)
+    private fun convertVideo(video: Video) = VideoEntity(video.id, video.creator.id, video.description, video.releaseDate, video.duration, video.thumbnail, video.title)
 
     private fun validateSubscriptions(subscriptions: List<Subscription>) =
             if (subscriptions.isEmpty()) Single.error(NoSubscriptionsException())
