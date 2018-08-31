@@ -3,26 +3,22 @@ package me.mauricee.pontoon.model.user
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
-import me.mauricee.pontoon.common.CacheValidator
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
 import org.threeten.bp.Instant
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
                                          private val userDao: UserDao,
-                                         private val creatorDao: CreatorDao,
-                                         cacheValidatorB: CacheValidator.Factory) {
+                                         private val creatorDao: CreatorDao) {
 
-    private val userCacheValidator = cacheValidatorB.newInstance("Users")
-
-    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> = userCacheValidator
-            .check({ creatorDao.getCreatorsByIds(*creatorIds) }, { getCreatorsFromNetwork(*creatorIds) })
-            .let {
-                Single.concat(creatorDao.getCreatorsByIds(*creatorIds), it).toObservable()
-                        .filter { it.isNotEmpty() }
-                        .flatMapSingle(this::loadCreators)
-            }.compose(RxHelpers.applyObservableSchedulers())
+    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> =
+            Observable.concatArray(creatorDao.getCreatorsByIds(*creatorIds), getCreatorsFromNetwork(*creatorIds))
+                    .flatMapSingle(this::loadCreators)
+                    .filter { it.isNotEmpty() }
+                    .debounce(400, TimeUnit.MILLISECONDS)
+                    .compose(RxHelpers.applyObservableSchedulers())
 
     fun getAllCreators(): Observable<List<Creator>> = floatPlaneApi.allCreators.flatMap { it.toObservable() }
             .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner.id) }
@@ -53,7 +49,7 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
     fun getCreatorsFromNetwork(vararg creatorIds: String) =
             floatPlaneApi.getCreator(*creatorIds).flatMap { it.toObservable() }
                     .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner) }
-                    .toList()
+                    .toList().toObservable()
 
     private fun getUsersFromNetwork(vararg userIds: String): Single<List<UserEntity>> =
             userIds.toObservable().buffer(20).flatMap { floatPlaneApi.getUsers(*it.toTypedArray()) }

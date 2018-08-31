@@ -6,15 +6,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxrelay2.PublishRelay
-import io.reactivex.Observable
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
-class VideoAdapter @Inject constructor() : RecyclerView.Adapter<VideoAdapter.ViewHolder>() {
+class VideoAdapter @Inject constructor() : BaseAdapter<Video, VideoAdapter.ViewHolder>() {
 
     var videos: List<Video> = emptyList()
         set(value) {
@@ -33,13 +33,9 @@ class VideoAdapter @Inject constructor() : RecyclerView.Adapter<VideoAdapter.Vie
         videos[position].let(holder::bind)
     }
 
-    private val relay = PublishRelay.create<Video>()
-    val actions: Observable<Video>
-        get() = relay
-
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            view.clicks().subscribe { videos[layoutPosition].let(relay::accept) }
+            subscriptions += view.clicks().subscribe { videos[layoutPosition].let(relay::accept) }
         }
 
         fun bind(video: Video) {

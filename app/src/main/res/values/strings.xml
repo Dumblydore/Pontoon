@@ -116,4 +116,5 @@
     <string name="action_quality">Quality</string>
     <string name="item_view_all">View All</string>
     <string name="creatorList.title">Creators</string>
+    <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
 </resources>

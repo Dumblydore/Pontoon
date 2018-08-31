@@ -27,7 +27,7 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
     }
 
     private fun getVideos() = videoRepository.subscriptions.flatMap {
-        videoRepository.getvideosFromCreators()
+        videoRepository.getSubscriptionFeed()
                 .map<VideoContract.State>(VideoContract.State::DisplayVideos)
                 .startWith(VideoContract.State.DisplaySubscriptions(it))
     }.doOnError { loge("error", it) }.onErrorReturn(::processError)

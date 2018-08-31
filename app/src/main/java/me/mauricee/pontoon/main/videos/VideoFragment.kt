@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
 import io.reactivex.Observable
@@ -11,7 +12,6 @@ import kotlinx.android.synthetic.main.fragment_videos.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
-import me.mauricee.pontoon.main.VideoAdapter
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
@@ -20,9 +20,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
     override fun getLayoutId(): Int = R.layout.fragment_videos
 
     @Inject
-    lateinit var videoAdapter: VideoAdapter
-    @Inject
-    lateinit var subscriptionAdapter: SubscriptionAdapter
+    lateinit var videoAdapter: SubscriptionVideoAdapter
 
     private val refreshes
         get() = RxSwipeRefreshLayout.refreshes(videos_container)
@@ -30,17 +28,14 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
 
     override val actions: Observable<VideoContract.Action>
         get() = Observable.merge(refreshes,
-                videoAdapter.actions.map(VideoContract.Action::PlayVideo), subscriptionAdapter.actions)
+                videoAdapter.actions.map(VideoContract.Action::PlayVideo),
+                videoAdapter.subscriptionAdapter.actions)
                 .startWith(VideoContract.Action.Refresh)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         videos_list.layoutManager = LayoutManager(requireContext())
         videos_list.adapter = videoAdapter
-
-        videos_subscriptions.layoutManager = LinearLayoutManager(requireContext(),
-                LinearLayoutManager.HORIZONTAL, false)
-        videos_subscriptions.adapter = subscriptionAdapter
         videos_container_lazy.setupWithSwipeRefreshLayout(videos_container)
     }
 
@@ -51,11 +46,11 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
         }
         is VideoContract.State.DisplayVideos -> displayVideos(state.videos)
         is VideoContract.State.Error -> processError(state)
-        is VideoContract.State.DisplaySubscriptions -> subscriptionAdapter.user = state.subscriptions
+        is VideoContract.State.DisplaySubscriptions -> videoAdapter.subscriptionAdapter.user = state.subscriptions
     }
 
-    private fun displayVideos(videos: List<Video>) {
-        videoAdapter.videos = videos
+    private fun displayVideos(videos: PagedList<Video>) {
+        videoAdapter.submitList(videos)
         videos_container_lazy.state = LazyLayout.SUCCESS
     }
 

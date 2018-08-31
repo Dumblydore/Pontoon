@@ -6,18 +6,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxrelay2.PublishRelay
-import io.reactivex.Observable
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_end_user_bubble.view.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-class SubscriptionAdapter @Inject constructor(): RecyclerView.Adapter<SubscriptionAdapter.ViewHolder>() {
-    private val relay = PublishRelay.create<VideoContract.Action>()
-    val actions: Observable<VideoContract.Action>
-        get() = relay
+class SubscriptionAdapter @Inject constructor() : BaseAdapter<VideoContract.Action, SubscriptionAdapter.ViewHolder>() {
 
     var user: List<UserRepository.Creator> = emptyList()
         set(value) {
@@ -39,13 +36,13 @@ class SubscriptionAdapter @Inject constructor(): RecyclerView.Adapter<Subscripti
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            view.findViewById<View>(R.id.item_icon_small).clicks()
+            subscriptions += view.findViewById<View>(R.id.item_icon_small).clicks()
                     .map { VideoContract.Action.Subscription(user[layoutPosition]) }
                     .subscribe(relay::accept)
 
-            view.item_icon_viewAll?.clicks()?.map { VideoContract.Action.Creators}?.subscribe(relay::accept)
+            view.item_icon_viewAll?.clicks()?.map { VideoContract.Action.Creators }?.subscribe(relay::accept)
+                    ?.also { subscriptions += it }
         }
-
 
         fun bind(user: UserRepository.Creator) {
             itemView.apply {

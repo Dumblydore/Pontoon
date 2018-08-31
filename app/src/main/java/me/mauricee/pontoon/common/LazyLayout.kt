@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.core.view.postDelayed
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import kotlinx.android.synthetic.main.lazy_error_layout.view.*
 import me.mauricee.pontoon.R
 
 /**
@@ -39,6 +40,11 @@ class LazyLayout : FrameLayout {
             field?.also(::removeView)
             value?.also(::addView)
             field = value
+        }
+
+    var errorText: String? = null
+        set(value) {
+            lazy_error_text?.text = errorText
         }
     private var successView: View? = null
 //        set(value) {

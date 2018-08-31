@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.main.videos
 
 import androidx.annotation.StringRes
+import androidx.paging.PagedList
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
@@ -21,9 +22,9 @@ interface VideoContract {
     }
 
     sealed class State : EventTracker.State {
-        class Loading(clean: Boolean = true) : State()
+        class Loading(val clean: Boolean = true) : State()
         class DisplaySubscriptions(val subscriptions: List<UserRepository.Creator>) : State()
-        class DisplayVideos(val videos: List<Video>) : State()
+        class DisplayVideos(val videos: PagedList<Video>) : State()
         class Error(val type: Type = Type.Unknown) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"

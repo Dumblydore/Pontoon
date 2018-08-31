@@ -100,6 +100,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun playVideo(video: Video, commentId: String) {
         animationTouchListener.show()
+        main_player.alpha = 1f
         loadFragment {
             replace(R.id.main_player, PlayerFragment.newInstance(video.thumbnail))
         }

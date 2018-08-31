@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.creatorList
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_creator_list.*
 import me.mauricee.pontoon.BaseFragment
@@ -26,14 +27,23 @@ class CreatorListFragment : BaseFragment<CreatorListPresenter>(), CreatorListCon
         creatorList_list.adapter = adapter
     }
 
-    override fun updateState(state: CreatorListContract.State) = when (state) {
-        CreatorListContract.State.Loading -> creatorList_container_lazy.state = LazyLayout.LOADING
-        is CreatorListContract.State.DisplayCreators -> {
-            adapter.creators = state.creator
-            creatorList_container_lazy.state = LazyLayout.SUCCESS
-        }
-        is CreatorListContract.State.Error -> {
-            creatorList_container_lazy.state = LazyLayout.ERROR
+    override fun updateState(state: CreatorListContract.State) {
+        when (state) {
+            CreatorListContract.State.Loading -> creatorList_container_lazy.state = LazyLayout.LOADING
+            is CreatorListContract.State.DisplayCreators -> {
+                adapter.creators = state.creator
+                creatorList_container_lazy.state = LazyLayout.SUCCESS
+            }
+            is CreatorListContract.State.Error -> {
+                when(state.type) {
+                    CreatorListContract.State.Error.Type.Unsubscribed -> Snackbar.make(view!!,getString(R.string.creator_list_unsubscribed), Snackbar.LENGTH_SHORT).show()
+                    CreatorListContract.State.Error.Type.Network,
+                    CreatorListContract.State.Error.Type.Unknown -> {
+                        creatorList_container_lazy.state = LazyLayout.ERROR
+                        creatorList_container_lazy.errorText = getString(state.type.msg)
+                    }
+                }
+            }
         }
     }
 

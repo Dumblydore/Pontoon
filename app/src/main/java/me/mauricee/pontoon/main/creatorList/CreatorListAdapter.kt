@@ -6,18 +6,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxrelay2.PublishRelay
-import io.reactivex.Observable
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-class CreatorListAdapter @Inject constructor() : RecyclerView.Adapter<CreatorListAdapter.ViewHolder>() {
-
-    private val actionSubject = PublishRelay.create<CreatorListContract.Action>()
-    public val actions: Observable<CreatorListContract.Action> = actionSubject
+class CreatorListAdapter @Inject constructor() : BaseAdapter<CreatorListContract.Action, CreatorListAdapter.ViewHolder>() {
 
     var creators: List<UserRepository.Creator> = emptyList()
         set(value) {
@@ -38,8 +35,8 @@ class CreatorListAdapter @Inject constructor() : RecyclerView.Adapter<CreatorLis
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         init {
-            view.clicks().map { CreatorListContract.Action.Creator(creators[layoutPosition]) }
-                    .subscribe(actionSubject::accept)
+            subscriptions += view.clicks().map { CreatorListContract.Action.Creator(creators[layoutPosition]) }
+                    .subscribe(relay::accept)
         }
 
         fun bind(creator: UserRepository.Creator) {

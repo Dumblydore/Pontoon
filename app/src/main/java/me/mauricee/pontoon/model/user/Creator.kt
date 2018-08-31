@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.model.user
 
 import androidx.room.*
+import io.reactivex.Observable
 import io.reactivex.Single
 
 @Entity(tableName = "Creator")
@@ -20,6 +21,6 @@ interface CreatorDao {
     fun delete(vararg creatorEntity: CreatorEntity)
 
     @Query("SELECT * FROM Creator WHERE id IN (:creatorIds)")
-    fun getCreatorsByIds(vararg creatorIds: String): Single<List<CreatorEntity>>
+    fun getCreatorsByIds(vararg creatorIds: String): Observable<List<CreatorEntity>>
 
 }
