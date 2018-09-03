@@ -24,6 +24,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
 
     private val refreshes
         get() = RxSwipeRefreshLayout.refreshes(videos_container)
+                .doOnNext { videoAdapter.submitList(null) }
                 .map { VideoContract.Action.Refresh }
 
     override val actions: Observable<VideoContract.Action>

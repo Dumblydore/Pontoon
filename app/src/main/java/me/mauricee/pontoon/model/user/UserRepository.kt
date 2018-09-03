@@ -13,12 +13,11 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                                          private val userDao: UserDao,
                                          private val creatorDao: CreatorDao) {
 
-    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> =
-            Observable.concatArray(creatorDao.getCreatorsByIds(*creatorIds), getCreatorsFromNetwork(*creatorIds))
-                    .flatMapSingle(this::loadCreators)
-                    .filter { it.isNotEmpty() }
-                    .debounce(400, TimeUnit.MILLISECONDS)
-                    .compose(RxHelpers.applyObservableSchedulers())
+    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> = Observable.mergeArray(creatorDao.getCreatorsByIds(*creatorIds), getCreatorsFromNetwork(*creatorIds))
+            .flatMapSingle(this::loadCreators)
+            .filter { it.isNotEmpty() }
+            .debounce(400, TimeUnit.MILLISECONDS)
+            .compose(RxHelpers.applyObservableSchedulers())
 
     fun getAllCreators(): Observable<List<Creator>> = floatPlaneApi.allCreators.flatMap { it.toObservable() }
             .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner.id) }
@@ -46,10 +45,10 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                 it.activity.toObservable().map { Activity(it.comment, it.date, it.video.id) }.toList()
             }
 
-    fun getCreatorsFromNetwork(vararg creatorIds: String) =
-            floatPlaneApi.getCreator(*creatorIds).flatMap { it.toObservable() }
-                    .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner) }
-                    .toList().toObservable()
+    private fun getCreatorsFromNetwork(vararg creatorIds: String) = floatPlaneApi.getCreator(*creatorIds).flatMap { it.toObservable() }
+            .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner) }
+            .toList().toObservable()
+
 
     private fun getUsersFromNetwork(vararg userIds: String): Single<List<UserEntity>> =
             userIds.toObservable().buffer(20).flatMap { floatPlaneApi.getUsers(*it.toTypedArray()) }

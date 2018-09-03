@@ -13,27 +13,38 @@ import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.model.subscription.SubscriptionDao
+import me.mauricee.pontoon.model.subscription.SubscriptionEntity
 import me.mauricee.pontoon.model.user.UserRepository
 import okhttp3.ResponseBody
 import org.threeten.bp.Instant
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class VideoRepository @Inject constructor(private val userRespository: UserRepository,
+class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                                           private val videoDao: VideoDao,
                                           private val historyDao: HistoryDao,
                                           private val floatPlaneApi: FloatPlaneApi,
-                                          private val boundryCallbackFactory: VideoBoundaryCallback.Factory,
+                                          private val subscriptionDao: SubscriptionDao,
+                                          private val boundaryCallbackFactory: VideoBoundaryCallback.Factory,
                                           private val pageListConfig: PagedList.Config) {
 
-    val subscriptions: Observable<List<UserRepository.Creator>> =
-            floatPlaneApi.subscriptions.flatMapSingle(this::validateSubscriptions)
-                    .map { it.map { it.creatorId }.toTypedArray() }
-                    .flatMap { userRespository.getCreators(*it) }
+    val subscriptions: Observable<List<UserRepository.Creator>> = Observable.mergeArray(subscriptionsFromCache(), subscriptionsFromNetwork())
+            .flatMap { userRepo.getCreators(*it) }
+            .debounce(400, TimeUnit.MILLISECONDS)
+            .compose(RxHelpers.applyObservableSchedulers())
 
-    fun getSubscriptionFeed(): Observable<PagedList<Video>> = subscriptions.flatMap { getVideos(*it.toTypedArray()).videos }
+    private fun subscriptionsFromNetwork() = floatPlaneApi.subscriptions.flatMapSingle(this::validateSubscriptions)
+            .doOnNext(::cacheSubscriptions)
+            .map { it.map { it.creatorId }.toTypedArray() }
+
+    private fun subscriptionsFromCache() = subscriptionDao.getSubscriptions()
+            .map { it.map { it.creator }.toTypedArray() }
+
+    fun getSubscriptionFeed(): Observable<SubscriptionFeed> = subscriptions.flatMap { getVideos(*it.toTypedArray()).videos.map { vids -> SubscriptionFeed(it, vids) } }
 
     fun getVideos(vararg creator: UserRepository.Creator): VideoResult {
-        val callback = boundryCallbackFactory.newInstance(*creator)
+        val callback = boundaryCallbackFactory.newInstance(*creator)
         return RxPagedListBuilder(videoDao.getVideoByCreators(*creator.map { it.id }.toTypedArray())
                 .map { vid -> Video(vid, creator.first { it.id == vid.creator }) }, pageListConfig)
                 .setFetchScheduler(Schedulers.io())
@@ -45,7 +56,7 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
     }
 
     fun search(query: String, vararg filteredSubs: UserRepository.Creator): VideoResult {
-        val callback = boundryCallbackFactory.newInstance(*filteredSubs)
+        val callback = boundaryCallbackFactory.newInstance(*filteredSubs)
         return RxPagedListBuilder(videoDao.search(query, *filteredSubs.map { it.id }.toTypedArray())
                 .map { vid -> Video(vid, filteredSubs.first { it.id == vid.creator }) }, pageListConfig)
                 .setFetchScheduler(Schedulers.io())
@@ -59,7 +70,7 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
     fun getVideo(video: String): Single<Video> = videoDao.getVideo(video)
             .switchIfEmpty(getVideoInfoFromNetwork(video))
             .flatMap { vid ->
-                userRespository.getCreators(vid.creator)
+                userRepo.getCreators(vid.creator)
                         .map { it.first() }
                         .map { it ->
                             Video(vid.id, vid.title, vid.description, vid.releaseDate, vid.duration, it, vid.thumbnail)
@@ -68,7 +79,7 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
 
     fun getRelatedVideos(video: String): Single<List<Video>> = floatPlaneApi.getRelatedVideos(video)
             .doOnNext(::cacheVideoPojos).flatMap { videos ->
-                videos.map { it.creator }.distinct().toTypedArray().let { userRespository.getCreators(*it) }
+                videos.map { it.creator }.distinct().toTypedArray().let { userRepo.getCreators(*it) }
                         .flatMap { it.toObservable() }
                         .flatMap { creator ->
                             videos.toObservable().filter { it.creator == creator.id }.map { Video(it, creator) }
@@ -101,11 +112,11 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
     }
 
     private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
-            .map(::convertVideo).singleOrError()
+            .map{it.toEntity()}.singleOrError()
 
     private fun cacheVideoPojos(videos: List<me.mauricee.pontoon.domain.floatplane.Video>) {
         videos.toObservable()
-                .map(::convertVideo)
+                .map{it.toEntity()}
                 .toList().map { it.toTypedArray() }
                 .flatMapCompletable { Completable.fromCallable { videoDao.insert(*it) } }
                 .subscribeOn(Schedulers.io())
@@ -115,8 +126,16 @@ class VideoRepository @Inject constructor(private val userRespository: UserRepos
                 .subscribe()
     }
 
-    private fun convertVideo(video: me.mauricee.pontoon.domain.floatplane.Video) = VideoEntity(video.guid, video.creator, video.description, video.releaseDate, video.duration, video.defaultThumbnail, video.title)
-    private fun convertVideo(video: Video) = VideoEntity(video.id, video.creator.id, video.description, video.releaseDate, video.duration, video.thumbnail, video.title)
+
+    //TODO use proper id
+    private fun cacheSubscriptions(subscriptions: List<Subscription>) {
+        subscriptions.toObservable().map { SubscriptionEntity(it.creatorId, it.creatorId, it.startDate, it.endDate) }
+                .toList()
+                .observeOn(Schedulers.io())
+                .subscribe { it ->
+                    subscriptionDao.insert(*it.toTypedArray())
+                }
+    }
 
     private fun validateSubscriptions(subscriptions: List<Subscription>) =
             if (subscriptions.isEmpty()) Single.error(NoSubscriptionsException())
@@ -136,3 +155,5 @@ data class Video(val id: String, val title: String, val description: String, val
 }
 
 data class Playback(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality)
+
+data class SubscriptionFeed(val subscriptions: List<UserRepository.Creator>, val videos: PagedList<Video>)

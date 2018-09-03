@@ -32,4 +32,8 @@ class ModelModule {
     @AppScope
     @Provides
     fun providesCommentDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.commentDao
+
+    @AppScope
+    @Provides
+    fun providesSubscriptionDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.subscriptionDao
 }

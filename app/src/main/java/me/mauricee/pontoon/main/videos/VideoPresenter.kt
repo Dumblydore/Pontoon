@@ -3,7 +3,6 @@ package me.mauricee.pontoon.main.videos
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.video.VideoRepository
 import retrofit2.HttpException
@@ -26,11 +25,11 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
     }
 
-    private fun getVideos() = videoRepository.subscriptions.flatMap {
-        videoRepository.getSubscriptionFeed()
-                .map<VideoContract.State>(VideoContract.State::DisplayVideos)
-                .startWith(VideoContract.State.DisplaySubscriptions(it))
-    }.doOnError { loge("error", it) }.onErrorReturn(::processError)
+    private fun getVideos() = videoRepository.getSubscriptionFeed()
+            .flatMap<VideoContract.State> {
+                Observable.just(VideoContract.State.DisplayVideos(it.videos),
+                        VideoContract.State.DisplaySubscriptions(it.subscriptions))
+            }.onErrorReturn(::processError)
 
     private fun processError(e: Throwable): VideoContract.State.Error = when (e) {
         is VideoRepository.NoSubscriptionsException -> VideoContract.State.Error.Type.NoVideos
