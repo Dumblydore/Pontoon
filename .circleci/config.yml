@@ -99,16 +99,3 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-      - build_beta:
-        requires:
-          - build
-        filters:
-          branches:
-            only: master
-            ignore: /.*/
-      - build_release:
-        requires:
-          - build
-        filters:
-          tags:
-            only: /^release-.*/
