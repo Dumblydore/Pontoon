@@ -101,9 +101,9 @@ workflows:
       - build:
         filters:
           branches:
-            only: /.*/
+            only: /^v.*/
           tags:
-            only: /.*/
+            only: /^v.*/
       - build_beta:
         requires:
           - build
