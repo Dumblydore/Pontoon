@@ -99,14 +99,14 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-      - build_beta
+      - build_beta:
         requires:
           - build
         filters:
           branches:
             only: master
             ignore: /.*/
-      - build_release
+      - build_release:
         requires:
           - build
         filters:
