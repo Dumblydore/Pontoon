@@ -28,6 +28,11 @@ class LazyLayout : FrameLayout {
         const val SUCCESS = 1
     }
 
+    var displayRetryButton = true
+        set(value) {
+            lazy_error_retry?.isVisible = value
+        }
+
     private var loadingView: View? = null
         set(value) {
             field?.also(::removeView)
@@ -44,7 +49,7 @@ class LazyLayout : FrameLayout {
 
     var errorText: String? = null
         set(value) {
-            lazy_error_text?.text = errorText
+            lazy_error_text?.text = value
         }
     private var successView: View? = null
 //        set(value) {
@@ -54,7 +59,8 @@ class LazyLayout : FrameLayout {
 //        }
 
 
-    private var listener: StateUpdateListener? = null
+    private var stateUpdateListener: StateUpdateListener? = null
+    var retryListener: RetryListener? = null
 
     @State
     var state = LOADING
@@ -90,6 +96,7 @@ class LazyLayout : FrameLayout {
 
         loadingLayout = a.getResourceId(R.styleable.LazyLayout_loading_layout, loadingLayout)
         errorLayout = a.getResourceId(R.styleable.LazyLayout_error_layout, errorLayout)
+        displayRetryButton = a.getBoolean(R.styleable.LazyLayout_display_retry, false)
 
         loadingView = LayoutInflater.from(context).inflate(loadingLayout, this, false)
         errorView = LayoutInflater.from(context).inflate(errorLayout, this, false)
@@ -111,6 +118,7 @@ class LazyLayout : FrameLayout {
 
         successView?.visibility = View.GONE
 
+        lazy_error_retry?.setOnClickListener { retryListener?.onRetry() }
         updateViewState()
     }
 
@@ -130,13 +138,13 @@ class LazyLayout : FrameLayout {
             }
 
             if (triggerNotify) {
-                listener?.onStateUpdated(state)
+                stateUpdateListener?.onStateUpdated(state)
             }
         }
     }
 
     fun setStateChangeListener(listener: StateUpdateListener?) {
-        this.listener = listener
+        this.stateUpdateListener = listener
     }
 
     fun setupWithSwipeRefreshLayout(swipeRefreshLayout: SwipeRefreshLayout) {
@@ -217,6 +225,10 @@ class LazyLayout : FrameLayout {
 
     interface StateUpdateListener {
         fun onStateUpdated(@State state: Int)
+    }
+
+    interface RetryListener {
+        fun onRetry()
     }
 
 }

@@ -6,13 +6,13 @@ import io.reactivex.Observable
 
 open class StateBoundaryCallback<T : Any> : PagedList.BoundaryCallback<T>() {
 
-    internal val stateRelay = BehaviorRelay.createDefault(State.LOADING)
-    val state :Observable<StateBoundaryCallback.State> = stateRelay
-    internal var isLoading = false
+    internal val stateRelay = BehaviorRelay.create<State>()
+    val state :Observable<State> = stateRelay
 
     enum class State {
         LOADING,
         ERROR,
+        FETCHED,
         FINISHED
     }
 

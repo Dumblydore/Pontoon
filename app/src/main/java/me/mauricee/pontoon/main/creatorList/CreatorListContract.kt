@@ -22,6 +22,8 @@ interface CreatorListContract {
         class Error(val type: Type = Type.Unknown) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.ERROR
             enum class Type(@StringRes val msg: Int) {
                 Network(R.string.creator_error_noCreator),
                 Unsubscribed(R.string.creator_error_noVideos),

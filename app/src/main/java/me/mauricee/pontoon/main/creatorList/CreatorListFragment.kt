@@ -9,6 +9,7 @@ import kotlinx.android.synthetic.main.fragment_creator_list.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
+import me.mauricee.pontoon.common.SpaceItemDecoration
 import javax.inject.Inject
 
 class CreatorListFragment : BaseFragment<CreatorListPresenter>(), CreatorListContract.View {
@@ -25,6 +26,7 @@ class CreatorListFragment : BaseFragment<CreatorListPresenter>(), CreatorListCon
         super.onViewCreated(view, savedInstanceState)
         creatorList_list.layoutManager = GridLayoutManager(requireContext(), 2)
         creatorList_list.adapter = adapter
+        creatorList_list.addItemDecoration(SpaceItemDecoration(resources.getDimensionPixelSize(R.dimen.grid_spacing)))
     }
 
     override fun updateState(state: CreatorListContract.State) {

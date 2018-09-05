@@ -22,15 +22,38 @@ interface VideoContract {
     }
 
     sealed class State : EventTracker.State {
-        class Loading(val clean: Boolean = true) : State()
+        class Loading(val clean: Boolean = true) : State() {
+            override val tag: String
+                get() = "${super.tag}_${if (clean) "clean" else "paginate"}"
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.ERROR
+        }
+
         class DisplaySubscriptions(val subscriptions: List<UserRepository.Creator>) : State()
         class DisplayVideos(val videos: PagedList<Video>) : State()
+        object FinishPageFetch : State()
+        class FetchError(val type: Type = Type.Unknown) : State() {
+            override val tag: String
+                get() = "${super.tag}_$type"
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.ERROR
+
+            enum class Type(@StringRes val msg: Int) {
+                Network(R.string.subscriptions_error_network),
+                NoVideos(R.string.subscriptions_error_noVideos),
+                Unknown(R.string.subscriptions_error_general)
+            }
+        }
+
         class Error(val type: Type = Type.Unknown) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.ERROR
+
             enum class Type(@StringRes val msg: Int) {
                 Network(R.string.subscriptions_error_network),
-                NoVideos(R.string.subscriptions_error_noSubscriptions),
+                NoSubscriptions(R.string.subscriptions_error_noSubscriptions),
                 Unknown(R.string.subscriptions_error_general)
             }
         }

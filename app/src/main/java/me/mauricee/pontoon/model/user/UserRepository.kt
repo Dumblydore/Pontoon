@@ -13,7 +13,8 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                                          private val userDao: UserDao,
                                          private val creatorDao: CreatorDao) {
 
-    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> = Observable.mergeArray(creatorDao.getCreatorsByIds(*creatorIds), getCreatorsFromNetwork(*creatorIds))
+    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> =
+            Observable.mergeArray(creatorDao.getCreatorsByIds(*creatorIds), getCreatorsFromNetwork(*creatorIds))
             .flatMapSingle(this::loadCreators)
             .filter { it.isNotEmpty() }
             .debounce(400, TimeUnit.MILLISECONDS)
@@ -45,7 +46,8 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                 it.activity.toObservable().map { Activity(it.comment, it.date, it.video.id) }.toList()
             }
 
-    private fun getCreatorsFromNetwork(vararg creatorIds: String) = floatPlaneApi.getCreator(*creatorIds).flatMap { it.toObservable() }
+    private fun getCreatorsFromNetwork(vararg creatorIds: String) =
+            floatPlaneApi.getCreator(*creatorIds).flatMap { it.toObservable() }
             .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner) }
             .toList().toObservable()
 

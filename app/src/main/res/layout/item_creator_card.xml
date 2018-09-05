@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <ImageView
+    <me.mauricee.pontoon.common.TileImageView
         android:id="@+id/item.icon.big"
         android:layout_width="match_parent"
         tools:layout_width="256dp"
@@ -24,6 +24,7 @@
 
         <TextView
             android:id="@+id/item.title"
+            android:textColor="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="LinusTechTips"/>

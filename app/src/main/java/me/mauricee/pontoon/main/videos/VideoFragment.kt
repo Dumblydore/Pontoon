@@ -4,15 +4,19 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_videos.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.rx.lazylayout.retries
 import javax.inject.Inject
 
 class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
@@ -22,13 +26,15 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
     @Inject
     lateinit var videoAdapter: SubscriptionVideoAdapter
 
+    private val miscActions = PublishRelay.create<VideoContract.Action>()
     private val refreshes
-        get() = RxSwipeRefreshLayout.refreshes(videos_container)
+        get() = Observable.merge(RxSwipeRefreshLayout.refreshes(videos_container),
+                videos_container_lazy.retries())
                 .doOnNext { videoAdapter.submitList(null) }
                 .map { VideoContract.Action.Refresh }
 
     override val actions: Observable<VideoContract.Action>
-        get() = Observable.merge(refreshes,
+        get() = Observable.merge(refreshes,miscActions,
                 videoAdapter.actions.map(VideoContract.Action::PlayVideo),
                 videoAdapter.subscriptionAdapter.actions)
                 .startWith(VideoContract.Action.Refresh)
@@ -40,14 +46,23 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
         videos_container_lazy.setupWithSwipeRefreshLayout(videos_container)
     }
 
-    override fun updateState(state: VideoContract.State) = when (state) {
-        is VideoContract.State.Loading -> {
-            videos_container_lazy.state = LazyLayout.LOADING
-            videos_container.isRefreshing = true
+    override fun updateState(state: VideoContract.State) {
+        when (state) {
+            is VideoContract.State.Loading -> {
+                if (state.clean) {
+                    videoAdapter.submitList(null)
+                    videos_container_lazy.state = LazyLayout.LOADING
+                    videos_container.isRefreshing = true
+                } else {
+                    videos_page_progress.isVisible = true
+                }
+            }
+            is VideoContract.State.DisplayVideos -> displayVideos(state.videos)
+            is VideoContract.State.Error -> processError(state)
+            is VideoContract.State.DisplaySubscriptions -> videoAdapter.subscriptionAdapter.user = state.subscriptions
+            is VideoContract.State.FinishPageFetch -> videos_page_progress.isVisible = false
+            is VideoContract.State.FetchError -> processFetchError(state)
         }
-        is VideoContract.State.DisplayVideos -> displayVideos(state.videos)
-        is VideoContract.State.Error -> processError(state)
-        is VideoContract.State.DisplaySubscriptions -> videoAdapter.subscriptionAdapter.user = state.subscriptions
     }
 
     private fun displayVideos(videos: PagedList<Video>) {
@@ -60,6 +75,11 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
                 ?.findViewById<TextView>(R.id.lazy_error_text)
                 ?.setText(error.type.msg)
         videos_container_lazy.state = LazyLayout.ERROR
+    }
+
+    private fun processFetchError(error: VideoContract.State.FetchError) {
+        Snackbar.make(view!!,error.type.msg,Snackbar.LENGTH_LONG)
+                .show()
     }
 
     private class LayoutManager(context: Context) : LinearLayoutManager(context) {

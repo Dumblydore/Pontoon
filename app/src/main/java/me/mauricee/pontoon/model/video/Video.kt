@@ -20,6 +20,9 @@ interface VideoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg videos: VideoEntity)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun cacheVideos(vararg videos: VideoEntity) : List<Long>
+
     @Query("SELECT COUNT(id) FROM Video")
     fun getNumberOfVideos(): Int
 

@@ -19,7 +19,10 @@ interface SearchContract {
     sealed class State : EventTracker.State {
         object Loading : State()
         object NoResults : State()
-        object Error : State()
+        object Error : State() {
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.ERROR
+        }
         class Results(val list: PagedList<Video>) : State()
     }
 }
