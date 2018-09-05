@@ -9,7 +9,7 @@ defaults: &defaults
     TERM: dumb
 
 jobs:
-  build:
+  setup:
     steps:
       - run:
           name: Install AWS CLI
@@ -98,4 +98,17 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build
+      - setup
+      - build_beta:
+        requires:
+          - setup
+        filters:
+          branches:
+            only: master
+            ignore: /.*/
+      - build_release:
+        requires:
+          - setup
+        filters:
+          tags:
+            only: /^release-.*/
