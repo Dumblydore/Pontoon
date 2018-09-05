@@ -25,9 +25,9 @@ jobs:
               echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
               echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
         - persist_to_workspace:
-              root: workspace
+              root: /
               paths:
-                - repo
+                - local.properties
   build_beta:
     docker:
       - image: circleci/android:api-28-alpha
@@ -37,6 +37,8 @@ jobs:
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
       TERM: dumb
     steps:
+      - attach_workspace:
+        at: local.properties
       - checkout
       # Download and cache dependencies
       - restore_cache:
@@ -74,6 +76,8 @@ jobs:
         GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
         TERM: dumb
       steps:
+        - attach_workspace:
+          at: local.properties
         - checkout
         - restore_cache:
             key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
