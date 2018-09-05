@@ -106,19 +106,16 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-      - test
-        requires:
-          - build
       - build_beta
         requires:
-          - test
+          - build
         filters:
           branches:
             only: master
             ignore: /.*/
       - build_release
         requires:
-          - test
+          - build
         filters:
           tags:
             only: /^release-.*/
