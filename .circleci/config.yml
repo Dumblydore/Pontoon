@@ -110,10 +110,13 @@ workflows:
         filters:
           branches:
             only: master
-            ignore: /.*/
+          tags:
+            ignore: ignore: /^v.*/
       - build_release:
         requires:
           - build
         filters:
           tags:
             only: /^release-.*/
+          branches:
+            ignore: /^v.*/
