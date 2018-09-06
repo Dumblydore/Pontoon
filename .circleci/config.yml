@@ -111,7 +111,7 @@ workflows:
           branches:
             only: master
           tags:
-            ignore: /^v.*/`
+            ignore: /^v.*/
       - build_release:
         requires:
           - build
