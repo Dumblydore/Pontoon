@@ -1,7 +1,5 @@
 package me.mauricee.pontoon.main.details
 
-
-//import me.mauricee.pontoon.glide.GlideApp
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,22 +7,21 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.glide.GlideApp
 import javax.inject.Inject
 
-class RelatedVideoAdapter @Inject constructor() : RecyclerView.Adapter<RelatedVideoAdapter.ViewHolder>() {
-    private val relay = PublishRelay.create<DetailsContract.Action>()
-    val actions: Observable<DetailsContract.Action>
-        get() = relay
+class RelatedVideoAdapter @Inject constructor() : BaseAdapter<DetailsContract.Action, RelatedVideoAdapter.ViewHolder>() {
 
+    //TODO move this into presenter
     var videos: List<me.mauricee.pontoon.model.video.Video> = emptyList()
         set(value) {
-            Observable.fromCallable {
+            subscriptions += Observable.fromCallable {
                 DiffUtil.calculateDiff(DiffCallback(field, value))
             }.compose(RxHelpers.applyObservableSchedulers()).subscribe {
                 field = value
@@ -42,7 +39,7 @@ class RelatedVideoAdapter @Inject constructor() : RecyclerView.Adapter<RelatedVi
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            view.clicks().map { DetailsContract.Action.PlayVideo(videos[layoutPosition].id) }
+            subscriptions += view.clicks().map { DetailsContract.Action.PlayVideo(videos[layoutPosition].id) }
                     .subscribe(relay::accept)
         }
 

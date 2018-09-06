@@ -186,6 +186,12 @@ class Player(private val exoPlayer: SimpleExoPlayer,
         state = PlaybackStateCompat.STATE_PAUSED
     }
 
+    override fun onStop() {
+        exoPlayer.playWhenReady = false
+        exoPlayer.release()
+        state = PlaybackStateCompat.STATE_STOPPED
+    }
+
     fun playPause() {
         if (exoPlayer.playWhenReady) onPause() else onPlay()
     }

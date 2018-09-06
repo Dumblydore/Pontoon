@@ -17,7 +17,10 @@ interface PlayerContract {
         class Bind(val player: Player) : State()
         class Preview(val path: String) : State()
         class Duration(val duration: String) : State()
-        class Progress(val progress: String) : State()
+        class Progress(val progress: String) : State() {
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.DEBUG
+        }
         class Quality(val qualityLevel: Player.QualityLevel) : State()
     }
 
@@ -27,6 +30,6 @@ interface PlayerContract {
         object SkipBackward : Action()
         object ToggleFullscreen : Action()
         object MinimizePlayer : Action()
-        class Quality(val level: Player.QualityLevel) : Action()
+        class Quality(val qualityLevel: Player.QualityLevel) : Action()
     }
 }

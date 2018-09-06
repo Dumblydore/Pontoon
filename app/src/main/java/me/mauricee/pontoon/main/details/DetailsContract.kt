@@ -26,7 +26,10 @@ interface DetailsContract {
         class PlaybackState(val state: BufferState) : State()
         class Comments(val comments: List<Comment>) : State()
         class RelatedVideos(val relatedVideos: List<Video>) : State()
-        class Progress(val progress: Int, val bufferedProgress: Int) : State()
+        class Progress(val progress: Int, val bufferedProgress: Int) : State() {
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.DEBUG
+        }
         class Error(val type: ErrorType = ErrorType.General) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"

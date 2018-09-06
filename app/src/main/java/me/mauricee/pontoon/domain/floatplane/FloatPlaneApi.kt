@@ -12,6 +12,9 @@ interface FloatPlaneApi {
     @get:GET("user/subscriptions")
     val subscriptions: Observable<List<Subscription>>
 
+    @get:GET("creator/list")
+    val allCreators: Observable<List<CreatorListItem>>
+
     @GET("user/info")
     fun getUsers(@Query("id") vararg id: String): Observable<User.Response>
 

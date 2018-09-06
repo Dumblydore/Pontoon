@@ -14,6 +14,7 @@ import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.main.creator.CreatorFragment
+import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
 import me.mauricee.pontoon.main.player.PlayerFragment
@@ -45,6 +46,9 @@ abstract class MainModule {
 
     @ContributesAndroidInjector
     abstract fun contributeCreatorFragment(): CreatorFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeCreatorListFragment(): CreatorListFragment
 
     @ContributesAndroidInjector
     abstract fun contributeHistoryFragment(): HistoryFragment

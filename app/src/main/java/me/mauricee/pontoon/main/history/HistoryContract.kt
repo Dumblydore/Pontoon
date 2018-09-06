@@ -3,8 +3,8 @@ package me.mauricee.pontoon.main.history
 import androidx.annotation.StringRes
 import androidx.paging.PagedList
 import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.video.Video
 
 interface HistoryContract {
@@ -21,6 +21,8 @@ interface HistoryContract {
         class Error(val type: Type = Type.Unknown) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.ERROR
             enum class Type(@StringRes val msg: Int) {
                 NoVideos(R.string.history_error_noVideos),
                 Unknown(R.string.history_error_general)

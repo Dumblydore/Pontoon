@@ -6,6 +6,8 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import me.mauricee.pontoon.model.comment.CommentDao
 import me.mauricee.pontoon.model.comment.CommentEntity
+import me.mauricee.pontoon.model.subscription.SubscriptionDao
+import me.mauricee.pontoon.model.subscription.SubscriptionEntity
 import me.mauricee.pontoon.model.user.CreatorDao
 import me.mauricee.pontoon.model.user.CreatorEntity
 import me.mauricee.pontoon.model.user.UserDao
@@ -18,16 +20,16 @@ import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
 
-
 @TypeConverters(value = [InstantTypeConverter::class])
 @Database(entities = [UserEntity::class, CreatorEntity::class, VideoEntity::class,
-    HistoryEntity::class, CommentEntity::class], version = 1)
+    HistoryEntity::class, CommentEntity::class, SubscriptionEntity::class], version = 1)
 abstract class PontoonDatabase : RoomDatabase() {
     abstract val userDao: UserDao
-    abstract val creatorDao: CreatorDao
     abstract val videoDao: VideoDao
+    abstract val creatorDao: CreatorDao
     abstract val historyDao: HistoryDao
     abstract val commentDao: CommentDao
+    abstract val subscriptionDao: SubscriptionDao
 }
 
 class InstantTypeConverter {
