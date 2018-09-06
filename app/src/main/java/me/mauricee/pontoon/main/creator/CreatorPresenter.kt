@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.creator
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
@@ -25,10 +26,19 @@ class CreatorPresenter @Inject constructor(private val videoRepository: VideoRep
     private fun getVideos(creator: String) = userRepository.getCreators(creator)
             .map { it.first() }
             .flatMap {
-                videoRepository.getVideos(false, it)
-                        .map<CreatorContract.State>(CreatorContract.State::DisplayVideos)
+                val result = videoRepository.getVideos(it)
+                Observable.merge(result.videos.distinctUntilChanged()
+                        .map<CreatorContract.State>(CreatorContract.State::DisplayVideos),
+                        result.state.map(::processState))
                         .startWith(CreatorContract.State.DisplayCreator(it))
             }
             .startWith(CreatorContract.State.Loading)
             .onErrorReturnItem(CreatorContract.State.Error())
+
+    private fun processState(state: StateBoundaryCallback.State): CreatorContract.State = when (state) {
+        StateBoundaryCallback.State.LOADING -> CreatorContract.State.Loading
+        StateBoundaryCallback.State.ERROR -> CreatorContract.State.Error()
+        StateBoundaryCallback.State.FINISHED -> CreatorContract.State.Error(CreatorContract.State.Error.Type.NoVideos)
+        StateBoundaryCallback.State.FETCHED -> CreatorContract.State.Loading
+    }
 }

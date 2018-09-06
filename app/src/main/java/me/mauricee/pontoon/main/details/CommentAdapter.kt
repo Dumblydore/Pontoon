@@ -9,25 +9,22 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_comment.view.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.comment.Comment
 import javax.inject.Inject
 
-class CommentAdapter @Inject constructor() : RecyclerView.Adapter<CommentAdapter.ViewHolder>() {
-    private val relay = PublishRelay.create<DetailsContract.Action>()
-    val actions: Observable<DetailsContract.Action>
-        get() = relay
+class CommentAdapter @Inject constructor() : BaseAdapter<DetailsContract.Action, CommentAdapter.ViewHolder>() {
 
     var comments: MutableList<Comment> = mutableListOf()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             LayoutInflater.from(parent.context).inflate(R.layout.item_comment, parent, false).let(this::ViewHolder)
@@ -46,7 +43,7 @@ class CommentAdapter @Inject constructor() : RecyclerView.Adapter<CommentAdapter
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            Observable.merge(view.item_icon_small.clicks(), view.item_title.clicks())
+            subscriptions += Observable.merge(view.item_icon_small.clicks(), view.item_title.clicks())
                     .map { comments[layoutPosition].user }
                     .map(DetailsContract.Action::ViewUser)
                     .subscribe(relay::accept)

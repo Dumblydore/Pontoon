@@ -12,9 +12,9 @@
         <item name="android:textColorPrimary">@color/textLightPrimary</item>
         <item name="android:textColorSecondary">@color/textLightSecondary</item>
     </style>
-
+<!--This causes crashes for some reason.-->
+        <!--<item name="android:windowBackground">@drawable/launch_screen</item>-->
     <style name="AppTheme.Launcher">
-        <item name="android:windowBackground">@drawable/launch_screen</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     </style>
 

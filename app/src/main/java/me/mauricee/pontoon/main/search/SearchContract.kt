@@ -1,6 +1,6 @@
 package me.mauricee.pontoon.main.search
 
-import androidx.recyclerview.widget.DiffUtil
+import androidx.paging.PagedList
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.video.Video
@@ -19,7 +19,10 @@ interface SearchContract {
     sealed class State : EventTracker.State {
         object Loading : State()
         object NoResults : State()
-        object Error : State()
-        class Results(val result: DiffUtil.DiffResult, val list: List<Video>) : State()
+        object Error : State() {
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.ERROR
+        }
+        class Results(val list: PagedList<Video>) : State()
     }
 }

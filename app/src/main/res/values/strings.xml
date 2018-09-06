@@ -15,8 +15,9 @@
     <string name="login_error_general">@string/error_general</string>
 
     <!-- Home -->
-    <string name="subscriptions_error_noSubscriptions">No Subscriptions Available</string>
-    <string name="subscriptions_error_network">Unable to load Subscriptions</string>
+    <string name="subscriptions_error_noSubscriptions">No Subscriptions Available.</string>
+    <string name="subscriptions_error_noVideos">No videos available.</string>
+    <string name="subscriptions_error_network">Unable to load Videos.</string>
     <string name="subscriptions_error_general">@string/error_general</string>
 
     <string name="video_error_network">Unable to load Videos</string>
@@ -121,4 +122,9 @@
     <string name="pause_icon_bottom_path_data">M 32 88 L 32 72 L 96 72 L 96 88 Z</string>
     <string name="action_share">Share</string>
     <string name="action_quality">Quality</string>
+    <string name="item_view_all">View All</string>
+    <string name="creatorList_title">Creators</string>
+    <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
+    <string name="lazy_error_retry">Retry</string>
+    <string name="snackbar_action_retry">Retry</string>
 </resources>

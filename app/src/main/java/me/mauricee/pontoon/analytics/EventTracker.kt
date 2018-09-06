@@ -20,13 +20,22 @@ class EventTracker @Inject constructor(private val container: Page) {
     interface State {
         val tag: String
             get() = javaClass.simpleName.replace(regex, "")
+        val level: Level
+            get() = Level.INFO
     }
 
     interface Action {
         val tag: String
             get() = javaClass.simpleName.replace(regex, "")
+        val level: Level
+            get() = Level.INFO
     }
 
+    enum class Level {
+        DEBUG,
+        INFO,
+        ERROR
+    }
     companion object {
 
         val trackers: MutableList<Tracker> = mutableListOf()
