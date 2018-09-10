@@ -8,7 +8,7 @@ import me.mauricee.pontoon.R
 enum class BaseTheme(@StyleRes val style: Int) {
     Light(R.style.AppTheme),
     Dark(R.style.AppThemeDark),
-    Black (R.style.AppTheme);
+    Black(R.style.AppThemeBlack);
 
     fun theme(context: Context): Resources.Theme = context.resources.newTheme()
             .apply { applyStyle(style, true) }

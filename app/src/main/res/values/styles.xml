@@ -10,6 +10,15 @@
     <style name="AppThemeDark" parent="Theme.AppCompat.NoActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
         <item name="android:textColorPrimary">@color/textDarkPrimary</item>
+        <item name="android:textColor">@color/textDarkPrimary</item>
+        <item name="android:textColorSecondary">@color/textDarkSecondary</item>
+    </style>
+
+    <style name="AppThemeBlack" parent="AppThemeDark">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+        <item name="android:windowBackground">@color/md_black_1000</item>
+        <item name="android:textColorPrimary">@color/textDarkPrimary</item>
+        <item name="android:textColor">@color/textDarkPrimary</item>
         <item name="android:textColorSecondary">@color/textDarkSecondary</item>
     </style>
 
@@ -191,6 +200,14 @@
         <!--<item name="colorPrimaryLight">@color/md_grey_100</item>-->
     </style>
 
+    <style name="PrimaryBlack" parent="PrimaryGrey">
+        <item name="android:colorPrimary">@color/md_black_1000</item>
+        <item name="colorPrimary">@color/md_black_1000</item>
+        <item name="android:colorPrimaryDark">@color/md_black_1000</item>
+        <item name="colorPrimaryDark">@color/md_black_1000</item>
+        <!--<item name="colorPrimaryLight">@color/md_grey_100</item>-->
+    </style>
+
     <style name="PrimaryBlueGrey">
         <item name="android:colorPrimary">@color/md_blue_grey_500</item>
         <item name="colorPrimary">@color/md_blue_grey_500</item>
@@ -201,11 +218,13 @@
 
     <style name="AccentDefault">
         <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:textColorHighlight">@color/colorAccent</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
     <style name="AccentRed">
         <item name="android:colorAccent">@color/md_red_A200</item>
+        <item name="android:textColorHighlight">@color/md_red_A200</item>
         <item name="colorAccent">@color/md_red_A200</item>
         <!--<item name="colorAccentDark">@color/md_red_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_red_A100</item>-->
@@ -213,6 +232,7 @@
 
     <style name="AccentPink">
         <item name="android:colorAccent">@color/md_pink_A200</item>
+        <item name="android:textColorHighlight">@color/md_pink_A200</item>
         <item name="colorAccent">@color/md_pink_A200</item>
         <!--<item name="colorAccentDark">@color/md_pink_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_pink_A100</item>-->
@@ -220,6 +240,7 @@
 
     <style name="AccentPurple">
         <item name="android:colorAccent">@color/md_purple_A200</item>
+        <item name="android:textColorHighlight">@color/md_purple_A200</item>
         <item name="colorAccent">@color/md_purple_A200</item>
         <!--<item name="colorAccentDark">@color/md_purple_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_purple_A100</item>-->
@@ -227,6 +248,7 @@
 
     <style name="AccentDeepPurple">
         <item name="android:colorAccent">@color/md_deep_purple_A200</item>
+        <item name="android:textColorHighlight">@color/md_deep_purple_A200</item>
         <item name="colorAccent">@color/md_deep_purple_A200</item>
         <!--<item name="colorAccentDark">@color/md_deep_purple_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_deep_purple_A100</item>-->
@@ -234,6 +256,7 @@
 
     <style name="AccentIndigo">
         <item name="android:colorAccent">@color/md_indigo_A200</item>
+        <item name="android:textColorHighlight">@color/md_indigo_A200</item>
         <item name="colorAccent">@color/md_indigo_A200</item>
         <!--<item name="colorAccentDark">@color/md_indigo_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_indigo_A100</item>-->
@@ -241,6 +264,7 @@
 
     <style name="AccentBlue">
         <item name="android:colorAccent">@color/md_blue_A200</item>
+        <item name="android:textColorHighlight">@color/md_blue_A200</item>
         <item name="colorAccent">@color/md_blue_A200</item>
         <!--<item name="colorAccentDark">@color/md_blue_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_blue_A100</item>-->
@@ -248,6 +272,7 @@
 
     <style name="AccentLightBlue">
         <item name="android:colorAccent">@color/md_light_blue_A200</item>
+        <item name="android:textColorHighlight">@color/md_light_blue_A200</item>
         <item name="colorAccent">@color/md_light_blue_A200</item>
         <!--<item name="colorAccentDark">@color/md_light_blue_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_light_blue_A100</item>-->
@@ -255,6 +280,7 @@
 
     <style name="AccentCyan">
         <item name="android:colorAccent">@color/md_cyan_A200</item>
+        <item name="android:textColorHighlight">@color/md_cyan_A200</item>
         <item name="colorAccent">@color/md_cyan_A200</item>
         <!--<item name="colorAccentDark">@color/md_cyan_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_cyan_A100</item>-->
@@ -262,6 +288,7 @@
 
     <style name="AccentTeal">
         <item name="android:colorAccent">@color/md_teal_A200</item>
+        <item name="android:textColorHighlight">@color/md_teal_A200</item>
         <item name="colorAccent">@color/md_teal_A200</item>
         <!--<item name="colorAccentDark">@color/md_teal_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_teal_A100</item>-->
@@ -269,6 +296,7 @@
 
     <style name="AccentGreen">
         <item name="android:colorAccent">@color/md_green_A200</item>
+        <item name="android:textColorHighlight">@color/md_green_A200</item>
         <item name="colorAccent">@color/md_green_A200</item>
         <!--<item name="colorAccentDark">@color/md_green_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_green_A100</item>-->
@@ -276,6 +304,7 @@
 
     <style name="AccentLightGreen">
         <item name="android:colorAccent">@color/md_light_green_A200</item>
+        <item name="android:textColorHighlight">@color/md_light_green_A200</item>
         <item name="colorAccent">@color/md_light_green_A200</item>
         <!--<item name="colorAccentDark">@color/md_light_green_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_light_green_A100</item>-->
@@ -283,6 +312,7 @@
 
     <style name="AccentLime">
         <item name="android:colorAccent">@color/md_lime_A200</item>
+        <item name="android:textColorHighlight">@color/md_lime_A200</item>
         <item name="colorAccent">@color/md_lime_A200</item>
         <!--<item name="colorAccentDark">@color/md_lime_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_lime_A100</item>-->
@@ -290,6 +320,7 @@
 
     <style name="AccentYellow">
         <item name="android:colorAccent">@color/md_yellow_A200</item>
+        <item name="android:textColorHighlight">@color/md_yellow_A200</item>
         <item name="colorAccent">@color/md_yellow_A200</item>
         <!--<item name="colorAccentDark">@color/md_yellow_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_yellow_A100</item>-->
@@ -297,6 +328,7 @@
 
     <style name="AccentAmber">
         <item name="android:colorAccent">@color/md_amber_A200</item>
+        <item name="android:textColorHighlight">@color/md_amber_A200</item>
         <item name="colorAccent">@color/md_amber_A200</item>
         <!--<item name="colorAccentDark">@color/md_amber_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_amber_A100</item>-->
@@ -304,6 +336,7 @@
 
     <style name="AccentOrange">
         <item name="android:colorAccent">@color/md_orange_A200</item>
+        <item name="android:textColorHighlight">@color/md_orange_A200</item>
         <item name="colorAccent">@color/md_orange_A200</item>
         <!--<item name="colorAccentDark">@color/md_orange_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_orange_A100</item>-->
@@ -311,6 +344,7 @@
 
     <style name="AccentDeepOrange">
         <item name="android:colorAccent">@color/md_deep_orange_A200</item>
+        <item name="android:textColorHighlight">@color/md_deep_orange_A200</item>
         <item name="colorAccent">@color/md_deep_orange_A200</item>
         <!--<item name="colorAccentDark">@color/md_deep_orange_A400</item>-->
         <!--<item name="colorAccentLight">@color/md_deep_orange_A100</item>-->

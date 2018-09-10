@@ -25,7 +25,8 @@ enum class PrimaryColor(@StyleRes val style: Int) {
     DeepOrange(R.style.PrimaryDeepOrange),
     Brown(R.style.PrimaryBrown),
     Grey(R.style.PrimaryGrey),
-    BlueGrey(R.style.PrimaryBlueGrey);
+    BlueGrey(R.style.PrimaryBlueGrey),
+    Black(R.style.PrimaryBlack);
 
     fun theme(context: Context): Resources.Theme = context.resources.newTheme()
             .apply { applyStyle(style, true) }
@@ -51,6 +52,7 @@ enum class PrimaryColor(@StyleRes val style: Int) {
         Brown -> "Brown"
         Grey -> "Grey"
         BlueGrey -> "BlueGrey"
+        Black -> "Black"
     }
 
     companion object {
@@ -75,6 +77,7 @@ enum class PrimaryColor(@StyleRes val style: Int) {
             "Brown" -> Brown
             "Grey" -> Grey
             "BlueGrey" -> BlueGrey
+            "Black" -> Black
             else -> Default
         }
     }

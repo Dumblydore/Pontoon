@@ -23,7 +23,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:text="Videos" />
+        android:text="@string/subscriptions_videos_subhead"
+        android:textColor="?android:attr/textColorPrimary" />
 
     <include layout="@layout/item_video_card" />
 

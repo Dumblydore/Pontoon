@@ -15,7 +15,7 @@ class ThemeManager @Inject constructor(private val preferences: SharedPreference
 
     var style: Style
         get() = convertToStyle(
-                BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Light.toString())),
+                BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Black.toString())),
                 PrimaryColor.valueOf(preferences.getString(PrimaryColorKey, PrimaryColor.Default.toString())),
                 AccentColor.valueOf(preferences.getString(AccentColorKey, AccentColor.Default.toString()))
         )
