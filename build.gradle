@@ -13,7 +13,6 @@ buildscript {
     ext.nav_version = '1.0.0-alpha01'
 
     repositories {
-
         google()
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
@@ -23,9 +22,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.1.0'
         classpath 'io.fabric.tools:gradle:1.25.4'
-//        classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:$nav_version"
-//        classpath 'com.google.gms:google-services:3.1.0'
-//        classpath 'io.fabric.tools:gradle:1.25.1'
     }
 }
 

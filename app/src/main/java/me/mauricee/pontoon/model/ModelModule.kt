@@ -36,4 +36,8 @@ class ModelModule {
     @AppScope
     @Provides
     fun providesSubscriptionDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.subscriptionDao
+
+    @AppScope
+    @Provides
+    fun providesEdgeDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.edgeDao
 }
