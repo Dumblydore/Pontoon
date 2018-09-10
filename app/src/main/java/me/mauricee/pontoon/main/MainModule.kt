@@ -6,6 +6,7 @@ import android.media.AudioManager
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import dagger.Binds
 import dagger.Module
@@ -71,7 +72,7 @@ abstract class MainModule {
                    agent: String, sharedPreferences: SharedPreferences,
                    context: Context): Player =
                 Player(ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector()),
-                        OkHttpDataSourceFactory(okHttpClient, agent, null),
+                        HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null)),
                         audioManager, sharedPreferences, session)
     }
 }
