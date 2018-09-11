@@ -1,6 +1,5 @@
 version: 2
 defaults: &defaults
-  resource_class: xlarge
   working_directory: '~/repo'
   docker:
     - image: circleci/android:api-28-alpha
@@ -35,7 +34,7 @@ jobs:
       - persist_to_workspace:
             root: ~/repo
             paths:
-              - ./
+              - ./local.properties
 
   build_beta:
     <<: *defaults
