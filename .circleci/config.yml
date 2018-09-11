@@ -40,7 +40,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-        at: local.properties
+          at: local.properties
       - checkout
       # Download and cache dependencies
       - restore_cache:
@@ -73,7 +73,7 @@ jobs:
       <<: *defaults
       steps:
         - attach_workspace:
-          at: local.properties
+            at: local.properties
         - checkout
         - restore_cache:
             key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
