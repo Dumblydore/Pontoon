@@ -114,4 +114,6 @@ workflows:
             tags:
               only: /^release-.*/
             branches:
-              ignore: /feature-.*/
+              ignore:
+                - /feature-.*/
+                - master
