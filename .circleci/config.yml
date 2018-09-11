@@ -113,3 +113,4 @@ workflows:
           filters:
             tags:
               only: /^release-.*/
+              ignore: /feature-.*/
