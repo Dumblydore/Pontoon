@@ -48,6 +48,9 @@ jobs:
             - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
             - configs
       - run:
+          name: validate root location
+          command: pwd
+      - run:
           name: validate root directory
           command: ls ./
       - run:
