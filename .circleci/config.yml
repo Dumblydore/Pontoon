@@ -118,3 +118,8 @@ workflows:
               only: /^release-.*/
             branches:
               ignore: /.*/
+    notify:
+      branches:
+        only:
+          - /feature-.*/
+          - /bugfix-.*/
