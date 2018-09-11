@@ -18,11 +18,11 @@ jobs:
       - run:
           name: Get keystore from S3
           command: |
-            mkdir keystore
+            mkdir configs
             aws configure set s3.signature_version s3v4
-            aws s3 cp s3://mauricee.me-server/keystore/pontoon/Pontoon.jks ./keystore --region us-west-2
-            aws s3 cp s3://mauricee.me-server/keystore/pontoon/fabric.properties ./app --region us-west-2
-            aws s3 cp s3://mauricee.me-server/keystore/pontoon/debug/google-services.json ./app --region us-west-2
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/Pontoon.jks ./configs --region us-west-2
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/fabric.properties ./configs --region us-west-2
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/debug/google-services.json ./configs --region us-west-2
       - run:
           name: prepare properties.local
           command: |
@@ -34,10 +34,8 @@ jobs:
       - save_cache:
           key: configs
           paths:
-          - ./local.properties
-          - ./keystore/Pontoon.jks
-          - ./app/fabric.properties
-          - ./app/google-services.json
+            - ./configs
+            - local.properties
 
   build_beta:
     <<: *defaults
@@ -46,16 +44,17 @@ jobs:
       - restore_cache:
           keys:
             - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-            - configs-{{ .Branch }}-{{ checksum "app/fabric.properties" }}
-      - run:
-          name: validate root location
-          command: pwd
+            - configs
       - run:
           name: validate root directory
-          command: ls ./
+          command: ls ./configs
       - run:
-          name: validate properties file
-          command: ls ./app
+          name: move config files
+          command: |
+            mkdir ./keystore
+            mv ./configs/Pontoon.jks ./keystore
+            mv ./configs/fabric.properties ./app
+            mv ./configs/google-services.json ./app
       - run:
           name: chmod permissions
           command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
@@ -83,7 +82,14 @@ jobs:
         - restore_cache:
             keys:
               - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-              - configs-{{ .Branch }}-{{ checksum "app/fabric.properties" }}
+              - configs
+        - run:
+            name: move config files
+            command: |
+              mkdir ./keystore
+              mv ./configs/Pontoon.jks ./keystore
+              mv ./configs/fabric.properties ./app
+              mv ./configs/google-services.json ./app
         - run:
             name: chmod permissions
             command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
