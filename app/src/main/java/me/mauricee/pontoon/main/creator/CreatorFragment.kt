@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.fragment_creator.view.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
+import me.mauricee.pontoon.common.theme.primaryDarkColor
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.VideoPageAdapter
 import me.mauricee.pontoon.model.user.UserRepository
@@ -92,7 +93,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        requireActivity().window.statusBarColor = ResourcesCompat.getColor(resources, R.color.colorPrimaryDark, null)
+        requireActivity().window.statusBarColor = requireActivity().primaryDarkColor
     }
 
     companion object {
