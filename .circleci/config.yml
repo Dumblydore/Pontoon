@@ -32,7 +32,7 @@ jobs:
             echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
             echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
       - save_cache:
-          key: configs-{{ .BuildNum }}
+          key: configs-{{ arch }}-{{ .Branch }}-{{ .BuildNum }}
           paths:
             - ./configs
             - local.properties
@@ -44,7 +44,9 @@ jobs:
       - restore_cache:
           keys:
             - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-            - configs
+            - configs-{{ arch }}-{{ .Branch }}-
+            - configs-{{ arch }}-
+            - configs-
       - run:
           name: validate root directory
           command: ls ./configs
@@ -66,7 +68,7 @@ jobs:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - save_cache:
-          key: configs-{{ .BuildNum }}
+          key: configs-{{ arch }}-{{ .Branch }}-{{ .BuildNum }}
           paths:
             - ./configs
             - local.properties
@@ -83,7 +85,9 @@ jobs:
         - restore_cache:
             keys:
               - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-              - configs
+              - configs-{{ arch }}-{{ .Branch }}-
+              - configs-{{ arch }}-
+              - configs-
         - run:
             name: move config files
             command: |
@@ -102,7 +106,7 @@ jobs:
               - ~/.gradle
             key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
         - save_cache:
-            key: configs-{{ .BuildNum }}
+            key: configs-{{ arch }}-{{ .Branch }}-{{ .BuildNum }}
             paths:
               - ./configs
               - local.properties
