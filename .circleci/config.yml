@@ -1,6 +1,7 @@
 version: 2
 defaults: &defaults
-  working_directory: ~/repo
+  resource_class: xlarge
+  working_directory: '~/repo'
   docker:
     - image: circleci/android:api-28-alpha
   environment:
@@ -113,5 +114,3 @@ workflows:
           filters:
             tags:
               only: /^release-.*/
-            branches:
-              ignore: /^v.*/
