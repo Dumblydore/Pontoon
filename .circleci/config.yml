@@ -10,7 +10,7 @@ defaults: &defaults
 
 jobs:
   build:
-    <<: *default
+    <<: *defaults
     steps:
       - run:
           name: Install AWS CLI
@@ -37,7 +37,7 @@ jobs:
               - local.properties
 
   build_beta:
-    <<: *default
+    <<: *defaults
     steps:
       - attach_workspace:
         at: local.properties
@@ -70,7 +70,7 @@ jobs:
       - store_artifacts:
           path: app/build/outputs/mapping/release/mappings.tx
   build_release:
-      <<: *default
+      <<: *defaults
       steps:
         - attach_workspace:
           at: local.properties
