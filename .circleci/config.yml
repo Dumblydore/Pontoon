@@ -44,21 +44,21 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-      - restore_cache:
-          key: configs
+          keys:
+            - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+            - configs
+      - run: validate properties file
+        command: cat app/fabric.properties
       - run:
           name: chmod permissions
           command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
       - run:
           name: Build and Deploy Release
           command: ./gradlew clean assembleRelease crashlyticsUploadDistributionRelease -P buildNumber=${CIRCLE_BUILD_NUM}
-
       - save_cache:
           paths:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-
       - save_cache:
           paths:
             - ~/.gradle
@@ -74,9 +74,9 @@ jobs:
       steps:
         - checkout
         - restore_cache:
-            key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-        - restore_cache:
-            key: configs
+            keys:
+              - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+              - configs
         - run:
             name: chmod permissions
             command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
