@@ -4,11 +4,11 @@
         android:key="settings_appearance"
         android:title="@string/settings_appearance">
         <me.mauricee.pontoon.preferences.baseTheme.BaseThemePreference
-            android:key="settings_screen"
+            android:key="settings_base"
             android:defaultValue="Light"
             android:title="@string/settings_screen" />
         <me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
-            android:key="settings_theme"
+            android:key="settings_primary"
             android:title="@string/settings_theme" />
         <me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
             android:key="settings_accent"

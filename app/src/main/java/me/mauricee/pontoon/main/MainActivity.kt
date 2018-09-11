@@ -156,7 +156,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun updateState(state: MainContract.State) = when (state) {
-        is MainContract.State.CurrentUser -> displayUser(state.user)
+        is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
         is MainContract.State.Preferences -> PreferencesActivity.navigateTo(this)
         is MainContract.State.Logout -> LoginActivity.navigateTo(this)
     }.also { root.closeDrawer(main_drawer, true) }
@@ -346,10 +346,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
     }
 
-    private fun displayUser(user: UserRepository.User) {
+    private fun displayUser(user: UserRepository.User, subCount: Int) {
         main_drawer.getHeaderView(0).apply {
             user.let {
                 findViewById<TextView>(R.id.header_title).text = it.username
+                findViewById<TextView>(R.id.header_subtitle).text = getString(R.string.home_subtitle_suffix, subCount)
                 GlideApp.with(this).load(it.profileImage)
                         .placeholder(R.drawable.ic_default_thumbnail)
                         .error(R.drawable.ic_default_thumbnail)

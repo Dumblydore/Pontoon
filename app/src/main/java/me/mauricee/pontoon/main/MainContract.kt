@@ -15,7 +15,7 @@ interface MainContract {
     interface Presenter : BaseContract.Presenter<MainContract.View>
 
     sealed class State : EventTracker.State {
-        class CurrentUser(val user: UserRepository.User) : State()
+        class CurrentUser(val user: UserRepository.User, val subCount: Int) : State()
         object Preferences : State()
         object Logout : State()
     }

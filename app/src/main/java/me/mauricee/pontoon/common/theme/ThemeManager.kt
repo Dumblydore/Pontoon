@@ -49,7 +49,7 @@ class ThemeManager @Inject constructor(private val preferences: SharedPreference
 
     var style: Style
         get() = convertToStyle(
-                BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Black.toString())),
+                BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Light.toString())),
                 PrimaryColor.valueOf(preferences.getString(PrimaryColorKey, PrimaryColor.Default.toString())),
                 AccentColor.valueOf(preferences.getString(AccentColorKey, AccentColor.Default.toString()))
         )
@@ -86,9 +86,9 @@ class ThemeManager @Inject constructor(private val preferences: SharedPreference
     }
 
     companion object {
-        const val ThemeKey = "BaseTheme"
-        const val PrimaryColorKey = "PrimaryColor"
-        const val AccentColorKey = "AccentColor"
+        const val ThemeKey = "settings_base"
+        const val PrimaryColorKey = "settings_primary"
+        const val AccentColorKey = "settings_accent"
 
     }
 }
