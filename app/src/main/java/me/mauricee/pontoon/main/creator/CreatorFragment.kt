@@ -3,7 +3,6 @@ package me.mauricee.pontoon.main.creator
 import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnPreDraw
 import androidx.paging.PagedList
@@ -85,9 +84,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
     }
 
     private fun processError(error: CreatorContract.State.Error) {
-        creator_container_lazy.errorView
-                ?.findViewById<TextView>(R.id.lazy_error_text)
-                ?.setText(error.type.msg)
+        creator_container_lazy.errorText = getString(error.type.msg)
         creator_container_lazy.state = LazyLayout.ERROR
     }
 
