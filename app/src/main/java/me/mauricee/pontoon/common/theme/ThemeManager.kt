@@ -13,6 +13,40 @@ import javax.inject.Inject
 @AppScope
 class ThemeManager @Inject constructor(private val preferences: SharedPreferences) {
 
+    var baseTheme: BaseTheme
+        set(value) {
+            style.let {
+                style = when (value) {
+                    BaseTheme.Light -> Style.Light(style.primary, style.accent)
+                    BaseTheme.Dark -> Style.Dark(style.primary, style.accent)
+                    BaseTheme.Black -> Style.Black(style.accent)
+                }
+            }
+        }
+        get() = style.theme
+
+    var accentColor: AccentColor
+        set(value) {
+            style.let {
+                style = when (style.theme) {
+                    BaseTheme.Light -> Style.Light(style.primary, value)
+                    BaseTheme.Dark -> Style.Dark(style.primary, value)
+                    BaseTheme.Black -> Style.Black(style.accent)
+                }
+            }
+        }
+        get() = style.accent
+
+    var primaryColor: PrimaryColor
+        set(value) {
+            style = when (style.theme) {
+                BaseTheme.Light -> Style.Light(value, style.accent)
+                BaseTheme.Dark -> Style.Dark(value, style.accent)
+                BaseTheme.Black -> Style.Dark(value, style.accent)
+            }
+        }
+        get() = style.primary
+
     var style: Style
         get() = convertToStyle(
                 BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Black.toString())),

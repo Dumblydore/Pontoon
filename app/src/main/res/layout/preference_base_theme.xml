@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/preference.base.themes"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/alert_def_padding"
+    android:paddingBottom="@dimen/alert_def_padding"
+    android:theme="@style/AppAlertDialogContent"
+    tools:listitem="@layout/item_color" />

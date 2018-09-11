@@ -1,35 +1,43 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+        <item name="alertDialogTheme">@style/AppAlertDialog</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:textColor">@color/textLightPrimary</item>
         <item name="android:textColorPrimary">@color/textLightPrimary</item>
         <item name="android:textColorSecondary">@color/textLightSecondary</item>
     </style>
 
-    <style name="AppThemeDark" parent="Theme.AppCompat.NoActionBar">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+    <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
         <item name="android:textColorPrimary">@color/textDarkPrimary</item>
         <item name="android:textColor">@color/textDarkPrimary</item>
         <item name="android:textColorSecondary">@color/textDarkSecondary</item>
     </style>
 
-    <style name="AppThemeBlack" parent="AppThemeDark">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+    <style name="AppTheme.Black" parent="AppTheme.Dark">
         <item name="android:windowBackground">@color/md_black_1000</item>
         <item name="android:textColorPrimary">@color/textDarkPrimary</item>
         <item name="android:textColor">@color/textDarkPrimary</item>
         <item name="android:textColorSecondary">@color/textDarkSecondary</item>
     </style>
 
+    <style name="AppAlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="colorAccent">?android:attr/colorAccent</item>
+    </style>
+
+    <style name="AppAlertDialogContent"
+        parent="Theme.AppCompat.DayNight">
+        <!-- To keep the color of EditText -->
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+
     <!--This causes crashes for some reason.-->
     <!--<item name="android:windowBackground">@drawable/launch_screen</item>-->
     <style name="AppTheme.Launcher" />
-
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">true</item>
-        <item name="windowNoTitle">true</item>
-    </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
