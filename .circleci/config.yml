@@ -44,7 +44,7 @@ jobs:
       - restore_cache:
           keys:
             - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-            - configs-
+            - configs
       - run:
           name: validate root directory
           command: ls ./configs
@@ -83,7 +83,7 @@ jobs:
         - restore_cache:
             keys:
               - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-              - configs-
+              - configs
         - run:
             name: move config files
             command: |
