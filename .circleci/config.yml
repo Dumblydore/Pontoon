@@ -34,13 +34,13 @@ jobs:
       - persist_to_workspace:
             root: ~/repo
             paths:
-              - local.properties
+              - ./
 
   build_beta:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: local.properties
+          at: ~/repo
       - checkout
       # Download and cache dependencies
       - restore_cache:
@@ -73,7 +73,7 @@ jobs:
       <<: *defaults
       steps:
         - attach_workspace:
-            at: local.properties
+            at: ~/repo
         - checkout
         - restore_cache:
             key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
