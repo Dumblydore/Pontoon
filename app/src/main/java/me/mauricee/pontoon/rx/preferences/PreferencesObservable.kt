@@ -5,12 +5,14 @@ import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.MainThreadDisposable
 
-class PreferencesObservable(private val key: String, private val preferences: SharedPreferences) : Observable<SharedPreferences>() {
+class PreferencesObservable(private val key: String,
+                            private val preferences: SharedPreferences,
+                            private val emitIfKeyExists: Boolean = false) : Observable<SharedPreferences>() {
     override fun subscribeActual(observer: Observer<in SharedPreferences>) {
         Listener(key, observer).also {
             preferences.registerOnSharedPreferenceChangeListener(it)
             observer.onSubscribe(it)
-            if (preferences.contains(key)) observer.onNext(preferences)
+            if (emitIfKeyExists and preferences.contains(key)) observer.onNext(preferences)
         }
     }
 

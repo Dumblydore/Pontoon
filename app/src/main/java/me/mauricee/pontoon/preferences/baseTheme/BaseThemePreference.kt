@@ -56,6 +56,7 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
                 (preference as? BaseThemePreference)?.let {
                     it.theme = selectedTheme
                     themeManager.baseTheme = selectedTheme
+                    themeManager.commit()
                 }
             }
             selection.dispose()

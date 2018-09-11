@@ -35,9 +35,16 @@
     </style>
 
 
-    <!--This causes crashes for some reason.-->
-    <!--<item name="android:windowBackground">@drawable/launch_screen</item>-->
-    <style name="AppTheme.Launcher" />
+    <!--This causes crashes on Samsung devices for some reason.-->
+    <style name="AppTheme.Dark.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+    <style name="AppTheme.Light.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+    <style name="AppTheme.Black.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

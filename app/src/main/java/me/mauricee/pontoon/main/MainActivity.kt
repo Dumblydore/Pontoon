@@ -90,12 +90,17 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                 .build()
 
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
+    }
+
+    override fun onStart() {
+        super.onStart()
         mainPresenter.attachView(this)
     }
 
     override fun onStop() {
         super.onStop()
         player.onPause()
+        mainPresenter.detachView()
     }
 
     override fun playVideo(video: Video, commentId: String) {

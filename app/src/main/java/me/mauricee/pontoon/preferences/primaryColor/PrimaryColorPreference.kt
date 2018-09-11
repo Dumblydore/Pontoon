@@ -56,6 +56,7 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
                 (preference as? PrimaryColorPreference)?.let {
                     it.theme = selectedPrimaryColor
                     themeManager.primaryColor = selectedPrimaryColor
+                    themeManager.commit()
                 }
             }
             selection.dispose()

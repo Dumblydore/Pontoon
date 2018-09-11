@@ -3,36 +3,30 @@ package me.mauricee.pontoon.common.theme
 import android.app.Activity
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import io.reactivex.Observable
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Function3
 import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.rx.preferences.watchString
 import javax.inject.Inject
 
 @AppScope
 class ThemeManager @Inject constructor(private val preferences: SharedPreferences) {
-
+    private val relay = PublishRelay.create<Style>()
     var baseTheme: BaseTheme
         set(value) {
-            style.let {
-                style = when (value) {
-                    BaseTheme.Light -> Style.Light(style.primary, style.accent)
-                    BaseTheme.Dark -> Style.Dark(style.primary, style.accent)
-                    BaseTheme.Black -> Style.Black(style.accent)
-                }
+            style = when (value) {
+                BaseTheme.Light -> Style.Light(style.primary, style.accent)
+                BaseTheme.Dark -> Style.Dark(style.primary, style.accent)
+                BaseTheme.Black -> Style.Black(style.accent)
             }
         }
         get() = style.theme
 
     var accentColor: AccentColor
         set(value) {
-            style.let {
-                style = when (style.theme) {
-                    BaseTheme.Light -> Style.Light(style.primary, value)
-                    BaseTheme.Dark -> Style.Dark(style.primary, value)
-                    BaseTheme.Black -> Style.Black(style.accent)
-                }
+            style = when (style.theme) {
+                BaseTheme.Light -> Style.Light(style.primary, value)
+                BaseTheme.Dark -> Style.Dark(style.primary, value)
+                BaseTheme.Black -> Style.Black(style.accent)
             }
         }
         get() = style.accent
@@ -63,26 +57,20 @@ class ThemeManager @Inject constructor(private val preferences: SharedPreference
 
     fun attach(activity: Activity): Disposable {
         activity.setStyle(style)
-        return Observable.combineLatest(
-                preferences.watchString(ThemeKey).map { BaseTheme.valueOf(it) },
-                preferences.watchString(PrimaryColorKey).map { PrimaryColor.valueOf(it) },
-                preferences.watchString(AccentColorKey).map { AccentColor.valueOf(it) },
-                Function3<BaseTheme, PrimaryColor, AccentColor, Style>(this@ThemeManager::convertToStyle)
-        ).skip(1).subscribe {
+        return relay.subscribe {
             activity.setStyle(it)
             activity.recreate()
         }
     }
 
-    private fun convertToStyle(base: BaseTheme, primary: PrimaryColor, accent: AccentColor): Style =
-            when (base) {
-                BaseTheme.Light -> Style.Light(primary, accent)
-                BaseTheme.Dark -> Style.Dark(primary, accent)
-                BaseTheme.Black -> Style.Black(accent)
-            }
+    fun commit() {
+        relay.accept(style)
+    }
 
-    private fun watchValueOrGetDefault(key: String, default: String): Observable<String> {
-        return preferences.watchString(key).defaultIfEmpty(default)
+    private fun convertToStyle(base: BaseTheme, primary: PrimaryColor, accent: AccentColor): Style = when (base) {
+        BaseTheme.Light -> Style.Light(primary, accent)
+        BaseTheme.Dark -> Style.Dark(primary, accent)
+        BaseTheme.Black -> Style.Black(accent)
     }
 
     companion object {

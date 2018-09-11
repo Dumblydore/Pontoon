@@ -56,6 +56,7 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
                 (preference as? AccentColorPreference)?.let {
                     it.theme = selectedAccentColor
                     themeManager.accentColor = selectedAccentColor
+                    themeManager.commit()
                 }
             }
             selection.dispose()
