@@ -99,24 +99,19 @@ workflows:
   build-and-deploy:
     jobs:
       - build:
-        filters:
-          branches:
-            only: /^v.*/
-          tags:
-            only: /^v.*/
       - build_beta:
-        requires:
-          - build
-        filters:
-          branches:
-            only: master
-          tags:
-            ignore: /^v.*/
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+            tags:
+              ignore: /^v.*/
       - build_release:
-        requires:
-          - build
-        filters:
-          tags:
-            only: /^release-.*/
-          branches:
-            ignore: /^v.*/
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^release-.*/
+            branches:
+              ignore: /^v.*/
