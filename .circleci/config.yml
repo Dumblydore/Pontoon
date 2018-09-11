@@ -31,8 +31,8 @@ jobs:
             echo "release.keyPassword=${SIGNING_RELEASE_KEY_PASSWORD}" >> local.properties
             echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
             echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
-      - store_artifacts:
-          key:  configs
+      - save_cache:
+          key: configs
           paths:
           - ./local.properties
           - ./keystore/Pontoon.jks
