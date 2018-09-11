@@ -15,12 +15,13 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
 
     fun getCreators(vararg creatorIds: String): Observable<List<Creator>> =
             Observable.mergeArray(creatorDao.getCreatorsByIds(*creatorIds), getCreatorsFromNetwork(*creatorIds))
-            .flatMapSingle(this::loadCreators)
-            .filter { it.isNotEmpty() }
-            .debounce(400, TimeUnit.MILLISECONDS)
-            .compose(RxHelpers.applyObservableSchedulers())
+                    .flatMapSingle(this::loadCreators)
+                    .filter { it.isNotEmpty() }
+                    .debounce(400, TimeUnit.MILLISECONDS)
+                    .compose(RxHelpers.applyObservableSchedulers())
 
-    fun getAllCreators(): Observable<List<Creator>> = floatPlaneApi.allCreators.flatMap { it.toObservable() }
+    fun getAllCreators(): Observable<List<Creator>> = floatPlaneApi.allCreators.flatMapIterable { it }
+            .filter { it.subscriptions.isNotEmpty() }
             .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner.id) }
             .toList().flatMap {
                 creatorDao.insert(*it.toTypedArray())
@@ -48,8 +49,8 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
 
     private fun getCreatorsFromNetwork(vararg creatorIds: String) =
             floatPlaneApi.getCreator(*creatorIds).flatMap { it.toObservable() }
-            .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner) }
-            .toList().toObservable()
+                    .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner) }
+                    .toList().toObservable()
 
 
     private fun getUsersFromNetwork(vararg userIds: String): Single<List<UserEntity>> =

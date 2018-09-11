@@ -3,7 +3,6 @@ package me.mauricee.pontoon.main.player
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -22,14 +21,15 @@ import me.mauricee.pontoon.main.Player
 class PlayerFragment : BaseFragment<PlayerPresenter>(),
         PlayerContract.View, Player.ControlView {
 
-    private val playIcon by lazy { getDrawable(requireContext(), R.drawable.ic_media_play_dark) }
-    private val pauseIcon by lazy { getDrawable(requireContext(), R.drawable.ic_media_pause_dark) }
+    private val playIcon by lazy { getDrawable(requireContext(), R.drawable.ic_play) }
+    private val pauseIcon by lazy { getDrawable(requireContext(), R.drawable.ic_pause) }
     private val previewArt by lazy { arguments!!.getString(PreviewArtKey) }
     private val qualityMenu by lazy { player_controls_toolbar.menu.findItem(R.id.action_quality) }
 
     override val actions: Observable<PlayerContract.Action>
         get() = Observable.merge(player_controls_fullscreen.clicks().map { PlayerContract.Action.ToggleFullscreen },
                 player_controls_playPause.clicks().map { PlayerContract.Action.PlayPause },
+
                 RxToolbar.navigationClicks(player_controls_toolbar).map { PlayerContract.Action.MinimizePlayer },
                 itemClicks()
         )

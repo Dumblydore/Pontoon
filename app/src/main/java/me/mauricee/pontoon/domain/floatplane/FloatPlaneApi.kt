@@ -15,6 +15,9 @@ interface FloatPlaneApi {
     @get:GET("creator/list")
     val allCreators: Observable<List<CreatorListItem>>
 
+    @get:GET("edges")
+    val edges: Observable<Edge.Response>
+
     @GET("user/info")
     fun getUsers(@Query("id") vararg id: String): Observable<User.Response>
 
@@ -38,6 +41,7 @@ interface FloatPlaneApi {
 
     @GET("user/activity")
     fun getActivity(@Query("id") id: String): Observable<Activity.Response>
+
 
     @POST("auth/login")
     fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>

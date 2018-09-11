@@ -1,5 +1,7 @@
 package me.mauricee.pontoon.model.video
 
+import android.net.Uri
+import androidx.core.net.toUri
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
 import io.reactivex.Completable
@@ -13,6 +15,7 @@ import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
 import me.mauricee.pontoon.model.user.UserRepository
@@ -22,6 +25,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class VideoRepository @Inject constructor(private val userRepo: UserRepository,
+                                          private val edgeRepo: EdgeRepository,
                                           private val videoDao: VideoDao,
                                           private val historyDao: HistoryDao,
                                           private val floatPlaneApi: FloatPlaneApi,
@@ -90,13 +94,14 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                         }
             }.toList()
 
-    fun getQualityOfVideo(videoId: String): Observable<Quality> = Observable.zip(
-            floatPlaneApi.getVideoUrl(videoId, "360").map(::getUrlFromResponse),
-            floatPlaneApi.getVideoUrl(videoId, "480").map(::getUrlFromResponse),
-            floatPlaneApi.getVideoUrl(videoId, "720").map(::getUrlFromResponse),
-            floatPlaneApi.getVideoUrl(videoId, "1080").map(::getUrlFromResponse),
-            Function4 { t1, t2, t3, t4 -> Quality(t1, t2, t3, t4) }
-    )
+    fun getQualityOfVideo(videoId: String): Observable<Quality> = edgeRepo.streamingHost.flatMapObservable<Quality> { host ->
+        Observable.zip(floatPlaneApi.getVideoUrl(videoId, "360").map { getUrlFromResponse(host, it) },
+                floatPlaneApi.getVideoUrl(videoId, "480").map { getUrlFromResponse(host, it) },
+                floatPlaneApi.getVideoUrl(videoId, "720").map { getUrlFromResponse(host, it) },
+                floatPlaneApi.getVideoUrl(videoId, "1080").map { getUrlFromResponse(host, it) },
+                Function4 { t1, t2, t3, t4 -> Quality(t1, t2, t3, t4) })
+    }
+
 
     fun watchHistory(): Observable<PagedList<Video>> = subscriptions.flatMap { creators ->
         videoDao.history().map { vid -> Video(vid.video, creators.first { it.id == vid.video.creator }) }
@@ -145,8 +150,11 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
             if (subscriptions.isEmpty()) Single.error(NoSubscriptionsException())
             else Single.just(subscriptions)
 
-    private fun getUrlFromResponse(responseBody: ResponseBody): String =
-            responseBody.string().let { it.substring(1, it.length - 1) }
+    private fun getUrlFromResponse(host: String, responseBody: ResponseBody): String {
+        val baseUri = responseBody.string().let { it.substring(1, it.length - 1) }.toUri()
+        return Uri.Builder().authority(host).scheme(baseUri.scheme).encodedPath(baseUri.path)
+                .encodedQuery(baseUri.encodedQuery).build().toString()
+    }
 
     class NoSubscriptionsException : Exception("No subscriptions available")
 }
