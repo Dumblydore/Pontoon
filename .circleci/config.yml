@@ -35,6 +35,9 @@ jobs:
             root: ~/repo
             paths:
               - ./local.properties
+              - ./keystore/Pontoon.jks
+              - ./app/fabric.properties
+              - ./app/google-services.json
 
   build_beta:
     <<: *defaults
