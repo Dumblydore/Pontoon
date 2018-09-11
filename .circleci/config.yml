@@ -46,7 +46,7 @@ jobs:
       - restore_cache:
           keys:
             - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-            - configs-{{ .Branch }}-{{ checksum "fabric.properties" }}
+            - configs-{{ .Branch }}-{{ checksum "app/fabric.properties" }}
       - run:
           name: validate root location
           command: pwd
@@ -83,7 +83,7 @@ jobs:
         - restore_cache:
             keys:
               - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-              - configs-{{ .Branch }}-{{ checksum "fabric.properties" }}
+              - configs-{{ .Branch }}-{{ checksum "app/fabric.properties" }}
         - run:
             name: chmod permissions
             command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
