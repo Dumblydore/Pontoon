@@ -62,7 +62,7 @@
     <!-- Settings -->
     <string name="settings_appearance">Appearance"</string>
     <string name="settings_screen">Screen Color"</string>
-    <string name="settings_theme">Theme Color"</string>
+    <string name="settings_theme">Primary Color"</string>
     <string name="settings_accent_color">Accent Color"</string>
     <string name="settings_general">General"</string>
     <string name="settings_hide">Hide Watched Videos From Subscription Feed"</string>

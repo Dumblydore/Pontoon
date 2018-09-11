@@ -7,7 +7,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.preference.DialogPreference
 import androidx.preference.PreferenceDialogFragmentCompat
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.preference_base_theme.view.*
@@ -48,7 +48,7 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
         @Inject
         lateinit var themeManager: ThemeManager
 
-        lateinit var selectedTheme: BaseTheme
+        private lateinit var selectedTheme: BaseTheme
         private lateinit var selection: Disposable
 
         override fun onDialogClosed(positiveResult: Boolean) {
@@ -65,8 +65,8 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
             AndroidSupportInjection.inject(this)
             super.onBindDialogView(view)
             view.preference_base_themes.adapter = adapter
-            view.preference_base_themes.layoutManager = LinearLayoutManager(requireContext())
-            selection = adapter.selectedColor.subscribe { selectedTheme = it }
+            view.preference_base_themes.layoutManager = GridLayoutManager(requireContext(), 3)
+            selection = adapter.actions.subscribe { selectedTheme = it }
             selectedTheme = themeManager.baseTheme
         }
 

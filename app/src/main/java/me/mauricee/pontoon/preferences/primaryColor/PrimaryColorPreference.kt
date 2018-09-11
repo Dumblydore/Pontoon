@@ -48,7 +48,7 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
         @Inject
         lateinit var themeManager: ThemeManager
 
-        lateinit var selectedPrimaryColor: PrimaryColor
+        private lateinit var selectedPrimaryColor: PrimaryColor
         private lateinit var selection: Disposable
 
         override fun onDialogClosed(positiveResult: Boolean) {
@@ -66,7 +66,7 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
             super.onBindDialogView(view)
             view.preference_base_themes.adapter = adapter
             view.preference_base_themes.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL, false)
-            selection = adapter.selectedColor.subscribe { selectedPrimaryColor = it }
+            selection = adapter.actions.subscribe { selectedPrimaryColor = it }
             selectedPrimaryColor = themeManager.primaryColor
         }
 

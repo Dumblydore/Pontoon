@@ -6,18 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxrelay2.PublishRelay
-import io.reactivex.Observable
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_color.view.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.common.theme.PrimaryColor
 import me.mauricee.pontoon.common.theme.primaryColor
 import javax.inject.Inject
 
-class PrimaryColorAdapter @Inject constructor() : RecyclerView.Adapter<PrimaryColorAdapter.ViewHolder>() {
+class PrimaryColorAdapter @Inject constructor() : BaseAdapter<PrimaryColor, PrimaryColorAdapter.ViewHolder>() {
+
     private val colors = PrimaryColor.values()
-    private val selectedColorSubject = PublishRelay.create<PrimaryColor>()
-    val selectedColor: Observable<PrimaryColor> = selectedColorSubject
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             LayoutInflater.from(parent.context).inflate(R.layout.item_color, parent, false)
@@ -31,7 +30,7 @@ class PrimaryColorAdapter @Inject constructor() : RecyclerView.Adapter<PrimaryCo
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            itemView.clicks().map { colors[layoutPosition] }.subscribe(selectedColorSubject::accept)
+            subscriptions += itemView.clicks().map { colors[layoutPosition] }.subscribe(relay::accept)
         }
     }
 }
