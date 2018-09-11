@@ -61,6 +61,7 @@
     <string name="user_error_general">@string/error_general</string>
 
     <!-- Settings -->
+    <string name="settings_root_title">Preferences</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_screen">Base Theme</string>
     <string name="settings_theme">Primary Color</string>
