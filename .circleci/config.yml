@@ -31,13 +31,13 @@ jobs:
             echo "release.keyPassword=${SIGNING_RELEASE_KEY_PASSWORD}" >> local.properties
             echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
             echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
-      - persist_to_workspace:
-            root: ~/repo
-            paths:
-              - ./local.properties
-              - ./keystore/Pontoon.jks
-              - ./app/fabric.properties
-              - ./app/google-services.json
+      - store_artifacts:
+          key:  configs
+          paths:
+          - ./local.properties
+          - ./keystore/Pontoon.jks
+          - ./app/fabric.properties
+          - ./app/google-services.json
 
   build_beta:
     <<: *defaults
@@ -45,8 +45,8 @@ jobs:
       - checkout
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-      - attach_workspace:
-          at: ~/repo
+      - restore_cache:
+          key: configs
       - run:
           name: chmod permissions
           command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
@@ -75,8 +75,8 @@ jobs:
         - checkout
         - restore_cache:
             key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-        - attach_workspace:
-            at: ~/repo
+        - restore_cache:
+            key: configs
         - run:
             name: chmod permissions
             command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
