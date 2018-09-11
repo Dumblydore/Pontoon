@@ -39,17 +39,14 @@ jobs:
   build_beta:
     <<: *defaults
     steps:
-      - attach_workspace:
-          at: ~/repo
       - checkout
-      # Download and cache dependencies
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-
+      - attach_workspace:
+          at: ~/repo
       - run:
           name: chmod permissions
           command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
-
       - run:
           name: Build and Deploy Release
           command: ./gradlew clean assembleRelease crashlyticsUploadDistributionRelease -P buildNumber=${CIRCLE_BUILD_NUM}
@@ -72,11 +69,11 @@ jobs:
   build_release:
       <<: *defaults
       steps:
-        - attach_workspace:
-            at: ~/repo
         - checkout
         - restore_cache:
             key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+        - attach_workspace:
+            at: ~/repo
         - run:
             name: chmod permissions
             command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
