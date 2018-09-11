@@ -118,6 +118,7 @@ workflows:
               only: /^release-.*/
             branches:
               ignore: /.*/
+experimental:
     notify:
       branches:
         only:
