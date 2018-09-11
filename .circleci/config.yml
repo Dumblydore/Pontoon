@@ -47,8 +47,9 @@ jobs:
           keys:
             - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
             - configs
-      - run: validate properties file
-        command: cat app/fabric.properties
+      - run:
+          name: validate properties file
+          command: cat app/fabric.properties
       - run:
           name: chmod permissions
           command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
