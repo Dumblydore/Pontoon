@@ -89,12 +89,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
 
-        subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
     }
 
     override fun onStart() {
         super.onStart()
         mainPresenter.attachView(this)
+        subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
     }
 
     override fun onStop() {

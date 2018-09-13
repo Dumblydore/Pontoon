@@ -16,7 +16,6 @@
             android:layout_height="?android:attr/actionBarSize"
             android:transitionName="toolbar"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:title="@string/history_title"
             app:titleTextColor="@color/white">
 
             <androidx.appcompat.widget.SearchView
@@ -36,7 +35,18 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/search.list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             tools:listitem="@layout/item_video_card" />
     </me.mauricee.pontoon.common.LazyLayout>
+
+    <ProgressBar
+        android:id="@+id/search.page.progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:indeterminate="true"
+        android:indeterminateBehavior="repeat"
+        android:visibility="gone"
+        tools:visibility="visible" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
