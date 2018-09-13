@@ -54,6 +54,12 @@
     <string name="nav_search">Search</string>
     <string name="nav_history">History</string>
 
+    <!-- Search -->
+    <string name="search_error_noText">Enter Text</string>
+    <string name="search_error_noResults">No results for search</string>
+    <string name="search_error_network">Network error, try again later.</string>
+    <string name="search_error_general">@string/error_general</string>
+
     <!-- User -->
     <string name="user_error_noActivity">s% has no recent activity</string>
     <string name="user_error_noPlaylist">s% has not added any playlist</string>

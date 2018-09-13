@@ -30,7 +30,8 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                                           private val historyDao: HistoryDao,
                                           private val floatPlaneApi: FloatPlaneApi,
                                           private val subscriptionDao: SubscriptionDao,
-                                          private val boundaryCallbackFactory: VideoBoundaryCallback.Factory,
+                                          private val searchCallbackFactory: SearchBoundaryCallback.Factory,
+                                          private val videoCallbackFactory: VideoBoundaryCallback.Factory,
                                           private val pageListConfig: PagedList.Config) {
 
     val subscriptions: Observable<List<UserRepository.Creator>> = Observable.mergeArray(subscriptionsFromCache(), subscriptionsFromNetwork())
@@ -52,7 +53,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     }
 
     fun getVideos(vararg creator: UserRepository.Creator): VideoResult {
-        val callback = boundaryCallbackFactory.newInstance(*creator)
+        val callback = videoCallbackFactory.newInstance(*creator)
         return RxPagedListBuilder(videoDao.getVideoByCreators(*creator.map { it.id }.toTypedArray())
                 .map { vid -> Video(vid, creator.first { it.id == vid.creator }) }, pageListConfig)
                 .setFetchScheduler(Schedulers.io())
@@ -60,11 +61,11 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 .setBoundaryCallback(callback)
                 .buildObservable()
                 .doOnDispose(callback::dispose)
-                .let { VideoResult(it, callback.state) }
+                .let { VideoResult(it, callback.state, callback::retry) }
     }
 
     fun search(query: String, vararg filteredSubs: UserRepository.Creator): VideoResult {
-        val callback = boundaryCallbackFactory.newInstance(*filteredSubs)
+        val callback = searchCallbackFactory.newInstance(query, *filteredSubs)
         return RxPagedListBuilder(videoDao.search(query, *filteredSubs.map { it.id }.toTypedArray())
                 .map { vid -> Video(vid, filteredSubs.first { it.id == vid.creator }) }, pageListConfig)
                 .setFetchScheduler(Schedulers.io())
@@ -72,7 +73,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 .setBoundaryCallback(callback)
                 .buildObservable()
                 .doOnDispose(callback::dispose)
-                .let { VideoResult(it, callback.state) }
+                .let { VideoResult(it, callback.state, callback::retry) }
     }
 
     fun getVideo(video: String): Single<Video> = videoDao.getVideo(video)
