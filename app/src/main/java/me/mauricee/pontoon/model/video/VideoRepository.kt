@@ -46,14 +46,16 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     private fun subscriptionsFromCache() = subscriptionDao.getSubscriptions()
             .map { it.map { it.creator }.toTypedArray() }
 
-    fun getSubscriptionFeed(): Observable<SubscriptionFeed> = subscriptions.map {
-        SubscriptionFeed(it, getVideos(*it.toTypedArray()))
+    fun getSubscriptionFeed(unwatchedOnly: Boolean = false): Observable<SubscriptionFeed> = subscriptions.map {
+        SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly))
     }
 
-    fun getVideos(vararg creator: UserRepository.Creator): VideoResult {
+    fun getVideos(vararg creator: UserRepository.Creator, unwatchedOnly: Boolean = false): VideoResult {
         val callback = videoCallbackFactory.newInstance(*creator)
-        return RxPagedListBuilder(videoDao.getVideoByCreators(*creator.map { it.id }.toTypedArray())
-                .map { vid -> Video(vid, creator.first { it.id == vid.creator }) }, pageListConfig)
+        val creators = creator.map { it.id }.toTypedArray()
+        val factory = if (unwatchedOnly) videoDao.getVideoByCreators(*creators) else
+            videoDao.getUnwatchedVideosByCreators(*creators)
+        return RxPagedListBuilder(factory.map { vid -> Video(vid, creator.first { it.id == vid.creator }) }, pageListConfig)
                 .setFetchScheduler(Schedulers.io())
                 .setNotifyScheduler(AndroidSchedulers.mainThread())
                 .setBoundaryCallback(callback)
