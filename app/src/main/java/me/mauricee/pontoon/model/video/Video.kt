@@ -12,7 +12,8 @@ data class VideoEntity(@PrimaryKey val id: String,
                        val releaseDate: Instant,
                        val duration: Long,
                        val thumbnail: String,
-                       val title: String)
+                       val title: String,
+                       val watched: Instant?)
 
 @Dao
 interface VideoDao {
@@ -38,10 +39,13 @@ interface VideoDao {
     @Query("SELECT * FROM Video WHERE creator IN (:creators) ORDER BY releaseDate DESC")
     fun getVideoByCreators(vararg creators: String): DataSource.Factory<Int, VideoEntity>
 
-//    @Query("SELECT Video.* FROM Video LEFT JOIN History ON History.videoId = Video.id WHERE History.videoId IS NULL AND Video.creator IN (:creators) ORDER BY releaseDate DESC")
-//    fun getUnwatchedVideosByCreators(vararg creators: String): DataSource<Int, VideoEntity>
+    @Query("SELECT * FROM Video WHERE creator IN (:creators) AND watched IS NOT NULL ORDER BY releaseDate DESC")
+    fun getUnwatchedVideosByCreators(vararg creators: String): DataSource.Factory<Int, VideoEntity>
 
-    @Query("SELECT * FROM Video, History ORDER BY history.watched DESC")
-    fun history(): DataSource.Factory<Int, VideoHistory>
+    @Query("SELECT * FROM Video WHERE watched IS NOT NULL ORDER BY watched DESC")
+    fun history(): DataSource.Factory<Int, VideoEntity>
+
+    @Query("UPDATE Video SET watched = :watched WHERE id = :id")
+    fun setWatched(watched: Instant, id: String)
 
 }

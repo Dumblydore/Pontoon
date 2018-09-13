@@ -18,5 +18,5 @@ data class Video(@SerializedName("creator") val creator: String,
     val defaultThumbnail: String
         get() = thumbnail?.path ?: ""
 
-    fun toEntity() = VideoEntity(guid, creator, description, releaseDate, duration, defaultThumbnail, title)
+    fun toEntity() = VideoEntity(guid, creator, description, releaseDate, duration, defaultThumbnail, title, null)
 }

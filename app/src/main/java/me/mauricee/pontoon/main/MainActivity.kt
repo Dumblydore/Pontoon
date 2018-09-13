@@ -23,6 +23,7 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
 import me.mauricee.pontoon.BaseActivity
+import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
@@ -88,7 +89,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
-
     }
 
     override fun onStart() {
@@ -219,12 +219,16 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     private fun switchTab(item: MenuItem) {
-        when (item.itemId) {
+        val newTab = when (item.itemId) {
             R.id.nav_home -> 0
             R.id.nav_search -> 1
             R.id.nav_history -> 2
             else -> throw RuntimeException("Invalid tab selection")
-        }.let(controller::switchTab)
+        }
+        if(newTab == controller.currentStackIndex)
+            (controller.currentFrag as? BaseFragment<*>)?.reset()
+        else
+            controller.switchTab(newTab)
     }
 
     /**

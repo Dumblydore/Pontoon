@@ -27,7 +27,7 @@ class SearchBoundaryCallback(private val query: String,
         stateRelay.accept(State.LOADING)
         disposable += creators.toObservable().flatMap { api.getVideos(it.id).flatMapIterable { it } }
                 .filter { it.title.contains(query, true) }
-                .map(this::convertVideo).toList()
+                .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.ERROR) })
     }
@@ -41,7 +41,7 @@ class SearchBoundaryCallback(private val query: String,
             api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id))
         }.flatMapIterable { it }
                 .filter { it.title.contains(query, true) }
-                .map(this::convertVideo).toList()
+                .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.ERROR) })
     }
@@ -59,8 +59,6 @@ class SearchBoundaryCallback(private val query: String,
     override fun dispose() {
         disposable.dispose()
     }
-
-    private fun convertVideo(video: me.mauricee.pontoon.domain.floatplane.Video) = VideoEntity(video.guid, video.creator, video.description, video.releaseDate, video.duration, video.defaultThumbnail, video.title)
 
 
     class Factory @Inject constructor(private val api: FloatPlaneApi, private val videoDao: VideoDao) {

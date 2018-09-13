@@ -61,4 +61,8 @@ class SearchFragment : BaseFragment<SearchPresenter>(), SearchContract.View {
         }
         is SearchContract.State.FinishFetching -> search_page_progress.isVisible = false
     }
+
+    override fun reset() {
+        search_list.smoothScrollToPosition(0)
+    }
 }

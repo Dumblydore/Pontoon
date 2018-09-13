@@ -5,12 +5,14 @@ import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.main.MainContract
+import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.VideoRepository
 import retrofit2.HttpException
 import javax.inject.Inject
 
 class VideoPresenter @Inject constructor(private val videoRepository: VideoRepository,
                                          private val mainNavigator: MainContract.Navigator,
+                                         private val preferences: Preferences,
                                          eventTracker: EventTracker) :
 
         BasePresenter<VideoContract.State, VideoContract.View>(eventTracker), VideoContract.Presenter {
@@ -26,7 +28,7 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
     }
 
-    private fun getVideos() = videoRepository.getSubscriptionFeed()
+    private fun getVideos() = videoRepository.getSubscriptionFeed(preferences.displayUnwatchedVideos)
             .flatMap<VideoContract.State> { feed ->
                 Observable.merge(feed.videos.videos.map(VideoContract.State::DisplayVideos),
                         feed.videos.state.map { processPaginationState(it, feed.videos.retry) })
