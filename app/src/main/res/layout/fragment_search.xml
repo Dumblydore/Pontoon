@@ -20,6 +20,7 @@
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/search.view"
+                app:queryHint="@string/search_hint"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </androidx.appcompat.widget.Toolbar>

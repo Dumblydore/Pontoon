@@ -18,9 +18,9 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
 
     private val currentUser by lazy { accountManagerHelper.account.let { UserRepository.User(it.id, it.username, it.profileImage.path) } }
 
-    override fun onViewAttached(view: MainContract.View): Observable<MainContract.State> =
-            Observable.merge(videoRepository.subscriptions.map { MainContract.State.CurrentUser(currentUser, it.size) },
-                    actions(view))
+    override fun onViewAttached(view: MainContract.View): Observable<MainContract.State> = Observable.merge(videoRepository.subscriptions
+            .onErrorReturnItem(emptyList()).map { MainContract.State.CurrentUser(currentUser, it.size) },
+            actions(view))
 
     private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
         when (it) {

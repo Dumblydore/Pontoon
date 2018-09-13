@@ -36,6 +36,10 @@ class SearchFragment : BaseFragment<SearchPresenter>(), SearchContract.View {
         super.onViewCreated(view, savedInstanceState)
         search_list.adapter = adapter
         search_list.layoutManager = LinearLayoutManager(requireActivity())
+        if (search_view.query.isEmpty()) {
+            search_view.isIconified = false
+            search_view.requestFocusFromTouch()
+        }
     }
 
     override fun updateState(state: SearchContract.State) = when (state) {
