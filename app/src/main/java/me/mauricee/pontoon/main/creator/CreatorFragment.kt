@@ -3,7 +3,6 @@ package me.mauricee.pontoon.main.creator
 import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnPreDraw
 import androidx.paging.PagedList
@@ -18,6 +17,7 @@ import kotlinx.android.synthetic.main.fragment_creator.view.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
+import me.mauricee.pontoon.common.theme.primaryDarkColor
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.VideoPageAdapter
 import me.mauricee.pontoon.model.user.UserRepository
@@ -84,15 +84,13 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
     }
 
     private fun processError(error: CreatorContract.State.Error) {
-        creator_container_lazy.errorView
-                ?.findViewById<TextView>(R.id.lazy_error_text)
-                ?.setText(error.type.msg)
+        creator_container_lazy.errorText = getString(error.type.msg)
         creator_container_lazy.state = LazyLayout.ERROR
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        requireActivity().window.statusBarColor = ResourcesCompat.getColor(resources, R.color.colorPrimaryDark, null)
+        requireActivity().window.statusBarColor = requireActivity().primaryDarkColor
     }
 
     companion object {

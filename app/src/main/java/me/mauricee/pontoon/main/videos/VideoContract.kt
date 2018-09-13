@@ -32,7 +32,7 @@ interface VideoContract {
         class DisplaySubscriptions(val subscriptions: List<UserRepository.Creator>) : State()
         class DisplayVideos(val videos: PagedList<Video>) : State()
         object FinishPageFetch : State()
-        class FetchError(val type: Type = Type.Unknown) : State() {
+        class FetchError(val type: Type = Type.Unknown, val retry: () -> Unit) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"
             override val level: EventTracker.Level

@@ -15,6 +15,9 @@
     <string name="login_error_general">@string/error_general</string>
 
     <!-- Home -->
+    <string name="home_subtitle_suffix">%o subscriptions</string>
+    <string name="subscriptions_videos_subhead">Videos</string>
+
     <string name="subscriptions_error_noSubscriptions">No Subscriptions Available.</string>
     <string name="subscriptions_error_noVideos">No videos available.</string>
     <string name="subscriptions_error_network">Unable to load Videos.</string>
@@ -58,6 +61,12 @@
     <string name="nav_search">Search</string>
     <string name="nav_history">History</string>
 
+    <!-- Search -->
+    <string name="search_error_noText">Enter Text</string>
+    <string name="search_error_noResults">No results for search</string>
+    <string name="search_error_network">Network error, try again later.</string>
+    <string name="search_error_general">@string/error_general</string>
+
     <!-- User -->
     <string name="user_error_noActivity">s% has no recent activity</string>
     <string name="user_error_noPlaylist">s% has not added any playlist</string>
@@ -65,10 +74,12 @@
     <string name="user_error_general">@string/error_general</string>
 
     <!-- Settings -->
-    <string name="settings_appearance">Appearance"</string>
-    <string name="settings_screen">Screen Color"</string>
-    <string name="settings_theme">Theme Color"</string>
-    <string name="settings_general">General"</string>
+    <string name="settings_root_title">Preferences</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_screen">Base Theme</string>
+    <string name="settings_theme">Primary Color</string>
+    <string name="settings_accent_color">Accent Color</string>
+    <string name="settings_general">General</string>
     <string name="settings_hide">Hide Watched Videos From Subscription Feed"</string>
 
     <string name="settings_pip">Picture-in-Picture"</string>

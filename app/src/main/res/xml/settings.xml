@@ -3,12 +3,18 @@
     <androidx.preference.PreferenceCategory
         android:key="settings_appearance"
         android:title="@string/settings_appearance">
-        <ListPreference
-            android:key="settings_screen"
+        <me.mauricee.pontoon.preferences.baseTheme.BaseThemePreference
+            android:key="settings_base"
+            android:defaultValue="Light"
             android:title="@string/settings_screen" />
-        <ListPreference
-            android:key="settings_theme"
+        <me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
+            android:key="settings_primary"
+            android:defaultValue="Default"
             android:title="@string/settings_theme" />
+        <me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
+            android:key="settings_accent"
+            android:defaultValue="Default"
+            android:title="@string/settings_accent_color" />
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:key="settings_general"

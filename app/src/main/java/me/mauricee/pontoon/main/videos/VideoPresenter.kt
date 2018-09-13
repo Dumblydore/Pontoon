@@ -5,12 +5,14 @@ import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.main.MainContract
+import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.VideoRepository
 import retrofit2.HttpException
 import javax.inject.Inject
 
 class VideoPresenter @Inject constructor(private val videoRepository: VideoRepository,
                                          private val mainNavigator: MainContract.Navigator,
+                                         private val preferences: Preferences,
                                          eventTracker: EventTracker) :
 
         BasePresenter<VideoContract.State, VideoContract.View>(eventTracker), VideoContract.Presenter {
@@ -26,11 +28,11 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
     }
 
-    private fun getVideos() = videoRepository.getSubscriptionFeed()
-            .flatMap<VideoContract.State> {
-                Observable.merge(it.videos.videos.map(VideoContract.State::DisplayVideos),
-                        it.videos.state.map(this::processPaginationState))
-                        .startWith(VideoContract.State.DisplaySubscriptions(it.subscriptions))
+    private fun getVideos() = videoRepository.getSubscriptionFeed(preferences.displayUnwatchedVideos)
+            .flatMap<VideoContract.State> { feed ->
+                Observable.merge(feed.videos.videos.map(VideoContract.State::DisplayVideos),
+                        feed.videos.state.map { processPaginationState(it, feed.videos.retry) })
+                        .startWith(VideoContract.State.DisplaySubscriptions(feed.subscriptions))
             }.onErrorReturn(::processError)
 
     private fun processError(e: Throwable): VideoContract.State.Error = when (e) {
@@ -39,10 +41,10 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
         else -> VideoContract.State.Error.Type.Unknown
     }.let(VideoContract.State::Error)
 
-    private fun processPaginationState(state: StateBoundaryCallback.State): VideoContract.State = when (state) {
+    private fun processPaginationState(state: StateBoundaryCallback.State, retry: () -> Unit): VideoContract.State = when (state) {
         StateBoundaryCallback.State.LOADING -> VideoContract.State.Loading(false)
-        StateBoundaryCallback.State.ERROR -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.Network)
+        StateBoundaryCallback.State.ERROR -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.Network, retry)
         StateBoundaryCallback.State.FETCHED -> VideoContract.State.FinishPageFetch
-        StateBoundaryCallback.State.FINISHED -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.NoVideos)
+        StateBoundaryCallback.State.FINISHED -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.NoVideos, retry)
     }
 }

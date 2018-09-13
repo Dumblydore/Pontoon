@@ -23,6 +23,7 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
 import me.mauricee.pontoon.BaseActivity
+import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
@@ -88,14 +89,18 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
+    }
 
-        subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
+    override fun onStart() {
+        super.onStart()
         mainPresenter.attachView(this)
+        subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
     }
 
     override fun onStop() {
         super.onStop()
         player.onPause()
+        mainPresenter.detachView()
     }
 
     override fun playVideo(video: Video, commentId: String) {
@@ -156,7 +161,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun updateState(state: MainContract.State) = when (state) {
-        is MainContract.State.CurrentUser -> displayUser(state.user)
+        is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
         is MainContract.State.Preferences -> PreferencesActivity.navigateTo(this)
         is MainContract.State.Logout -> LoginActivity.navigateTo(this)
     }.also { root.closeDrawer(main_drawer, true) }
@@ -214,12 +219,16 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     private fun switchTab(item: MenuItem) {
-        when (item.itemId) {
+        val newTab = when (item.itemId) {
             R.id.nav_home -> 0
             R.id.nav_search -> 1
             R.id.nav_history -> 2
             else -> throw RuntimeException("Invalid tab selection")
-        }.let(controller::switchTab)
+        }
+        if(newTab == controller.currentStackIndex)
+            (controller.currentFrag as? BaseFragment<*>)?.reset()
+        else
+            controller.switchTab(newTab)
     }
 
     /**
@@ -346,10 +355,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
     }
 
-    private fun displayUser(user: UserRepository.User) {
+    private fun displayUser(user: UserRepository.User, subCount: Int) {
         main_drawer.getHeaderView(0).apply {
             user.let {
                 findViewById<TextView>(R.id.header_title).text = it.username
+                findViewById<TextView>(R.id.header_subtitle).text = getString(R.string.home_subtitle_suffix, subCount)
                 GlideApp.with(this).load(it.profileImage)
                         .placeholder(R.drawable.ic_default_thumbnail)
                         .error(R.drawable.ic_default_thumbnail)

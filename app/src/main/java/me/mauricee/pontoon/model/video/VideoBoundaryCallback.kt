@@ -22,26 +22,27 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
     private var isLoading = false
 
     override fun onZeroItemsLoaded() {
+        super.onZeroItemsLoaded()
         if (isLoading) return
         isLoading = true
         stateRelay.accept(State.LOADING)
         disposable += creators.toObservable().flatMap { api.getVideos(it.id).flatMapIterable { it } }
                 .sorted(this::sortVideos)
-                .map(this::convertVideo).toList()
+                .map{it.toEntity()}.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.ERROR) })
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: Video) {
+        super.onItemAtEndLoaded(itemAtEnd)
         if (isLoading) return
         isLoading = true
         stateRelay.accept(State.LOADING)
         disposable += creators.toObservable().flatMap {
             api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id))
-        }
-                .flatMapIterable { it }
+        }.flatMapIterable { it }
                 .sorted(this::sortVideos)
-                .map(this::convertVideo).toList()
+                .map{it.toEntity()}.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.ERROR) })
     }
@@ -62,8 +63,6 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
     override fun dispose() {
         disposable.dispose()
     }
-
-    private fun convertVideo(video: me.mauricee.pontoon.domain.floatplane.Video) = VideoEntity(video.guid, video.creator, video.description, video.releaseDate, video.duration, video.defaultThumbnail, video.title)
 
 
     class Factory @Inject constructor(private val api: FloatPlaneApi, private val videoDao: VideoDao) {
