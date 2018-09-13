@@ -6,8 +6,10 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
+import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_search.*
+import kotlinx.android.synthetic.main.lazy_error_layout.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
@@ -22,10 +24,11 @@ class SearchFragment : BaseFragment<SearchPresenter>(), SearchContract.View {
 
     override val actions: Observable<SearchContract.Action>
         get() = Observable.merge(adapter.actions.map(SearchContract.Action::PlayVideo),
+                lazy_error_retry.clicks().map { SearchContract.Action.Query(search_view.query.toString()) },
                 RxSearchView.queryTextChanges(search_view)
-                        .debounce (250, TimeUnit.MILLISECONDS)
+                        .debounce(250, TimeUnit.MILLISECONDS)
                         .map { SearchContract.Action.Query(it.toString()) }
-        )
+        ).startWith(SearchContract.Action.Query(search_view.query.toString()))
 
     override fun getLayoutId(): Int = R.layout.fragment_search
 

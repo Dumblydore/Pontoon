@@ -34,7 +34,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
                 .map { VideoContract.Action.Refresh }
 
     override val actions: Observable<VideoContract.Action>
-        get() = Observable.merge(refreshes,miscActions,
+        get() = Observable.merge(refreshes, miscActions,
                 videoAdapter.actions.map(VideoContract.Action::PlayVideo),
                 videoAdapter.subscriptionAdapter.actions)
                 .startWith(VideoContract.Action.Refresh)
@@ -78,8 +78,11 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
     }
 
     private fun processFetchError(error: VideoContract.State.FetchError) {
-        Snackbar.make(view!!,error.type.msg,Snackbar.LENGTH_LONG)
-                .show()
+        Snackbar.make(view!!, error.type.msg, Snackbar.LENGTH_LONG)
+                .also {
+                    if (error.type != VideoContract.State.FetchError.Type.NoVideos)
+                        it.setAction(R.string.snackbar_action_retry) { error.retry() }
+                }.show()
     }
 
     private class LayoutManager(context: Context) : LinearLayoutManager(context) {
