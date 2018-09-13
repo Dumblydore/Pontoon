@@ -14,7 +14,6 @@ import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
-import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
@@ -86,14 +85,13 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                         }.firstOrError()
             }.compose(RxHelpers.applySingleSchedulers())
 
-    fun getRelatedVideos(video: String): Single<List<Video>> = floatPlaneApi.getRelatedVideos(video)
-            .doOnNext(::cacheVideoPojos).flatMap { videos ->
-                videos.map { it.creator }.distinct().toTypedArray().let { userRepo.getCreators(*it) }
-                        .flatMap { it.toObservable() }
-                        .flatMap { creator ->
-                            videos.toObservable().filter { it.creator == creator.id }.map { Video(it, creator) }
-                        }
-            }.toList()
+    fun getRelatedVideos(video: String): Single<List<Video>> = floatPlaneApi.getRelatedVideos(video).flatMap { videos ->
+        videos.map { it.creator }.distinct().toTypedArray().let { userRepo.getCreators(*it) }
+                .flatMap { it.toObservable() }
+                .flatMap { creator ->
+                    videos.toObservable().filter { it.creator == creator.id }.map { Video(it, creator) }
+                }
+    }.toList()
 
     fun getQualityOfVideo(videoId: String): Observable<Quality> = edgeRepo.streamingHost.flatMapObservable<Quality> { host ->
         Observable.zip(floatPlaneApi.getVideoUrl(videoId, "360").map { getUrlFromResponse(host, it) },
@@ -123,18 +121,6 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
 
     private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
             .map { it.toEntity() }.singleOrError()
-
-    private fun cacheVideoPojos(videos: List<me.mauricee.pontoon.domain.floatplane.Video>) {
-        videos.toObservable()
-                .map { it.toEntity() }
-                .toList().map { it.toTypedArray() }
-                .flatMapCompletable { Completable.fromCallable { videoDao.insert(*it) } }
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .doOnError { loge("Error with cache", it) }
-                .onErrorComplete()
-                .subscribe()
-    }
 
 
     //TODO use proper id
