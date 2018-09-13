@@ -11,12 +11,11 @@ import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-private typealias VideoPojo = me.mauricee.pontoon.domain.floatplane.Video
-
-class VideoBoundaryCallback(private val api: FloatPlaneApi,
-                            private val videoDao: VideoDao,
-                            private val disposable: CompositeDisposable,
-                            private vararg val creators: UserRepository.Creator)
+class SearchBoundaryCallback(private val query: String,
+                             private val api: FloatPlaneApi,
+                             private val videoDao: VideoDao,
+                             private val disposable: CompositeDisposable,
+                             private vararg val creators: UserRepository.Creator)
     : StateBoundaryCallback<Video>(), Disposable {
 
     private var isLoading = false
@@ -27,7 +26,7 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
         isLoading = true
         stateRelay.accept(State.LOADING)
         disposable += creators.toObservable().flatMap { api.getVideos(it.id).flatMapIterable { it } }
-                .sorted(this::sortVideos)
+                .filter { it.title.contains(query, true) }
                 .map(this::convertVideo).toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.ERROR) })
@@ -41,7 +40,7 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
         disposable += creators.toObservable().flatMap {
             api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id))
         }.flatMapIterable { it }
-                .sorted(this::sortVideos)
+                .filter { it.title.contains(query, true) }
                 .map(this::convertVideo).toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.ERROR) })
@@ -55,9 +54,6 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
         isLoading = false
     }
 
-    private fun sortVideos(video1: VideoPojo, video2: VideoPojo) =
-            (video2.releaseDate.epochSecond - video1.releaseDate.epochSecond).toInt()
-
     override fun isDisposed(): Boolean = disposable.isDisposed
 
     override fun dispose() {
@@ -68,7 +64,7 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
 
 
     class Factory @Inject constructor(private val api: FloatPlaneApi, private val videoDao: VideoDao) {
-        fun newInstance(vararg creator: UserRepository.Creator): VideoBoundaryCallback = VideoBoundaryCallback(api, videoDao, CompositeDisposable(), *creator)
+        fun newInstance(query: String, vararg creator: UserRepository.Creator) = SearchBoundaryCallback(query, api, videoDao, CompositeDisposable(), *creator)
     }
 
 }

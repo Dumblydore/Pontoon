@@ -21,7 +21,7 @@ interface VideoDao {
     fun insert(vararg videos: VideoEntity)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun cacheVideos(vararg videos: VideoEntity) : List<Long>
+    fun cacheVideos(vararg videos: VideoEntity): List<Long>
 
     @Query("SELECT COUNT(id) FROM Video")
     fun getNumberOfVideos(): Int
@@ -32,11 +32,14 @@ interface VideoDao {
     @Query("SELECT * FROM Video WHERE id = :id")
     fun getVideo(id: String): Maybe<VideoEntity>
 
-    @Query("SELECT * FROM Video WHERE title LIKE :query AND creator in (:creators)" )
+    @Query("SELECT * FROM Video WHERE LOWER(title) LIKE LOWER(:query) AND creator in (:creators)")
     fun search(query: String, vararg creators: String): DataSource.Factory<Int, VideoEntity>
 
     @Query("SELECT * FROM Video WHERE creator IN (:creators) ORDER BY releaseDate DESC")
     fun getVideoByCreators(vararg creators: String): DataSource.Factory<Int, VideoEntity>
+
+//    @Query("SELECT Video.* FROM Video LEFT JOIN History ON History.videoId = Video.id WHERE History.videoId IS NULL AND Video.creator IN (:creators) ORDER BY releaseDate DESC")
+//    fun getUnwatchedVideosByCreators(vararg creators: String): DataSource<Int, VideoEntity>
 
     @Query("SELECT * FROM Video, History ORDER BY history.watched DESC")
     fun history(): DataSource.Factory<Int, VideoHistory>
