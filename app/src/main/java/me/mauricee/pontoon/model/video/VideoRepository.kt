@@ -26,7 +26,6 @@ import javax.inject.Inject
 class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                                           private val edgeRepo: EdgeRepository,
                                           private val videoDao: VideoDao,
-                                          private val historyDao: HistoryDao,
                                           private val floatPlaneApi: FloatPlaneApi,
                                           private val subscriptionDao: SubscriptionDao,
                                           private val searchCallbackFactory: SearchBoundaryCallback.Factory,
@@ -81,7 +80,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 userRepo.getCreators(vid.creator)
                         .map { it.first() }
                         .map { it ->
-                            Video(vid.id, vid.title, vid.description, vid.releaseDate, vid.duration, it, vid.thumbnail)
+                            Video(vid.id, vid.title, vid.description, vid.releaseDate, vid.duration, it, vid.thumbnail, null)
                         }.firstOrError()
             }.compose(RxHelpers.applySingleSchedulers())
 
@@ -103,7 +102,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
 
 
     fun watchHistory(): Observable<PagedList<Video>> = subscriptions.flatMap { creators ->
-        videoDao.history().map { vid -> Video(vid.video, creators.first { it.id == vid.video.creator }) }
+        videoDao.history().map { vid -> Video(vid, creators.first { it.id == vid.creator }) }
                 .let {
                     RxPagedListBuilder(it, pageListConfig)
                             .setFetchScheduler(Schedulers.io())
@@ -113,7 +112,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     }
 
     fun addToWatchHistory(video: Video) {
-        Completable.fromCallable { historyDao.insert(HistoryEntity(video.id)) }.onErrorComplete()
+        Completable.fromCallable { videoDao.setWatched(Instant.now(), video.id) }.onErrorComplete()
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
                 .subscribe()
@@ -148,9 +147,10 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
 
 data class Quality(val p360: String, val p480: String, val p720: String, val p1080: String)
 data class Video(val id: String, val title: String, val description: String, val releaseDate: Instant,
-                 val duration: Long, val creator: UserRepository.Creator, val thumbnail: String) {
-    constructor(video: me.mauricee.pontoon.domain.floatplane.Video, creator: UserRepository.Creator) : this(video.guid, video.title, video.description, video.releaseDate, video.duration, creator, video.defaultThumbnail)
-    constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail)
+                 val duration: Long, val creator: UserRepository.Creator, val thumbnail: String, val watched: Instant?) {
+
+    constructor(video: me.mauricee.pontoon.domain.floatplane.Video, creator: UserRepository.Creator) : this(video.guid, video.title, video.description, video.releaseDate, video.duration, creator, video.defaultThumbnail, null)
+    constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail, video.watched)
 }
 
 data class Playback(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality)

@@ -27,10 +27,6 @@ class ModelModule {
 
     @AppScope
     @Provides
-    fun providesHistoryDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.historyDao
-
-    @AppScope
-    @Provides
     fun providesCommentDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.commentDao
 
     @AppScope
