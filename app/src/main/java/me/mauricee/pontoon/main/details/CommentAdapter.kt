@@ -1,10 +1,12 @@
 package me.mauricee.pontoon.main.details
 
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -14,12 +16,16 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_comment.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
+import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.comment.Comment
 import javax.inject.Inject
 
-class CommentAdapter @Inject constructor() : BaseAdapter<DetailsContract.Action, CommentAdapter.ViewHolder>() {
-
+class CommentAdapter @Inject constructor(private val themeManager: ThemeManager, private val context: Context)
+    : BaseAdapter<DetailsContract.Action, CommentAdapter.ViewHolder>() {
+    private val primaryColor = ContextCompat.getColor(context, R.color.material_grey_600)
+    private val positiveColor = ContextCompat.getColor(context, R.color.colorPositive)
+    private val negativeColor = ContextCompat.getColor(context, R.color.colorNegative)
     var comments: MutableList<Comment> = mutableListOf()
         set(value) {
             field = value
@@ -48,7 +54,7 @@ class CommentAdapter @Inject constructor() : BaseAdapter<DetailsContract.Action,
                     .map(DetailsContract.Action::ViewUser)
                     .subscribe(relay::accept)
 
-            Observable.merge(view.item_thumb_up.clicks().map { comments[layoutPosition] }.map(DetailsContract.Action::Like),
+            subscriptions += Observable.merge(view.item_thumb_up.clicks().map { comments[layoutPosition] }.map(DetailsContract.Action::Like),
                     view.item_thumb_down.clicks().map { comments[layoutPosition] }.map(DetailsContract.Action::Dislike))
                     .subscribe(relay::accept)
         }
@@ -64,17 +70,17 @@ class CommentAdapter @Inject constructor() : BaseAdapter<DetailsContract.Action,
                 itemView.item_viewReplies.text = itemView.context.getString(R.string.details_comment_replies, comment.replies.size)
 
                 val likeTint = if (comment.userInteraction.contains(Comment.Interaction.Like))
-                    R.color.colorPositive
+                    positiveColor
                 else
-                    R.color.textDarkDisabled
+                    primaryColor
 
                 val dislikeTint = if (comment.userInteraction.contains(Comment.Interaction.Dislike))
-                    R.color.colorNegative
+                    negativeColor
                 else
-                    R.color.textDarkDisabled
+                    primaryColor
 
-                itemView.item_thumb_up.drawable.setTint(ContextCompat.getColor(itemView.context, likeTint))
-                itemView.item_thumb_down.drawable.setTint(ContextCompat.getColor(itemView.context, dislikeTint))
+                DrawableCompat.setTint(itemView.item_thumb_up.drawable.mutate(), likeTint)
+                DrawableCompat.setTint(itemView.item_thumb_down.drawable.mutate(), dislikeTint)
 
                 GlideApp.with(itemView).load(comment.user.profileImage)
                         .circleCrop()
