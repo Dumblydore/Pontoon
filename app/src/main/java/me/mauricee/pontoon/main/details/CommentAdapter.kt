@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 class CommentAdapter @Inject constructor(private val themeManager: ThemeManager, private val context: Context)
     : BaseAdapter<DetailsContract.Action, CommentAdapter.ViewHolder>() {
-    private val primaryColor = ContextCompat.getColor(context, R.color.material_grey_600)
+    private val primaryColor = ContextCompat.getColor(context, R.color.md_grey_600)
     private val positiveColor = ContextCompat.getColor(context, R.color.colorPositive)
     private val negativeColor = ContextCompat.getColor(context, R.color.colorNegative)
     var comments: MutableList<Comment> = mutableListOf()
