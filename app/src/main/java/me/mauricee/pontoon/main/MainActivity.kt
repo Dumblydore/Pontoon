@@ -23,6 +23,7 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
 import me.mauricee.pontoon.BaseActivity
+import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
@@ -30,6 +31,7 @@ import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.login.LoginActivity
 import me.mauricee.pontoon.main.creator.CreatorFragment
+import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
 import me.mauricee.pontoon.main.player.PlayerFragment
@@ -87,18 +89,23 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
+    }
 
-        subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
+    override fun onStart() {
+        super.onStart()
         mainPresenter.attachView(this)
+        subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
     }
 
     override fun onStop() {
         super.onStop()
         player.onPause()
+        mainPresenter.detachView()
     }
 
     override fun playVideo(video: Video, commentId: String) {
         animationTouchListener.show()
+        main_player.alpha = 1f
         loadFragment {
             replace(R.id.main_player, PlayerFragment.newInstance(video.thumbnail))
         }
@@ -113,6 +120,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun toCreator(creator: UserRepository.Creator) {
         controller.pushFragment(CreatorFragment.newInstance(creator.id))
+        animationTouchListener.isExpanded = false
+        setPlayerExpanded(false)
+    }
+
+    override fun toCreatorsList() {
+        controller.pushFragment(CreatorListFragment.newInstance())
         animationTouchListener.isExpanded = false
         setPlayerExpanded(false)
     }
@@ -148,7 +161,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun updateState(state: MainContract.State) = when (state) {
-        is MainContract.State.CurrentUser -> displayUser(state.user)
+        is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
         is MainContract.State.Preferences -> PreferencesActivity.navigateTo(this)
         is MainContract.State.Logout -> LoginActivity.navigateTo(this)
     }.also { root.closeDrawer(main_drawer, true) }
@@ -206,12 +219,16 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     private fun switchTab(item: MenuItem) {
-        when (item.itemId) {
+        val newTab = when (item.itemId) {
             R.id.nav_home -> 0
             R.id.nav_search -> 1
             R.id.nav_history -> 2
             else -> throw RuntimeException("Invalid tab selection")
-        }.let(controller::switchTab)
+        }
+        if(newTab == controller.currentStackIndex)
+            (controller.currentFrag as? BaseFragment<*>)?.reset()
+        else
+            controller.switchTab(newTab)
     }
 
     /**
@@ -295,7 +312,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
      * more than 50% horizontally
      */
     private fun dismiss() {
-        player.onPause()
+        player.onStop()
         main.updateParams(constraintSet) {
             setGuidelinePercent(guidelineVertical.id, VideoTouchHandler.MIN_HORIZONTAL_LIMIT - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
             setGuidelinePercent(guidelineMarginEnd.id, 0F)
@@ -338,10 +355,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
     }
 
-    private fun displayUser(user: UserRepository.User) {
+    private fun displayUser(user: UserRepository.User, subCount: Int) {
         main_drawer.getHeaderView(0).apply {
             user.let {
                 findViewById<TextView>(R.id.header_title).text = it.username
+                findViewById<TextView>(R.id.header_subtitle).text = getString(R.string.home_subtitle_suffix, subCount)
                 GlideApp.with(this).load(it.profileImage)
                         .placeholder(R.drawable.ic_default_thumbnail)
                         .error(R.drawable.ic_default_thumbnail)

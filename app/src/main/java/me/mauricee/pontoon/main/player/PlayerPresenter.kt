@@ -30,7 +30,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             navigator.setPlayerExpanded(false)
         }
         PlayerContract.Action.ToggleFullscreen -> stateless { orientationManager.apply { isFullscreen = !isFullscreen } }
-        is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.level; PlayerContract.State.Quality(action.level) }
+        is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.qualityLevel; PlayerContract.State.Quality(action.qualityLevel) }
     }
 
     private fun watchProgress() = player.progress().distinctUntilChanged().map { PlayerContract.State.Progress(formatMillis(it)) }

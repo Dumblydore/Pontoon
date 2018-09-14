@@ -3,12 +3,12 @@ package me.mauricee.pontoon.login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import dagger.android.support.DaggerAppCompatActivity
+import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainActivity
 
-class LoginActivity : DaggerAppCompatActivity(), LoginNavigator, EventTracker.Page {
+class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
 
     override val name: String
         get() = "Login"

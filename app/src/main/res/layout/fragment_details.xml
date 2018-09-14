@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/white">
+    android:background="?android:attr/colorBackground">
 
     <me.mauricee.pontoon.common.LazyLayout
         android:id="@+id/details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true">
+        android:animateLayoutChanges="true"
+        tools:lazy_state="success">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -132,7 +133,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
-                        tools:layout_height="256dp"
                         tools:listitem="@layout/item_video_list" />
 
                     <View

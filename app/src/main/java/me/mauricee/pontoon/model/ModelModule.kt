@@ -27,9 +27,13 @@ class ModelModule {
 
     @AppScope
     @Provides
-    fun providesHistoryDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.historyDao
+    fun providesCommentDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.commentDao
 
     @AppScope
     @Provides
-    fun providesCommentDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.commentDao
+    fun providesSubscriptionDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.subscriptionDao
+
+    @AppScope
+    @Provides
+    fun providesEdgeDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.edgeDao
 }

@@ -2,8 +2,8 @@ package me.mauricee.pontoon.main.user
 
 import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.user.UserRepository
 
@@ -19,6 +19,8 @@ class UserContract {
         class Error(val type: Type) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.ERROR
 
             enum class Type(@StringRes msg: Int) {
                 NoActivity(R.string.user_error_noActivity),

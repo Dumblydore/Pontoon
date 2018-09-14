@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="170dp"
-    android:background="?android:attr/colorPrimary">
+    android:background="?android:attr/colorPrimary"
+    tools:background="@color/colorPrimary">
 
     <ImageView
         android:id="@+id/header"
@@ -30,7 +31,7 @@
             android:layout_gravity="bottom"
             android:layout_marginBottom="9dp"
             android:scaleType="centerCrop"
-            tools:src="?android:attr/colorAccent" />
+            tools:src="@color/colorAccent" />
 
         <TextView
             android:id="@+id/header.title"
@@ -38,12 +39,27 @@
             android:layout_height="56dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="48dp"
-            android:gravity="center_vertical"
+            android:gravity="top"
             android:maxLines="1"
             android:orientation="vertical"
-            android:textColor="?android:attr/textColorPrimaryInverse"
+            android:paddingTop="8dp"
+            android:textColor="@color/white"
             android:textSize="16sp"
-            tools:text="Song name" />
+            tools:text="Username" />
+
+        <TextView
+            android:id="@+id/header.subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="48dp"
+            android:gravity="bottom"
+            android:maxLines="1"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            tools:text="5 subscriptions" />
 
     </FrameLayout>
 

@@ -12,7 +12,6 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.upstream.DataSource
 import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -24,7 +23,7 @@ import me.mauricee.pontoon.model.video.Video
 import java.util.concurrent.TimeUnit
 
 class Player(private val exoPlayer: SimpleExoPlayer,
-             private val sourceFactory: DataSource.Factory,
+             private val networkSourceFactory: HlsMediaSource.Factory,
              private val audioManager: AudioManager,
              private val sharedPreferences: SharedPreferences,
              private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
@@ -129,8 +128,7 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     }
 
     private fun load(uri: Uri) {
-        HlsMediaSource(uri, sourceFactory, null, null)
-                .also { exoPlayer.prepare(it) }
+        exoPlayer.prepare(networkSourceFactory.createMediaSource(uri))
         mediaSession.isActive = true
         exoPlayer.playWhenReady = true
     }
@@ -162,13 +160,7 @@ class Player(private val exoPlayer: SimpleExoPlayer,
 
     }
 
-    override fun onPositionDiscontinuity() {
-    }
-
     override fun onRepeatModeChanged(repeatMode: Int) {
-    }
-
-    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
     }
 
     override fun onPlay() {
@@ -184,6 +176,24 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     override fun onPause() {
         exoPlayer.playWhenReady = false
         state = PlaybackStateCompat.STATE_PAUSED
+    }
+
+    override fun onStop() {
+        exoPlayer.playWhenReady = false
+        exoPlayer.release()
+        state = PlaybackStateCompat.STATE_STOPPED
+    }
+
+    override fun onSeekProcessed() {
+    }
+
+    override fun onPositionDiscontinuity(reason: Int) {
+    }
+
+    override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+    }
+
+    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
     }
 
     fun playPause() {

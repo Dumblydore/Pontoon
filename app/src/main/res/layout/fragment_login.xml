@@ -29,9 +29,10 @@
                 android:id="@+id/login.username.edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/login_username"
+                android:indeterminateTint="?android:attr/editTextColor"
                 android:maxLines="1"
-                android:text="@string/default_user"
-                android:hint="@string/login_username" />
+                android:text="@string/default_user" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -51,10 +52,11 @@
                 android:id="@+id/login.password.edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="@string/default_pass"
                 android:hint="@string/login_password"
-                android:inputType="textPassword" />
+                android:indeterminateTint="?android:attr/editTextColor"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:text="@string/default_pass" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -73,14 +75,16 @@
                 android:paddingBottom="10dp"
                 android:text="@string/login_login"
                 android:textAlignment="center"
-                app:cornerRadius="24dp"/>
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:background="@color/colorAccent"
+                app:cornerRadius="24dp" />
 
             <ProgressBar
                 android:id="@+id/login.progress"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center"
-                android:indeterminateTint="@color/white"
+                android:indeterminateTint="?android:attr/textColorPrimary"
                 android:visibility="gone"
                 tools:visibility="visible" />
         </FrameLayout>

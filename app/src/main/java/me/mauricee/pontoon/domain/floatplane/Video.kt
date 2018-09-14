@@ -2,6 +2,7 @@ package me.mauricee.pontoon.domain.floatplane
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
+import me.mauricee.pontoon.model.video.VideoEntity
 import org.threeten.bp.Instant
 
 @Keep
@@ -16,4 +17,6 @@ data class Video(@SerializedName("creator") val creator: String,
                  @SerializedName("title") val title: String) {
     val defaultThumbnail: String
         get() = thumbnail?.path ?: ""
+
+    fun toEntity() = VideoEntity(guid, creator, description, releaseDate, duration, defaultThumbnail, title, null)
 }

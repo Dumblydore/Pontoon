@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:context=".main.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -31,7 +30,8 @@
         <me.mauricee.pontoon.common.LazyLayout
             android:id="@+id/creator.container.lazy"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            tools:lazy_state="success">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/creator.list"

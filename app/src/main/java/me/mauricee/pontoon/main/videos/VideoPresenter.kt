@@ -3,14 +3,16 @@ package me.mauricee.pontoon.main.videos
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.main.MainContract
+import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.VideoRepository
 import retrofit2.HttpException
 import javax.inject.Inject
 
 class VideoPresenter @Inject constructor(private val videoRepository: VideoRepository,
                                          private val mainNavigator: MainContract.Navigator,
+                                         private val preferences: Preferences,
                                          eventTracker: EventTracker) :
 
         BasePresenter<VideoContract.State, VideoContract.View>(eventTracker), VideoContract.Presenter {
@@ -20,20 +22,29 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
             .flatMap(this::handleActions)
 
     private fun handleActions(action: VideoContract.Action): Observable<VideoContract.State> = when (action) {
-        is VideoContract.Action.Refresh -> getVideos()
+        is VideoContract.Action.Refresh -> getVideos().startWith(VideoContract.State.Loading())
         is VideoContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video) }
         is VideoContract.Action.Subscription -> stateless { mainNavigator.toCreator(action.creator) }
+        VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
     }
 
-    private fun getVideos() = videoRepository.subscriptions.flatMap {
-        videoRepository.getVideos(false, *it.toTypedArray())
-                .map<VideoContract.State>(VideoContract.State::DisplayVideos)
-                .startWith(VideoContract.State.DisplaySubscriptions(it))
-    }.doOnError { loge("error", it) }.onErrorReturn(::processError)
+    private fun getVideos() = videoRepository.getSubscriptionFeed(preferences.displayUnwatchedVideos)
+            .flatMap<VideoContract.State> { feed ->
+                Observable.merge(feed.videos.videos.map(VideoContract.State::DisplayVideos),
+                        feed.videos.state.map { processPaginationState(it, feed.videos.retry) })
+                        .startWith(VideoContract.State.DisplaySubscriptions(feed.subscriptions))
+            }.onErrorReturn(::processError)
 
     private fun processError(e: Throwable): VideoContract.State.Error = when (e) {
-        is VideoRepository.NoSubscriptionsException -> VideoContract.State.Error.Type.NoVideos
+        is VideoRepository.NoSubscriptionsException -> VideoContract.State.Error.Type.NoSubscriptions
         is HttpException -> VideoContract.State.Error.Type.Network
         else -> VideoContract.State.Error.Type.Unknown
     }.let(VideoContract.State::Error)
+
+    private fun processPaginationState(state: StateBoundaryCallback.State, retry: () -> Unit): VideoContract.State = when (state) {
+        StateBoundaryCallback.State.LOADING -> VideoContract.State.Loading(false)
+        StateBoundaryCallback.State.ERROR -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.Network, retry)
+        StateBoundaryCallback.State.FETCHED -> VideoContract.State.FinishPageFetch
+        StateBoundaryCallback.State.FINISHED -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.NoVideos, retry)
+    }
 }

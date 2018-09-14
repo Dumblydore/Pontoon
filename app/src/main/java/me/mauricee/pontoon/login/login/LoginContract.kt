@@ -20,6 +20,8 @@ interface LoginContract {
         class Error(val type: Type = Type.General) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.ERROR
 
             enum class Type(@StringRes val msg: Int) {
                 MissingUsername(R.string.login_error_missingUsername),

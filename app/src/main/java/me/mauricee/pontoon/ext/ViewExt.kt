@@ -55,16 +55,12 @@ fun AppCompatActivity.removeFragmentByID(@IdRes containerID: Int): Boolean {
     return removeFragment(supportFragmentManager.findFragmentById(containerID))
 }
 
-fun AppCompatActivity.removeFragment(fragment: Fragment?): Boolean {
-    fragment?.let {
-        supportFragmentManager.beginTransaction().remove(fragment).commit()
-        return true
-    } ?: return false
-}
+fun AppCompatActivity.removeFragment(fragment: Fragment?): Boolean = fragment?.let {
+    supportFragmentManager.beginTransaction().remove(fragment).commit();true
+} ?: false
 
-fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View {
-    return LayoutInflater.from(context).inflate(layoutId, this, attachToRoot)
-}
+fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View =
+        LayoutInflater.from(context).inflate(layoutId, this, attachToRoot)
 
 inline fun ConstraintLayout.updateParams(constraintSet: ConstraintSet = ConstraintSet(), updates: ConstraintSet.() -> Unit) {
     constraintSet.clone(this)

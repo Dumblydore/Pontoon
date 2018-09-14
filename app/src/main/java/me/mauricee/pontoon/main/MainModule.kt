@@ -6,6 +6,7 @@ import android.media.AudioManager
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import dagger.Binds
 import dagger.Module
@@ -14,6 +15,7 @@ import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.main.creator.CreatorFragment
+import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
 import me.mauricee.pontoon.main.player.PlayerFragment
@@ -47,6 +49,9 @@ abstract class MainModule {
     abstract fun contributeCreatorFragment(): CreatorFragment
 
     @ContributesAndroidInjector
+    abstract fun contributeCreatorListFragment(): CreatorListFragment
+
+    @ContributesAndroidInjector
     abstract fun contributeHistoryFragment(): HistoryFragment
 
     @ContributesAndroidInjector
@@ -67,7 +72,7 @@ abstract class MainModule {
                    agent: String, sharedPreferences: SharedPreferences,
                    context: Context): Player =
                 Player(ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector()),
-                        OkHttpDataSourceFactory(okHttpClient, agent, null),
+                        HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null)),
                         audioManager, sharedPreferences, session)
     }
 }
