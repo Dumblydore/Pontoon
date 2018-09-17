@@ -155,7 +155,8 @@ workflows:
     jobs:
       - setup_config:
         filters:
-          - ignore: master
+          banches:
+            ignore: master
       - test:
         require:
           - setup_config
