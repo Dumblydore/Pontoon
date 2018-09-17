@@ -8,14 +8,15 @@ import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
+import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.comment.CommentRepository
+import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
 
-private typealias State = DetailsContract.State
-
 class DetailsPresenter @Inject constructor(private val player: Player,
+                                           private val userRepository: UserRepository,
                                            private val commentRepository: CommentRepository,
                                            private val videoRepository: VideoRepository,
                                            private val navigator: MainContract.Navigator,
@@ -25,13 +26,15 @@ class DetailsPresenter @Inject constructor(private val player: Player,
     override fun onViewAttached(view: DetailsContract.View): Observable<DetailsContract.State> =
             view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(this::handleAction).startWith(DetailsContract.State.Loading)
                     .mergeWith(Observable.merge(playerProgress(), playerState(), playerDuration()))
+                    .startWith(DetailsContract.State.CurrentUser(userRepository.activeUser))
 
     private fun handleAction(it: DetailsContract.Action): Observable<DetailsContract.State> = when (it) {
         is DetailsContract.Action.PlayVideo -> loadVideo(it)
-        is DetailsContract.Action.Comment -> TODO()
+        is DetailsContract.Action.Comment -> comment(it.text)
+        is DetailsContract.Action.Reply -> comment(it.text)
         is DetailsContract.Action.SeekTo -> stateless { player.setProgress((it.position * 1000).toLong()) }
         is DetailsContract.Action.ViewUser -> stateless { navigator.toUser(it.user) }
-        is DetailsContract.Action.ViewCreator -> stateless { navigator.toCreator(it.creator) }
+        is DetailsContract.Action.ViewCreator -> stateless { navigator.toCreator(player.currentlyPlaying!!.video.creator) }
         is DetailsContract.Action.Like -> commentRepository.like(it.comment).map<DetailsContract.State> { DetailsContract.State.Like(it) }
                 .onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.Like))
         is DetailsContract.Action.Dislike -> commentRepository.dislike(it.comment).map<DetailsContract.State> { DetailsContract.State.Dislike(it) }
@@ -74,6 +77,14 @@ class DetailsPresenter @Inject constructor(private val player: Player,
             else -> DetailsContract.BufferState.Playing
         }
     }.map(DetailsContract.State::PlaybackState)
+
+    private fun comment(text: String): Observable<DetailsContract.State> =
+            commentRepository.comment(text, player.currentlyPlaying!!.video)
+                    .map { DetailsContract.State.Comments(listOf(it)) }
+
+    private fun reply(text: String, comment: Comment): Observable<DetailsContract.State> =
+            commentRepository.comment(text, comment, player.currentlyPlaying!!.video)
+                    .map { DetailsContract.State.Comments(listOf(it)) }
 
     override fun onViewDetached() {
         super.onViewDetached()

@@ -136,7 +136,7 @@ abstract class AppModule {
                 .writeTimeout(15, TimeUnit.SECONDS)
                 .also {
                     if (BuildConfig.DEBUG) {
-                        it.addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                        it.addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
                     }
                 }
                 .build()

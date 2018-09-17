@@ -15,6 +15,8 @@ import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.glide.GlideApp
+import me.mauricee.pontoon.main.details.comment.CommentDialogFragment
+import me.mauricee.pontoon.main.details.comment.RepliesDialogFragment
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 import org.threeten.bp.format.DateTimeFormatter
@@ -29,23 +31,25 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
     @Inject
     lateinit var formatter: DateTimeFormatter
 
-    lateinit var creator: UserRepository.Creator
+    private lateinit var currentUser: UserRepository.User
+
 
     override fun getLayoutId(): Int = R.layout.fragment_details
 
     override val actions: Observable<DetailsContract.Action>
-        get() = Observable.merge(
-                commentsAdapter.actions,
+        get() = listOf(commentsAdapter.actions,
                 relatedVideosAdapter.actions,
-                player_small_icon.clicks().map { DetailsContract.Action.ViewCreator(creator) })//,
-//                player_progress.changeEvents().map(DetailsContract. Action::SeekTo))
-                .startWith(DetailsContract.Action.PlayVideo(arguments!!.getString(VideoKey)))
+                player_small_icon.clicks().map { DetailsContract.Action.ViewCreator },
+                comment().map(DetailsContract.Action::Comment),
+                replies(), childrenActions())
+                .let { Observable.merge(it) }.startWith(DetailsContract.Action.PlayVideo(arguments!!.getString(VideoKey)))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
-
+        subscriptions += commentsAdapter
+        subscriptions += relatedVideosAdapter
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -94,6 +98,13 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
                 commentsAdapter.updateComment(state.comment)
                 snack(getString(R.string.details_commentDisliked, state.comment.user.username))
             }
+            is DetailsContract.State.CurrentUser -> {
+                currentUser = state.user
+                GlideApp.with(this).load(state.user.profileImage).circleCrop()
+                        .placeholder(R.drawable.ic_default_thumbnail)
+                        .error(R.drawable.ic_default_thumbnail)
+                        .into(player_user_small_icon)
+            }
         }
     }
 
@@ -123,7 +134,6 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
             player_description.text = description
             player_releaseDate.text = getString(R.string.player_releaseDate, formatter.format(releaseDate))
             Linkify.addLinks(player_description, Linkify.WEB_URLS)
-            this@DetailsFragment.creator = creator
         }
         GlideApp.with(this).load(info.creator.user.profileImage).circleCrop()
                 .placeholder(R.drawable.ic_default_thumbnail)
@@ -133,6 +143,24 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
 
     private fun snack(text: CharSequence, duration: Int = Snackbar.LENGTH_SHORT) {
         Snackbar.make(view!!, text, duration).show()
+    }
+
+    private fun comment() = player_addComment.clicks().flatMap {
+        CommentDialogFragment.newInstance(currentUser).let {
+            it.show(childFragmentManager, it.tag)
+            it.submit
+        }
+    }
+
+    private fun childrenActions(): Observable<DetailsContract.Action> = commentsAdapter.children.map {
+        RepliesDialogFragment.newInstance(it).also { it.show(childFragmentManager, it.tag) }
+    }.flatMap { fragment ->
+        Observable.merge(fragment.actions,
+                fragment.replyTo.flatMap { comment -> comment().map { DetailsContract.Action.Reply(it, comment) } })
+    }
+
+    private fun replies(): Observable<DetailsContract.Action> = commentsAdapter.replyTo.flatMap { comment ->
+        comment().map { DetailsContract.Action.Reply(it, comment) }
     }
 
     companion object {

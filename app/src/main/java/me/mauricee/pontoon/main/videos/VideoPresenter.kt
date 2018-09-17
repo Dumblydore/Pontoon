@@ -28,7 +28,7 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
     }
 
-    private fun getVideos() = videoRepository.getSubscriptionFeed(preferences.displayUnwatchedVideos)
+    private fun getVideos() = preferences.displayUnwatchedVideos.flatMap(videoRepository::getSubscriptionFeed)
             .flatMap<VideoContract.State> { feed ->
                 Observable.merge(feed.videos.videos.map(VideoContract.State::DisplayVideos),
                         feed.videos.state.map { processPaginationState(it, feed.videos.retry) })

@@ -93,7 +93,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/colorPrimary" />
+                        android:background="?android:attr/textColorSecondary" />
 
                     <TextView
                         android:id="@+id/player.description"
@@ -123,7 +123,7 @@
                         android:id="@+id/player.description.divider"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/colorPrimary"
+                        android:background="?android:attr/textColorSecondary"
                         android:visibility="gone"
                         tools:visibility="visible" />
 
@@ -133,12 +133,40 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
+                        tools:layout_height="256dp"
                         tools:listitem="@layout/item_video_list" />
+
+                    <FrameLayout
+                        android:id="@+id/player.addComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:paddingTop="16dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="16dp">
+
+                        <ImageView
+                            android:id="@+id/player.user.small.icon"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:src="@mipmap/ic_launcher" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="48dp"
+                            android:text="@string/details_comment_hint"
+                            android:textColor="?android:attr/textColorSecondary"
+                            android:textSize="18sp"
+                            tools:textColor="@color/white" />
+
+                    </FrameLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/colorPrimary" />
+                        android:background="?android:attr/textColorSecondary" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/player.comments"

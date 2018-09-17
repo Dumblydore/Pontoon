@@ -84,7 +84,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         paramsGlMarginEnd = guidelineMarginEnd.layoutParams as ConstraintLayout.LayoutParams
 
         main_player.setOnTouchListener(animationTouchListener)
-        hide()
+
+        if (player.isActive())
+            setPlayerExpanded(false)
+        else
+            dismiss()
 
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
@@ -134,6 +138,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         controller.pushFragment(UserFragment.newInstance(user.id))
         animationTouchListener.isExpanded = false
         setPlayerExpanded(false)
+        root.closeDrawer(main_drawer)
     }
 
     override fun onClick(view: View) {
@@ -164,13 +169,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
         is MainContract.State.Preferences -> PreferencesActivity.navigateTo(this)
         is MainContract.State.Logout -> LoginActivity.navigateTo(this)
-    }.also { root.closeDrawer(main_drawer, true) }
+    }.also { root.closeDrawer(main_drawer) }
 
     override fun onBackPressed() {
         if (orientationManager.isFullscreen) {
             orientationManager.isFullscreen = false
         } else if (root.isDrawerOpen(main_drawer)) {
-            root.closeDrawer(main_drawer, true)
+            root.closeDrawer(main_drawer)
         } else if (animationTouchListener.isExpanded) {
             animationTouchListener.isExpanded = false
             if (!isPortrait()) {
@@ -225,7 +230,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             R.id.nav_history -> 2
             else -> throw RuntimeException("Invalid tab selection")
         }
-        if(newTab == controller.currentStackIndex)
+        if (newTab == controller.currentStackIndex)
             (controller.currentFrag as? BaseFragment<*>)?.reset()
         else
             controller.switchTab(newTab)
@@ -266,7 +271,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         //Prevent guidelines to go out of screen bound
         val percentHorizontalMoved = Math.max(-0.25F, Math.min(VideoTouchHandler.MIN_HORIZONTAL_LIMIT, percentScrollSwipe))
         val percentMarginMoved = percentHorizontalMoved + (VideoTouchHandler.MIN_MARGIN_END_LIMIT - VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
-        val movedPercent = percentHorizontalMoved  / VideoTouchHandler.MIN_HORIZONTAL_LIMIT
+        val movedPercent = percentHorizontalMoved / VideoTouchHandler.MIN_HORIZONTAL_LIMIT
 
         paramsGlVertical.guidePercent = percentHorizontalMoved
         paramsGlMarginEnd.guidePercent = percentMarginMoved
