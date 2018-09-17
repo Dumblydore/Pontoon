@@ -5,22 +5,43 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'io.fabric'
-//apply plugin: "androidx.navigation.safeargs"
 
-def major = 0
-def minor = 8
-def patch = (project.findProperty('buildNumber') ?: "0").toInteger()
-
-Properties localProperties = new Properties()
+def name = "0.9.0" // Default
+def localProperties = new Properties()
 localProperties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+if (System.getenv("isCi") == "true") {
+    def schema = "release-v"
+    def tag = ['sh', '-c', "git tag -l --sort version:refname \"${schema}*\" | tail -n 1"].execute().text.trim()
+    if (tag != null && !tag.startsWith(schema)) throw new GradleException("Tag \'${tag}\' does not follow schema of \'${schema}x.x.x\'")
+    if (tag != null) name = tag.replace(schema, "")
+}
+
+def major = (name.substring(0, name.indexOf("."))).toInteger()
+def minor = (name.substring(name.indexOf(".") + 1, name.lastIndexOf("."))).toInteger()
+def patch = (name.substring(name.lastIndexOf(".") + 1, name.length())).toInteger()
+def build = System.getenv("buildNumber")
+if (build == null) build = 0 else build = build.toInteger() % 1000
+
+if (major > 209) throw new GradleException("Major version ${major} exceeds limit")
+if (minor > 99) throw new GradleException("Minor version ${minor} exceeds limit")
+if (patch > 99) throw new GradleException("Patch version ${patch} exceeds limit")
+
+def code = (major * 10000000) + (minor * 100000) + (patch * 1000) + build
 
 android {
     signingConfigs {
-        Release {
-            keyAlias localProperties.getProperty("release.keyAlias", "")
-            keyPassword localProperties.getProperty("release.keyPassword", "")
-            storeFile file(localProperties.getProperty("release.storeFile", "~/"))
-            storePassword localProperties.getProperty("release.storePassword", "")
+        release {
+            keyAlias localProperties.getProperty("signing.keyAlias", "")
+            keyPassword localProperties.getProperty("signing.keyPassword", "")
+            storeFile file(localProperties.getProperty("signing.storeFile", "~/"))
+            storePassword localProperties.getProperty("signing.storePassword", "")
+        }
+        nightly {
+            keyAlias localProperties.getProperty("signing.keyAlias", "")
+            keyPassword localProperties.getProperty("signing.keyPassword", "")
+            storeFile file(localProperties.getProperty("signing.storeFile", "~/"))
+            storePassword localProperties.getProperty("signing.storePassword", "")
         }
     }
     compileSdkVersion 28
@@ -29,25 +50,32 @@ android {
         applicationId "me.mauricee.pontoon"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode((major * 100) + (minor * 100) + patch)
-        versionName "$major.$minor.$patch"
+        versionCode code
+        versionName "$name($build)"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username", "")}\""
-        resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password", "")}\""
+        resValue 'string', 'default_user', '""'
+        resValue 'string', 'default_pass', '""'
     }
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.release.pro'
             proguardFiles fileTree('proguard').asList().toArray()
-
-            resValue 'string', 'default_user', '""'
-            resValue 'string', 'default_pass', '""'
-            signingConfig signingConfigs.Release
+            signingConfig signingConfigs.release
             pseudoLocalesEnabled true
         }
+        nightly {
+            minifyEnabled true
+            signingConfig signingConfigs.nightly
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.nightly.pro'
+            versionNameSuffix ' Nightly'
+            applicationIdSuffix '.nightly'
+        }
         debug {
-            versionNameSuffix '-debug'
+            versionNameSuffix ' Debug'
+            applicationIdSuffix '.debug'
+            resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username", "")}\""
+            resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password", "")}\""
         }
     }
 }
@@ -71,9 +99,6 @@ dependencies {
 //    implementation "androidx.mediarouter:mediarouter:$google_support_version"
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation "com.google.android.material:material:$google_support_version"
-    implementation "android.arch.navigation:navigation-fragment-ktx:$nav_version"
-    // use -ktx for Kotlin
-    implementation "android.arch.navigation:navigation-ui-ktx:$nav_version"
 
     // use -ktx for Kotlin
 
@@ -126,7 +151,7 @@ dependencies {
     implementation "androidx.paging:paging-rxjava2:$arch_components_version"
 
     //   Networking
-    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.google.code.gson:gson:2.8.4'
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"

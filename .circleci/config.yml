@@ -9,7 +9,7 @@ defaults: &defaults
     TERM: dumb
 
 jobs:
-  build:
+  setup_config:
     <<: *defaults
     steps:
       - run:
@@ -22,22 +22,56 @@ jobs:
             aws configure set s3.signature_version s3v4
             aws s3 cp s3://mauricee.me-server/keystore/pontoon/Pontoon.jks ./configs --region us-west-2
             aws s3 cp s3://mauricee.me-server/keystore/pontoon/fabric.properties ./configs --region us-west-2
-            aws s3 cp s3://mauricee.me-server/keystore/pontoon/debug/google-services.json ./configs --region us-west-2
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/release/google-services.json ./configs --region us-west-2
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/nightly/google-services.json ./configs --region us-west-2
       - run:
           name: prepare properties.local
           command: |
             touch local.properties
-            echo "release.keyAlias=${SIGNING_RELEASE_KEY_ALIAS}" >> local.properties
-            echo "release.keyPassword=${SIGNING_RELEASE_KEY_PASSWORD}" >> local.properties
-            echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
-            echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
+            echo "signing.keyAlias=${SIGNING_RELEASE_KEY_ALIAS}" >> local.properties
+            echo "signing.keyPassword=${SIGNING_RELEASE_KEY_PASSWORD}" >> local.properties
+            echo "signing.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties
+            echo "signing.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
       - save_cache:
           key: configs-{{ arch }}-{{ .Branch }}-{{ .BuildNum }}
           paths:
             - ./configs
             - local.properties
-
-  build_beta:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - configs-{{ arch }}-{{ .Branch }}-
+            - configs-{{ arch }}-
+            - configs-
+      - run:
+          name: validate root directory
+          command: ls ./configs
+      - run:
+          name: move config files
+          command: |
+            mkdir ./keystore
+            mv ./configs/Pontoon.jks ./keystore
+            mv ./configs/fabric.properties ./app
+            mv ./configs/google-services.json ./app
+      - run:
+          name: chmod permissions
+          command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
+      - run:
+          name: test
+          command: ./gradlew clean test
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - save_cache:
+          key: configs-{{ arch }}-{{ .Branch }}-{{ .BuildNum }}
+          paths:
+            - ./configs
+            - local.properties
+  deploy_nightly:
     <<: *defaults
     steps:
       - checkout
@@ -61,7 +95,7 @@ jobs:
           command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
       - run:
           name: Build and Deploy Release
-          command: ./gradlew clean assembleRelease crashlyticsUploadDistributionRelease -P buildNumber=${CIRCLE_BUILD_NUM}
+          command: ./gradlew clean test assembleRelease crashlyticsUploadDistributionRelease -PisCi=true -PbuildNumber=${CIRCLE_BUILD_NUM}
       - save_cache:
           paths:
             - ~/.gradle
@@ -77,7 +111,7 @@ jobs:
           path: app/build/outputs/mapping/release/usage.txt
       - store_artifacts:
           path: app/build/outputs/mapping/release/mappings.tx
-  build_release:
+  deploy_release:
       <<: *defaults
       steps:
         - checkout
@@ -99,7 +133,7 @@ jobs:
             command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
         - run:
             name: Build and Deploy Release
-            command: ./gradlew clean assembleRelease crashlyticsUploadDistributionRelease -P buildNumber=${CIRCLE_BUILD_NUM}
+            command: ./gradlew clean test assembleRelease crashlyticsUploadDistributionRelease -PisCi=true -PbuildNumber=${CIRCLE_BUILD_NUM}
         - save_cache:
             paths:
               - ~/.gradle
@@ -117,25 +151,38 @@ jobs:
             path: app/build/outputs/mapping/release/mappings.txt
 workflows:
   version: 2
-  build-and-deploy:
+  commits:
     jobs:
-      - build
-      - build_beta:
-          requires:
-            - build
+      - setup_config:
+        filters:
+          - ignore: master
+      - test
+        require:
+          - setup_config
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
           filters:
             branches:
               only: master
             tags:
               ignore: /^v.*/
-      - build_release:
-          requires:
-            - build
+    jobs:
+      - setup_config
+      - deploy_nightly
+  release:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
           filters:
             tags:
               only: /^release-.*/
             branches:
-              ignore: /.*/
+              ignore: /^v.*/
+    jobs:
+      - setup_config
+      - deploy_release
 experimental:
     notify:
       branches:

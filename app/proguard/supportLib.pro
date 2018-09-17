@@ -1,0 +1,2 @@
+-dontnote com.google.android.material.**
+-keep public class android.support.constraint.ConstraintLayout

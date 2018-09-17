@@ -1,0 +1,2 @@
+-dontwarn me.mauricee.pontoon.**
+-dontnote me.mauricee.pontoon.**
