@@ -9,7 +9,7 @@ defaults: &defaults
     TERM: dumb
 
 jobs:
-  setup_config:
+  build:
     <<: *defaults
     steps:
       - run:
@@ -153,12 +153,12 @@ workflows:
   version: 2
   commits:
     jobs:
-      - setup_config:
+      - build:
         filters:
           - ignore: master
       - test
         require:
-          - setup_config
+          - build
   nightly:
     triggers:
       - schedule:
@@ -169,7 +169,7 @@ workflows:
             tags:
               ignore: /^v.*/
     jobs:
-      - setup_config
+      - build
       - deploy_nightly
   release:
     triggers:
@@ -181,7 +181,7 @@ workflows:
             branches:
               ignore: /^v.*/
     jobs:
-      - setup_config
+      - build
       - deploy_release
 experimental:
     notify:
