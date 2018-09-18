@@ -82,9 +82,9 @@
         <item>Never</item>
     </string-array>
     <string-array name="settings_pip_options_values">
-        <item>pip_always</item>
-        <item>pip_onlyWhenPlaying</item>
-        <item>pip_never</item>
+        <item>Always</item>
+        <item>OnlyWhenPlaying</item>
+        <item>Never</item>
     </string-array>
 
     <string name="settings_quality_cell">Quality over Cellular</string>
