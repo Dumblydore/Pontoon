@@ -157,6 +157,8 @@ workflows:
         filters:
           branches:
             ignore: master
+          tags:
+            ignore: /^v.*/
       - test:
         require:
           - setup_config
