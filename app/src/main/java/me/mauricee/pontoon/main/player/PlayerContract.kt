@@ -14,6 +14,7 @@ interface PlayerContract {
         object Playing : State()
         object Loading : State()
         object Buffering : State()
+        object DownloadFailed : State()
         class Bind(val player: Player) : State()
         class Preview(val path: String) : State()
         class Duration(val duration: String) : State()
@@ -31,5 +32,6 @@ interface PlayerContract {
         object ToggleFullscreen : Action()
         object MinimizePlayer : Action()
         class Quality(val qualityLevel: Player.QualityLevel) : Action()
+        class Download(val quality: Player.QualityLevel) : Action()
     }
 }
