@@ -56,9 +56,10 @@ class Player(private val exoPlayer: SimpleExoPlayer,
         set(value) {
             if (value?.video?.id != field?.video?.id && value != null) {
                 load(value)
+            } else {
+                exoPlayer.stop()
             }
             field = value
-            //TODO Handle null case???
         }
 
     private var controllerTimeout: Disposable? = null
@@ -205,10 +206,6 @@ class Player(private val exoPlayer: SimpleExoPlayer,
 
     fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
             .map { exoPlayer.bufferedPosition }.startWith(exoPlayer.bufferedPosition)
-
-    fun setProgress(progress: Long) {
-        exoPlayer.seekTo(progress)
-    }
 
     fun toggleControls() {
         controllerTimeout?.dispose()

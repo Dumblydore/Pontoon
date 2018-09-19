@@ -1,8 +1,6 @@
 package me.mauricee.pontoon.main.details
 
-import android.support.v4.media.session.PlaybackStateCompat
 import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
@@ -22,7 +20,6 @@ class DetailsPresenter @Inject constructor(private val player: Player,
 
     override fun onViewAttached(view: DetailsContract.View): Observable<DetailsContract.State> =
             view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(this::handleAction).startWith(DetailsContract.State.Loading)
-                    .mergeWith(Observable.merge(playerProgress(), playerState(), playerDuration()))
 
     private fun handleAction(it: DetailsContract.Action): Observable<DetailsContract.State> = when (it) {
         is DetailsContract.Action.PlayVideo -> loadVideo(it)
@@ -52,22 +49,6 @@ class DetailsPresenter @Inject constructor(private val player: Player,
                     .onErrorReturnItem(emptyList())
                     .map(DetailsContract.State::Comments)
 
-    private fun playerDuration(): Observable<DetailsContract.State> = player.duration.map {
-        DetailsContract.State.Duration((it / 1000).toInt())
-    }
-
-    private fun playerProgress(): Observable<DetailsContract.State> = Observable.zip(
-            player.progress().distinct(), player.bufferedProgress().distinct(), BiFunction { t1, t2 ->
-        DetailsContract.State.Progress((t1 / 1000).toInt(), (t2 / 1000).toInt())
-    })
-
-    private fun playerState(): Observable<DetailsContract.State> = player.playbackState.map {
-        when (it) {
-            PlaybackStateCompat.STATE_CONNECTING,
-            PlaybackStateCompat.STATE_BUFFERING -> DetailsContract.BufferState.Buffering
-            else -> DetailsContract.BufferState.Playing
-        }
-    }.map(DetailsContract.State::PlaybackState)
 
     override fun onViewDetached() {
         super.onViewDetached()

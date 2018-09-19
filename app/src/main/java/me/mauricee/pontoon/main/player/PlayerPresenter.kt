@@ -2,6 +2,7 @@ package me.mauricee.pontoon.main.player
 
 import android.support.v4.media.session.PlaybackStateCompat
 import io.reactivex.Observable
+import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainContract
@@ -22,7 +23,6 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                     .startWith(listOf(PlayerContract.State.Bind(player), PlayerContract.State.Loading, PlayerContract.State.Quality(player.quality)))
 
     private fun handleActions(action: PlayerContract.Action): Observable<PlayerContract.State> = when (action) {
-        is PlayerContract.Action.PlayPause -> stateless { player.playPause() }
         PlayerContract.Action.SkipForward -> stateless { }
         PlayerContract.Action.SkipBackward -> stateless { }
         PlayerContract.Action.MinimizePlayer -> stateless {
@@ -30,14 +30,19 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             navigator.setPlayerExpanded(false)
         }
         PlayerContract.Action.ToggleFullscreen -> stateless { orientationManager.apply { isFullscreen = !isFullscreen } }
+        is PlayerContract.Action.PlayPause -> stateless { player.playPause() }
         is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.qualityLevel; PlayerContract.State.Quality(action.qualityLevel) }
+        is PlayerContract.Action.SeekProgress -> stateless { player.onSeekTo((action.progress * 1000).toLong()) }
     }
 
-    private fun watchProgress() = player.progress().distinctUntilChanged().map { PlayerContract.State.Progress(formatMillis(it)) }
+    private fun watchProgress() = Observable.combineLatest<Long, Long, PlayerContract.State>(player.progress().distinctUntilChanged(),
+            player.bufferedProgress().distinctUntilChanged(), BiFunction { t1, t2 ->
+        PlayerContract.State.Progress((t1 / 1000).toInt(), (t2 / 1000).toInt(), formatMillis(t1))
+    })
 
     private fun watchPreview() = player.previewImage.map { PlayerContract.State.Preview(it) }
 
-    private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(formatMillis(it)) }
+    private fun watchDuration() = player.duration.map { PlayerContract.State.Duration((it / 1000).toInt(), formatMillis(it)) }
 
     private fun watchState() = player.playbackState.map {
         when (it) {

@@ -68,10 +68,6 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
             is DetailsContract.State.Loading -> {
                 details.setState(LazyLayout.LOADING, false)
             }
-            is DetailsContract.State.Progress -> {
-                player_progress.progress = state.progress
-                player_progress.secondaryProgress = state.bufferedProgress
-            }
             is DetailsContract.State.VideoInfo -> {
                 details.state = LazyLayout.SUCCESS
                 displayVideoInfo(state.video)
@@ -84,9 +80,6 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
                 scrollToSelectedComment()
             }
             is DetailsContract.State.RelatedVideos -> relatedVideosAdapter.videos = state.relatedVideos
-            is DetailsContract.State.Duration -> player_progress.max = state.duration
-            is DetailsContract.State.PlaybackState -> {
-            }
         }
     }
 
