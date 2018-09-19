@@ -9,9 +9,11 @@
             android:title="@string/settings_screen" />
         <me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
             android:key="settings_primary"
+            android:defaultValue="Default"
             android:title="@string/settings_theme" />
         <me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
             android:key="settings_accent"
+            android:defaultValue="Default"
             android:title="@string/settings_accent_color" />
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory

@@ -14,8 +14,6 @@ import me.mauricee.pontoon.model.user.CreatorDao
 import me.mauricee.pontoon.model.user.CreatorEntity
 import me.mauricee.pontoon.model.user.UserDao
 import me.mauricee.pontoon.model.user.UserEntity
-import me.mauricee.pontoon.model.video.HistoryDao
-import me.mauricee.pontoon.model.video.HistoryEntity
 import me.mauricee.pontoon.model.video.VideoDao
 import me.mauricee.pontoon.model.video.VideoEntity
 import org.threeten.bp.Instant
@@ -24,13 +22,12 @@ import org.threeten.bp.ZoneOffset
 
 @TypeConverters(value = [InstantTypeConverter::class])
 @Database(entities = [UserEntity::class, EdgeEntity::class, CreatorEntity::class, VideoEntity::class,
-    HistoryEntity::class, CommentEntity::class, SubscriptionEntity::class], version = 1)
+    CommentEntity::class, SubscriptionEntity::class], version = 1)
 abstract class PontoonDatabase : RoomDatabase() {
     abstract val userDao: UserDao
     abstract val edgeDao: EdgeDao
     abstract val videoDao: VideoDao
     abstract val creatorDao: CreatorDao
-    abstract val historyDao: HistoryDao
     abstract val commentDao: CommentDao
     abstract val subscriptionDao: SubscriptionDao
 }
@@ -38,10 +35,10 @@ abstract class PontoonDatabase : RoomDatabase() {
 class InstantTypeConverter {
 
     @TypeConverter
-    fun toInstant(value: Long?): Instant? = if (value == null) Instant.now() else Instant.ofEpochMilli(value)
+    fun toInstant(value: Long?): Instant? = value?.let(Instant::ofEpochMilli) ?: null
 
     @TypeConverter
-    fun toLong(value: Instant?): Long = (value ?: Instant.now()).toEpochMilli()
+    fun toLong(value: Instant?): Long? = value?.toEpochMilli() ?: null
 
     @TypeConverter
     fun toLocalDateTime(value: Long?): LocalDateTime? = if (value == null) LocalDateTime.now() else

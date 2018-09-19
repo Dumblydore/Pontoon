@@ -4,6 +4,7 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
@@ -21,10 +22,20 @@ class SearchPresenter @Inject constructor(private val navigator: MainContract.Na
 
     private fun handleActions(creators: List<UserRepository.Creator>, action: SearchContract.Action): Observable<SearchContract.State> =
             when (action) {
-                is SearchContract.Action.Query -> videoRepository.search(action.query, *creators.toTypedArray()).videos
-                        .map<SearchContract.State>(SearchContract.State::Results)
-                        .startWith(SearchContract.State.Loading)
-                        .onErrorReturnItem(SearchContract.State.Error)
+                is SearchContract.Action.Query -> {
+                    if (action.query.isEmpty()) Observable.just<SearchContract.State>(SearchContract.State.Error(SearchContract.State.Type.NoText))
+                    else videoRepository.search("%${action.query}%", *creators.toTypedArray()).let { result ->
+                        Observable.merge(result.videos.map(SearchContract.State::Results), result.state.map { handleResultState(it, result.retry) })
+                                .onErrorReturnItem(SearchContract.State.Error())
+                    }
+                }
                 is SearchContract.Action.PlayVideo -> stateless { navigator.playVideo(action.video) }
             }
+
+    private fun handleResultState(state: StateBoundaryCallback.State, retry: () -> Unit): SearchContract.State = when (state) {
+        StateBoundaryCallback.State.LOADING -> SearchContract.State.FetchingPage
+        StateBoundaryCallback.State.ERROR -> SearchContract.State.FetchError(SearchContract.State.Type.Network, retry)
+        StateBoundaryCallback.State.FETCHED -> SearchContract.State.FinishFetching
+        StateBoundaryCallback.State.FINISHED -> SearchContract.State.FetchError(SearchContract.State.Type.NoResults, retry)
+    }
 }

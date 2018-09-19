@@ -16,6 +16,7 @@ abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S,
                 .doOnNext { eventTracker.trackState(it, view) }
                 .doOnSubscribe { eventTracker.trackStart(view) }
                 .doOnDispose { eventTracker.trackStop(view) }
+                .distinctUntilChanged()
                 .subscribe(view::updateState)
     }
 

@@ -24,10 +24,15 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
 
     private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
         when (it) {
-            is MainContract.Action.Logout -> stateless { accountManagerHelper.logout() }
+            is MainContract.Action.Logout -> Observable.fromCallable(::logout)
             is MainContract.Action.Profile -> stateless { navigator.toUser(currentUser) }
             is MainContract.Action.Preferences -> MainContract.State.Preferences.toObservable()
             is MainContract.Action.ClickEvent -> stateless { player.toggleControls() }
         }
+    }
+
+    private fun logout(): MainContract.State {
+        accountManagerHelper.logout()
+        return MainContract.State.Logout
     }
 }
