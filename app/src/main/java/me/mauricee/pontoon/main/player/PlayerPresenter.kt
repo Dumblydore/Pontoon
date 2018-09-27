@@ -19,7 +19,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
-                    watchState(), watchProgress(), watchDuration(), watchPreview()))
+                    watchState(), watchProgress(), watchDuration(), watchPreview(), watchTimeline()))
                     .startWith(listOf(PlayerContract.State.Bind(player), PlayerContract.State.Loading, PlayerContract.State.Quality(player.quality)))
 
     private fun handleActions(action: PlayerContract.Action): Observable<PlayerContract.State> = when (action) {
@@ -53,6 +53,8 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             else -> PlayerContract.State.Paused
         }
     }
+
+    private fun watchTimeline() = player.thumbnailTimeline.map(PlayerContract.State::PreviewThumbnail)
 
     private fun formatMillis(ms: Long) = Duration.ofMillis(ms).let {
         val seconds = it.seconds

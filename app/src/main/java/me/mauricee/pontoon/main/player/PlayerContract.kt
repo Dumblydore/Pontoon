@@ -14,6 +14,7 @@ interface PlayerContract {
         object Playing : State()
         object Loading : State()
         object Buffering : State()
+        class PreviewThumbnail(val url: String) : State()
         class Bind(val player: Player) : State()
         class Preview(val path: String) : State()
         class Duration(val duration: Int, val formattedDuration: String) : State() {

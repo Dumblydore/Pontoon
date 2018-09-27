@@ -52,6 +52,10 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     val duration: Observable<Long>
         get() = durationRelay
 
+    private val timelineSubject = BehaviorRelay.create<String>()
+    val thumbnailTimeline: Observable<String>
+        get() = timelineSubject
+
     var currentlyPlaying: Playback? = null
         set(value) {
             if (value?.video?.id != field?.video?.id && value != null) {
@@ -112,8 +116,11 @@ class Player(private val exoPlayer: SimpleExoPlayer,
         exoPlayer.setVideoTextureView(view)
     }
 
+
+    //TODO Not sure if this is the best way of doing it. It might be better to have it as a part of Video.
     private fun setMetadata(video: Video) {
         previewImageRelay.accept(video.thumbnail)
+        timelineSubject.accept("https://cms.linustechtips.com/get/sprite/by_guid/${video.id}")
     }
 
     private fun load(playback: Playback) {
