@@ -24,7 +24,7 @@
             android:key="settings_hide"
             android:title="@string/settings_hide" />
         <androidx.preference.ListPreference
-            android:defaultValue="pip_always"
+            android:defaultValue="Always"
             android:entries="@array/settings_pip_options"
             android:entryValues="@array/settings_pip_options_values"
             android:key="settings_picture"

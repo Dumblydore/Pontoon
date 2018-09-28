@@ -8,12 +8,15 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function4
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
+import me.mauricee.pontoon.ext.logd
+import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
@@ -93,6 +96,14 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                     videos.toObservable().filter { it.creator == creator.id }.map { Video(it, creator) }
                 }
     }.toList()
+
+    fun getDownloadLink(videoId: String, quality: Player.QualityLevel): Single<String> = Observable.combineLatest<ResponseBody, String, String>(
+            floatPlaneApi.getVideoUrl(videoId, quality.name.replace("p", "")), edgeRepo.downloadHost.toObservable(),
+            BiFunction { t1, t2 ->
+                getUrlFromResponse(t2, t1).replace("/chunk.m3u8", "")
+            })
+            .doOnNext { logd("download url: $it") }
+            .singleOrError()
 
     fun getQualityOfVideo(videoId: String): Observable<Quality> = edgeRepo.streamingHost.flatMapObservable<Quality> { host ->
         Observable.zip(floatPlaneApi.getVideoUrl(videoId, "360").map { getUrlFromResponse(host, it) },

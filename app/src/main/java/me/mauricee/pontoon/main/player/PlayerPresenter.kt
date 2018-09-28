@@ -1,6 +1,10 @@
 package me.mauricee.pontoon.main.player
 
 import android.support.v4.media.session.PlaybackStateCompat
+import com.novoda.downloadmanager.Batch
+import com.novoda.downloadmanager.DownloadBatchIdCreator
+import com.novoda.downloadmanager.DownloadManager
+import com.novoda.downloadmanager.StorageRoot
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
@@ -8,10 +12,14 @@ import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.OrientationManager
 import me.mauricee.pontoon.main.Player
+import me.mauricee.pontoon.model.video.VideoRepository
 import org.threeten.bp.Duration
 import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
+                                          private val videoRepository: VideoRepository,
+                                          private val downloadManager: DownloadManager,
+                                          private val storageRoot: StorageRoot,
                                           private val navigator: MainContract.Navigator,
                                           private val orientationManager: OrientationManager,
                                           eventTracker: EventTracker) :
@@ -31,6 +39,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         }
         PlayerContract.Action.ToggleFullscreen -> stateless { orientationManager.apply { isFullscreen = !isFullscreen } }
         is PlayerContract.Action.PlayPause -> stateless { player.playPause() }
+        is PlayerContract.Action.Download -> downloadVideo(action.quality)
         is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.qualityLevel; PlayerContract.State.Quality(action.qualityLevel) }
         is PlayerContract.Action.SeekProgress -> stateless { player.onSeekTo((action.progress * 1000).toLong()) }
     }
@@ -55,6 +64,14 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     }
 
     private fun watchTimeline() = player.thumbnailTimeline.map(PlayerContract.State::PreviewThumbnail)
+
+    private fun downloadVideo(qualityLevel: Player.QualityLevel) = player.currentlyPlaying!!.video.let { video ->
+        videoRepository.getDownloadLink(video.id, qualityLevel).map {
+            Batch.with(storageRoot, DownloadBatchIdCreator.createSanitizedFrom(video.id), video.title)
+                    .downloadFrom(it).apply()
+        }.flatMapObservable { stateless { downloadManager.download(it.build()) } }
+                .onErrorReturnItem(PlayerContract.State.DownloadFailed)
+    }
 
     private fun formatMillis(ms: Long) = Duration.ofMillis(ms).let {
         val seconds = it.seconds

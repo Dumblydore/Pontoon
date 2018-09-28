@@ -13,11 +13,11 @@ class EdgeEntity(val allowStreaming: Boolean, val allowDownloads: Boolean, val h
 @Dao
 abstract class EdgeDao {
 
-    @Query("SELECT hostname from Edges Where allowStreaming = 1 ORDER BY RANDOM() LIMIT 1")
-    abstract fun getStreamingEdgeHost(): Single<String>
+    @Query("SELECT hostname from Edges Where allowStreaming = 1")
+    abstract fun getStreamingEdgeHosts(): Single<List<String>>
 
-    @Query("SELECT hostname from Edges Where allowDownloads = 1 ORDER BY RANDOM() LIMIT 1")
-    abstract fun getDownloadEdgeHost(): Single<String>
+    @Query("SELECT hostname from Edges Where allowDownload = 1")
+    abstract fun getDownloadEdgeHosts(): Single<List<String>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun addEdges(edges: List<EdgeEntity>)

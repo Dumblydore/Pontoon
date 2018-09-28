@@ -15,6 +15,7 @@ class AccountManagerHelper @Inject constructor(private val sharedPreferences: Sh
         get() = sharedPreferences.getString(UserData, "").let { gson.fromJson(it, User::class.java) }
         set(value) {
             sharedPreferences.edit { putString(UserData, gson.toJson(value)) }
+
         }
 
     val isLoggedIn: Boolean
@@ -23,6 +24,7 @@ class AccountManagerHelper @Inject constructor(private val sharedPreferences: Sh
     fun logout() = sharedPreferences.edit{remove(UserData)}
 
     companion object {
+
         const val AccountType: String = "me.mauricee.pontoon"
         const val UserData: String = "com.floatplane"
     }

@@ -33,6 +33,7 @@ class DetailsPresenter @Inject constructor(private val player: Player,
         Observable.merge(loadRelatedVideos(id), loadComments(id), loadVideoDetails(video))
     }
 
+
     private fun loadVideoDetails(action: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> =
             videoRepository.getVideo(action.id).doOnSuccess(videoRepository::addToWatchHistory).flatMapObservable { video ->
                 videoRepository.getQualityOfVideo(action.id).doOnNext { player.currentlyPlaying = Playback(video, it) }

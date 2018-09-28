@@ -14,6 +14,7 @@ interface PlayerContract {
         object Playing : State()
         object Loading : State()
         object Buffering : State()
+        object DownloadFailed : State()
         class PreviewThumbnail(val url: String) : State()
         class Bind(val player: Player) : State()
         class Preview(val path: String) : State()
@@ -26,7 +27,6 @@ interface PlayerContract {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }
-
         class Quality(val qualityLevel: Player.QualityLevel) : State()
     }
 
@@ -37,6 +37,7 @@ interface PlayerContract {
         object ToggleFullscreen : Action()
         object MinimizePlayer : Action()
         class SeekProgress(val progress: Int) : Action()
+        class Download(val quality: Player.QualityLevel) : Action()
         class Quality(val qualityLevel: Player.QualityLevel) : Action()
     }
 }
