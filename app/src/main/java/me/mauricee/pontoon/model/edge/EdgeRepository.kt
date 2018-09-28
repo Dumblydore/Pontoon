@@ -1,11 +1,11 @@
 package me.mauricee.pontoon.model.edge
 
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.rxkotlin.toFlowable
-import io.reactivex.rxkotlin.toSingle
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.rx.okhttp.toSingle
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -22,7 +22,7 @@ class EdgeRepository @Inject constructor(private val edgeDao: EdgeDao,
         get() = preCache { edgeDao.getStreamingEdgeHosts().flatMap(::getAvailableHosts) }
 
     private fun cacheEdges(): Completable = floatPlaneApi.edges.flatMapIterable { it.edges }
-            .map { EdgeEntity(it.allowStreaming, it.allowDownloads, it.hostname) }
+            .map { EdgeEntity(it.allowStreaming, it.allowDownload, it.hostname) }
             .toList()
             .flatMapCompletable { Completable.fromCallable { edgeDao.addEdges(it) } }
 
@@ -30,16 +30,14 @@ class EdgeRepository @Inject constructor(private val edgeDao: EdgeDao,
             .flatMapCompletable { if (it > 0) Completable.complete() else cacheEdges() }
             .toSingle { 0 }.flatMap { action() }.subscribeOn(Schedulers.io())
 
-    private fun getAvailableHosts(hosts: List<String>): Single<String> = hosts.toFlowable().parallel()
-            .flatMap(::makeCall)
-            .runOn(Schedulers.io())
-            .filter(String::isNotBlank)
-            .sequential().firstOrError()
+    private fun getAvailableHosts(hosts: List<String>): Single<String> = hosts.map(::makeCall)
+            .let { Observable.amb(it) }
+            .firstOrError()
 
-    private fun makeCall(host: String) = host.toSingle()
+    private fun makeCall(host: String) = host.toObservable()
             .map { "https://${it.replaceFirst(".", "-query.")}" }
-            .flatMap { client.newCall(Request.Builder().get().url(it).build()).toSingle() }
+            .flatMapSingle { client.newCall(Request.Builder().get().url(it).build()).toSingle() }
             .map { host }
-            .onErrorReturn { "" }
-            .toFlowable()
+            .subscribeOn(Schedulers.io())
+            .onErrorResumeNext(Observable.empty())
 }
