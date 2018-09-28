@@ -146,7 +146,6 @@ abstract class AppModule {
                 }
                 .build()
 
-
         @AppScope
         @Provides
         @JvmStatic
