@@ -108,6 +108,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 R.id.action_p720 -> PlayerContract.Action.Quality(Player.QualityLevel.p720).toObservable()
                 R.id.action_p480 -> PlayerContract.Action.Quality(Player.QualityLevel.p480).toObservable()
                 R.id.action_p360 -> PlayerContract.Action.Quality(Player.QualityLevel.p360).toObservable()
+                R.id.action_download_p1080 -> PlayerContract.Action.Download(Player.QualityLevel.p1080).toObservable()
+                R.id.action_download_p720 -> PlayerContract.Action.Download(Player.QualityLevel.p720).toObservable()
+                R.id.action_download_p480 -> PlayerContract.Action.Download(Player.QualityLevel.p480).toObservable()
+                R.id.action_download_p360 -> PlayerContract.Action.Download(Player.QualityLevel.p360).toObservable()
                 R.id.action_share -> Observable.empty()
                 else -> Observable.empty()
             }
