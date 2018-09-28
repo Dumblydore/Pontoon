@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.main
 
-import android.content.SharedPreferences
 import android.media.AudioManager
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
@@ -18,6 +17,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
 import java.util.concurrent.TimeUnit
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 class Player(private val exoPlayer: SimpleExoPlayer,
              private val networkSourceFactory: HlsMediaSource.Factory,
              private val audioManager: AudioManager,
-             private val sharedPreferences: SharedPreferences,
+             private val preferences: Preferences,
              private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener {
 
@@ -75,8 +75,7 @@ class Player(private val exoPlayer: SimpleExoPlayer,
             field?.apply { controlsVisible(controlsVisible) }
         }
 
-    var quality: QualityLevel = sharedPreferences.getString("settings_quality", "p1080")
-            .let(QualityLevel::valueOf)
+    var quality: QualityLevel = preferences.defaultQualityLevel
         set(value) {
             if (value != field) {
                 currentlyPlaying?.apply {

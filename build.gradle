@@ -36,6 +36,9 @@ allprojects {
             name 'glide-snapshot'
             url 'http://oss.sonatype.org/content/repositories/snapshots'
         }
+        maven {
+            url  "http://dl.bintray.com/isupatches/Maven"
+        }
     }
 }
 
