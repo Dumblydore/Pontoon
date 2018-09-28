@@ -2,8 +2,7 @@ package me.mauricee.pontoon.model.edge
 
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxkotlin.toFlowable
 import io.reactivex.rxkotlin.toSingle
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
@@ -27,28 +26,20 @@ class EdgeRepository @Inject constructor(private val edgeDao: EdgeDao,
             .toList()
             .flatMapCompletable { Completable.fromCallable { edgeDao.addEdges(it) } }
 
-    private fun <T> preCache(action: () -> Single<T>): Single<T> = Single.fromCallable { edgeDao.size() }
+    private fun <T> preCache(action: () -> Single<T>): Single<T> = Single.fromCallable(edgeDao::size)
             .flatMapCompletable { if (it > 0) Completable.complete() else cacheEdges() }
             .toSingle { 0 }.flatMap { action() }.subscribeOn(Schedulers.io())
 
-    private fun getAvailableHosts(hosts: List<String>): Single<String> {
-        val subs = CompositeDisposable()
-        return Single.create<String> { emitter ->
-            hosts.map(this::makeCall).forEach {
-                subs += it.subscribe { url ->
-                    if (url.isNotBlank()) {
-                        subs.clear()
-                        emitter.onSuccess(url)
-                    }
-                }
-            }
-        }.doOnDispose(subs::dispose)
-    }
+    private fun getAvailableHosts(hosts: List<String>): Single<String> = hosts.toFlowable().parallel()
+            .flatMap(::makeCall)
+            .runOn(Schedulers.io())
+            .filter(String::isNotBlank)
+            .sequential().firstOrError()
 
     private fun makeCall(host: String) = host.toSingle()
             .map { "https://${it.replaceFirst(".", "-query.")}" }
             .flatMap { client.newCall(Request.Builder().get().url(it).build()).toSingle() }
             .map { host }
             .onErrorReturn { "" }
-            .subscribeOn(Schedulers.io())
+            .toFlowable()
 }
