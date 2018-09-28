@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.player
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -16,7 +17,6 @@ import kotlinx.android.synthetic.main.fragment_player.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
 
@@ -34,13 +34,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_playPause.clicks().map { PlayerContract.Action.PlayPause },
                 player_controls_progress.changeEvents()
                         .doOnNext { isSeeking = it is SeekBarStartChangeEvent || (isSeeking && it !is SeekBarStopChangeEvent) }
-                        .flatMap {
-                            when (it) {
-                                is SeekBarStopChangeEvent -> PlayerContract.Action.SeekProgress(it.view().progress).toObservable()
-                                else -> Observable.empty()
-                            }
-                        }, RxToolbar.navigationClicks(player_controls_toolbar).map
-        { PlayerContract.Action.MinimizePlayer }, itemClicks()
+                        .filter { it is SeekBarStopChangeEvent }
+                        .cast(SeekBarStopChangeEvent::class.java)
+                        .map { PlayerContract.Action.SeekProgress(it.view().progress) },
+                RxToolbar.navigationClicks(player_controls_toolbar).map
+                { PlayerContract.Action.MinimizePlayer }, itemClicks()
         ).let { Observable.merge(it) }
 
     override fun getLayoutId(): Int = R.layout.fragment_player
@@ -82,11 +80,13 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_display.isVisible = false
                 player_controls_loading.isVisible = true
                 player_controls_playPause.isVisible = false
+                player_controls_error.isVisible = false
                 player_controls_progress.secondaryProgress = 0
             }
             is PlayerContract.State.Buffering -> {
                 player_controls_loading.isVisible = true
                 player_controls_playPause.isVisible = false
+                player_controls_error.isVisible = false
             }
             is PlayerContract.State.Duration -> {
                 player_controls_duration.text = state.formattedDuration
@@ -94,7 +94,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             }
             is PlayerContract.State.Progress -> {
                 player_controls_position.text = state.formattedProgress
-                if (isSeeking)
+                if (!isSeeking)
                     player_controls_progress.progress = state.progress
                 player_controls_progress.secondaryProgress = state.bufferedProgress
             }
@@ -108,6 +108,12 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                     Player.QualityLevel.p480 -> qualityMenu.subMenu.findItem(R.id.action_p480).isChecked = true
                     Player.QualityLevel.p360 -> qualityMenu.subMenu.findItem(R.id.action_p360).isChecked = true
                 }
+            }
+            PlayerContract.State.Error -> {
+                player_preview.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
+                player_controls_loading.isVisible = false
+                player_controls_playPause.isVisible = false
+                player_controls_error.isVisible = true
             }
         }
     }

@@ -185,6 +185,11 @@ class Player(private val exoPlayer: SimpleExoPlayer,
         state = PlaybackStateCompat.STATE_STOPPED
     }
 
+    override fun onSeekTo(pos: Long) {
+        exoPlayer.seekTo(pos)
+        onPlay()
+    }
+
     override fun onSeekProcessed() {
     }
 

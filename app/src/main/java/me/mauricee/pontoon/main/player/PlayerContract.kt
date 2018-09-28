@@ -14,18 +14,17 @@ interface PlayerContract {
         object Playing : State()
         object Loading : State()
         object Buffering : State()
+        object Error : State()
         class Bind(val player: Player) : State()
         class Preview(val path: String) : State()
         class Duration(val duration: Int, val formattedDuration: String) : State() {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }
-
         class Progress(val progress: Int, val bufferedProgress: Int, val formattedProgress: String) : State() {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }
-
         class Quality(val qualityLevel: Player.QualityLevel) : State()
     }
 

@@ -50,6 +50,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             PlaybackStateCompat.STATE_PAUSED -> PlayerContract.State.Paused
             PlaybackStateCompat.STATE_BUFFERING -> PlayerContract.State.Buffering
             PlaybackStateCompat.STATE_CONNECTING -> PlayerContract.State.Loading
+            PlaybackStateCompat.STATE_ERROR -> PlayerContract.State.Error
             else -> PlayerContract.State.Paused
         }
     }

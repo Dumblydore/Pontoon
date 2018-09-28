@@ -24,7 +24,6 @@ class DetailsPresenter @Inject constructor(private val player: Player,
     private fun handleAction(it: DetailsContract.Action): Observable<DetailsContract.State> = when (it) {
         is DetailsContract.Action.PlayVideo -> loadVideo(it)
         is DetailsContract.Action.Comment -> TODO()
-        is DetailsContract.Action.SeekTo -> stateless { player.setProgress((it.position * 1000).toLong()) }
         is DetailsContract.Action.ViewUser -> stateless { navigator.toUser(it.user) }
         is DetailsContract.Action.ViewCreator -> stateless { navigator.toCreator(it.creator) }
     }.onErrorReturnItem(DetailsContract.State.Error())
