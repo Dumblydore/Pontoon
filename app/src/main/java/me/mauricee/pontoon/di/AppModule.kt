@@ -37,7 +37,6 @@ import me.mauricee.pontoon.preferences.PreferenceModule
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import me.mauricee.pontoon.preferences.PreferencesScope
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.aaronhe.threetengson.ThreeTenGsonAdapter
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
@@ -139,11 +138,6 @@ abstract class AppModule {
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(15, TimeUnit.SECONDS)
                 .writeTimeout(15, TimeUnit.SECONDS)
-                .also {
-                    if (BuildConfig.DEBUG) {
-                        it.addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-                    }
-                }
                 .build()
 
         @AppScope

@@ -117,7 +117,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {
-        return RxToolbar.itemClicks(player_controls_toolbar).map<PlayerContract.Action> {
+        return RxToolbar.itemClicks(player_controls_toolbar).flatMap<PlayerContract.Action> {
             when (it.itemId) {
                 R.id.action_p1080 -> PlayerContract.Action.Quality(Player.QualityLevel.p1080).toObservable()
                 R.id.action_p720 -> PlayerContract.Action.Quality(Player.QualityLevel.p720).toObservable()
