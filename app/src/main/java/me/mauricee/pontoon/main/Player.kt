@@ -1,6 +1,6 @@
 package me.mauricee.pontoon.main
 
-import android.content.SharedPreferences
+import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
@@ -18,6 +18,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
 import java.util.concurrent.TimeUnit
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit
 class Player(private val exoPlayer: SimpleExoPlayer,
              private val networkSourceFactory: HlsMediaSource.Factory,
              private val audioManager: AudioManager,
-             private val sharedPreferences: SharedPreferences,
+             private val preferences: Preferences,
              private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener {
 
@@ -52,6 +53,10 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     val duration: Observable<Long>
         get() = durationRelay
 
+    private val timelineSubject = BehaviorRelay.create<String>()
+    val thumbnailTimeline: Observable<String>
+        get() = timelineSubject
+
     var currentlyPlaying: Playback? = null
         set(value) {
             if (value?.video?.id != field?.video?.id && value != null) {
@@ -76,8 +81,7 @@ class Player(private val exoPlayer: SimpleExoPlayer,
             field?.apply { controlsVisible(controlsVisible) }
         }
 
-    var quality: QualityLevel = sharedPreferences.getString("settings_quality", "p1080")
-            .let(QualityLevel::valueOf)
+    var quality: QualityLevel = preferences.defaultQualityLevel
         set(value) {
             if (value != field) {
                 currentlyPlaying?.apply {
@@ -112,8 +116,11 @@ class Player(private val exoPlayer: SimpleExoPlayer,
         exoPlayer.setVideoTextureView(view)
     }
 
+
+    //TODO Not sure if this is the best way of doing it. It might be better to have it as a part of Video.
     private fun setMetadata(video: Video) {
         previewImageRelay.accept(video.thumbnail)
+        timelineSubject.accept("https://cms.linustechtips.com/get/sprite/by_guid/${video.id}")
     }
 
     private fun load(playback: Playback) {
@@ -165,11 +172,6 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     }
 
     override fun onPlay() {
-//        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-//                .setAcceptsDelayedFocusGain(false)
-//                .setWillPauseWhenDucked(true)
-//                .build()
-//        audioManager.requestAudioFocus()
         exoPlayer.playWhenReady = true
         state = PlaybackStateCompat.STATE_PLAYING
     }

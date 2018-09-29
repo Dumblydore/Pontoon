@@ -42,7 +42,6 @@ interface FloatPlaneApi {
     @GET("user/activity")
     fun getActivity(@Query("id") id: String): Observable<Activity.Response>
 
-
     @POST("auth/login")
     fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
 }

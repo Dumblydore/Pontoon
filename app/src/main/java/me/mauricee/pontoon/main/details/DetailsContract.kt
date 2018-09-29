@@ -35,11 +35,5 @@ interface DetailsContract {
         NoRelatedVideos,
         General
     }
-
-    enum class BufferState {
-        Playing,
-        Buffering
-    }
-
 }
 
