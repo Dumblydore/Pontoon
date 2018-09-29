@@ -16,7 +16,6 @@ interface DetailsContract {
         class PlayVideo(val id: String) : Action()
         class ViewUser(val user: UserRepository.User) : Action()
         class ViewCreator(val creator: UserRepository.Creator) : Action()
-        class SeekTo(val position: Int) : Action()
     }
 
     sealed class State : EventTracker.State {
@@ -36,11 +35,5 @@ interface DetailsContract {
         NoRelatedVideos,
         General
     }
-
-    enum class BufferState {
-        Playing,
-        Buffering
-    }
-
 }
 

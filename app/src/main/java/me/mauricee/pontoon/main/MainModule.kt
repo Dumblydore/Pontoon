@@ -3,7 +3,9 @@ package me.mauricee.pontoon.main
 import android.content.Context
 import android.media.AudioManager
 import android.support.v4.media.session.MediaSessionCompat
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -13,6 +15,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.analytics.ExoPlayerAnalyticsListener
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
@@ -72,13 +75,25 @@ abstract class MainModule {
         @MainScope
         @Provides
         @JvmStatic
-        fun player(okHttpClient: OkHttpClient,
+        fun exoPlayer(context: Context, listener: ExoPlayerAnalyticsListener) =
+                ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector()).also {
+                    it.addAnalyticsListener(listener)
+                }
+
+        @MainScope
+        @Provides
+        @JvmStatic
+        fun HlsFactory(okHttpClient: OkHttpClient, agent: String) =
+                HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null))
+
+        @MainScope
+        @Provides
+        @JvmStatic
+        fun player(factory: HlsMediaSource.Factory,
                    session: MediaSessionCompat,
                    audioManager: AudioManager,
-                   agent: String, sharedPreferences: Preferences,
-                   context: Context): Player =
-                Player(ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector()),
-                        HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null)),
-                        audioManager, sharedPreferences, session)
+                   simpleExoPlayer: SimpleExoPlayer,
+                   sharedPreferences: Preferences) =
+                Player(simpleExoPlayer, factory, audioManager, sharedPreferences, session)
     }
 }

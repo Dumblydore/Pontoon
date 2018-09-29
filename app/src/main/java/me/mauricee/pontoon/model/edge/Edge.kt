@@ -16,7 +16,7 @@ abstract class EdgeDao {
     @Query("SELECT hostname from Edges Where allowStreaming = 1")
     abstract fun getStreamingEdgeHosts(): Single<List<String>>
 
-    @Query("SELECT hostname from Edges Where allowDownload = 1")
+    @Query("SELECT hostname from Edges Where allowDownloads = 1")
     abstract fun getDownloadEdgeHosts(): Single<List<String>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

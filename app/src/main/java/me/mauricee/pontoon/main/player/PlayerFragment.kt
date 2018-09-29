@@ -94,7 +94,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             }
             is PlayerContract.State.Progress -> {
                 player_controls_position.text = state.formattedProgress
-                if (isSeeking)
+                if (!isSeeking)
                     player_controls_progress.progress = state.progress
                 player_controls_progress.secondaryProgress = state.bufferedProgress
             }

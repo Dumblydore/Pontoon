@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.main
 
+import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
@@ -171,11 +172,6 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     }
 
     override fun onPlay() {
-//        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-//                .setAcceptsDelayedFocusGain(false)
-//                .setWillPauseWhenDucked(true)
-//                .build()
-//        audioManager.requestAudioFocus()
         exoPlayer.playWhenReady = true
         state = PlaybackStateCompat.STATE_PLAYING
     }
