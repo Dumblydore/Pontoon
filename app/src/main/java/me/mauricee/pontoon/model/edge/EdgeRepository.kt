@@ -21,6 +21,9 @@ class EdgeRepository @Inject constructor(private val edgeDao: EdgeDao,
     val streamingHost
         get() = preCache { edgeDao.getStreamingEdgeHosts().flatMap(::getAvailableHosts) }
 
+    fun refresh() = Single.fromCallable { edgeDao.clear() }.flatMapCompletable { cacheEdges() }
+            .subscribeOn(Schedulers.io())
+
     private fun cacheEdges(): Completable = floatPlaneApi.edges.flatMapIterable { it.edges }
             .map { EdgeEntity(it.allowStreaming, it.allowDownload, it.hostname) }
             .toList()

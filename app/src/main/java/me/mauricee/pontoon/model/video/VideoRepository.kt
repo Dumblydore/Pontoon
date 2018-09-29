@@ -56,8 +56,8 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     fun getVideos(vararg creator: UserRepository.Creator, unwatchedOnly: Boolean = false): VideoResult {
         val callback = videoCallbackFactory.newInstance(*creator)
         val creators = creator.map { it.id }.toTypedArray()
-        val factory = if (unwatchedOnly) videoDao.getVideoByCreators(*creators) else
-            videoDao.getUnwatchedVideosByCreators(*creators)
+        val factory = if (unwatchedOnly) videoDao.getUnwatchedVideosByCreators(*creators) else
+            videoDao.getVideoByCreators(*creators)
         return RxPagedListBuilder(factory.map { vid -> Video(vid, creator.first { it.id == vid.creator }) }, pageListConfig)
                 .setFetchScheduler(Schedulers.io())
                 .setNotifyScheduler(AndroidSchedulers.mainThread())

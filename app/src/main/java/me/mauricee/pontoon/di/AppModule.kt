@@ -15,6 +15,7 @@ import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.novoda.downloadmanager.DownloadManagerBuilder
+import com.novoda.downloadmanager.StorageRequirementRuleFactory
 import com.novoda.downloadmanager.StorageRoot
 import com.novoda.downloadmanager.StorageRootFactory
 import dagger.Binds
@@ -37,7 +38,6 @@ import me.mauricee.pontoon.preferences.PreferenceModule
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import me.mauricee.pontoon.preferences.PreferencesScope
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.aaronhe.threetengson.ThreeTenGsonAdapter
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
@@ -139,11 +139,6 @@ abstract class AppModule {
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(15, TimeUnit.SECONDS)
                 .writeTimeout(15, TimeUnit.SECONDS)
-                .also {
-                    if (BuildConfig.DEBUG) {
-                        it.addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-                    }
-                }
                 .build()
 
         @AppScope
@@ -178,7 +173,8 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun provideDownloadManager(context: Context) = DownloadManagerBuilder.newInstance(context, Handler(), R.drawable.ic_play).build()
+        fun provideDownloadManager(context: Context) = DownloadManagerBuilder.newInstance(context, Handler(), R.drawable.ic_download)
+                .build()
 
         @AppScope
         @Provides

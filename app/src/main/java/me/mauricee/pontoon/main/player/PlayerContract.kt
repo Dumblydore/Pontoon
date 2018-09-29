@@ -14,6 +14,7 @@ interface PlayerContract {
         object Playing : State()
         object Loading : State()
         object Buffering : State()
+        object DownloadStart : State()
         object DownloadFailed : State()
         class Bind(val player: Player) : State()
         class Preview(val path: String) : State()

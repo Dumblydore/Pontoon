@@ -207,6 +207,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         enterPictureInPictureMode(PictureInPictureParams.Builder()
                 .setAspectRatio(Rational.parseRational("16:9"))
                 .build())
+        player.controlsVisible = false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {

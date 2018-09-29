@@ -46,6 +46,10 @@
         android:key="settings_misc"
         android:title="@string/settings_misc">
         <Preference
+            android:key="settings_refresh_edges"
+            android:title="@string/settings_refresh_edges"
+            android:summary="@string/settings_refresh_edges_description"/>
+        <Preference
             android:key="settings_about"
             android:title="@string/settings_about" />
     </androidx.preference.PreferenceCategory>

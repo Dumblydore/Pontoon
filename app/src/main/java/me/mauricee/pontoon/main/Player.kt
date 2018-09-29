@@ -104,7 +104,7 @@ class Player(private val exoPlayer: SimpleExoPlayer,
 
     fun isPlaying() = state == PlaybackStateCompat.STATE_PLAYING
 
-    fun isActive() = state != PlaybackStateCompat.STATE_NONE
+    fun isActive(): Boolean = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
 
     fun bindToView(view: TextureView) {
         exoPlayer.setVideoTextureView(view)

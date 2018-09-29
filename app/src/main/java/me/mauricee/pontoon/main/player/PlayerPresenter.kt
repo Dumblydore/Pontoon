@@ -8,6 +8,7 @@ import com.novoda.downloadmanager.StorageRoot
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.OrientationManager
 import me.mauricee.pontoon.main.Player
@@ -62,8 +63,14 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         videoRepository.getDownloadLink(video.id, qualityLevel).map {
             Batch.with(storageRoot, DownloadBatchIdCreator.createSanitizedFrom(video.id), video.title)
                     .downloadFrom(it).apply()
-        }.flatMapObservable { stateless { downloadManager.download(it.build()) } }
+        }.flatMapObservable {
+            Observable.fromCallable<PlayerContract.State> {
+                downloadManager.download(it.build())
+                PlayerContract.State.DownloadStart
+            }
+        }.doOnError { loge("Error downloading.", it) }
                 .onErrorReturnItem(PlayerContract.State.DownloadFailed)
+
     }
 
     private fun formatMillis(ms: Long) = Duration.ofMillis(ms).let {
