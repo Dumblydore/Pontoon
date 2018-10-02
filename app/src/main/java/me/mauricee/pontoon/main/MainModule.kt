@@ -79,14 +79,6 @@ abstract class MainModule {
         @MainScope
         @Provides
         @JvmStatic
-        fun exoPlayer(context: Context, listener: ExoPlayerAnalyticsListener) =
-                ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector()).also {
-                    it.addAnalyticsListener(listener)
-                }
-
-        @MainScope
-        @Provides
-        @JvmStatic
         fun HlsFactory(okHttpClient: OkHttpClient, agent: String) =
                 HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null))
     }

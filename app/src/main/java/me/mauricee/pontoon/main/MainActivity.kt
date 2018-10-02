@@ -106,9 +106,14 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun onStop() {
         super.onStop()
+        mainPresenter.detachView()
         if (isFinishing)
             player.onPause()
-        mainPresenter.detachView()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        wiseFy.dump()
     }
 
     override fun playVideo(video: Video, commentId: String) {

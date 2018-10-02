@@ -11,6 +11,8 @@ import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -178,5 +180,10 @@ abstract class AppModule {
         @Provides
         @JvmStatic
         fun provideStorage(context: Context): StorageRoot = StorageRootFactory.createPrimaryStorageDownloadsDirectoryRoot(context)
+
+        @Provides
+        @AppScope
+        @JvmStatic
+        fun provideExoPlayer(context: Context) = ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
     }
 }
