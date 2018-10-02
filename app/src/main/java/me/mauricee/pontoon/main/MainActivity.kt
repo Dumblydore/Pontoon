@@ -106,7 +106,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun onStop() {
         super.onStop()
-        player.onPause()
+        if (isFinishing)
+            player.onPause()
         mainPresenter.detachView()
     }
 
