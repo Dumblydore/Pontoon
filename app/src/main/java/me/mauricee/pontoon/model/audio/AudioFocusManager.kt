@@ -37,9 +37,9 @@ class AudioFocusManager @Inject constructor(private val audioManager: AudioManag
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun dropApi23() {
-        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_LOSS)
+        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setAcceptsDelayedFocusGain(false)
-                .build().let(audioManager::requestAudioFocus)
+                .build().let(audioManager::abandonAudioFocusRequest)
     }
 
     private fun dropCompat() {
