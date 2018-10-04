@@ -201,6 +201,10 @@ class Player @Inject constructor(preferences: Preferences,
         focusManager.drop()
     }
 
+    override fun onSeekTo(pos: Long) {
+        exoPlayer.seekTo(pos)
+    }
+
     override fun onSeekProcessed() {
     }
 

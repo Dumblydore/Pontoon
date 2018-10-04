@@ -23,7 +23,7 @@ class AudioFocusManager @Inject constructor(private val audioManager: AudioManag
     fun drop() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dropApi23() else dropCompat()
 
     private fun gainCompat() {
-        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
