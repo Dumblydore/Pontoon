@@ -4,7 +4,7 @@
 An unnoffical Floatplane Club app. Still very much a work in progress. Looking for testers!
 
 ## Features
-  ❌Video Downloading  
+  ✅Video Downloading  
     
   ✅Theming  
     
