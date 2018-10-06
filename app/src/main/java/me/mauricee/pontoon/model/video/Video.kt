@@ -39,7 +39,7 @@ interface VideoDao {
     @Query("SELECT * FROM Video WHERE creator IN (:creators) ORDER BY releaseDate DESC")
     fun getVideoByCreators(vararg creators: String): DataSource.Factory<Int, VideoEntity>
 
-    @Query("SELECT * FROM Video WHERE creator IN (:creators) AND watched IS NOT NULL ORDER BY releaseDate DESC")
+    @Query("SELECT * FROM Video WHERE creator IN (:creators) AND watched IS NULL ORDER BY releaseDate DESC")
     fun getUnwatchedVideosByCreators(vararg creators: String): DataSource.Factory<Int, VideoEntity>
 
     @Query("SELECT * FROM Video WHERE watched IS NOT NULL ORDER BY watched DESC")

@@ -25,6 +25,9 @@ data class CommentInteraction(@SerializedName("commentGUID") val id: String, @Se
 }
 
 data class CommentPost(@SerializedName("text") val text: String, @SerializedName("videoGUID") val id: String)
+data class Reply(@SerializedName("replyTo") val replyTo: String,
+                 @SerializedName("text") val text: String,
+                 @SerializedName("videoGUID") val id: String)
 
 data class InteractionCounts(@SerializedName("like") val like: Int, @SerializedName("dislike") val dislike: Int)
 
@@ -37,3 +40,5 @@ data class UserInteraction(@SerializedName("comment") val comment: String,
                     @SerializedName("id") val id: String,
                     @SerializedName("name") val type: CommentInteraction.Type)
 }
+
+data class ClearInteraction(@SerializedName("commentGUID") val id: String)

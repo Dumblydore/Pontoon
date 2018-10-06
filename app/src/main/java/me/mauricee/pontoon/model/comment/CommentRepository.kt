@@ -6,35 +6,78 @@ import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
-import me.mauricee.pontoon.domain.floatplane.CommentInteraction
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.domain.account.AccountManagerHelper
+import me.mauricee.pontoon.domain.floatplane.*
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
 private typealias CommentPojo = me.mauricee.pontoon.domain.floatplane.Comment
 
 class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                                             private val floatPlaneApi: FloatPlaneApi,
-                                            private val userRepository: UserRepository) {
+                                            private val userRepository: UserRepository,
+                                            private val accountManagerHelper: AccountManagerHelper) {
+
+    private val currentUser by lazy { accountManagerHelper.account.let { UserRepository.User(it.id, it.username, it.profileImage.path) } }
 
     fun getComments(videoId: String): Observable<List<Comment>> =
             Single.concat(getCachedComments(videoId), getApiComments(videoId))
                     .toObservable().compose(RxHelpers.applyObservableSchedulers())
                     .filter(List<Comment>::isNotEmpty)
 
+    fun getReplies(commentId: String): Single<List<Comment>> =
+            commentDao.getCommentByParent(commentId).flatMapObservable {
+                val users = it.map { it.user }.distinct().let { userRepository.getUsers(*it.toTypedArray()) }
+                        .flatMap { it.toObservable() }.cache()
+                val replies = it.toObservable().flatMapSingle { getCachedComments(it.id) }
+                it.toObservable().flatMap { comment ->
+                    users.filter { it.id == comment.user }.zipWith<List<Comment>, Comment>(replies,
+                            BiFunction { t1, t2 ->
+                                Comment(comment.id, comment.text, comment.parent, comment.video, comment.editDate, comment.postDate, comment.likes, comment.dislikes, t2, t1)
+                            })
+                }
+            }.toList().onErrorReturnItem(emptyList())
+
+
     fun like(comment: Comment): Observable<Comment> = interactWithComment(comment, CommentInteraction.Type.Like)
 
     fun dislike(comment: Comment): Observable<Comment> = interactWithComment(comment, CommentInteraction.Type.Dislike)
 
-//    fun comment(text: String, video: String) : Observable<Comment> = floatPlaneApi.comment
+    fun clear(comment: Comment): Observable<Comment> = floatPlaneApi.clearInteraction(ClearInteraction(comment.id))
+            .map { comment.clear() }
 
-    private fun interactWithComment(comment: Comment, type: CommentInteraction.Type): Observable<Comment> =
-            floatPlaneApi.setComment(CommentInteraction(comment.id, type)).map {
+    fun comment(text: String, video: Video): Observable<Comment> =
+            floatPlaneApi.post(CommentPost(text, video.id))
+                    .compose(RxHelpers.applyObservableSchedulers())
+                    .doOnNext { cacheComment(it) }
+                    .map {
+                        Comment(it.id, it.replying
+                                ?: it.video, video.id, it.text, it.editDate, it.postDate, it.interactionCounts.like,
+                                it.interactionCounts.dislike, emptyList(), currentUser)
+                    }
+
+    fun comment(text: String, parent: Comment, video: Video): Observable<Comment> = floatPlaneApi.post(Reply(parent.id, text, video.id))
+            .compose(RxHelpers.applyObservableSchedulers())
+            .doOnNext { cacheComment(it) }
+            .map {
+                Comment(it.id, it.replying
+                        ?: it.video, video.id, it.text, it.editDate, it.postDate, it.interactionCounts.like,
+                        it.interactionCounts.dislike, emptyList(), currentUser)
+            }
+
+    fun interactWithComment(comment: Comment, type: CommentInteraction.Type): Observable<Comment> =
+            if (commentHasDuplicateInteractions(comment, type)) clear(comment)
+            else floatPlaneApi.setComment(CommentInteraction(comment.id, type)).map {
                 (if (type == CommentInteraction.Type.Like) comment.like() else comment.dislike())
                         .apply { commentDao.update(comment.toEntity()) }
             }
+
+    private fun commentHasDuplicateInteractions(comment: Comment, type: CommentInteraction.Type): Boolean =
+            (comment.userInteraction.contains(Comment.Interaction.Like) && type == CommentInteraction.Type.Like) ||
+                    (comment.userInteraction.contains(Comment.Interaction.Dislike) && type == CommentInteraction.Type.Dislike)
 
     private fun getCachedComments(videoId: String): Single<List<Comment>> =
             commentDao.getCommentByParent(videoId).flatMapObservable {

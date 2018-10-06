@@ -1,12 +1,14 @@
 package me.mauricee.pontoon.model.preferences
 
 import android.content.SharedPreferences
+import io.reactivex.Observable
+import me.mauricee.pontoon.rx.preferences.watchBoolean
 import javax.inject.Inject
 
 
 class Preferences @Inject constructor(private val sharedPreferences: SharedPreferences) {
-    val displayUnwatchedVideos: Boolean
-        get() = sharedPreferences.getBoolean(DisplayUnwatchedVideosKey, false)
+    val displayUnwatchedVideos: Observable<Boolean>
+        get() =sharedPreferences.watchBoolean(DisplayUnwatchedVideosKey)
 
     companion object {
         private const val BaseThemeKey = "settings_base"

@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_comment.view.*
@@ -21,6 +22,7 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.comment.Comment
 import javax.inject.Inject
 
+//TODO Implement DiffUtil
 class CommentAdapter @Inject constructor(private val themeManager: ThemeManager, private val context: Context)
     : BaseAdapter<DetailsContract.Action, CommentAdapter.ViewHolder>() {
     private val primaryColor = ContextCompat.getColor(context, R.color.md_grey_600)
@@ -31,6 +33,10 @@ class CommentAdapter @Inject constructor(private val themeManager: ThemeManager,
             field = value
             notifyDataSetChanged()
         }
+    private val replyToRelay = PublishRelay.create<Comment>()
+    val replyTo: Observable<Comment> = replyToRelay
+    private val commentChildrenRelay = PublishRelay.create<Comment>()
+    val children: Observable<Comment> = commentChildrenRelay
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             LayoutInflater.from(parent.context).inflate(R.layout.item_comment, parent, false).let(this::ViewHolder)
@@ -57,6 +63,12 @@ class CommentAdapter @Inject constructor(private val themeManager: ThemeManager,
             subscriptions += Observable.merge(view.item_thumb_up.clicks().map { comments[layoutPosition] }.map(DetailsContract.Action::Like),
                     view.item_thumb_down.clicks().map { comments[layoutPosition] }.map(DetailsContract.Action::Dislike))
                     .subscribe(relay::accept)
+
+            subscriptions += view.item_comment.clicks().map { comments[layoutPosition] }
+                    .subscribe(replyToRelay::accept)
+
+            subscriptions += view.item_viewReplies.clicks().map { comments[layoutPosition] }
+                    .subscribe(commentChildrenRelay::accept)
         }
 
         fun bind(comment: Comment) {

@@ -15,17 +15,19 @@ interface DetailsContract {
     interface Presenter : BaseContract.Presenter<View>
 
     sealed class Action : EventTracker.Action {
-        class Comment(val text: String, val parent: String) : Action()
+        class Comment(val text: String) : Action()
+        class Reply(val text: String, val parent: CommentModel) : Action()
         class PlayVideo(val id: String) : Action()
         class ViewUser(val user: UserRepository.User) : Action()
-        class ViewCreator(val creator: UserRepository.Creator) : Action()
         class SeekTo(val position: Int) : Action()
         class Like(val comment: CommentModel) : Action()
         class Dislike(val comment: CommentModel) : Action()
+        object ViewCreator : Action()
     }
 
     sealed class State : EventTracker.State {
         object Loading : State()
+        class CurrentUser(val user: UserRepository.User): State()
         class VideoInfo(val video: Video) : State()
         class Duration(val duration: Int) : State()
         class PlaybackState(val state: BufferState) : State()

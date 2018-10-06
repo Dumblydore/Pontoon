@@ -22,6 +22,7 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.VideoPageAdapter
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.preferences.darken
 import me.mauricee.pontoon.rx.animator.updates
 import me.mauricee.pontoon.rx.glide.toPalette
 import javax.inject.Inject
@@ -72,7 +73,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
                 .map { it.animatedValue as Int }
                 .subscribe { it ->
                     creator_toolbar.setBackgroundColor(it)
-                    requireActivity().window.statusBarColor = it
+                    requireActivity().window.statusBarColor = it.darken(.7f)
                 }
         creator_toolbar.title = creator.name
         view?.doOnPreDraw { startPostponedEnterTransition() }

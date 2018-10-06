@@ -36,6 +36,8 @@
     <string name="details_comment_replies">View %x replies</string>
     <string name="details_comment_positiveDelta">+%x</string>
     <string name="details_comment_negativeDelta">-%x</string>
+    <string name="details_comment_hint">Add a comment…</string>
+    <string name="details_comment_header">Commenting as %s</string>
 
     <!-- Creator -->
     <string name="creator_error_noCreator">Couldn\'t load creator.</string>

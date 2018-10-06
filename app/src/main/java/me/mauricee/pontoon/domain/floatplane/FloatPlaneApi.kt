@@ -42,10 +42,18 @@ interface FloatPlaneApi {
     @GET("user/activity")
     fun getActivity(@Query("id") id: String): Observable<Activity.Response>
 
-
     @POST("auth/login")
     fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
 
+    @POST("video/comment")
+    fun post(@Body comment: CommentPost): Observable<Comment>
+
+    @POST("video/comment")
+    fun post(@Body comment: Reply): Observable<Comment>
+
     @POST("video/comment/interaction/set")
-    fun setComment(@Body interaction: CommentInteraction) : Observable<InteractionResult>
+    fun setComment(@Body interaction: CommentInteraction): Observable<InteractionResult>
+
+    @POST("video/comment/interaction/clear")
+    fun clearInteraction(@Body body: ClearInteraction): Observable<Void>
 }
