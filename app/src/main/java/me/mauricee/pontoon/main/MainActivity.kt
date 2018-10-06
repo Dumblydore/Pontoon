@@ -10,11 +10,13 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.transition.*
+import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
 import com.jakewharton.rxrelay2.PublishRelay
@@ -38,6 +40,7 @@ import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
+import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.preferences.PreferencesActivity
@@ -53,6 +56,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     lateinit var player: Player
     @Inject
     lateinit var orientationManager: OrientationManager
+    @Inject
+    lateinit var wiseFy: WiseFy
+    @Inject
+    lateinit var preferences: Preferences
 
     private val miscActions = PublishRelay.create<MainContract.Action>()
 
@@ -189,12 +196,23 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && player.isPlaying()) {
-            setPlayerExpanded(true)
-            enterPictureInPictureMode(PictureInPictureParams.Builder()
-                    .setAspectRatio(Rational.parseRational("16:9"))
-                    .build())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val pip = preferences.pictureInPicture
+            when {
+                pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()
+                pip == Preferences.PictureInPicture.OnlyWhenPlaying && player.isPlaying() -> goIntoPip()
+            }
+
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun goIntoPip() {
+        setPlayerExpanded(true)
+        enterPictureInPictureMode(PictureInPictureParams.Builder()
+                .setAspectRatio(Rational.parseRational("16:9"))
+                .build())
+        player.controlsVisible = false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {

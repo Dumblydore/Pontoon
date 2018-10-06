@@ -18,6 +18,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -27,7 +28,7 @@
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:resizeableActivity="true"
             android:supportsPictureInPicture="true" />
-        <activity android:name=".preferences.PreferencesActivity"/>
+        <activity android:name=".preferences.PreferencesActivity" />
     </application>
 
 </manifest>

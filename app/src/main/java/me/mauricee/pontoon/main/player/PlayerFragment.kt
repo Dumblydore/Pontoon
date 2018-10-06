@@ -2,6 +2,7 @@ package me.mauricee.pontoon.main.player
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
@@ -94,6 +95,8 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                     Player.QualityLevel.p360 -> qualityMenu.subMenu.findItem(R.id.action_p360).isChecked = true
                 }
             }
+            PlayerContract.State.DownloadStart -> Toast.makeText(requireContext(), R.string.download_start, Toast.LENGTH_LONG).show()
+            PlayerContract.State.DownloadFailed -> Toast.makeText(requireContext(), R.string.download_error, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -108,6 +111,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 R.id.action_p720 -> PlayerContract.Action.Quality(Player.QualityLevel.p720).toObservable()
                 R.id.action_p480 -> PlayerContract.Action.Quality(Player.QualityLevel.p480).toObservable()
                 R.id.action_p360 -> PlayerContract.Action.Quality(Player.QualityLevel.p360).toObservable()
+                R.id.action_download_p1080 -> PlayerContract.Action.Download(Player.QualityLevel.p1080).toObservable()
+                R.id.action_download_p720 -> PlayerContract.Action.Download(Player.QualityLevel.p720).toObservable()
+                R.id.action_download_p480 -> PlayerContract.Action.Download(Player.QualityLevel.p480).toObservable()
+                R.id.action_download_p360 -> PlayerContract.Action.Download(Player.QualityLevel.p360).toObservable()
                 R.id.action_share -> Observable.empty()
                 else -> Observable.empty()
             }

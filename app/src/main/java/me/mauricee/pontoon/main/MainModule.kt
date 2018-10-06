@@ -1,13 +1,13 @@
 package me.mauricee.pontoon.main
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.media.AudioManager
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.isupatches.wisefy.WiseFy
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -23,6 +23,7 @@ import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
+import me.mauricee.pontoon.model.preferences.Preferences
 import okhttp3.OkHttpClient
 
 @Module
@@ -67,10 +68,15 @@ abstract class MainModule {
         @MainScope
         @Provides
         @JvmStatic
+        fun WiseFy(context: Context): WiseFy = WiseFy.Brains(context).getSmarts()
+
+        @MainScope
+        @Provides
+        @JvmStatic
         fun player(okHttpClient: OkHttpClient,
                    session: MediaSessionCompat,
                    audioManager: AudioManager,
-                   agent: String, sharedPreferences: SharedPreferences,
+                   agent: String, sharedPreferences: Preferences,
                    context: Context): Player =
                 Player(ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector()),
                         HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null)),
