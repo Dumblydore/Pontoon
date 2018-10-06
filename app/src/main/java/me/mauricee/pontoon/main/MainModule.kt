@@ -17,7 +17,7 @@ import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
-import me.mauricee.pontoon.main.details.comment.RepliesDialogFragment
+import me.mauricee.pontoon.main.details.DetailsModule
 import me.mauricee.pontoon.main.history.HistoryFragment
 import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
@@ -55,11 +55,8 @@ abstract class MainModule {
     @ContributesAndroidInjector
     abstract fun contributeHistoryFragment(): HistoryFragment
 
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [DetailsModule::class])
     abstract fun contributeDetailsFragment(): DetailsFragment
-
-    @ContributesAndroidInjector
-    abstract fun contributeRepliesFragment(): RepliesDialogFragment
 
     @ContributesAndroidInjector
     abstract fun contributeVideoPlayerFragment(): PlayerFragment
