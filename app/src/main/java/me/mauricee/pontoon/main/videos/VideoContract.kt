@@ -25,8 +25,6 @@ interface VideoContract {
         class Loading(val clean: Boolean = true) : State() {
             override val tag: String
                 get() = "${super.tag}_${if (clean) "clean" else "paginate"}"
-            override val level: EventTracker.Level
-                get() = EventTracker.Level.ERROR
         }
 
         class DisplaySubscriptions(val subscriptions: List<UserRepository.Creator>) : State()

@@ -19,18 +19,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <SeekBar
-                android:id="@+id/player.progress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginTop="-8dp"
-                android:layout_marginBottom="-8dp"
-                android:paddingStart="0dp"
-                android:paddingEnd="0dp"
-                android:progress="50"
-                android:secondaryProgress="60" />
-
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/player.details"
                 android:layout_width="match_parent"

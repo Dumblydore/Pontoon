@@ -113,7 +113,6 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 Function4 { t1, t2, t3, t4 -> Quality(t1, t2, t3, t4) })
     }
 
-
     fun watchHistory(): Observable<PagedList<Video>> = subscriptions.flatMap { creators ->
         videoDao.history().map { vid -> Video(vid, creators.first { it.id == vid.creator }) }
                 .let {

@@ -6,6 +6,7 @@ import com.novoda.downloadmanager.DownloadBatchIdCreator
 import com.novoda.downloadmanager.DownloadManager
 import com.novoda.downloadmanager.StorageRoot
 import io.reactivex.Observable
+import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainContract
@@ -26,7 +27,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
-                    watchState(), watchProgress(), watchDuration(), watchPreview()))
+                    watchState(), watchProgress(), watchDuration(), watchPreview(), watchTimeline()))
                     .startWith(listOf(PlayerContract.State.Bind(player), PlayerContract.State.Loading, PlayerContract.State.Quality(player.quality)))
 
     private fun handleActions(action: PlayerContract.Action): Observable<PlayerContract.State> = when (action) {
@@ -40,14 +41,17 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         is PlayerContract.Action.PlayPause -> stateless { player.playPause() }
         is PlayerContract.Action.Download -> downloadVideo(action.quality)
         is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.qualityLevel; PlayerContract.State.Quality(action.qualityLevel) }
+        is PlayerContract.Action.SeekProgress -> stateless { player.onSeekTo((action.progress * 1000).toLong()) }
     }
 
-    private fun watchProgress() = player.progress().distinctUntilChanged()
-            .map(::formatMillis).map(PlayerContract.State::Progress)
+    private fun watchProgress() = Observable.combineLatest<Long, Long, PlayerContract.State>(player.progress().distinctUntilChanged(),
+            player.bufferedProgress().distinctUntilChanged(), BiFunction { t1, t2 ->
+        PlayerContract.State.Progress((t1 / 1000).toInt(), (t2 / 1000).toInt(), formatMillis(t1))
+    })
 
     private fun watchPreview() = player.previewImage.map(PlayerContract.State::Preview)
 
-    private fun watchDuration() = player.duration.map(::formatMillis).map(PlayerContract.State::Duration)
+    private fun watchDuration() = player.duration.map { PlayerContract.State.Duration((it / 1000).toInt(), formatMillis(it)) }
 
     private fun watchState() = player.playbackState.map {
         when (it) {
@@ -59,17 +63,14 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         }
     }
 
+    private fun watchTimeline() = player.thumbnailTimeline.map(PlayerContract.State::PreviewThumbnail)
+
     private fun downloadVideo(qualityLevel: Player.QualityLevel) = player.currentlyPlaying!!.video.let { video ->
         videoRepository.getDownloadLink(video.id, qualityLevel).map {
             Batch.with(storageRoot, DownloadBatchIdCreator.createSanitizedFrom(video.id), video.title)
                     .downloadFrom(it).apply()
-        }.flatMapObservable {
-            Observable.fromCallable<PlayerContract.State> {
-                downloadManager.download(it.build())
-                PlayerContract.State.DownloadStart
-            }
-        }.onErrorReturnItem(PlayerContract.State.DownloadFailed)
-
+        }.flatMapObservable { stateless { downloadManager.download(it.build()) } }
+                .onErrorReturnItem(PlayerContract.State.DownloadFailed)
     }
 
     private fun formatMillis(ms: Long) = Duration.ofMillis(ms).let {

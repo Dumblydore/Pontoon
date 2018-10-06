@@ -16,7 +16,6 @@
     
     <ImageButton
         android:id="@+id/player_controls_playPause"
-
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center" />
@@ -47,6 +46,7 @@
         android:textColor="@color/white"
         android:textSize="13sp"
         tools:text="10:10" />
+
 
     <ImageButton
         android:id="@+id/player_controls_fullscreen"
