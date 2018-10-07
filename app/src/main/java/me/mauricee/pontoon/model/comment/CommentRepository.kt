@@ -16,6 +16,7 @@ import javax.inject.Inject
 
 private typealias CommentPojo = me.mauricee.pontoon.domain.floatplane.Comment
 
+//TODO this is shit, rewrite this.
 class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                                             private val floatPlaneApi: FloatPlaneApi,
                                             private val userRepository: UserRepository,
@@ -27,6 +28,12 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
             Single.concat(getCachedComments(videoId), getApiComments(videoId))
                     .toObservable().compose(RxHelpers.applyObservableSchedulers())
                     .filter(List<Comment>::isNotEmpty)
+
+    fun getComment(commentId: String) = commentDao.getComment(commentId).flatMapObservable {comment ->
+        userRepository.getUsers(comment.user).flatMap { it.toObservable() }.map {user ->
+            Comment(comment.id, comment.text, comment.parent, comment.video, comment.editDate, comment.postDate, comment.likes, comment.dislikes, emptyList(), user)
+        }
+    }
 
     fun getReplies(commentId: String): Single<List<Comment>> =
             commentDao.getCommentByParent(commentId).flatMapObservable {

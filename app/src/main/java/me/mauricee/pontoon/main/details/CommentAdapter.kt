@@ -23,7 +23,7 @@ import me.mauricee.pontoon.model.comment.Comment
 import javax.inject.Inject
 
 //TODO Implement DiffUtil
-class CommentAdapter @Inject constructor(private val themeManager: ThemeManager, private val context: Context)
+class CommentAdapter @Inject constructor(context: Context)
     : BaseAdapter<DetailsContract.Action, CommentAdapter.ViewHolder>() {
     private val primaryColor = ContextCompat.getColor(context, R.color.md_grey_600)
     private val positiveColor = ContextCompat.getColor(context, R.color.colorPositive)
@@ -33,10 +33,6 @@ class CommentAdapter @Inject constructor(private val themeManager: ThemeManager,
             field = value
             notifyDataSetChanged()
         }
-    private val replyToRelay = PublishRelay.create<Comment>()
-    val replyTo: Observable<Comment> = replyToRelay
-    private val commentChildrenRelay = PublishRelay.create<Comment>()
-    val children: Observable<Comment> = commentChildrenRelay
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             LayoutInflater.from(parent.context).inflate(R.layout.item_comment, parent, false).let(this::ViewHolder)
@@ -65,10 +61,10 @@ class CommentAdapter @Inject constructor(private val themeManager: ThemeManager,
                     .subscribe(relay::accept)
 
             subscriptions += view.item_comment.clicks().map { comments[layoutPosition] }
-                    .subscribe(replyToRelay::accept)
+                    .map(DetailsContract.Action::Reply).subscribe(relay::accept)
 
             subscriptions += view.item_viewReplies.clicks().map { comments[layoutPosition] }
-                    .subscribe(commentChildrenRelay::accept)
+                    .map(DetailsContract.Action::ViewReplies).subscribe(relay::accept)
         }
 
         fun bind(comment: Comment) {
