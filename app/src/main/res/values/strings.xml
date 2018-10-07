@@ -141,4 +141,5 @@
     <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
     <string name="lazy_error_retry">Retry</string>
     <string name="snackbar_action_retry">Retry</string>
+    <string name="replies_header">%s\'s replies</string>
 </resources>

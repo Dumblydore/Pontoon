@@ -27,8 +27,11 @@ interface CommentDao {
     @Update
     fun update(vararg creatorEntity: CommentEntity)
 
-    @Query("SELECT * FROM Comment WHERE id IN (:userIds)")
+    @Query("SELECT * FROM Comment WHERE parent IN (:userIds)")
     fun getCommentByParent(vararg userIds: String): Single<List<CommentEntity>>
+
+    @Query("SELECT * FROM Comment Where id IS :commentId")
+    fun getComment(commentId: String): Single<CommentEntity>
 
 }
 

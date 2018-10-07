@@ -16,7 +16,7 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.details.comment.CommentDialogFragment
-import me.mauricee.pontoon.main.details.comment.RepliesDialogFragment
+import me.mauricee.pontoon.main.details.replies.RepliesDialogFragment
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 import org.threeten.bp.format.DateTimeFormatter
