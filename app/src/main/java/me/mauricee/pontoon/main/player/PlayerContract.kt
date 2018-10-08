@@ -14,7 +14,6 @@ interface PlayerContract {
         object Playing : State()
         object Loading : State()
         object Buffering : State()
-        object DownloadFailed : State()
         class PreviewThumbnail(val url: String) : State()
         object DownloadStart : State()
         object DownloadFailed : State()
@@ -39,7 +38,6 @@ interface PlayerContract {
         object ToggleFullscreen : Action()
         object MinimizePlayer : Action()
         class SeekProgress(val progress: Int) : Action()
-        class Download(val quality: Player.QualityLevel) : Action()
         class Quality(val qualityLevel: Player.QualityLevel) : Action()
         class Download(val quality: Player.QualityLevel) : Action()
     }

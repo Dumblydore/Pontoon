@@ -17,12 +17,13 @@ import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.details.comment.CommentDialogFragment
 import me.mauricee.pontoon.main.details.replies.RepliesDialogFragment
+import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
-class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
+class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, DetailsContract.Navigator {
 
     @Inject
     lateinit var relatedVideosAdapter: RelatedVideoAdapter
@@ -37,12 +38,11 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
     override fun getLayoutId(): Int = R.layout.fragment_details
 
     override val actions: Observable<DetailsContract.Action>
-        get() = listOf(commentsAdapter.actions,
+        get() = Observable.merge(commentsAdapter.actions,
                 relatedVideosAdapter.actions,
-                player_small_icon.clicks().map { DetailsContract.Action.ViewCreator },
-                comment().map(DetailsContract.Action::Comment),
-                replies(), childrenActions())
-                .let { Observable.merge(it) }.startWith(DetailsContract.Action.PlayVideo(arguments!!.getString(VideoKey)))
+                player_addComment.clicks().map { DetailsContract.Action.Comment },
+                player_small_icon.clicks().map { DetailsContract.Action.ViewCreator })
+                .startWith(DetailsContract.Action.PlayVideo(arguments!!.getString(VideoKey)))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,10 +73,6 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
             is DetailsContract.State.Loading -> {
                 details.setState(LazyLayout.LOADING, false)
             }
-            is DetailsContract.State.Progress -> {
-                player_progress.progress = state.progress
-                player_progress.secondaryProgress = state.bufferedProgress
-            }
             is DetailsContract.State.VideoInfo -> {
                 details.state = LazyLayout.SUCCESS
                 displayVideoInfo(state.video)
@@ -87,9 +83,6 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
                 scrollToSelectedComment()
             }
             is DetailsContract.State.RelatedVideos -> relatedVideosAdapter.videos = state.relatedVideos
-            is DetailsContract.State.Duration -> player_progress.max = state.duration
-            is DetailsContract.State.PlaybackState -> {
-            }
             is DetailsContract.State.Like -> {
                 commentsAdapter.updateComment(state.comment)
                 snack(getString(R.string.details_commentLiked, state.comment.user.username))
@@ -110,9 +103,12 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
 
     private fun handleError(type: DetailsContract.ErrorType) {
         when (type) {
-            DetailsContract.ErrorType.Like -> Snackbar.make(view!!, "", Snackbar.LENGTH_LONG).show()
-            DetailsContract.ErrorType.Dislike -> Snackbar.make(view!!, "", Snackbar.LENGTH_LONG).show()
-            else -> details.state = LazyLayout.ERROR
+            DetailsContract.ErrorType.Like,
+            DetailsContract.ErrorType.Dislike -> Snackbar.make(view!!, type.message, Snackbar.LENGTH_LONG).show()
+            else -> {
+                details.state = LazyLayout.ERROR
+                details.errorText = getString(type.message)
+            }
         }
     }
 
@@ -145,22 +141,12 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
         Snackbar.make(view!!, text, duration).show()
     }
 
-    private fun comment() = player_addComment.clicks().flatMap {
-        CommentDialogFragment.newInstance(currentUser).let {
-            it.show(childFragmentManager, it.tag)
-            it.submit
-        }
+    override fun comment(comment: Comment?) {
+        CommentDialogFragment.newInstance(comment).also {it. show(childFragmentManager, tag) }
     }
 
-    private fun childrenActions(): Observable<DetailsContract.Action> = commentsAdapter.children.map {
-        RepliesDialogFragment.newInstance(it).also { it.show(childFragmentManager, it.tag) }
-    }.flatMap { fragment ->
-        Observable.merge(fragment.actions,
-                fragment.replyTo.flatMap { comment -> comment().map { DetailsContract.Action.Reply(it, comment) } })
-    }
-
-    private fun replies(): Observable<DetailsContract.Action> = commentsAdapter.replyTo.flatMap { comment ->
-        comment().map { DetailsContract.Action.Reply(it, comment) }
+    override fun displayReplies(parent: Comment) {
+        RepliesDialogFragment.newInstance(parent).also{ it.show(childFragmentManager, tag) }
     }
 
     companion object {

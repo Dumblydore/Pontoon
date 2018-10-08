@@ -12,7 +12,6 @@ import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_replies.*
 import me.mauricee.pontoon.R
@@ -20,17 +19,16 @@ import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.main.details.CommentAdapter
 import me.mauricee.pontoon.main.details.DetailsContract
 import me.mauricee.pontoon.model.comment.Comment
-import me.mauricee.pontoon.model.comment.CommentRepository
 import java.lang.RuntimeException
 import javax.inject.Inject
 
-class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View, Disposable {
+class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View {
 
     private val subscriptions = CompositeDisposable()
     private val parent: String
         get() = arguments!!.getString(ParentKey, "")
     override val actions: Observable<RepliesContract.Action>
-        get() = translateAdapterActions()
+        get() = translateAdapterActions().startWith(RepliesContract.Action.Parent(parent))
     @Inject
     lateinit var adapter: CommentAdapter
     @Inject
@@ -46,11 +44,10 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        replies_list.layoutManager = LinearLayoutManager(requireContext())
         replies_list.adapter = adapter
-        replies_header.title = "$name's replies"
-        presenter.attachView(this)
+        replies_list.layoutManager = LinearLayoutManager(requireContext())
         subscriptions += RxToolbar.navigationClicks(replies_header).subscribe { dismiss() }
+        presenter.attachView(this)
     }
 
     override fun updateState(state: RepliesContract.State) = when (state) {
@@ -71,34 +68,42 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View,
         is RepliesContract.State.Cleared -> {
             adapter.updateComment(state.comment)
         }
-        is RepliesContract.State.CurrentUser -> {}
-        RepliesContract.State.Error -> replies_lazy.state = LazyLayout.ERROR
+        is RepliesContract.State.CurrentUser -> {
+        }
+        is RepliesContract.State.Error -> handleError(state.type)
     }
 
-    override fun isDisposed(): Boolean = subscriptions.isDisposed
+    private fun handleError(type: RepliesContract.ErrorType) = when (type) {
+        RepliesContract.ErrorType.Like,
+        RepliesContract.ErrorType.Dislike,
+        RepliesContract.ErrorType.Cleared -> Snackbar.make(view!!, type.msg, Snackbar.LENGTH_LONG).show()
+        else -> {
+            replies_lazy.errorText = getString(type.msg)
+            replies_lazy.state = LazyLayout.ERROR
+        }
+    }
 
-    override fun dispose() {
+    override fun onDestroyView() {
+        super.onDestroyView()
         subscriptions.dispose()
         presenter.detachView()
     }
 
-    //Lol
     private fun translateAdapterActions() = adapter.actions.map {
         when (it) {
-            is DetailsContract.Action.ViewUser ->RepliesContract.Action.ViewUser(it.user)
-            is DetailsContract.Action.Like ->RepliesContract.Action.Like(it.comment)
-            is DetailsContract.Action.Dislike ->RepliesContract.Action.Dislike(it.comment)
-            is DetailsContract.Action.Reply ->RepliesContract.Action.Reply(it.parent)
+            is DetailsContract.Action.ViewUser -> RepliesContract.Action.ViewUser(it.user)
+            is DetailsContract.Action.Like -> RepliesContract.Action.Like(it.comment)
+            is DetailsContract.Action.Dislike -> RepliesContract.Action.Dislike(it.comment)
+            is DetailsContract.Action.Reply -> RepliesContract.Action.Reply(it.parent)
             else -> throw RuntimeException("Invalid action")
         }
     }
 
     companion object {
-        private const val NameKey: String = "NAME"
         private const val ParentKey: String = "PARENT"
 
         fun newInstance(comment: Comment) = RepliesDialogFragment().apply {
-            arguments = Bundle().apply { putString(NameKey, comment.user.username); putString(ParentKey, comment.id) }
+            arguments = Bundle().apply { putString(ParentKey, comment.id) }
         }
     }
 }

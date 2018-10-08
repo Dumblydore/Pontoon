@@ -334,7 +334,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
      * more than 50% horizontally
      */
     private fun dismiss() {
-        player.onStop()
         main.updateParams(constraintSet) {
             setGuidelinePercent(guidelineVertical.id, VideoTouchHandler.MIN_HORIZONTAL_LIMIT - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
             setGuidelinePercent(guidelineMarginEnd.id, 0F)

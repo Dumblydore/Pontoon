@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.main
 
-import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
@@ -183,7 +182,6 @@ class Player(private val exoPlayer: SimpleExoPlayer,
 
     override fun onStop() {
         exoPlayer.playWhenReady = false
-        exoPlayer.release()
         state = PlaybackStateCompat.STATE_STOPPED
     }
 

@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.main.details
 
+import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.main.details.comment.CommentDialogFragment
@@ -12,4 +13,7 @@ interface DetailsModule {
 
     @ContributesAndroidInjector
     fun contributeCommentFragment(): CommentDialogFragment
+
+    @Binds
+    fun bindNavigator(fragment: DetailsFragment) : DetailsContract.Navigator
 }

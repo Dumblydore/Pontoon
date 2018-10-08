@@ -18,7 +18,8 @@
         android:id="@+id/replies.lazy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="256dp">
+        android:minHeight="256dp"
+        tools:lazy_state="success">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/replies.list"

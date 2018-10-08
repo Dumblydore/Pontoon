@@ -39,6 +39,17 @@
     <string name="details_comment_hint">Add a comment…</string>
     <string name="details_comment_header">Commenting as %s</string>
 
+    <string name="details_error_noComments">No comments.</string>
+    <string name="details_error_noRelatedVideos">Couldn\'t load related videos.</string>
+    <string name="details_error_general">@string/error_general</string>
+    <string name="details_error_like">Failed to like comment.</string>
+    <string name="details_error_dislike">Failed to dislike comment.</string>
+
+    <!-- Replies -->
+    <string name="replies_error">Failed to load replies</string>
+    <string name="replies_error_like">@string/details_error_like</string>
+    <string name="replies_error_dislike">@string/details_error_dislike</string>
+
     <!-- Creator -->
     <string name="creator_error_noCreator">Couldn\'t load creator.</string>
     <string name="creator_error_noVideos">This creator has no videos.</string>
@@ -150,4 +161,5 @@
     <string name="snackbar_action_retry">Retry</string>
     <string name="replies_header">%s\'s replies</string>
     <string name="action_download">Download</string>
+    <string name="replies_error_cleared">Error occured</string>
 </resources>

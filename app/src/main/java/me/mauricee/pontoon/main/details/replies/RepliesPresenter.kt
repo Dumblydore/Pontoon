@@ -19,14 +19,15 @@ class RepliesPresenter @Inject constructor(private val commentRepository: Commen
 
     override fun onViewAttached(view: RepliesContract.View): Observable<RepliesContract.State> = view.actions.flatMap(::handleActions)
             .startWith(RepliesContract.State.CurrentUser(userRepository.activeUser))
+            .onErrorReturnItem(RepliesContract.State.Error())
 
     private fun handleActions(action: RepliesContract.Action): Observable<RepliesContract.State> = when (action) {
-        is RepliesContract.Action.Like -> commentRepository.like(action.comment).map(RepliesContract.State::Liked)
-        is RepliesContract.Action.Dislike -> commentRepository.dislike(action.comment).map(RepliesContract.State::Disliked)
-        is RepliesContract.Action.Clear -> commentRepository.clear(action.comment).map(RepliesContract.State::Cleared)
-        is RepliesContract.Action.Reply -> stateless { navigator.replyToComment(action.parent) }
+        is RepliesContract.Action.Like -> commentRepository.like(action.comment).map<RepliesContract.State>(RepliesContract.State::Liked).onErrorReturnItem(RepliesContract.State.Error(RepliesContract.ErrorType.Like))
+        is RepliesContract.Action.Dislike -> commentRepository.dislike(action.comment).map<RepliesContract.State>(RepliesContract.State::Disliked).onErrorReturnItem(RepliesContract.State.Error(RepliesContract.ErrorType.Dislike))
+        is RepliesContract.Action.Clear -> commentRepository.clear(action.comment).map<RepliesContract.State>(RepliesContract.State::Cleared).onErrorReturnItem(RepliesContract.State.Error(RepliesContract.ErrorType.Cleared))
+        is RepliesContract.Action.Reply -> stateless { navigator.comment(action.parent) }
         is RepliesContract.Action.Parent -> Observable.zip<List<Comment>, Comment, RepliesContract.State>(commentRepository.getReplies(action.comment).toObservable(), commentRepository.getComment(action.comment),
-                BiFunction { t1, t2 -> RepliesContract.State.Replies(t2, t1) }).startWith(RepliesContract.State.Loading)
+                BiFunction { t1, t2 -> RepliesContract.State.Replies(t2, t1) }).startWith(RepliesContract.State.Loading).onErrorReturnItem(RepliesContract.State.Error())
         is RepliesContract.Action.ViewUser -> stateless { mainNavigator.toUser(action.user) }
     }
 }

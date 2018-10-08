@@ -29,11 +29,11 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                     .toObservable().compose(RxHelpers.applyObservableSchedulers())
                     .filter(List<Comment>::isNotEmpty)
 
-    fun getComment(commentId: String) = commentDao.getComment(commentId).flatMapObservable {comment ->
-        userRepository.getUsers(comment.user).flatMap { it.toObservable() }.map {user ->
+    fun getComment(commentId: String): Observable<Comment> = commentDao.getComment(commentId).flatMapObservable { comment ->
+        userRepository.getUsers(comment.user).flatMap { it.toObservable() }.map { user ->
             Comment(comment.id, comment.text, comment.parent, comment.video, comment.editDate, comment.postDate, comment.likes, comment.dislikes, emptyList(), user)
         }
-    }
+    }.compose(RxHelpers.applyObservableSchedulers())
 
     fun getReplies(commentId: String): Single<List<Comment>> =
             commentDao.getCommentByParent(commentId).flatMapObservable {
@@ -43,10 +43,11 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                 it.toObservable().flatMap { comment ->
                     users.filter { it.id == comment.user }.zipWith<List<Comment>, Comment>(replies,
                             BiFunction { t1, t2 ->
-                                Comment(comment.id, comment.text, comment.parent, comment.video, comment.editDate, comment.postDate, comment.likes, comment.dislikes, t2, t1)
+                                Comment(comment.id, commentId, comment.video, comment.text, comment.editDate, comment.postDate, comment.likes, comment.dislikes, t2, t1)
                             })
                 }
             }.toList().onErrorReturnItem(emptyList())
+                    .compose(RxHelpers.applySingleSchedulers())
 
 
     fun like(comment: Comment): Observable<Comment> = interactWithComment(comment, CommentInteraction.Type.Like)
