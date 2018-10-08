@@ -2,11 +2,13 @@ package me.mauricee.pontoon.main.details
 
 
 import android.content.Context
+import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.text.util.LinkifyCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -68,12 +70,13 @@ class CommentAdapter @Inject constructor(context: Context)
         fun bind(comment: Comment) {
             itemView.let {
                 val commentScore = comment.likes - comment.dislikes
-                itemView.item_title.text = comment.user.username
-                itemView.item_comment.text = comment.text
-                itemView.item_thumb_text.isVisible = commentScore != 0
-                itemView.item_thumb_text.text = "${if (commentScore > 0) "+" else ""} $commentScore"
-                itemView.item_viewReplies.isVisible = comment.replies.isNotEmpty()
-                itemView.item_viewReplies.text = itemView.context.getString(R.string.details_comment_replies, comment.replies.size)
+                it.item_title.text = comment.user.username
+                it.item_comment.text = comment.text
+                LinkifyCompat.addLinks(it.item_comment, Linkify.WEB_URLS)
+                it.item_thumb_text.isVisible = commentScore != 0
+                it.item_thumb_text.text = "${if (commentScore > 0) "+" else ""} $commentScore"
+                it.item_viewReplies.isVisible = comment.replies.isNotEmpty()
+                it.item_viewReplies.text = itemView.context.getString(R.string.details_comment_replies, comment.replies.size)
 
                 val likeTint = if (comment.userInteraction.contains(Comment.Interaction.Like))
                     positiveColor

@@ -141,12 +141,20 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
         Snackbar.make(view!!, text, duration).show()
     }
 
-    override fun comment(comment: Comment?) {
-        CommentDialogFragment.newInstance(comment).also {it. show(childFragmentManager, tag) }
+    override fun comment(video: Video, comment: Comment?) {
+        CommentDialogFragment.newInstance(comment, video).also {it. show(childFragmentManager, tag) }
     }
 
     override fun displayReplies(parent: Comment) {
         RepliesDialogFragment.newInstance(parent).also{ it.show(childFragmentManager, tag) }
+    }
+
+    override fun onCommentSuccess() {
+        Snackbar.make(view!!, R.string.details_commentPosted,Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onCommentError() {
+        Snackbar.make(view!!, R.string.details_error_commentPost,Snackbar.LENGTH_LONG).show()
     }
 
     companion object {

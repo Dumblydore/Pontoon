@@ -21,7 +21,7 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
     override fun onViewAttached(view: LoginContract.View): Observable<LoginContract.State> =
             view.actions.doOnNext { eventTracker.trackAction(it, view) }
                     .flatMap(this::handleActions)
-                    .onErrorResumeNext(Observable.just(LoginContract.State.Error()))
+                    .onErrorReturnItem(LoginContract.State.Error())
 
     private fun handleActions(action: LoginContract.Action): Observable<LoginContract.State> = when (action) {
         is LoginContract.Action.Login -> verifyCredentials(action.username, action.password)

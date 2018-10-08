@@ -162,4 +162,6 @@
     <string name="replies_header">%s\'s replies</string>
     <string name="action_download">Download</string>
     <string name="replies_error_cleared">Error occured</string>
+    <string name="details_error_commentPost">Error posting comment.</string>
+    <string name="details_commentPosted">Comment posted!</string>
 </resources>

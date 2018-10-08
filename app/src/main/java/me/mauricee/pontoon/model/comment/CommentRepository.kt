@@ -11,7 +11,6 @@ import me.mauricee.pontoon.domain.floatplane.*
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.model.user.UserRepository
-import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
 private typealias CommentPojo = me.mauricee.pontoon.domain.floatplane.Comment
@@ -57,22 +56,22 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
     fun clear(comment: Comment): Observable<Comment> = floatPlaneApi.clearInteraction(ClearInteraction(comment.id))
             .map { comment.clear() }
 
-    fun comment(text: String, video: Video): Observable<Comment> =
-            floatPlaneApi.post(CommentPost(text, video.id))
+    fun comment(text: String, video: String): Observable<Comment> =
+            floatPlaneApi.post(CommentPost(text, video))
                     .compose(RxHelpers.applyObservableSchedulers())
                     .doOnNext { cacheComment(it) }
                     .map {
                         Comment(it.id, it.replying
-                                ?: it.video, video.id, it.text, it.editDate, it.postDate, it.interactionCounts.like,
+                                ?: it.video, video, it.text, it.editDate, it.postDate, it.interactionCounts.like,
                                 it.interactionCounts.dislike, emptyList(), currentUser)
                     }
 
-    fun comment(text: String, parent: Comment, video: Video): Observable<Comment> = floatPlaneApi.post(Reply(parent.id, text, video.id))
+    fun comment(text: String, parentId: String, videoId: String): Observable<Comment> = floatPlaneApi.post(Reply(parentId, text, videoId))
             .compose(RxHelpers.applyObservableSchedulers())
             .doOnNext { cacheComment(it) }
             .map {
                 Comment(it.id, it.replying
-                        ?: it.video, video.id, it.text, it.editDate, it.postDate, it.interactionCounts.like,
+                        ?: it.video, videoId, it.text, it.editDate, it.postDate, it.interactionCounts.like,
                         it.interactionCounts.dislike, emptyList(), currentUser)
             }
 

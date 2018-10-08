@@ -17,8 +17,10 @@ interface DetailsContract {
     interface Presenter : BaseContract.Presenter<View>
 
     interface Navigator {
-        fun comment(comment: Comment? = null)
+        fun comment(video: Video, comment: Comment? = null)
         fun displayReplies(parent: Comment)
+        fun onCommentSuccess()
+        fun onCommentError()
     }
 
     sealed class Action : EventTracker.Action {

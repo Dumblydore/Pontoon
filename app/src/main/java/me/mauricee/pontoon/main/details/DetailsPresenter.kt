@@ -28,8 +28,8 @@ class DetailsPresenter @Inject constructor(private val player: Player,
 
     private fun handleAction(it: DetailsContract.Action): Observable<DetailsContract.State> = when (it) {
         is DetailsContract.Action.PlayVideo -> loadVideo(it)
-        is DetailsContract.Action.Comment -> stateless { detailsNavigator.comment() }
-        is DetailsContract.Action.Reply -> stateless { detailsNavigator.comment(it.parent) }
+        is DetailsContract.Action.Comment -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video) }
+        is DetailsContract.Action.Reply -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video, it.parent) }
         is DetailsContract.Action.ViewReplies -> stateless { detailsNavigator.displayReplies(it.comment) }
         is DetailsContract.Action.ViewUser -> stateless { navigator.toUser(it.user) }
         is DetailsContract.Action.ViewCreator -> stateless { navigator.toCreator(player.currentlyPlaying!!.video.creator) }
