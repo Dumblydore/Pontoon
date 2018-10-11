@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.details.comment
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.details.DetailsContract
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
@@ -17,9 +18,14 @@ class CommentPresenter @Inject constructor(private val commentRepository: Commen
     override fun onViewAttached(view: CommentContract.View): Observable<CommentContract.State> = view.actions.flatMap<CommentContract.State> { action ->
         when (action) {
             is CommentContract.Action.Comment -> commentRepository.comment(action.text, action.videoId)
-                    .flatMap<CommentContract.State> { Observable.fromCallable { navigator.onCommentSuccess(); CommentContract.State.Close } }
+                    .flatMap { closeAfterAction { navigator.onCommentSuccess() } }
             is CommentContract.Action.Reply -> commentRepository.comment(action.text, action.commentId, action.videoId)
-                    .flatMap<CommentContract.State> { Observable.fromCallable { navigator.onCommentSuccess(); CommentContract.State.Close } }
-        }.onErrorResumeNext { ig: Throwable -> stateless { navigator.onCommentError() } }
+                    .flatMap { closeAfterAction { navigator.onCommentSuccess() } }
+        }.onErrorResumeNext { ig: Throwable -> closeAfterAction { navigator.onCommentError() } }
     }.startWith(CommentContract.State.CurrentUser(userRepository.activeUser))
+
+    private fun closeAfterAction(action: () -> Unit): Observable<CommentContract.State> {
+        action()
+        return CommentContract.State.Close.toObservable()
+    }
 }
