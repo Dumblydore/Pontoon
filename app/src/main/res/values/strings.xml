@@ -30,6 +30,26 @@
     <!-- Player -->
     <string name="player_releaseDate">Posted on %s.</string>
 
+    <!-- Details -->
+    <string name="details_commentLiked">You liked %s\'s comment.</string>
+    <string name="details_commentDisliked">You disliked %s\'s comment.</string>
+    <string name="details_comment_replies">View %x replies</string>
+    <string name="details_comment_positiveDelta">+%x</string>
+    <string name="details_comment_negativeDelta">-%x</string>
+    <string name="details_comment_hint">Add a comment…</string>
+    <string name="details_comment_header">Commenting as %s</string>
+
+    <string name="details_error_noComments">No comments.</string>
+    <string name="details_error_noRelatedVideos">Couldn\'t load related videos.</string>
+    <string name="details_error_general">@string/error_general</string>
+    <string name="details_error_like">Failed to like comment.</string>
+    <string name="details_error_dislike">Failed to dislike comment.</string>
+
+    <!-- Replies -->
+    <string name="replies_error">Failed to load replies</string>
+    <string name="replies_error_like">@string/details_error_like</string>
+    <string name="replies_error_dislike">@string/details_error_dislike</string>
+
     <!-- Creator -->
     <string name="creator_error_noCreator">Couldn\'t load creator.</string>
     <string name="creator_error_noVideos">This creator has no videos.</string>
@@ -55,7 +75,8 @@
     <string name="nav_history">History</string>
 
     <!-- Search -->
-    <string name="search_error_noText">Enter Text</string>
+    <string name="search_hint">Search by Title</string>
+    <string name="search_error_noText"> </string>
     <string name="search_error_noResults">No results for search</string>
     <string name="search_error_network">Network error, try again later.</string>
     <string name="search_error_general">@string/error_general</string>
@@ -138,5 +159,10 @@
     <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
     <string name="lazy_error_retry">Retry</string>
     <string name="snackbar_action_retry">Retry</string>
+    <string name="replies_header">%s\'s replies</string>
     <string name="action_download">Download</string>
+    <string name="replies_error_cleared">Error occured</string>
+    <string name="details_error_commentPost">Error posting comment.</string>
+    <string name="details_commentPosted">Comment posted!</string>
+    <string name="reply_subhead">Replying to %s</string>
 </resources>

@@ -7,7 +7,7 @@ import io.reactivex.android.MainThreadDisposable
 
 class PreferencesObservable(private val key: String,
                             private val preferences: SharedPreferences,
-                            private val emitIfKeyExists: Boolean = false) : Observable<SharedPreferences>() {
+                            private val emitIfKeyExists: Boolean = true) : Observable<SharedPreferences>() {
     override fun subscribeActual(observer: Observer<in SharedPreferences>) {
         Listener(key, observer).also {
             preferences.registerOnSharedPreferenceChangeListener(it)

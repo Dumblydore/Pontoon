@@ -15,7 +15,7 @@ interface VideoContract {
     interface Presenter : BaseContract.Presenter<View>
 
     sealed class Action : EventTracker.Action {
-        object Refresh : Action()
+        class Refresh(val clean: Boolean) : Action()
         class Subscription(val creator: UserRepository.Creator) : Action()
         class PlayVideo(val video: Video) : Action()
         object Creators : Action()
@@ -25,8 +25,6 @@ interface VideoContract {
         class Loading(val clean: Boolean = true) : State() {
             override val tag: String
                 get() = "${super.tag}_${if (clean) "clean" else "paginate"}"
-            override val level: EventTracker.Level
-                get() = EventTracker.Level.ERROR
         }
 
         class DisplaySubscriptions(val subscriptions: List<UserRepository.Creator>) : State()

@@ -23,6 +23,9 @@
     <color name="colorAccent">#00afec</color>
     <color name="colorError">#ff5722</color>
 
+    <color name="colorPositive">@color/md_green_A400</color>
+    <color name="colorNegative">@color/md_red_A400</color>
+
     <color name="colorThemeSelection">@color/md_green_A700</color>
     <!--reds-->
     <color name="md_red_50">#FFEBEE</color>

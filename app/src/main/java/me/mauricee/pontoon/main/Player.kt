@@ -52,13 +52,18 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     val duration: Observable<Long>
         get() = durationRelay
 
+    private val timelineSubject = BehaviorRelay.create<String>()
+    val thumbnailTimeline: Observable<String>
+        get() = timelineSubject
+
     var currentlyPlaying: Playback? = null
         set(value) {
             if (value?.video?.id != field?.video?.id && value != null) {
                 load(value)
+            } else {
+                exoPlayer.stop()
             }
             field = value
-            //TODO Handle null case???
         }
 
     private var controllerTimeout: Disposable? = null
@@ -110,8 +115,11 @@ class Player(private val exoPlayer: SimpleExoPlayer,
         exoPlayer.setVideoTextureView(view)
     }
 
+
+    //TODO Not sure if this is the best way of doing it. It might be better to have it as a part of Video.
     private fun setMetadata(video: Video) {
         previewImageRelay.accept(video.thumbnail)
+        timelineSubject.accept("https://cms.linustechtips.com/get/sprite/by_guid/${video.id}")
     }
 
     private fun load(playback: Playback) {
@@ -163,11 +171,6 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     }
 
     override fun onPlay() {
-//        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-//                .setAcceptsDelayedFocusGain(false)
-//                .setWillPauseWhenDucked(true)
-//                .build()
-//        audioManager.requestAudioFocus()
         exoPlayer.playWhenReady = true
         state = PlaybackStateCompat.STATE_PLAYING
     }
@@ -179,7 +182,6 @@ class Player(private val exoPlayer: SimpleExoPlayer,
 
     override fun onStop() {
         exoPlayer.playWhenReady = false
-        exoPlayer.release()
         state = PlaybackStateCompat.STATE_STOPPED
     }
 
@@ -204,10 +206,6 @@ class Player(private val exoPlayer: SimpleExoPlayer,
 
     fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
             .map { exoPlayer.bufferedPosition }.startWith(exoPlayer.bufferedPosition)
-
-    fun setProgress(progress: Long) {
-        exoPlayer.seekTo(progress)
-    }
 
     fun toggleControls() {
         controllerTimeout?.dispose()

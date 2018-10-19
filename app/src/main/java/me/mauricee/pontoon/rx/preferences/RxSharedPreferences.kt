@@ -4,8 +4,8 @@ import android.content.SharedPreferences
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
 
-fun SharedPreferences.watchBoolean(key: String): Observable<Boolean> =
-        PreferencesObservable(key, this).map { it.getBoolean(key, false) }
+fun SharedPreferences.watchBoolean(key: String, defaultValue: Boolean = false): Observable<Boolean> =
+        PreferencesObservable(key, this).map { it.getBoolean(key, defaultValue) }
 
 fun SharedPreferences.watchInt(key: String): Observable<Int> =
         PreferencesObservable(key, this).map { it.getInt(key, -1) }

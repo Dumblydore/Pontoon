@@ -45,17 +45,55 @@
         app:layout_constraintTop_toBottomOf="@+id/item.title"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vitae consectetur enim, vulputate fermentum odio. Morbi vitae tristique elit, sit amet fermentum purus. Curabitur luctus porta massa. Cras nisl mi, condimentum nec rutrum et, iaculis nec urna. Nullam id molestie sem. Fusce lobortis justo est, ut vehicula augue fringilla sit amet. Donec feugiat nunc dolor, ac rutrum nulla sollicitudin eu. Donec diam magna, luctus et ultricies in, aliquam a justo." />
 
-    <com.google.android.material.button.MaterialButton
+    <ImageButton
+        android:id="@+id/item.thumb.up"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_thumb_up"
+        android:tintMode="multiply"
+        app:layout_constraintStart_toEndOf="@+id/item.icon.small"
+        app:layout_constraintTop_toBottomOf="@+id/item.comment" />
+
+    <ImageButton
+        android:id="@+id/item.thumb.down"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_thumb_down"
+        android:tintMode="multiply"
+        app:layout_constraintStart_toEndOf="@+id/item.thumb.up"
+        app:layout_constraintTop_toBottomOf="@+id/item.comment" />
+
+    <TextView
+        android:id="@+id/item.thumb.text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/item.icon.small"
+        app:layout_constraintStart_toStartOf="@+id/item.icon.small"
+        app:layout_constraintTop_toBottomOf="@+id/item.icon.small"
+        tools:text="2k" />
+
+    <Button
+        android:id="@+id/item.viewReplies"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
+        android:textColor="?android:attr/colorAccent"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/item.icon.small"
-        app:layout_constraintTop_toBottomOf="@+id/item.comment"
-        tools:visibility="visible"
-        tools:text="View 20 replies" />
+        app:layout_constraintTop_toBottomOf="@+id/item.thumb.up"
+        tools:text="View 20 replies"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

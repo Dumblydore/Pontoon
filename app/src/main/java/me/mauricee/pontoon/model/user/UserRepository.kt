@@ -3,6 +3,7 @@ package me.mauricee.pontoon.model.user
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
+import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
 import org.threeten.bp.Instant
@@ -11,7 +12,10 @@ import javax.inject.Inject
 
 class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
                                          private val userDao: UserDao,
-                                         private val creatorDao: CreatorDao) {
+                                         private val creatorDao: CreatorDao,
+                                         private val accountManagerHelper: AccountManagerHelper) {
+
+    val activeUser by lazy { accountManagerHelper.account.let { UserRepository.User(it.id, it.username, it.profileImage.path) } }
 
     fun getCreators(vararg creatorIds: String): Observable<List<Creator>> =
             Observable.mergeArray(creatorDao.getCreatorsByIds(*creatorIds), getCreatorsFromNetwork(*creatorIds))

@@ -31,13 +31,13 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
         get() = Observable.merge(RxSwipeRefreshLayout.refreshes(videos_container),
                 videos_container_lazy.retries())
                 .doOnNext { videoAdapter.submitList(null) }
-                .map { VideoContract.Action.Refresh }
+                .map { VideoContract.Action.Refresh(true) }
 
     override val actions: Observable<VideoContract.Action>
         get() = Observable.merge(refreshes, miscActions,
                 videoAdapter.actions.map(VideoContract.Action::PlayVideo),
                 videoAdapter.subscriptionAdapter.actions)
-                .startWith(VideoContract.Action.Refresh)
+                .startWith(VideoContract.Action.Refresh(false))
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/replies.header"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:elevation="4dp"
+        app:navigationIcon="@drawable/ic_arrow_down"
+        tools:title="medwar40's replies" />
+
+    <me.mauricee.pontoon.common.LazyLayout
+        android:id="@+id/replies.lazy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="256dp"
+        tools:lazy_state="success">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/replies.list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/item_comment" />
+    </me.mauricee.pontoon.common.LazyLayout>
+
+</LinearLayout>

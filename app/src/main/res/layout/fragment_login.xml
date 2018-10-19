@@ -75,6 +75,8 @@
                 android:paddingBottom="10dp"
                 android:text="@string/login_login"
                 android:textAlignment="center"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:background="@color/colorAccent"
                 app:cornerRadius="24dp" />
 
             <ProgressBar
