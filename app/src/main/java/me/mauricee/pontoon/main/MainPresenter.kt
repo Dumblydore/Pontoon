@@ -1,10 +1,13 @@
 package me.mauricee.pontoon.main
 
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
+import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.model.PontoonDatabase
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
@@ -13,6 +16,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
                                         private val userRepository: UserRepository,
                                         private val videoRepository: VideoRepository,
                                         private val player: Player,
+                                        private val pontoonDatabase: PontoonDatabase,
                                         private val navigator: MainContract.Navigator,
                                         eventTracker: EventTracker) :
         BasePresenter<MainContract.State, MainContract.View>(eventTracker), MainContract.Presenter {
@@ -23,7 +27,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
 
     private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
         when (it) {
-            is MainContract.Action.Logout -> Observable.fromCallable(::logout)
+            is MainContract.Action.Logout -> Observable.fromCallable(::logout).compose(RxHelpers.applyObservableSchedulers())
             is MainContract.Action.Profile -> stateless { navigator.toUser(userRepository.activeUser) }
             is MainContract.Action.Preferences -> MainContract.State.Preferences.toObservable()
             is MainContract.Action.ClickEvent -> stateless { player.toggleControls() }
@@ -32,6 +36,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
 
     private fun logout(): MainContract.State {
         accountManagerHelper.logout()
+        pontoonDatabase.clearAllTables()
         return MainContract.State.Logout
     }
 }

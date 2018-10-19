@@ -35,11 +35,11 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
     lateinit var videoAdapter: VideoPageAdapter
 
     private val refreshes
-        get() = RxSwipeRefreshLayout.refreshes(creator_container).map { CreatorContract.Action.Refresh(creator) }
+        get() = RxSwipeRefreshLayout.refreshes(creator_container).map { CreatorContract.Action.Refresh(creator, true) }
 
     override val actions: Observable<CreatorContract.Action>
         get() = Observable.merge(refreshes, videoAdapter.actions.map(CreatorContract.Action::PlayVideo))
-                .startWith(CreatorContract.Action.Refresh(creator))
+                .startWith(CreatorContract.Action.Refresh(creator, false))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
