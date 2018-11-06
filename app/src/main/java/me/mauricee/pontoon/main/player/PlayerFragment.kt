@@ -120,6 +120,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     override fun controlsVisible(isVisible: Boolean) {
         player_controls.isVisible = isVisible
+        player_controls_progress.thumb.mutate().alpha = if (isVisible) 255 else 0
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {

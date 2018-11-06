@@ -1,12 +1,15 @@
 package me.mauricee.pontoon.main
 
-import android.media.AudioFocusRequest
-import android.media.AudioManager
+import android.media.session.PlaybackState
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.TextureView
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -15,20 +18,27 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.model.audio.AudioFocusManager
+import me.mauricee.pontoon.model.audio.FocusState
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class Player(private val exoPlayer: SimpleExoPlayer,
-             private val networkSourceFactory: HlsMediaSource.Factory,
-             private val audioManager: AudioManager,
-             private val preferences: Preferences,
-             private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
-        Player.EventListener {
+@MainScope
+class Player @Inject constructor(preferences: Preferences,
+                                 lifecycleOwner: LifecycleOwner,
+                                 private val exoPlayer: SimpleExoPlayer,
+                                 private val networkSourceFactory: HlsMediaSource.Factory,
+                                 private val focusManager: AudioFocusManager,
+                                 private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
+        Player.EventListener, LifecycleObserver {
 
     @PlaybackStateCompat.State
     private var state: Int = PlaybackStateCompat.STATE_NONE
@@ -41,6 +51,8 @@ class Player(private val exoPlayer: SimpleExoPlayer,
                         .build().also(mediaSession::setPlaybackState)
             }
         }
+
+    private val subs = CompositeDisposable()
 
     private val stateSubject = BehaviorRelay.create<Int>()
     val playbackState: Observable<Int> = stateSubject
@@ -104,8 +116,7 @@ class Player(private val exoPlayer: SimpleExoPlayer,
                         PlaybackStateCompat.ACTION_PLAY_PAUSE or
                         PlaybackStateCompat.ACTION_PLAY)
                 .build())
-        mediaSession.setCallback(this)
-        exoPlayer.addListener(this)
+        lifecycleOwner.lifecycle.addObserver(this)
     }
 
     fun isPlaying() = state == PlaybackStateCompat.STATE_PLAYING
@@ -137,8 +148,8 @@ class Player(private val exoPlayer: SimpleExoPlayer,
 
     private fun load(uri: Uri) {
         exoPlayer.prepare(networkSourceFactory.createMediaSource(uri))
-        mediaSession.isActive = true
         exoPlayer.playWhenReady = true
+        focusManager.gain()
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
@@ -174,17 +185,24 @@ class Player(private val exoPlayer: SimpleExoPlayer,
     override fun onPlay() {
         exoPlayer.playWhenReady = true
         state = PlaybackStateCompat.STATE_PLAYING
+        focusManager.gain()
     }
 
     override fun onPause() {
         exoPlayer.playWhenReady = false
         state = PlaybackStateCompat.STATE_PAUSED
+        focusManager.drop()
     }
 
     override fun onStop() {
         exoPlayer.playWhenReady = false
         exoPlayer.release()
         state = PlaybackStateCompat.STATE_STOPPED
+        focusManager.drop()
+    }
+
+    override fun onSeekTo(pos: Long) {
+        exoPlayer.seekTo(pos)
     }
 
     override fun onSeekTo(pos: Long) {
@@ -220,7 +238,30 @@ class Player(private val exoPlayer: SimpleExoPlayer,
         else Observable.timer(3, TimeUnit.SECONDS, Schedulers.computation()).map { false }
                 .startWith(true))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { controller?.controlsVisible(it) }
+                .subscribe { controller?.controlsVisible(it) }.also { subs += it }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    fun bind() {
+        mediaSession.setCallback(this)
+        exoPlayer.addListener(this)
+        subs += focusManager.focus.subscribe { it ->
+            when (it) {
+                FocusState.Gained -> exoPlayer.playWhenReady = state != PlaybackStateCompat.STATE_PAUSED
+                FocusState.Duck -> exoPlayer.playWhenReady = false
+                FocusState.Transient -> exoPlayer.playWhenReady = false
+                FocusState.Loss -> exoPlayer.playWhenReady = false
+            }
+        }
+        mediaSession.isActive = true
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun clear() {
+        subs.clear()
+        mediaSession.setCallback(null)
+        exoPlayer.removeListener(this)
+        mediaSession.release()
     }
 
     interface ControlView {

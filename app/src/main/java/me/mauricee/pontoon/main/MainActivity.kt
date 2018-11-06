@@ -106,8 +106,14 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun onStop() {
         super.onStop()
-        player.onPause()
         mainPresenter.detachView()
+        if (isFinishing)
+            player.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        wiseFy.dump()
     }
 
     override fun playVideo(video: Video, commentId: String) {
@@ -169,8 +175,14 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun updateState(state: MainContract.State) = when (state) {
         is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
-        is MainContract.State.Preferences -> PreferencesActivity.navigateTo(this)
-        is MainContract.State.Logout -> LoginActivity.navigateTo(this)
+        is MainContract.State.Preferences -> {
+            if (player.isPlaying()) player.onPause()
+            PreferencesActivity.navigateTo(this)
+        }
+        is MainContract.State.Logout -> {
+            if (player.isActive()) player.onStop()
+            LoginActivity.navigateTo(this)
+        }
     }.also { root.closeDrawer(main_drawer, true) }
 
     override fun onBackPressed() {
@@ -178,7 +190,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             orientationManager.isFullscreen = false
         } else if (root.isDrawerOpen(main_drawer)) {
             root.closeDrawer(main_drawer, true)
-        } else if (animationTouchListener.isExpanded) {
+        } else if (animationTouchListener.isExpanded && player.isActive()) {
             animationTouchListener.isExpanded = false
             if (!isPortrait()) {
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -213,7 +225,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         super.onConfigurationChanged(newConfig)
         val isPortrait = isPortrait() || newConfig?.orientation == Configuration.ORIENTATION_PORTRAIT
         if (isPortrait) {
-
             animationTouchListener.isEnabled = true
             enableFullScreen(false)
         } else {

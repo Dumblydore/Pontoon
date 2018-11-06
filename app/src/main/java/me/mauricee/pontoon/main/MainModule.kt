@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main
 import android.content.Context
 import android.media.AudioManager
 import android.support.v4.media.session.MediaSessionCompat
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -40,6 +41,9 @@ abstract class MainModule {
     @Binds
     abstract fun bindPage(mainActivity: MainActivity): EventTracker.Page
 
+    @Binds
+    abstract fun bindLifecycleOwner(mainActivity: MainActivity): LifecycleOwner
+
     @ContributesAndroidInjector
     abstract fun contributeVideoFragment(): VideoFragment
 
@@ -75,25 +79,7 @@ abstract class MainModule {
         @MainScope
         @Provides
         @JvmStatic
-        fun exoPlayer(context: Context, listener: ExoPlayerAnalyticsListener) =
-                ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector()).also {
-                    it.addAnalyticsListener(listener)
-                }
-
-        @MainScope
-        @Provides
-        @JvmStatic
         fun HlsFactory(okHttpClient: OkHttpClient, agent: String) =
                 HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null))
-
-        @MainScope
-        @Provides
-        @JvmStatic
-        fun player(factory: HlsMediaSource.Factory,
-                   session: MediaSessionCompat,
-                   audioManager: AudioManager,
-                   simpleExoPlayer: SimpleExoPlayer,
-                   sharedPreferences: Preferences) =
-                Player(simpleExoPlayer, factory, audioManager, sharedPreferences, session)
     }
 }
