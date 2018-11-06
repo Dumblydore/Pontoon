@@ -11,6 +11,7 @@ buildscript {
     ext.arch_components_version = '2.0.0'
     ext.arch_components_pagination_version = '1.0.0'
     ext.nav_version = '1.0.0-alpha01'
+    ext.work_version = "1.0.0-alpha10"
 
     repositories {
         google()
@@ -37,7 +38,7 @@ allprojects {
             url 'http://oss.sonatype.org/content/repositories/snapshots'
         }
         maven {
-            url  "http://dl.bintray.com/isupatches/Maven"
+            url "http://dl.bintray.com/isupatches/Maven"
         }
     }
 }
