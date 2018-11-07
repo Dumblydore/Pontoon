@@ -2,6 +2,7 @@ package me.mauricee.pontoon.main.player
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
@@ -10,6 +11,7 @@ import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
 import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
+import com.jakewharton.rxbinding2.widget.changeEvents
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_player.*
@@ -110,6 +112,8 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                     Player.QualityLevel.p360 -> qualityMenu.subMenu.findItem(R.id.action_p360).isChecked = true
                 }
             }
+            PlayerContract.State.DownloadStart -> Toast.makeText(requireContext(), R.string.download_start, Toast.LENGTH_LONG).show()
+            PlayerContract.State.DownloadFailed -> Toast.makeText(requireContext(), R.string.download_error, Toast.LENGTH_LONG).show()
             is PlayerContract.State.PreviewThumbnail -> {
                 subscriptions += GlideApp.with(this).asBitmap().load(state.path)
                         .toSingle().subscribe{it -> player_controls_progress.timelineBitmap = it}

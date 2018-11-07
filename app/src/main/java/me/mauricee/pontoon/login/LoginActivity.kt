@@ -25,7 +25,8 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
     companion object {
         fun navigateTo(context: Context) {
             Intent(context, LoginActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP and Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                            or  Intent.FLAG_ACTIVITY_NO_HISTORY)
                     .let(context::startActivity)
         }
     }

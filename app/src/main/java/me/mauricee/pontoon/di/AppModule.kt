@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.novoda.downloadmanager.DownloadManagerBuilder
+import com.novoda.downloadmanager.StorageRequirementRuleFactory
 import com.novoda.downloadmanager.StorageRoot
 import com.novoda.downloadmanager.StorageRootFactory
 import dagger.Binds
@@ -175,7 +176,8 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun provideDownloadManager(context: Context) = DownloadManagerBuilder.newInstance(context, Handler(), R.drawable.ic_play).build()
+        fun provideDownloadManager(context: Context) = DownloadManagerBuilder.newInstance(context, Handler(), R.drawable.ic_download)
+                .build()
 
         @AppScope
         @Provides

@@ -108,7 +108,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         super.onStop()
         mainPresenter.detachView()
         if (isFinishing)
-            player.onPause()
+            player.onStop()
     }
 
     override fun onDestroy() {
@@ -147,6 +147,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         controller.pushFragment(UserFragment.newInstance(user.id))
         animationTouchListener.isExpanded = false
         setPlayerExpanded(false)
+        root.closeDrawer(main_drawer)
     }
 
     override fun onClick(view: View) {
@@ -219,6 +220,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         enterPictureInPictureMode(PictureInPictureParams.Builder()
                 .setAspectRatio(Rational.parseRational("16:9"))
                 .build())
+        player.controlsVisible = false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {

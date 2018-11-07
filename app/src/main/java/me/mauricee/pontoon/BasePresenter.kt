@@ -9,7 +9,7 @@ import me.mauricee.pontoon.analytics.EventTracker
 abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S, *>>(internal val eventTracker: EventTracker)
     : BaseContract.Presenter<V> {
 
-    internal val subs = CompositeDisposable()
+    private val subs = CompositeDisposable()
 
     final override fun attachView(view: V) {
         subs += onViewAttached(view).observeOn(AndroidSchedulers.mainThread())

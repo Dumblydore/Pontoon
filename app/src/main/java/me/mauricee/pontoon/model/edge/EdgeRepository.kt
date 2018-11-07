@@ -6,7 +6,7 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.rx.okhttp.toSingle
+import me.mauricee.pontoon.rx.okhttp.asSingle
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import javax.inject.Inject
@@ -15,11 +15,14 @@ class EdgeRepository @Inject constructor(private val edgeDao: EdgeDao,
                                          private val floatPlaneApi: FloatPlaneApi,
                                          private val client: OkHttpClient) {
 
-    val downloadHost
+    val downloadHost: Single<String>
         get() = preCache { edgeDao.getDownloadEdgeHosts().flatMap(::getAvailableHosts) }
 
-    val streamingHost
+    val streamingHost: Single<String>
         get() = preCache { edgeDao.getStreamingEdgeHosts().flatMap(::getAvailableHosts) }
+
+    fun refresh() = Single.fromCallable { edgeDao.clear() }.flatMapCompletable { cacheEdges() }
+            .subscribeOn(Schedulers.io())
 
     private fun cacheEdges(): Completable = floatPlaneApi.edges.flatMapIterable { it.edges }
             .map { EdgeEntity(it.allowStreaming, it.allowDownload, it.hostname) }
@@ -36,7 +39,7 @@ class EdgeRepository @Inject constructor(private val edgeDao: EdgeDao,
 
     private fun makeCall(host: String) = host.toObservable()
             .map { "https://${it.replaceFirst(".", "-query.")}" }
-            .flatMapSingle { client.newCall(Request.Builder().get().url(it).build()).toSingle() }
+            .flatMapSingle { client.newCall(Request.Builder().get().url(it).build()).asSingle() }
             .map { host }
             .subscribeOn(Schedulers.io())
             .onErrorResumeNext(Observable.empty())

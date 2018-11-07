@@ -9,6 +9,7 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.OrientationManager
 import me.mauricee.pontoon.main.Player
@@ -49,7 +50,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         PlayerContract.State.Progress(t1, t2 / 1000, formatMillis(t1))
     })
 
-    private fun watchPreview() = player.previewImage.map { PlayerContract.State.Preview(it) }
+    private fun watchPreview() = player.previewImage.map(PlayerContract.State::Preview)
 
     private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(it, formatMillis(it)) }
 
@@ -69,8 +70,14 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         videoRepository.getDownloadLink(video.id, qualityLevel).map {
             Batch.with(storageRoot, DownloadBatchIdCreator.createSanitizedFrom(video.id), video.title)
                     .downloadFrom(it).apply()
-        }.flatMapObservable { stateless { downloadManager.download(it.build()) } }
+        }.flatMapObservable {
+            Observable.fromCallable<PlayerContract.State> {
+                downloadManager.download(it.build())
+                PlayerContract.State.DownloadStart
+            }
+        }.doOnError { loge("Error downloading.", it) }
                 .onErrorReturnItem(PlayerContract.State.DownloadFailed)
+
     }
 
     private fun formatMillis(ms: Long) = Duration.ofMillis(ms).let {
