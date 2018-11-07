@@ -11,6 +11,7 @@ import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.util.Util
@@ -185,5 +186,8 @@ abstract class AppModule {
         @AppScope
         @JvmStatic
         fun provideExoPlayer(context: Context) = ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
+                .apply {
+                    videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+                }
     }
 }

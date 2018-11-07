@@ -2,8 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:animateLayoutChanges="true">
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/player.preview"
@@ -13,8 +12,8 @@
     <TextureView
         android:id="@+id/player.display"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:animateLayoutChanges="true" />
+        android:layout_height="match_parent"
+        />
 
     <include layout="@layout/layout_player_controls"
         android:visibility="gone"/>
@@ -27,7 +26,7 @@
         android:padding="16dp"
         android:indeterminateTint="@color/white" />
 
-    <SeekBar
+    <me.mauricee.pontoon.common.TimeBarView
         android:id="@+id/player_controls_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
