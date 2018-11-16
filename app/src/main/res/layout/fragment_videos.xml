@@ -47,6 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:indeterminate="true"
+        android:layout_marginBottom="-6dp"
         android:indeterminateBehavior="repeat"
         android:visibility="gone"
         tools:visibility="visible" />

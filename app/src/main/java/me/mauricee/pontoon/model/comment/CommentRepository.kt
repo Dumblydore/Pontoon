@@ -9,6 +9,7 @@ import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.*
 import me.mauricee.pontoon.ext.RxHelpers
+import me.mauricee.pontoon.ext.ioStream
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
@@ -45,8 +46,7 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                                 Comment(comment.id, commentId, comment.video, comment.text, comment.editDate, comment.postDate, comment.likes, comment.dislikes, t2, t1)
                             })
                 }
-            }.toList().onErrorReturnItem(emptyList())
-                    .compose(RxHelpers.applySingleSchedulers())
+            }.toList().onErrorReturnItem(emptyList()).ioStream()
 
 
     fun like(comment: Comment): Observable<Comment> = interactWithComment(comment, CommentInteraction.Type.Like)

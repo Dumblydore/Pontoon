@@ -18,13 +18,13 @@ interface PlayerContract {
         object DownloadFailed : State()
         class Bind(val player: Player) : State()
         class Preview(val path: String) : State()
-        class PreviewThumbnail(val url: String) : State()
-        class Duration(val duration: Int, val formattedDuration: String) : State() {
+        class PreviewThumbnail(val path: String) : State()
+        class Duration(val duration: Long, val formattedDuration: String) : State() {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }
 
-        class Progress(val progress: Int, val bufferedProgress: Int, val formattedProgress: String) : State() {
+        class Progress(val progress: Long, val bufferedProgress: Long, val formattedProgress: String) : State() {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }

@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.main
 
-import android.media.session.PlaybackState
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat

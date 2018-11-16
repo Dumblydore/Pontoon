@@ -11,7 +11,6 @@ import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
 import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
-import com.jakewharton.rxbinding2.widget.changeEvents
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_player.*
@@ -124,6 +123,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     override fun controlsVisible(isVisible: Boolean) {
         player_controls.isVisible = isVisible
         player_controls_progress.thumbVisibility = isVisible
+        player_controls_progress.acceptTapsFromUser = isVisible
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {
