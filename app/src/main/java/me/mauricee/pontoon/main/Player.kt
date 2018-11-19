@@ -36,6 +36,7 @@ class Player @Inject constructor(preferences: Preferences,
                                  private val exoPlayer: SimpleExoPlayer,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
                                  private val focusManager: AudioFocusManager,
+                                 private val orientationManager: OrientationManager,
                                  private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener, LifecycleObserver {
 
@@ -83,13 +84,13 @@ class Player @Inject constructor(preferences: Preferences,
     var controlsVisible: Boolean = false
         set(value) {
             field = value
-            controller?.controlsVisible(value)
+            controller?.controlsVisible(value, orientationManager.isFullscreen)
         }
 
     var controller: ControlView? = null
         set(value) {
             field = value
-            field?.apply { controlsVisible(controlsVisible) }
+            field?.apply { controlsVisible(controlsVisible, orientationManager.isFullscreen) }
         }
 
     var quality: QualityLevel = preferences.defaultQualityLevel
@@ -236,7 +237,7 @@ class Player @Inject constructor(preferences: Preferences,
         else Observable.timer(3, TimeUnit.SECONDS, Schedulers.computation()).map { false }
                 .startWith(true))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { controller?.controlsVisible(it) }.also { subs += it }
+                .subscribe { controller?.controlsVisible(it, orientationManager.isFullscreen) }.also { subs += it }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -263,7 +264,7 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     interface ControlView {
-        fun controlsVisible(isVisible: Boolean)
+        fun controlsVisible(isVisible: Boolean, isLandscape: Boolean)
     }
 
     enum class QualityLevel {
