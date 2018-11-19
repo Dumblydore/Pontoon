@@ -15,6 +15,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.transaction
 import androidx.transition.*
 import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
@@ -228,15 +229,19 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         val isPortrait = isPortrait() || newConfig?.orientation == Configuration.ORIENTATION_PORTRAIT
         if (isPortrait) {
             animationTouchListener.isEnabled = true
-            enableFullScreen(false)
         } else {
             animationTouchListener.isEnabled = false
             if (!animationTouchListener.isExpanded) {
                 animationTouchListener.isExpanded = true
             }
-            enableFullScreen(true)
         }
-
+        enableFullScreen(!isPortrait)
+        supportFragmentManager.findFragmentById(main_player.id)?.also {
+            supportFragmentManager.transaction {
+                detach(it)
+                attach(it)
+            }
+        }
         //Update this params in last after all configuration changes are done
         main.updateParams(constraintSet) {
             constrainHeight(main_player.id, if (isPortrait) 0 else getDeviceHeight())
