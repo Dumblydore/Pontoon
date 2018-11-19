@@ -1,12 +1,8 @@
 package me.mauricee.pontoon.main
 
 import android.content.Context
-import android.media.AudioManager
-import android.support.v4.media.session.MediaSessionCompat
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -21,12 +17,12 @@ import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
+import me.mauricee.pontoon.main.details.DetailsModule
 import me.mauricee.pontoon.main.history.HistoryFragment
 import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
-import me.mauricee.pontoon.model.preferences.Preferences
 import okhttp3.OkHttpClient
 
 @Module
@@ -62,7 +58,7 @@ abstract class MainModule {
     @ContributesAndroidInjector
     abstract fun contributeHistoryFragment(): HistoryFragment
 
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [DetailsModule::class])
     abstract fun contributePlayerFragment(): DetailsFragment
 
     @ContributesAndroidInjector

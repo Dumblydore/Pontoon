@@ -22,7 +22,7 @@ import org.threeten.bp.ZoneOffset
 
 @TypeConverters(value = [InstantTypeConverter::class])
 @Database(entities = [UserEntity::class, EdgeEntity::class, CreatorEntity::class, VideoEntity::class,
-    CommentEntity::class, SubscriptionEntity::class], version = 1)
+    CommentEntity::class, SubscriptionEntity::class], version = 1, exportSchema = false)
 abstract class PontoonDatabase : RoomDatabase() {
     abstract val userDao: UserDao
     abstract val edgeDao: EdgeDao
@@ -35,10 +35,10 @@ abstract class PontoonDatabase : RoomDatabase() {
 class InstantTypeConverter {
 
     @TypeConverter
-    fun toInstant(value: Long?): Instant? = value?.let(Instant::ofEpochMilli) ?: null
+    fun toInstant(value: Long?): Instant? = value?.let(Instant::ofEpochMilli)
 
     @TypeConverter
-    fun toLong(value: Instant?): Long? = value?.toEpochMilli() ?: null
+    fun toLong(value: Instant?): Long? = value?.toEpochMilli()
 
     @TypeConverter
     fun toLocalDateTime(value: Long?): LocalDateTime? = if (value == null) LocalDateTime.now() else

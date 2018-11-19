@@ -18,6 +18,8 @@
 
     <Button
         android:id="@+id/item.icon.viewAll"
+        style="?android:attr/borderlessButtonStyle"
+        android:textColor="?android:attr/colorAccent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/item_view_all" />

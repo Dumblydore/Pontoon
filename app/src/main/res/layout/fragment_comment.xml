@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/comment.reply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="12sp"
+        tools:text="Replying to person"
+        tools:textColor="@color/md_grey_500" />
+
+    <TextView
+        android:id="@+id/comment.header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/details_comment_header"
+        android:textColor="?android:attr/textColorPrimary"
+        tools:textColor="@color/white"
+        android:textSize="18sp" />
+
+    <FrameLayout
+        android:id="@+id/player.addComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="16dp">
+
+        <ImageView
+            android:id="@+id/comment.user.icon.small"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@mipmap/ic_launcher" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/comment.edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="48dp"
+            android:hint="@string/details_comment_hint"
+            android:textColorHint="?android:attr/textColorSecondary"
+            android:textSize="18sp"
+            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sodales, dui non faucibus commodo, tellus ex tristique ante, eu pharetra tellus quam eu ligula. In interdum velit ut lectus condimentum posuere."
+            tools:textColorHint="@color/white" />
+
+        <ImageButton
+            android:id="@+id/comment.submit"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="end|center_vertical"
+            android:visibility="gone"
+            tools:src="@drawable/ic_history"
+            tools:visibility="visible" />
+
+    </FrameLayout>
+
+</LinearLayout>

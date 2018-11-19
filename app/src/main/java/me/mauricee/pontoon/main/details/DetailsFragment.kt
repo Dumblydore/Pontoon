@@ -6,6 +6,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionInflater
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
@@ -14,12 +15,15 @@ import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.glide.GlideApp
+import me.mauricee.pontoon.main.details.comment.CommentDialogFragment
+import me.mauricee.pontoon.main.details.replies.RepliesDialogFragment
+import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
-class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
+class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, DetailsContract.Navigator {
 
     @Inject
     lateinit var relatedVideosAdapter: RelatedVideoAdapter
@@ -28,23 +32,24 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
     @Inject
     lateinit var formatter: DateTimeFormatter
 
-    lateinit var creator: UserRepository.Creator
+    private lateinit var currentUser: UserRepository.User
+
 
     override fun getLayoutId(): Int = R.layout.fragment_details
 
     override val actions: Observable<DetailsContract.Action>
-        get() = Observable.merge(
-                commentsAdapter.actions,
+        get() = Observable.merge(commentsAdapter.actions,
                 relatedVideosAdapter.actions,
-                player_small_icon.clicks().map { DetailsContract.Action.ViewCreator(creator) })//,
-//                player_progress.changeEvents().map(DetailsContract. Action::SeekTo))
+                player_addComment.clicks().map { DetailsContract.Action.Comment },
+                player_small_icon.clicks().map { DetailsContract.Action.ViewCreator })
                 .startWith(DetailsContract.Action.PlayVideo(arguments!!.getString(VideoKey)))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
-
+        subscriptions += commentsAdapter
+        subscriptions += relatedVideosAdapter
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -72,14 +77,38 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
                 details.state = LazyLayout.SUCCESS
                 displayVideoInfo(state.video)
             }
-            is DetailsContract.State.Error -> {
-                details.state = LazyLayout.ERROR
-            }
+            is DetailsContract.State.Error -> handleError(state.type)
             is DetailsContract.State.Comments -> {
-                commentsAdapter.comments = state.comments
+                commentsAdapter.comments = state.comments.toMutableList()
                 scrollToSelectedComment()
             }
             is DetailsContract.State.RelatedVideos -> relatedVideosAdapter.videos = state.relatedVideos
+            is DetailsContract.State.Like -> {
+                commentsAdapter.updateComment(state.comment)
+                snack(getString(R.string.details_commentLiked, state.comment.user.username))
+            }
+            is DetailsContract.State.Dislike -> {
+                commentsAdapter.updateComment(state.comment)
+                snack(getString(R.string.details_commentDisliked, state.comment.user.username))
+            }
+            is DetailsContract.State.CurrentUser -> {
+                currentUser = state.user
+                GlideApp.with(this).load(state.user.profileImage).circleCrop()
+                        .placeholder(R.drawable.ic_default_thumbnail)
+                        .error(R.drawable.ic_default_thumbnail)
+                        .into(player_user_small_icon)
+            }
+        }
+    }
+
+    private fun handleError(type: DetailsContract.ErrorType) {
+        when (type) {
+            DetailsContract.ErrorType.Like,
+            DetailsContract.ErrorType.Dislike -> Snackbar.make(view!!, type.message, Snackbar.LENGTH_LONG).show()
+            else -> {
+                details.state = LazyLayout.ERROR
+                details.errorText = getString(type.message)
+            }
         }
     }
 
@@ -101,12 +130,31 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View {
             player_description.text = description
             player_releaseDate.text = getString(R.string.player_releaseDate, formatter.format(releaseDate))
             Linkify.addLinks(player_description, Linkify.WEB_URLS)
-            this@DetailsFragment.creator = creator
         }
         GlideApp.with(this).load(info.creator.user.profileImage).circleCrop()
                 .placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
                 .into(player_small_icon)
+    }
+
+    private fun snack(text: CharSequence, duration: Int = Snackbar.LENGTH_SHORT) {
+        Snackbar.make(view!!, text, duration).show()
+    }
+
+    override fun comment(video: Video, comment: Comment?) {
+        CommentDialogFragment.newInstance(comment, video).also {it. show(childFragmentManager, tag) }
+    }
+
+    override fun displayReplies(parent: Comment) {
+        RepliesDialogFragment.newInstance(parent).also{ it.show(childFragmentManager, tag) }
+    }
+
+    override fun onCommentSuccess() {
+        Snackbar.make(view!!, R.string.details_commentPosted,Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onCommentError() {
+        Snackbar.make(view!!, R.string.details_error_commentPost,Snackbar.LENGTH_LONG).show()
     }
 
     companion object {

@@ -2,19 +2,12 @@ package me.mauricee.pontoon.main.player
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
-import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
-import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
-import com.jakewharton.rxbinding2.widget.changeEvents
 import io.reactivex.Observable
-import kotlinx.android.synthetic.main.fragment_player.*
-import kotlinx.android.synthetic.main.layout_player_controls.*
+import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.glide.GlideApp
@@ -32,7 +25,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     override val actions: Observable<PlayerContract.Action>
         get() = listOf(player_controls_fullscreen.clicks().map { PlayerContract.Action.ToggleFullscreen },
                 player_controls_playPause.clicks().map { PlayerContract.Action.PlayPause },
-                player_controls_progress.changeEvents()
+                player_controls_progress.seekBarChanges
                         .doOnNext { isSeeking = it is SeekBarStartChangeEvent || (isSeeking && it !is SeekBarStopChangeEvent) }
                         .filter { it is SeekBarStopChangeEvent }
                         .cast(SeekBarStopChangeEvent::class.java)
@@ -81,7 +74,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_loading.isVisible = true
                 player_controls_playPause.isVisible = false
                 player_controls_error.isVisible = false
-                player_controls_progress.secondaryProgress = 0
+                player_controls_progress.bufferedProgress = 0
             }
             is PlayerContract.State.Buffering -> {
                 player_controls_loading.isVisible = true
@@ -90,13 +83,13 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             }
             is PlayerContract.State.Duration -> {
                 player_controls_duration.text = state.formattedDuration
-                player_controls_progress.max = state.duration
+                player_controls_progress.duration = state.duration
             }
             is PlayerContract.State.Progress -> {
                 player_controls_position.text = state.formattedProgress
                 if (!isSeeking)
                     player_controls_progress.progress = state.progress
-                player_controls_progress.secondaryProgress = state.bufferedProgress
+                player_controls_progress.bufferedProgress = state.bufferedProgress
             }
             is PlayerContract.State.Preview -> GlideApp.with(this).load(state.path)
                     .placeholder(R.drawable.ic_default_thumbnail).error(R.drawable.ic_default_thumbnail)
@@ -115,12 +108,19 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_playPause.isVisible = false
                 player_controls_error.isVisible = true
             }
+            PlayerContract.State.DownloadStart -> Toast.makeText(requireContext(), R.string.download_start, Toast.LENGTH_LONG).show()
+            PlayerContract.State.DownloadFailed -> Toast.makeText(requireContext(), R.string.download_error, Toast.LENGTH_LONG).show()
+            is PlayerContract.State.PreviewThumbnail -> {
+                subscriptions += GlideApp.with(this).asBitmap().load(state.path)
+                        .toSingle().subscribe{it -> player_controls_progress.timelineBitmap = it}
+            }
         }
     }
 
     override fun controlsVisible(isVisible: Boolean) {
         player_controls.isVisible = isVisible
-        player_controls_progress.thumb.mutate().alpha = if (isVisible) 255 else 0
+        player_controls_progress.thumbVisibility = isVisible
+        player_controls_progress.acceptTapsFromUser = isVisible
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {

@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.main
 
-import android.media.session.PlaybackState
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -121,7 +120,7 @@ class Player @Inject constructor(preferences: Preferences,
 
     fun isPlaying() = state == PlaybackStateCompat.STATE_PLAYING
 
-    fun isActive() = state != PlaybackStateCompat.STATE_NONE
+    fun isActive(): Boolean = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
 
     fun bindToView(view: TextureView) {
         exoPlayer.setVideoTextureView(view)
@@ -196,7 +195,6 @@ class Player @Inject constructor(preferences: Preferences,
 
     override fun onStop() {
         exoPlayer.playWhenReady = false
-        exoPlayer.release()
         state = PlaybackStateCompat.STATE_STOPPED
         focusManager.drop()
     }

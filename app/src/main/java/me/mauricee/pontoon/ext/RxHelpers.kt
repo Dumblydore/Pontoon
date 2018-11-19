@@ -26,5 +26,11 @@ class RxHelpers {
     }
 }
 
+fun <T> Single<T>.ioStream() = this.compose(RxHelpers.applySingleSchedulers())
+fun <T> Observable<T>.ioStream() = this.compose(RxHelpers.applyObservableSchedulers())
+
+
+
+
 fun <T> T.toObservable() = Observable.just(this)!!
 
