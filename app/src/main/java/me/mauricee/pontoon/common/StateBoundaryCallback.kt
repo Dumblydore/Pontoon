@@ -9,14 +9,14 @@ open class StateBoundaryCallback<T : Any> : PagedList.BoundaryCallback<T>() {
 
     internal val stateRelay = BehaviorRelay.create<State>()
     val state: Observable<State> = stateRelay
-    private var lastCall: (() -> Unit)= {}
+    private var lastCall: (() -> Unit) = ::onZeroItemsLoaded
 
-    fun retry() = lastCall()
+    fun retry(): Unit = lastCall()
 
     @CallSuper
     override fun onZeroItemsLoaded() {
         super.onZeroItemsLoaded()
-        lastCall = this::onZeroItemsLoaded
+        lastCall = ::onZeroItemsLoaded
     }
 
     @CallSuper
@@ -35,6 +35,4 @@ open class StateBoundaryCallback<T : Any> : PagedList.BoundaryCallback<T>() {
         FETCHED,
         FINISHED
     }
-
-
 }

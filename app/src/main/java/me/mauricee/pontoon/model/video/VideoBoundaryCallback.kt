@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.model.video
 
-import android.content.SharedPreferences
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
@@ -17,12 +16,14 @@ private typealias VideoPojo = me.mauricee.pontoon.domain.floatplane.Video
 class VideoBoundaryCallback(private val api: FloatPlaneApi,
                             private val videoDao: VideoDao,
                             private val disposable: CompositeDisposable,
-                            private val sharedPreferences: SharedPreferences,
                             private vararg val creators: UserRepository.Creator)
     : StateBoundaryCallback<Video>(), Disposable {
 
     private var isLoading = false
 
+    init {
+        onZeroItemsLoaded()
+    }
 
     override fun onZeroItemsLoaded() {
         super.onZeroItemsLoaded()
@@ -34,10 +35,6 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
                 .map{it.toEntity()}.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.ERROR) })
-    }
-
-    override fun onItemAtFrontLoaded(itemAtFront: Video) {
-        super.onItemAtFrontLoaded(itemAtFront)
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: Video) {
@@ -72,9 +69,8 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
     }
 
 
-    class Factory @Inject constructor(private val api: FloatPlaneApi, private val sharedPreferences: SharedPreferences, private val videoDao: VideoDao) {
-        fun newInstance(vararg creator: UserRepository.Creator): VideoBoundaryCallback =
-                VideoBoundaryCallback(api, videoDao, CompositeDisposable(), sharedPreferences, *creator)
+    class Factory @Inject constructor(private val api: FloatPlaneApi, private val videoDao: VideoDao) {
+        fun newInstance(vararg creator: UserRepository.Creator): VideoBoundaryCallback = VideoBoundaryCallback(api, videoDao, CompositeDisposable(), *creator)
     }
 
 }

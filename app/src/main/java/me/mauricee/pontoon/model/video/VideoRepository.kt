@@ -15,6 +15,7 @@ import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
+import me.mauricee.pontoon.ext.ioStream
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
@@ -95,7 +96,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                         .map { it ->
                             Video(vid.id, vid.title, vid.description, vid.releaseDate, vid.duration, it, vid.thumbnail, null)
                         }.firstOrError()
-            }.compose(RxHelpers.applySingleSchedulers())
+            }.ioStream()
 
     fun getRelatedVideos(video: String): Single<List<Video>> = floatPlaneApi.getRelatedVideos(video).flatMap { videos ->
         videos.map { it.creator }.distinct().toTypedArray().let { userRepo.getCreators(*it) }

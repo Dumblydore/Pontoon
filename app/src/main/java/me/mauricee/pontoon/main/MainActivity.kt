@@ -15,7 +15,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.transition.*
+import androidx.fragment.app.transaction
+import androidx.transition.ChangeBounds
+import androidx.transition.Fade
+import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
@@ -91,11 +95,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         paramsGlMarginEnd = guidelineMarginEnd.layoutParams as ConstraintLayout.LayoutParams
 
         main_player.setOnTouchListener(animationTouchListener)
-
-        if (player.isActive())
-            setPlayerExpanded(false)
-        else
-            dismiss()
+        hide()
 
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
@@ -110,8 +110,15 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun onStop() {
         super.onStop()
-        player.onPause()
         mainPresenter.detachView()
+        player.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        wiseFy.dump()
+        if (isFinishing)
+            player.release()
     }
 
     override fun playVideo(video: Video, commentId: String) {
@@ -149,11 +156,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onClick(view: View) {
-        if (!animationTouchListener.isExpanded) {
-            animationTouchListener.isExpanded = true
-        } else {
-            miscActions.accept(MainContract.Action.ClickEvent)
-        }
+        miscActions.accept(MainContract.Action.PlayerClicked)
     }
 
     override fun onDismiss(view: View) {
@@ -174,16 +177,22 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun updateState(state: MainContract.State) = when (state) {
         is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
-        is MainContract.State.Preferences -> PreferencesActivity.navigateTo(this)
-        is MainContract.State.Logout -> LoginActivity.navigateTo(this)
-    }.also { root.closeDrawer(main_drawer) }
+        is MainContract.State.Preferences -> {
+            if (player.isPlaying()) player.onPause()
+            PreferencesActivity.navigateTo(this)
+        }
+        is MainContract.State.Logout -> {
+            if (player.isActive()) player.onStop()
+            LoginActivity.navigateTo(this)
+        }
+    }.also { root.closeDrawer(main_drawer, true) }
 
     override fun onBackPressed() {
         if (orientationManager.isFullscreen) {
             orientationManager.isFullscreen = false
         } else if (root.isDrawerOpen(main_drawer)) {
-            root.closeDrawer(main_drawer)
-        } else if (animationTouchListener.isExpanded) {
+            root.closeDrawer(main_drawer, true)
+        } else if (animationTouchListener.isExpanded && player.isActive()) {
             animationTouchListener.isExpanded = false
             if (!isPortrait()) {
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -212,6 +221,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         enterPictureInPictureMode(PictureInPictureParams.Builder()
                 .setAspectRatio(Rational.parseRational("16:9"))
                 .build())
+        player.orientationMode = Player.OrientationMode.PictureInPicture
         player.controlsVisible = false
     }
 
@@ -219,17 +229,20 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         super.onConfigurationChanged(newConfig)
         val isPortrait = isPortrait() || newConfig?.orientation == Configuration.ORIENTATION_PORTRAIT
         if (isPortrait) {
-
             animationTouchListener.isEnabled = true
-            enableFullScreen(false)
         } else {
             animationTouchListener.isEnabled = false
             if (!animationTouchListener.isExpanded) {
                 animationTouchListener.isExpanded = true
             }
-            enableFullScreen(true)
         }
-
+        enableFullScreen(!isPortrait)
+        supportFragmentManager.findFragmentById(main_player.id)?.also {
+            supportFragmentManager.transaction {
+                detach(it)
+                attach(it)
+            }
+        }
         //Update this params in last after all configuration changes are done
         main.updateParams(constraintSet) {
             constrainHeight(main_player.id, if (isPortrait) 0 else getDeviceHeight())
@@ -311,6 +324,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
             interpolator = AnticipateOvershootInterpolator(1.0f)
             duration = 250
+            doAfter { player.onStop() }
         })
     }
 
@@ -335,6 +349,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
      * more than 50% horizontally
      */
     private fun dismiss() {
+        player.onStop()
         main.updateParams(constraintSet) {
             setGuidelinePercent(guidelineVertical.id, VideoTouchHandler.MIN_HORIZONTAL_LIMIT - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
             setGuidelinePercent(guidelineMarginEnd.id, 0F)
@@ -343,35 +358,20 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                     .addTransition(Fade()).apply {
                         interpolator = AnticipateOvershootInterpolator(1.0f)
                         duration = 250
-                        addListener(object : Transition.TransitionListener {
-                            override fun onTransitionResume(transition: Transition) {
-                            }
-
-                            override fun onTransitionPause(transition: Transition) {
-                            }
-
-                            override fun onTransitionCancel(transition: Transition) {
-                            }
-
-                            override fun onTransitionStart(transition: Transition) {
-                            }
-
-                            override fun onTransitionEnd(transition: Transition) {
-//                    //Remove Video when swipe animation is ended
-                                removeFragmentByID(R.id.main_player)
-                            }
-                        })
+                        doAfter { removeFragmentByID(R.id.main_player) }
                     })
         }
     }
 
     private fun enableFullScreen(isEnabled: Boolean) {
         if (isEnabled) {
+            player.orientationMode = Player.OrientationMode.FullScreen
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         } else {
+            player.orientationMode = Player.OrientationMode.Default
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }

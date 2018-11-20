@@ -9,12 +9,12 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.OrientationManager
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.video.VideoRepository
-import org.threeten.bp.Duration
 import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
@@ -47,12 +47,12 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     private fun watchProgress() = Observable.combineLatest<Long, Long, PlayerContract.State>(player.progress().distinctUntilChanged(),
             player.bufferedProgress().distinctUntilChanged(), BiFunction { t1, t2 ->
-        PlayerContract.State.Progress((t1 / 1000).toInt(), (t2 / 1000).toInt(), formatMillis(t1))
+        PlayerContract.State.Progress(t1, t2 / 1000, t1.toDuration())
     })
 
     private fun watchPreview() = player.previewImage.map(PlayerContract.State::Preview)
 
-    private fun watchDuration() = player.duration.map { PlayerContract.State.Duration((it / 1000).toInt(), formatMillis(it)) }
+    private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(it, it.toDuration()) }
 
     private fun watchState() = player.playbackState.map {
         when (it) {
@@ -60,6 +60,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             PlaybackStateCompat.STATE_PAUSED -> PlayerContract.State.Paused
             PlaybackStateCompat.STATE_BUFFERING -> PlayerContract.State.Buffering
             PlaybackStateCompat.STATE_CONNECTING -> PlayerContract.State.Loading
+            PlaybackStateCompat.STATE_ERROR -> PlayerContract.State.Error
             else -> PlayerContract.State.Paused
         }
     }
@@ -78,16 +79,6 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         }.doOnError { loge("Error downloading.", it) }
                 .onErrorReturnItem(PlayerContract.State.DownloadFailed)
 
-    }
-
-    private fun formatMillis(ms: Long) = Duration.ofMillis(ms).let {
-        val seconds = it.seconds
-        val absSeconds = Math.abs(seconds)
-        val positive = String.format(
-                "%02d:%02d",
-                absSeconds % 3600 / 60,
-                absSeconds % 60)
-        if (seconds < 0) "-$positive" else positive
     }
 
 }

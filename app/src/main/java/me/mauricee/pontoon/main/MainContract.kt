@@ -15,7 +15,8 @@ interface MainContract {
     interface Presenter : BaseContract.Presenter<MainContract.View>
 
     sealed class State : EventTracker.State {
-        class CurrentUser(val user: UserRepository.User, val subCount: Int) : State()
+        data class CurrentUser(val user: UserRepository.User, val subCount: Int) : State()
+        data class ExpandPlayer(val isExpanded: Boolean)
         object Preferences : State()
         object Logout : State()
     }
@@ -24,7 +25,7 @@ interface MainContract {
         object Logout : Action()
         object Preferences : Action()
         object Profile : Action()
-        object ClickEvent : Action()
+        object PlayerClicked : Action()
 
 
         companion object {

@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.transition.Transition
 
 inline fun AppCompatActivity.loadFragment(isAddToBackStack: Boolean = false,
                                           transitionPairs: Map<String, View> = mapOf(),
@@ -61,6 +62,31 @@ fun AppCompatActivity.removeFragment(fragment: Fragment?): Boolean = fragment?.l
 
 fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View =
         LayoutInflater.from(context).inflate(layoutId, this, attachToRoot)
+
+inline fun Transition.doAfter(crossinline action: () -> Unit) {
+    this.addListener(object: Transition.TransitionListener {
+        override fun onTransitionEnd(transition: Transition) {
+            action()
+        }
+
+        override fun onTransitionResume(transition: Transition) {
+
+        }
+
+        override fun onTransitionPause(transition: Transition) {
+
+        }
+
+        override fun onTransitionCancel(transition: Transition) {
+
+        }
+
+        override fun onTransitionStart(transition: Transition) {
+
+        }
+
+    })
+}
 
 inline fun ConstraintLayout.updateParams(constraintSet: ConstraintSet = ConstraintSet(), updates: ConstraintSet.() -> Unit) {
     constraintSet.clone(this)
