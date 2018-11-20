@@ -40,7 +40,7 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             proguardFiles fileTree('proguard').asList().toArray()
-
+            ext.betaDistributionGroupAliases="Nightly"
             resValue 'string', 'default_user', '""'
             resValue 'string', 'default_pass', '""'
             signingConfig signingConfigs.Release

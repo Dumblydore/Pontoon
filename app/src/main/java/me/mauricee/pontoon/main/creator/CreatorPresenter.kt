@@ -19,14 +19,14 @@ class CreatorPresenter @Inject constructor(private val videoRepository: VideoRep
             view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(this::handleActions)
 
     private fun handleActions(action: CreatorContract.Action): Observable<CreatorContract.State> = when (action) {
-        is CreatorContract.Action.Refresh -> getVideos(action.creator)
+        is CreatorContract.Action.Refresh -> getVideos(action.creator, action.clean)
         is CreatorContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video) }
     }.onErrorReturnItem(CreatorContract.State.Error())
 
-    private fun getVideos(creator: String) = userRepository.getCreators(creator)
+    private fun getVideos(creator: String, clean: Boolean) = userRepository.getCreators(creator)
             .map { it.first() }
             .flatMap {
-                val result = videoRepository.getVideos(it)
+                val result = videoRepository.getVideos(it, refresh = clean)
                 Observable.merge(result.videos.distinctUntilChanged()
                         .map<CreatorContract.State>(CreatorContract.State::DisplayVideos),
                         result.state.map(::processState))

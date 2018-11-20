@@ -49,11 +49,11 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     private fun subscriptionsFromCache() = subscriptionDao.getSubscriptions()
             .map { it.map { it.creator }.toTypedArray() }
 
-    fun getSubscriptionFeed(unwatchedOnly: Boolean = false): Observable<SubscriptionFeed> = subscriptions.map {
-        SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly))
+    fun getSubscriptionFeed(unwatchedOnly: Boolean = false, clean: Boolean): Observable<SubscriptionFeed> = subscriptions.map {
+        SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly, refresh = clean))
     }
 
-    fun getVideos(vararg creator: UserRepository.Creator, unwatchedOnly: Boolean = false): VideoResult {
+    fun getVideos(vararg creator: UserRepository.Creator, unwatchedOnly: Boolean = false, refresh: Boolean): VideoResult {
         val callback = videoCallbackFactory.newInstance(*creator)
         val creators = creator.map { it.id }.toTypedArray()
         val factory = if (unwatchedOnly) videoDao.getUnwatchedVideosByCreators(*creators) else
@@ -64,6 +64,14 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 .setBoundaryCallback(callback)
                 .buildObservable()
                 .doOnDispose(callback::dispose)
+                .apply {
+                    if (refresh) {
+                        Completable.fromCallable { videoDao.clearCreatorVideos(*creators) }
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io())
+                                .onErrorComplete().subscribe().also { doOnDispose(it::dispose) }
+                    }
+                }
                 .let { VideoResult(it, callback.state, callback::retry) }
     }
 
