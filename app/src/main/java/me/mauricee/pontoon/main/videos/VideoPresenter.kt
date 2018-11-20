@@ -28,7 +28,7 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
     }
 
-    private fun getVideos(clean: Boolean) = preferences.displayUnwatchedVideos
+private fun getVideos(clean: Boolean) = preferences.displayUnwatchedVideos
             .flatMap { videoRepository.getSubscriptionFeed(it, clean) }
             .flatMap<VideoContract.State> { feed ->
                 Observable.merge(feed.videos.videos.map(VideoContract.State::DisplayVideos),
