@@ -200,9 +200,11 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onPause() {
-        exoPlayer.playWhenReady = false
-        state = PlaybackStateCompat.STATE_PAUSED
-        focusManager.drop()
+        if (isActive()) {
+            exoPlayer.playWhenReady = false
+            state = PlaybackStateCompat.STATE_PAUSED
+            focusManager.drop()
+        }
     }
 
     override fun onStop() {
