@@ -16,7 +16,6 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_player.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
-
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.toObservable
@@ -128,10 +127,17 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         }
     }
 
-    override fun controlsVisible(isVisible: Boolean, isLandscape: Boolean) {
+    override fun controlsVisible(isVisible: Boolean, orientationMode: Player.OrientationMode) {
         player_controls.isVisible = isVisible
-        player_controls_progress.thumbVisibility = isVisible && !isSeeking
-        player_controls_progress.acceptTapsFromUser = !isLandscape
+        when (orientationMode) {
+            Player.OrientationMode.PictureInPicture -> player_controls_progress.isVisible = false
+            Player.OrientationMode.FullScreen -> player_controls_progress.isVisible = isVisible
+            Player.OrientationMode.Default -> {
+                player_controls_progress.thumbVisibility = isVisible && !isSeeking
+            }
+        }
+        // Maybe reintroduce this?
+//        player_controls_progress.isVisible = (!isVisible && isLandscape)
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {

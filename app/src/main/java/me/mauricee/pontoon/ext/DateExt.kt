@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.common
+package me.mauricee.pontoon.ext
 
 import org.threeten.bp.Duration
 

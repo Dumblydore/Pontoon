@@ -18,6 +18,7 @@ import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.view_timebar.view.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ext.toDuration
 
 class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
 
@@ -33,7 +34,11 @@ class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
     val seekBarChanges: Observable<SeekBarChangeEvent>
         get() = seekBarEvents.hide()
 
-    private var currentAnimation: ViewPropertyAnimator? = null
+    private var currentPreviewAnimation: ViewPropertyAnimator? = null
+        set(value) {
+            value?.start()
+            field = value
+        }
     private var currentThumbAnimation: ValueAnimator? = null
         set(value) {
             field?.cancel()
@@ -104,21 +109,18 @@ class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
     }
 
     override fun onStartTrackingTouch(seekbar: SeekBar) {
-        currentAnimation?.cancel()
-        currentAnimation = preview.animate().alpha(1f)
+        thumbVisibility = true
+        currentPreviewAnimation = preview.animate().alpha(1f)
                 .withStartAction { preview.isVisible = true }
                 .setDuration(250)
-                .apply { start() }
         seekBarEvents.accept(SeekBarStartChangeEvent.create(seekbar))
     }
 
     override fun onStopTrackingTouch(seekbar: SeekBar) {
         thumbVisibility = false
-        currentAnimation = preview.animate().alpha(0f)
-                .setDuration(250)
-                .withStartAction { preview.isVisible = true }
+        currentPreviewAnimation = preview.animate().alpha(0f)
                 .withEndAction { preview.isVisible = false }
-                .apply { start() }
+                .setDuration(250)
         seekBarEvents.accept(SeekBarStopChangeEvent.create(seekbar))
     }
 
@@ -137,7 +139,6 @@ class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
                 val value = it.animatedValue as Int
                 thumb.alpha = value
             }
-            startDelay = 500
         }
     }
 }

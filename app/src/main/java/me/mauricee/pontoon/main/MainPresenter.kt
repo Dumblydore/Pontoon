@@ -1,9 +1,9 @@
 package me.mauricee.pontoon.main
 
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.toObservable
@@ -13,6 +13,7 @@ import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(private val accountManagerHelper: AccountManagerHelper,
+                                        private val animationTouchListener: VideoTouchHandler,
                                         private val userRepository: UserRepository,
                                         private val videoRepository: VideoRepository,
                                         private val player: Player,
@@ -30,7 +31,11 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
             is MainContract.Action.Logout -> Observable.fromCallable(::logout).compose(RxHelpers.applyObservableSchedulers())
             is MainContract.Action.Profile -> stateless { navigator.toUser(userRepository.activeUser) }
             is MainContract.Action.Preferences -> MainContract.State.Preferences.toObservable()
-            is MainContract.Action.ClickEvent -> stateless { player.toggleControls() }
+            is MainContract.Action.PlayerClicked -> stateless {
+                if (!animationTouchListener.isExpanded) animationTouchListener.isExpanded = true
+                else player.toggleControls()
+
+            }
         }
     }
 

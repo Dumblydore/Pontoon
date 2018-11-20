@@ -16,7 +16,10 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.transaction
-import androidx.transition.*
+import androidx.transition.ChangeBounds
+import androidx.transition.Fade
+import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
@@ -108,13 +111,14 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onStop() {
         super.onStop()
         mainPresenter.detachView()
-        if (isFinishing)
-            player.onStop()
+        player.onPause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         wiseFy.dump()
+        if (isFinishing)
+            player.release()
     }
 
     override fun playVideo(video: Video, commentId: String) {
@@ -152,11 +156,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onClick(view: View) {
-        if (!animationTouchListener.isExpanded) {
-            animationTouchListener.isExpanded = true
-        } else {
-            miscActions.accept(MainContract.Action.ClickEvent)
-        }
+        miscActions.accept(MainContract.Action.PlayerClicked)
     }
 
     override fun onDismiss(view: View) {
@@ -221,6 +221,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         enterPictureInPictureMode(PictureInPictureParams.Builder()
                 .setAspectRatio(Rational.parseRational("16:9"))
                 .build())
+        player.orientationMode = Player.OrientationMode.PictureInPicture
         player.controlsVisible = false
     }
 
@@ -323,6 +324,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
             interpolator = AnticipateOvershootInterpolator(1.0f)
             duration = 250
+            doAfter { player.onStop() }
         })
     }
 
@@ -356,35 +358,20 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                     .addTransition(Fade()).apply {
                         interpolator = AnticipateOvershootInterpolator(1.0f)
                         duration = 250
-                        addListener(object : Transition.TransitionListener {
-                            override fun onTransitionResume(transition: Transition) {
-                            }
-
-                            override fun onTransitionPause(transition: Transition) {
-                            }
-
-                            override fun onTransitionCancel(transition: Transition) {
-                            }
-
-                            override fun onTransitionStart(transition: Transition) {
-                            }
-
-                            override fun onTransitionEnd(transition: Transition) {
-//                    //Remove Video when swipe animation is ended
-                                removeFragmentByID(R.id.main_player)
-                            }
-                        })
+                        doAfter { removeFragmentByID(R.id.main_player) }
                     })
         }
     }
 
     private fun enableFullScreen(isEnabled: Boolean) {
         if (isEnabled) {
+            player.orientationMode = Player.OrientationMode.FullScreen
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         } else {
+            player.orientationMode = Player.OrientationMode.Default
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }

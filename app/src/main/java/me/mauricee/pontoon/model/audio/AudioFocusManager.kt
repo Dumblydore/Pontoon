@@ -16,7 +16,7 @@ class AudioFocusManager @Inject constructor(private val audioManager: AudioManag
 
     private val focusRelay: Relay<FocusState> = PublishRelay.create()
     val focus: Observable<FocusState>
-        get() = focusRelay.distinctUntilChanged()
+        get() = focusRelay.hide().distinctUntilChanged()
 
     fun gain() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) gainApi23() else gainCompat()
 

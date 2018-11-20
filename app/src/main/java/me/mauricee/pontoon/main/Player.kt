@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.main
 
 import android.net.Uri
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.TextureView
@@ -36,7 +37,6 @@ class Player @Inject constructor(preferences: Preferences,
                                  private val exoPlayer: SimpleExoPlayer,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
                                  private val focusManager: AudioFocusManager,
-                                 private val orientationManager: OrientationManager,
                                  private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener, LifecycleObserver {
 
@@ -73,24 +73,35 @@ class Player @Inject constructor(preferences: Preferences,
         set(value) {
             if (value?.video?.id != field?.video?.id && value != null) {
                 load(value)
+                MediaMetadataCompat.Builder()
+                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, value.video.title)
+                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, value.video.description)
+                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, value.video.creator.name)
+                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value.video.thumbnail)
+                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, value.video.title)
+                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
+                        .build().apply(mediaSession::setMetadata)
             } else {
                 exoPlayer.stop()
+                mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
             }
             field = value
         }
 
     private var controllerTimeout: Disposable? = null
 
+    var orientationMode: OrientationMode = OrientationMode.Default
+
     var controlsVisible: Boolean = false
         set(value) {
             field = value
-            controller?.controlsVisible(value, orientationManager.isFullscreen)
+            controller?.controlsVisible(value, orientationMode)
         }
 
     var controller: ControlView? = null
         set(value) {
             field = value
-            field?.apply { controlsVisible(controlsVisible, orientationManager.isFullscreen) }
+            field?.apply { controlsVisible(controlsVisible, orientationMode) }
         }
 
     var quality: QualityLevel = preferences.defaultQualityLevel
@@ -195,9 +206,15 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onStop() {
-        exoPlayer.playWhenReady = false
+        currentlyPlaying = null
         state = PlaybackStateCompat.STATE_STOPPED
         focusManager.drop()
+    }
+
+    fun release() {
+        exoPlayer.release()
+        focusManager.drop()
+        mediaSession.release()
     }
 
     override fun onSeekTo(pos: Long) {
@@ -233,7 +250,7 @@ class Player @Inject constructor(preferences: Preferences,
         else Observable.timer(3, TimeUnit.SECONDS, Schedulers.computation()).map { false }
                 .startWith(true))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { controller?.controlsVisible(it, orientationManager.isFullscreen) }.also { subs += it }
+                .subscribe { controller?.controlsVisible(it, orientationMode) }.also { subs += it }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -260,7 +277,7 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     interface ControlView {
-        fun controlsVisible(isVisible: Boolean, isLandscape: Boolean)
+        fun controlsVisible(isVisible: Boolean, orientationMode: OrientationMode)
     }
 
     enum class QualityLevel {
@@ -268,5 +285,11 @@ class Player @Inject constructor(preferences: Preferences,
         p720,
         p480,
         p360
+    }
+
+    enum class OrientationMode {
+        PictureInPicture,
+        FullScreen,
+        Default
     }
 }
