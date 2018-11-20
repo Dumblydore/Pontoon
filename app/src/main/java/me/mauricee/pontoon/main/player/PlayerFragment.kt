@@ -5,13 +5,24 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
+import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
+import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
+import kotlinx.android.synthetic.main.fragment_player.*
+import kotlinx.android.synthetic.main.layout_player_controls.*
+
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
+import me.mauricee.pontoon.rx.glide.toSingle
 
 class PlayerFragment : BaseFragment<PlayerPresenter>(),
         PlayerContract.View, Player.ControlView {
@@ -112,15 +123,15 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             PlayerContract.State.DownloadFailed -> Toast.makeText(requireContext(), R.string.download_error, Toast.LENGTH_LONG).show()
             is PlayerContract.State.PreviewThumbnail -> {
                 subscriptions += GlideApp.with(this).asBitmap().load(state.path)
-                        .toSingle().subscribe{it -> player_controls_progress.timelineBitmap = it}
+                        .toSingle().subscribe { it -> player_controls_progress.timelineBitmap = it }
             }
         }
     }
 
-    override fun controlsVisible(isVisible: Boolean) {
+    override fun controlsVisible(isVisible: Boolean, isLandscape: Boolean) {
         player_controls.isVisible = isVisible
-        player_controls_progress.thumbVisibility = isVisible
-        player_controls_progress.acceptTapsFromUser = isVisible
+        player_controls_progress.thumbVisibility = isVisible && !isSeeking
+        player_controls_progress.acceptTapsFromUser = !isLandscape
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {

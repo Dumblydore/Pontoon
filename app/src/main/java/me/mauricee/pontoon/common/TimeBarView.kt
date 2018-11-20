@@ -39,6 +39,10 @@ class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
             field?.cancel()
             field = value
         }
+
+    private var maxGuidePercentage: Float = 1f
+    private var minGuidePercentage: Float = 0f
+
     var timelineBitmap: Bitmap? = null
     var frameDuration: Long = 5000L
     var frameWidth: Int = 160
@@ -63,6 +67,10 @@ class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
             currentThumbAnimation = animateThumb(if (value) 255 else 0).apply { start() }
         }
     var acceptTapsFromUser: Boolean = true
+        set(value) {
+            field = value
+            thumbVisibility = field
+        }
 
 
     init {
@@ -70,7 +78,7 @@ class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
 
         previewParams = preview_guideline.layoutParams as ConstraintLayout.LayoutParams
         seekbar.setOnSeekBarChangeListener(this)
-        seekbar.setOnTouchListener { view, motionEvent -> !acceptTapsFromUser }
+        seekbar.setOnTouchListener { _, _ -> !acceptTapsFromUser }
         thumbVisibility = false
     }
 
@@ -78,8 +86,8 @@ class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
     override fun onProgressChanged(seekbar: SeekBar, progress: Int, fromUser: Boolean) {
         if (fromUser) {
             val progressPercentage = (progress.toFloat() / seekbar.max.toFloat())
+            previewParams.guidePercent = Math.min(maxGuidePercentage, Math.max(minGuidePercentage, progressPercentage))
 
-            previewParams.guidePercent = progressPercentage
             preview_guideline.layoutParams = previewParams
 
             val spritePosition = ((duration / frameDuration) * progressPercentage).toInt()
@@ -89,7 +97,8 @@ class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
                 timelineBitmap?.let {
                     Bitmap.createBitmap(it, frameWidth * spritePosition, 0, frameWidth, it.height)
                 }?.also { currentSprite = Pair(spritePosition, it) }
-            preview.setImageBitmap(sprite)
+            preview_icon.setImageBitmap(sprite)
+            preview_time.text = (((progress.toFloat() * 1000) / duration.toFloat()) * duration).toLong().toDuration()
         }
         seekBarEvents.accept(SeekBarProgressChangeEvent.create(seekbar, progress, fromUser))
     }
@@ -97,18 +106,28 @@ class TimeBarView : ConstraintLayout, SeekBar.OnSeekBarChangeListener {
     override fun onStartTrackingTouch(seekbar: SeekBar) {
         currentAnimation?.cancel()
         currentAnimation = preview.animate().alpha(1f)
+                .withStartAction { preview.isVisible = true }
                 .setDuration(250)
                 .apply { start() }
         seekBarEvents.accept(SeekBarStartChangeEvent.create(seekbar))
     }
 
     override fun onStopTrackingTouch(seekbar: SeekBar) {
-        preview.isVisible = true
         thumbVisibility = false
         currentAnimation = preview.animate().alpha(0f)
                 .setDuration(250)
+                .withStartAction { preview.isVisible = true }
+                .withEndAction { preview.isVisible = false }
                 .apply { start() }
         seekBarEvents.accept(SeekBarStopChangeEvent.create(seekbar))
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (changed) {
+            minGuidePercentage = ((preview.measuredWidth / 2) / measuredWidth.toFloat())
+            maxGuidePercentage = 1 - minGuidePercentage
+        }
     }
 
     private fun animateThumb(to: Int): ValueAnimator {

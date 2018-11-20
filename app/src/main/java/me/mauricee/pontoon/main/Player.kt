@@ -202,10 +202,6 @@ class Player @Inject constructor(preferences: Preferences,
 
     override fun onSeekTo(pos: Long) {
         exoPlayer.seekTo(pos)
-    }
-
-    override fun onSeekTo(pos: Long) {
-        exoPlayer.seekTo(pos)
         onPlay()
     }
 
