@@ -23,19 +23,31 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:background="@color/colorPrimary" />
 
+        <View
+            android:id="@+id/main.fullscreenbg"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/md_black_1000"
+            android:elevation="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <FrameLayout
             android:id="@+id/main.player"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:alpha="1"
+            android:background="@color/colorPrimaryDark"
             android:clickable="true"
             android:elevation="4dp"
             android:focusable="true"
             app:layout_constraintDimensionRatio="h,16:9"
             app:layout_constraintEnd_toEndOf="@+id/guidelineMarginEnd"
             app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
-            app:layout_constraintTop_toBottomOf="@+id/guidelineHorizontal"
-            android:background="@color/colorPrimaryDark" />
+            app:layout_constraintTop_toBottomOf="@+id/guidelineHorizontal" />
 
         <FrameLayout
             android:id="@+id/main.details"

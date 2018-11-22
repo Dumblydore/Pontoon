@@ -66,6 +66,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             is PlayerContract.State.Bind -> {
                 state.player.bindToView(player_display)
                 state.player.controller = this
+                if (state.displayPipIcon) player_controls_toolbar.setNavigationIcon(R.drawable.ic_arrow_down)
             }
             is PlayerContract.State.Playing -> {
                 player_controls_playPause.setImageDrawable(pauseIcon)
@@ -127,17 +128,17 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         }
     }
 
-    override fun controlsVisible(isVisible: Boolean, orientationMode: Player.OrientationMode) {
+    override fun onControlsVisibilityChanged(isVisible: Boolean) {
         player_controls.isVisible = isVisible
-        when (orientationMode) {
-            Player.OrientationMode.PictureInPicture -> player_controls_progress.isVisible = false
-            Player.OrientationMode.FullScreen -> player_controls_progress.isVisible = isVisible
-            Player.OrientationMode.Default -> {
-                player_controls_progress.thumbVisibility = isVisible && !isSeeking
-            }
-        }
-        // Maybe reintroduce this?
-//        player_controls_progress.isVisible = (!isVisible && isLandscape)
+        player_controls_progress.thumbVisibility = isVisible && !isSeeking
+    }
+
+    override fun onProgressVisibilityChanged(isVisible: Boolean) {
+        player_controls_progress.isVisible = isVisible
+    }
+
+    override fun onAcceptUserInputChanged(canAccept: Boolean) {
+        player_controls_progress.acceptTapsFromUser = canAccept
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {

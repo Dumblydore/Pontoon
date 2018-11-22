@@ -22,6 +22,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
+import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.audio.AudioFocusManager
 import me.mauricee.pontoon.model.audio.FocusState
@@ -90,18 +91,25 @@ class Player @Inject constructor(preferences: Preferences,
 
     private var controllerTimeout: Disposable? = null
 
-    var orientationMode: OrientationMode = OrientationMode.Default
+    var viewMode: ViewMode = ViewMode.Expanded
+        set(value) {
+            field = value
+            notifyController(controlsVisible, field)
+        }
 
     var controlsVisible: Boolean = false
         set(value) {
             field = value
-            controller?.controlsVisible(value, orientationMode)
+            controller?.apply {
+                onControlsVisibilityChanged(field)
+                notifyController(field, viewMode)
+            }
         }
 
     var controller: ControlView? = null
         set(value) {
             field = value
-            field?.apply { controlsVisible(controlsVisible, orientationMode) }
+            field?.onControlsVisibilityChanged(controlsVisible)
         }
 
     var quality: QualityLevel = preferences.defaultQualityLevel
@@ -136,31 +144,6 @@ class Player @Inject constructor(preferences: Preferences,
 
     fun bindToView(view: TextureView) {
         exoPlayer.setVideoTextureView(view)
-    }
-
-
-    //TODO Not sure if this is the best way of doing it. It might be better to have it as a part of Video.
-    private fun setMetadata(video: Video) {
-        previewImageRelay.accept(video.thumbnail)
-        timelineSubject.accept("https://cms.linustechtips.com/get/sprite/by_guid/${video.id}")
-    }
-
-    private fun load(playback: Playback) {
-        when (quality) {
-            QualityLevel.p1080 -> playback.quality.p1080
-            QualityLevel.p720 -> playback.quality.p720
-            QualityLevel.p480 -> playback.quality.p480
-            QualityLevel.p360 -> playback.quality.p360
-        }.toUri().let(::load)
-
-        setMetadata(playback.video)
-        previewImageRelay.accept(playback.video.thumbnail)
-    }
-
-    private fun load(uri: Uri) {
-        exoPlayer.prepare(networkSourceFactory.createMediaSource(uri))
-        exoPlayer.playWhenReady = true
-        focusManager.gain()
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
@@ -213,12 +196,6 @@ class Player @Inject constructor(preferences: Preferences,
         focusManager.drop()
     }
 
-    fun release() {
-        exoPlayer.release()
-        focusManager.drop()
-        mediaSession.release()
-    }
-
     override fun onSeekTo(pos: Long) {
         exoPlayer.seekTo(pos)
         onPlay()
@@ -236,6 +213,12 @@ class Player @Inject constructor(preferences: Preferences,
     override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
     }
 
+    fun release() {
+        exoPlayer.release()
+        focusManager.drop()
+        mediaSession.release()
+    }
+
     fun playPause() {
         if (exoPlayer.playWhenReady) onPause() else onPlay()
     }
@@ -247,12 +230,13 @@ class Player @Inject constructor(preferences: Preferences,
             .map { exoPlayer.bufferedPosition }.startWith(exoPlayer.bufferedPosition)
 
     fun toggleControls() {
+        if (viewMode == ViewMode.PictureInPicture) return
         controllerTimeout?.dispose()
         controllerTimeout = (if (controlsVisible) false.toObservable()
         else Observable.timer(3, TimeUnit.SECONDS, Schedulers.computation()).map { false }
                 .startWith(true))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { controller?.controlsVisible(it, orientationMode) }.also { subs += it }
+                .subscribe { controlsVisible = it }.also { subs += it }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -278,8 +262,39 @@ class Player @Inject constructor(preferences: Preferences,
         mediaSession.release()
     }
 
+    //TODO Not sure if this is the best way of doing it. It might be better to have it as a part of Video.
+    private fun setMetadata(video: Video) {
+        previewImageRelay.accept(video.thumbnail)
+        timelineSubject.accept("https://cms.linustechtips.com/get/sprite/by_guid/${video.id}")
+    }
+
+    private fun load(playback: Playback) {
+        when (quality) {
+            QualityLevel.p1080 -> playback.quality.p1080
+            QualityLevel.p720 -> playback.quality.p720
+            QualityLevel.p480 -> playback.quality.p480
+            QualityLevel.p360 -> playback.quality.p360
+        }.toUri().let(::load)
+
+        setMetadata(playback.video)
+        previewImageRelay.accept(playback.video.thumbnail)
+    }
+
+    private fun load(uri: Uri) {
+        exoPlayer.prepare(networkSourceFactory.createMediaSource(uri))
+        exoPlayer.playWhenReady = true
+        focusManager.gain()
+    }
+
+    private fun notifyController(isVisible: Boolean, viewMode: ViewMode)= controller?.just {
+        if (viewMode == ViewMode.FullScreen) onProgressVisibilityChanged(isVisible)
+        else if (viewMode == ViewMode.PictureInPicture) onAcceptUserInputChanged(isVisible)
+    }
+
     interface ControlView {
-        fun controlsVisible(isVisible: Boolean, orientationMode: OrientationMode)
+        fun onControlsVisibilityChanged(isVisible: Boolean)
+        fun onProgressVisibilityChanged(isVisible: Boolean)
+        fun onAcceptUserInputChanged(canAccept: Boolean)
     }
 
     enum class QualityLevel {
@@ -289,9 +304,9 @@ class Player @Inject constructor(preferences: Preferences,
         p360
     }
 
-    enum class OrientationMode {
+    enum class ViewMode {
         PictureInPicture,
         FullScreen,
-        Default
+        Expanded
     }
 }

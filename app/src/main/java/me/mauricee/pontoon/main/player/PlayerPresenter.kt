@@ -9,8 +9,8 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.OrientationManager
 import me.mauricee.pontoon.main.Player
@@ -29,14 +29,17 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
                     watchState(), watchProgress(), watchDuration(), watchPreview(), watchTimeline()))
-                    .startWith(listOf(PlayerContract.State.Bind(player), PlayerContract.State.Loading, PlayerContract.State.Quality(player.quality)))
+                    .startWith(mutableListOf(PlayerContract.State.Bind(player, !orientationManager.isFullscreen), PlayerContract.State.Quality(player.quality))
+                            .also { if (!player.isActive()) it += PlayerContract.State.Loading })
 
     private fun handleActions(action: PlayerContract.Action): Observable<PlayerContract.State> = when (action) {
         PlayerContract.Action.SkipForward -> stateless { }
         PlayerContract.Action.SkipBackward -> stateless { }
         PlayerContract.Action.MinimizePlayer -> stateless {
-            player.controlsVisible = false
-            navigator.setPlayerExpanded(false)
+            if (player.viewMode != Player.ViewMode.FullScreen) {
+                player.controlsVisible = false
+                navigator.setPlayerExpanded(false)
+            }
         }
         PlayerContract.Action.ToggleFullscreen -> stateless { orientationManager.apply { isFullscreen = !isFullscreen } }
         is PlayerContract.Action.PlayPause -> stateless { player.playPause() }

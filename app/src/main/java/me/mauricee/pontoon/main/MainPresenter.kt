@@ -34,7 +34,6 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
             is MainContract.Action.PlayerClicked -> stateless {
                 if (!animationTouchListener.isExpanded) animationTouchListener.isExpanded = true
                 else player.toggleControls()
-
             }
         }
     }

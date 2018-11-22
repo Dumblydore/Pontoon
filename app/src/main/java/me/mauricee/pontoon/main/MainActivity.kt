@@ -14,6 +14,7 @@ import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.transaction
 import androidx.transition.ChangeBounds
@@ -69,6 +70,21 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     private val fragmentContainer: Int
         get() = R.id.main_container
+
+    /** To prevent view flickering when pip is resizing*/
+    private var lastConfiguration: Int = -1
+        set(value) {
+            if (field != value) {
+                supportFragmentManager.findFragmentById(main_player.id)?.also {
+                    supportFragmentManager.transaction {
+                        detach(it)
+                        attach(it)
+                    }
+                }
+            }
+            field = value
+        }
+
 
     override val actions: Observable<MainContract.Action>
         get() = Observable.merge(miscActions, RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
@@ -221,13 +237,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         enterPictureInPictureMode(PictureInPictureParams.Builder()
                 .setAspectRatio(Rational.parseRational("16:9"))
                 .build())
-        player.orientationMode = Player.OrientationMode.PictureInPicture
         player.controlsVisible = false
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        val isPortrait = isPortrait() || newConfig?.orientation == Configuration.ORIENTATION_PORTRAIT
+        val isPortrait = isPortrait() || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT
         if (isPortrait) {
             animationTouchListener.isEnabled = true
         } else {
@@ -237,12 +252,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             }
         }
         enableFullScreen(!isPortrait)
-        supportFragmentManager.findFragmentById(main_player.id)?.also {
-            supportFragmentManager.transaction {
-                detach(it)
-                attach(it)
-            }
-        }
+        lastConfiguration = newConfig.orientation
         //Update this params in last after all configuration changes are done
         main.updateParams(constraintSet) {
             constrainHeight(main_player.id, if (isPortrait) 0 else getDeviceHeight())
@@ -341,6 +351,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
             interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
             duration = 250
+            doAfter { player.viewMode = if (isExpanded) Player.ViewMode.Expanded else Player.ViewMode.PictureInPicture }
         })
     }
 
@@ -365,16 +376,17 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     private fun enableFullScreen(isEnabled: Boolean) {
         if (isEnabled) {
-            player.orientationMode = Player.OrientationMode.FullScreen
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            player.viewMode = Player.ViewMode.FullScreen
         } else {
-            player.orientationMode = Player.OrientationMode.Default
+            player.viewMode = Player.ViewMode.Expanded
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }
+        main_fullscreenbg.isVisible = isEnabled
     }
 
     private fun displayUser(user: UserRepository.User, subCount: Int) {

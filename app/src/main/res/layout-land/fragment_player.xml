@@ -54,7 +54,7 @@
         android:paddingEnd="24dp"
         android:layout_marginStart="48dp"
         android:layout_marginEnd="84dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="6dp"
         android:progress="50"
         android:secondaryProgress="60" />
 
