@@ -1,22 +1,30 @@
 package me.mauricee.pontoon.login.login
 
+import android.os.Bundle
+import android.view.View
 import androidx.core.view.isVisible
 import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_login.*
 import me.mauricee.pontoon.BaseFragment
+import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.login.login.LoginContract.State.Error.Type.*
 
 class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
 
     override val actions: Observable<LoginContract.Action>
-        get() = login_login.clicks().map { LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString()) }
-//                .doOnNext<LoginContract.Action>{eventTracker.trackAction(it, this)}
-
-
+        get() = login_login.clicks().map{ LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString()) }
 
     override fun getLayoutId(): Int = R.layout.fragment_login
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (BuildConfig.DEBUG) {
+            login_username_edit.setText(R.string.default_user)
+            login_password_edit.setText(R.string.default_pass)
+        }
+    }
 
     override fun updateState(state: LoginContract.State) {
         when (state) {
@@ -28,7 +36,6 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
     private fun displayLoadingState() {
         login_error.isVisible = false
         login_login.isEnabled = false
-        login_login.text = ""
         login_progress.isVisible = true
     }
 

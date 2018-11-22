@@ -32,7 +32,7 @@
                 android:hint="@string/login_username"
                 android:indeterminateTint="?android:attr/editTextColor"
                 android:maxLines="1"
-                android:text="@string/default_user" />
+                tools:text="@string/default_user" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -56,7 +56,7 @@
                 android:indeterminateTint="?android:attr/editTextColor"
                 android:inputType="textPassword"
                 android:maxLines="1"
-                android:text="@string/default_pass" />
+                tools:text="@string/default_pass" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

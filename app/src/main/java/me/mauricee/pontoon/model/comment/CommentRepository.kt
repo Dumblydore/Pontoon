@@ -3,6 +3,7 @@ package me.mauricee.pontoon.model.comment
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.SingleTransformer
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
@@ -25,7 +26,8 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
     private val currentUser by lazy { accountManagerHelper.account.let { UserRepository.User(it.id, it.username, it.profileImage.path) } }
 
     fun getComments(videoId: String): Observable<List<Comment>> =
-            Single.concat(getCachedComments(videoId), getApiComments(videoId))
+            Single.concat(commentDao.getCommentsOfVideo(videoId).compose(daoToModel()), getApiComments(videoId))
+                    .map { child -> child.filter { it.replies.isNotEmpty() } }
                     .toObservable().compose(RxHelpers.applyObservableSchedulers())
                     .filter(List<Comment>::isNotEmpty)
 
@@ -36,10 +38,10 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
     }.compose(RxHelpers.applyObservableSchedulers())
 
     fun getReplies(commentId: String): Single<List<Comment>> =
-            commentDao.getCommentByParent(commentId).flatMapObservable {
+            commentDao.getCommentsOfParent(commentId).flatMapObservable {
                 val users = it.map { it.user }.distinct().let { userRepository.getUsers(*it.toTypedArray()) }
                         .flatMap { it.toObservable() }.cache()
-                val replies = it.toObservable().flatMapSingle { getCachedComments(it.id) }
+                val replies = it.toObservable().flatMapSingle { commentDao.getCommentsOfParent(it.id).compose(daoToModel()) }
                 it.toObservable().flatMap { comment ->
                     users.filter { it.id == comment.user }.zipWith<List<Comment>, Comment>(replies,
                             BiFunction { t1, t2 ->
@@ -86,18 +88,6 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
             (comment.userInteraction.contains(Comment.Interaction.Like) && type == CommentInteraction.Type.Like) ||
                     (comment.userInteraction.contains(Comment.Interaction.Dislike) && type == CommentInteraction.Type.Dislike)
 
-    private fun getCachedComments(videoId: String): Single<List<Comment>> =
-            commentDao.getCommentByParent(videoId).flatMapObservable {
-                val users = it.map { it.user }.distinct().let { userRepository.getUsers(*it.toTypedArray()) }
-                        .flatMap { it.toObservable() }.cache()
-                val replies = it.toObservable().flatMapSingle { getCachedComments(it.id) }
-                it.toObservable().flatMap { comment ->
-                    users.filter { it.id == comment.user }.zipWith<List<Comment>, Comment>(replies,
-                            BiFunction { t1, t2 ->
-                                Comment(comment.id, comment.text, comment.parent, comment.video, comment.editDate, comment.postDate, comment.likes, comment.dislikes, t2, t1)
-                            })
-                }
-            }.toList().onErrorReturnItem(emptyList())
 
     private fun getApiComments(videoId: String): Single<List<Comment>> = floatPlaneApi.getVideoComments(videoId)
             .flatMapSingle {
@@ -123,6 +113,20 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                             comments.map { createComment(it) }
                         })
             }.single(emptyList())
+
+    private fun daoToModel(): SingleTransformer<List<CommentEntity>, List<Comment>> = SingleTransformer {
+        it.flatMapObservable {
+            val users = it.map { it.user }.distinct().let { userRepository.getUsers(*it.toTypedArray()) }
+                    .flatMap { it.toObservable() }.cache()
+            val replies = it.toObservable().flatMapSingle { child -> commentDao.getCommentsOfParent(child.id).compose(daoToModel()) }
+            it.toObservable().flatMap { comment ->
+                users.filter { it.id == comment.user }.zipWith<List<Comment>, Comment>(replies,
+                        BiFunction { t1, t2 ->
+                            Comment(comment.id, comment.text, comment.parent, comment.video, comment.editDate, comment.postDate, comment.likes, comment.dislikes, t2, t1)
+                        })
+            }
+        }.toList().onErrorReturnItem(emptyList())
+    }
 
     private fun cacheComment(comment: CommentPojo) {
         Completable.fromCallable {
