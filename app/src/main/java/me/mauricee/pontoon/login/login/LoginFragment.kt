@@ -36,6 +36,7 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
     private fun displayLoadingState() {
         login_error.isVisible = false
         login_login.isEnabled = false
+        login_login.text = ""
         login_progress.isVisible = true
     }
 
