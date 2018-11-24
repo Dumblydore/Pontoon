@@ -5,7 +5,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'io.fabric'
-//apply plugin: "androidx.navigation.safeargs"
 
 def major = 0
 def minor = 8
@@ -40,6 +39,7 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             proguardFiles fileTree('proguard').asList().toArray()
+            resValue 'string', 'app_name', '"Pontoon"'
             ext.betaDistributionGroupAliases="Nightly"
             resValue 'string', 'default_user', '""'
             resValue 'string', 'default_pass', '""'
@@ -47,6 +47,8 @@ android {
             pseudoLocalesEnabled true
         }
         debug {
+            resValue 'string', 'app_name', '"Pontoon Debug"'
+            applicationIdSuffix ".debug"
             versionNameSuffix '-debug'
         }
     }
@@ -75,9 +77,6 @@ dependencies {
 //    implementation "androidx.mediarouter:mediarouter:$google_support_version"
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation "com.google.android.material:material:$google_support_version"
-    implementation "android.arch.navigation:navigation-fragment-ktx:$nav_version"
-    // use -ktx for Kotlin
-    implementation "android.arch.navigation:navigation-ui-ktx:$nav_version"
 
     // use -ktx for Kotlin
 

@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name">Pontoon</string>
-
     <!-- Login -->
     <string name="login_username">Username</string>
     <string name="login_password">Password</string>

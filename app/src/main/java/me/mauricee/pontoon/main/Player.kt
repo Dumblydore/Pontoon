@@ -1,5 +1,8 @@
 package me.mauricee.pontoon.main
 
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -37,7 +40,7 @@ class Player @Inject constructor(preferences: Preferences,
                                  lifecycleOwner: LifecycleOwner,
                                  private val exoPlayer: SimpleExoPlayer,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
-                                 private val focusManager: AudioFocusManager,
+                                 private val focusManager: AudioFocusManager, private val context: Context,
                                  private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener, LifecycleObserver {
 
@@ -251,6 +254,8 @@ class Player @Inject constructor(preferences: Preferences,
                 FocusState.Loss -> exoPlayer.playWhenReady = false
             }
         }
+        subs += context.registerReceiver(IntentFilter(Intent.ACTION_HEADSET_PLUG))
+                .map(BroadcastEvent::intent).subscribe(this::handleHeadsetChanges)
         mediaSession.isActive = true
     }
 
@@ -260,6 +265,12 @@ class Player @Inject constructor(preferences: Preferences,
         mediaSession.setCallback(null)
         exoPlayer.removeListener(this)
         mediaSession.release()
+    }
+
+    private fun handleHeadsetChanges(intent: Intent) {
+        if ((intent.getIntExtra("state", -1) == 0)) {
+            onPause()
+        }
     }
 
     //TODO Not sure if this is the best way of doing it. It might be better to have it as a part of Video.
@@ -286,7 +297,7 @@ class Player @Inject constructor(preferences: Preferences,
         focusManager.gain()
     }
 
-    private fun notifyController(isVisible: Boolean, viewMode: ViewMode)= controller?.just {
+    private fun notifyController(isVisible: Boolean, viewMode: ViewMode) = controller?.just {
         if (viewMode == ViewMode.FullScreen) onProgressVisibilityChanged(isVisible)
         else if (viewMode == ViewMode.PictureInPicture) onAcceptUserInputChanged(isVisible)
     }
