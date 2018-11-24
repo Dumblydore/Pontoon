@@ -158,7 +158,7 @@
     <string name="snackbar_action_retry">Retry</string>
     <string name="replies_header">%s\'s replies</string>
     <string name="action_download">Download</string>
-    <string name="replies_error_cleared">Error occured</string>
+    <string name="replies_error_cleared">Error occurred</string>
     <string name="details_error_commentPost">Error posting comment.</string>
     <string name="details_commentPosted">Comment posted!</string>
     <string name="reply_subhead">Replying to %s</string>
