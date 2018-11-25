@@ -84,7 +84,7 @@ workflows:
             - build
           filters:
             tags:
-              only: /^release-.*/
+              only: /^master-.*/
             branches:
               ignore: /.*/
 experimental:
