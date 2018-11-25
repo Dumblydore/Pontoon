@@ -47,8 +47,8 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                     .toObservable().compose(RxHelpers.applyObservableSchedulers())
 
     fun getActivity(user: User): Observable<List<Activity>> = floatPlaneApi.getActivity(user.id)
-            .flatMapSingle {
-                it.activity.toObservable().map { Activity(it.comment, it.date, it.video.id) }.toList()
+            .flatMapSingle { response ->
+                response.activity.toObservable().map { Activity(it.comment, it.date, it.video.title, it.video.id) }.toList()
             }
 
     private fun getCreatorsFromNetwork(vararg creatorIds: String) =
@@ -68,6 +68,6 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
 
     data class User(val id: String, val username: String, val profileImage: String)
 
-    data class Activity(val comment: String, val posted: Instant, val video: String)
+    data class Activity(val comment: String, val posted: Instant, val videoTitle: String, val videoId: String)
 }
 

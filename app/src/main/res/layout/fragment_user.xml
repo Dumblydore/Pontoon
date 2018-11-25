@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     tools:context=".main.MainActivity">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -17,10 +19,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/user.container.pager"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/user.container.activity"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                tools:listitem="@layout/item_activity_comment" />
 
         </me.mauricee.pontoon.common.LazyLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -29,46 +32,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <FrameLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/user.toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            app:layout_scrollFlags="scroll|enterAlways">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/user.toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?android:attr/actionBarSize"
-                android:transitionName="toolbar"
-                app:titleTextColor="@color/white"
-                tools:title="User" />
-        </FrameLayout>
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/user.tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabTextColor="@color/white">
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_activity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_activity" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_playlist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_playlist" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_subscriptions"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_subscriptions" />
-        </com.google.android.material.tabs.TabLayout>
+            android:layout_height="?android:attr/actionBarSize"
+            android:transitionName="toolbar"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:title="@string/videos_toolbar_title"
+            app:titleTextColor="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

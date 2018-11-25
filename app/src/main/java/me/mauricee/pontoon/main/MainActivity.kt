@@ -341,18 +341,22 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     /**
      * Expand or collapse the video fragment animation
      */
-    override fun setPlayerExpanded(isExpanded: Boolean) = main.updateParams(constraintSet) {
-        setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else VideoTouchHandler.MIN_VERTICAL_LIMIT)
-        setGuidelinePercent(guidelineVertical.id, if (isExpanded) 0F else VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
-        setGuidelinePercent(guidelineBottom.id, if (isExpanded) 1F else VideoTouchHandler.MIN_BOTTOM_LIMIT)
-        setGuidelinePercent(guidelineMarginEnd.id, if (isExpanded) 1F else VideoTouchHandler.MIN_MARGIN_END_LIMIT)
-        setAlpha(main_details.id, if (isExpanded) 1.0F else 0F)
+    override fun setPlayerExpanded(isExpanded: Boolean) {
+        if (player.isActive()) {
+            main.updateParams(constraintSet) {
+                setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else VideoTouchHandler.MIN_VERTICAL_LIMIT)
+                setGuidelinePercent(guidelineVertical.id, if (isExpanded) 0F else VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
+                setGuidelinePercent(guidelineBottom.id, if (isExpanded) 1F else VideoTouchHandler.MIN_BOTTOM_LIMIT)
+                setGuidelinePercent(guidelineMarginEnd.id, if (isExpanded) 1F else VideoTouchHandler.MIN_MARGIN_END_LIMIT)
+                setAlpha(main_details.id, if (isExpanded) 1.0F else 0F)
 
-        TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
-            interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
-            duration = 250
-            doAfter { player.viewMode = if (isExpanded) Player.ViewMode.Expanded else Player.ViewMode.PictureInPicture }
-        })
+                TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
+                    interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
+                    duration = 250
+                    doAfter { player.viewMode = if (isExpanded) Player.ViewMode.Expanded else Player.ViewMode.PictureInPicture }
+                })
+            }
+        }
     }
 
     /**

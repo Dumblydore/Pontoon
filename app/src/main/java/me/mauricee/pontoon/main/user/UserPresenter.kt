@@ -23,7 +23,7 @@ class UserPresenter @Inject constructor(private val videoRepository: VideoReposi
         is UserContract.Action.Video -> navigateToVideo(action)
     }
 
-    private fun navigateToVideo(action: UserContract.Action.Video) = videoRepository.getVideo(action.comment.video)
+    private fun navigateToVideo(action: UserContract.Action.Video) = videoRepository.getVideo(action.videoId)
             .flatMapObservable { stateless { navigator.playVideo(it) } }
 
 

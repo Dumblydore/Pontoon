@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.user.UserRepository
 
 class UserContract {
@@ -33,6 +32,6 @@ class UserContract {
 
     sealed class Action : EventTracker.Action {
         class Refresh(val userId: String) : Action()
-        class Video(val comment: Comment) : Action()
+        class Video(val videoId: String) : Action()
     }
 }

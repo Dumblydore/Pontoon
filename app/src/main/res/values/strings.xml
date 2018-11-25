@@ -163,4 +163,5 @@
     <string name="details_commentPosted">Comment posted!</string>
     <string name="reply_subhead">Replying to %s</string>
     <string name="player_error_default">Video could not be played.</string>
+    <string name="activity_comment_context">Posed a comment on %s:</string>
 </resources>
