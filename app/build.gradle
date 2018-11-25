@@ -26,7 +26,7 @@ android {
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "me.mauricee.pontoon"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode((major * 100) + (minor * 100) + patch)
         versionName "$major.$minor.$patch"

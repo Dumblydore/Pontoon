@@ -83,10 +83,8 @@ workflows:
           requires:
             - build
           filters:
-            tags:
-              only: master
             branches:
-              ignore: /.*/
+              only: master
 experimental:
     notify:
       branches:
