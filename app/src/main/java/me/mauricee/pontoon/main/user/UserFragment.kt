@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.user
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_user.*
 import me.mauricee.pontoon.BaseFragment
@@ -17,12 +18,16 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
     lateinit var adapter: UserActivityAdapter
 
     override val actions: Observable<UserContract.Action>
-        get() = adapter.actions.startWith(UserContract.Action.Refresh(arguments!!.getString(UserKey)))
+        get() = Observable.merge(adapter.actions,
+                RxSwipeRefreshLayout.refreshes(user_container).map { refresh })
+                .startWith(refresh)
 
+    private val refresh by lazy { UserContract.Action.Refresh(arguments!!.getString(UserKey)) }
     override fun getLayoutId(): Int = R.layout.fragment_user
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        user_container_lazy.setupWithSwipeRefreshLayout(user_container)
         user_container_activity.layoutManager = LinearLayoutManager(requireContext())
         user_container_activity.adapter = adapter
         user_container_activity.addItemDecoration(SpaceItemDecoration(resources.getDimensionPixelSize(R.dimen.grid_spacing)))

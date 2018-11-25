@@ -31,7 +31,10 @@
     <!-- Details -->
     <string name="details_commentLiked">You liked %s\'s comment.</string>
     <string name="details_commentDisliked">You disliked %s\'s comment.</string>
-    <string name="details_comment_replies">View %x replies</string>
+    <plurals name="details_comment_replies">
+        <item quantity="one">View Reply</item>
+        <item quantity="other">View %x replies</item>
+    </plurals>
     <string name="details_comment_positiveDelta">+%x</string>
     <string name="details_comment_negativeDelta">-%x</string>
     <string name="details_comment_hint">Add a comment…</string>

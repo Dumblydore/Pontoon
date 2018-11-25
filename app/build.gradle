@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'io.fabric'
 
 def major = 0
-def minor = 8
+def minor = 9
 def patch = (project.findProperty('buildNumber') ?: "0").toInteger()
 
 Properties localProperties = new Properties()

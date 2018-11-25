@@ -76,7 +76,7 @@ class CommentAdapter @Inject constructor(context: Context)
                 it.item_thumb_text.isVisible = commentScore != 0
                 it.item_thumb_text.text = "${if (commentScore > 0) "+" else ""} $commentScore"
                 it.item_viewReplies.isVisible = comment.replies.isNotEmpty()
-                it.item_viewReplies.text = itemView.context.getString(R.string.details_comment_replies, comment.replies.size)
+                it.item_viewReplies.text = itemView.context.resources.getQuantityString(R.plurals.details_comment_replies, comment.replies.size,  comment.replies.size)
 
                 val likeTint = if (comment.userInteraction.contains(Comment.Interaction.Like))
                     positiveColor
