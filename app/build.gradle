@@ -40,7 +40,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             proguardFiles fileTree('proguard').asList().toArray()
             resValue 'string', 'app_name', '"Pontoon"'
-            ext.betaDistributionGroupAliases = "Nightly"
             resValue 'string', 'default_user', '""'
             resValue 'string', 'default_pass', '""'
             signingConfig signingConfigs.Release
@@ -69,7 +68,7 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:$google_support_version"
     implementation "androidx.preference:preference:$google_support_version"
 
-    implementation "androidx.appcompat:appcompat:$google_support_version"
+    implementation "androidx.appcompat:appcompat:1.0.2"
     implementation "androidx.recyclerview:recyclerview:$google_support_version"
     implementation "androidx.core:core:$google_support_version"
     implementation "androidx.media:media:$google_support_version"
