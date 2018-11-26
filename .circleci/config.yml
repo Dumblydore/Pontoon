@@ -42,7 +42,6 @@ jobs:
         - checkout
         - restore_cache:
             keys:
-              - jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
               - configs-{{ arch }}-{{ .Branch }}-
               - configs-{{ arch }}-
               - configs-
