@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.launch
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatActivity
@@ -25,7 +24,7 @@ class LaunchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
-        @StyleRes val launcherTheme = when(themeManager.style) {
+        @StyleRes val launcherTheme = when (themeManager.style) {
             is Style.Light -> R.style.AppTheme_Light_Launcher
             is Style.Black -> R.style.AppTheme_Light_Launcher
             is Style.Dark -> R.style.AppTheme_Light_Launcher
@@ -34,7 +33,8 @@ class LaunchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Fabric.with(this, Crashlytics())
         PreferenceManager.setDefaultValues(this, R.xml.settings, false)
-        val act = if (accountManagerHelper.isLoggedIn) MainActivity::class.java else LoginActivity::class.java
-        startActivity(Intent(this, act))
+        if (accountManagerHelper.isLoggedIn) MainActivity.navigateTo(this)
+        else LoginActivity.navigateTo(this)
+        finish()
     }
 }

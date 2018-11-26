@@ -19,14 +19,15 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
     }
 
     override fun toSubscriptions() {
-        startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+        MainActivity.navigateTo(this)
+        finish()
     }
 
     companion object {
         fun navigateTo(context: Context) {
             Intent(context, LoginActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                            or  Intent.FLAG_ACTIVITY_NO_HISTORY)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP and Intent.FLAG_ACTIVITY_NEW_TASK
+                            and Intent.FLAG_ACTIVITY_NO_HISTORY)
                     .let(context::startActivity)
         }
     }

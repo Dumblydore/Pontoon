@@ -1,6 +1,8 @@
 package me.mauricee.pontoon.main
 
 import android.app.PictureInPictureParams
+import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
@@ -206,6 +208,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         is MainContract.State.Logout -> {
             if (player.isActive()) player.onStop()
             LoginActivity.navigateTo(this)
+            finish()
         }
     }.also { root.closeDrawer(main_drawer, true) }
 
@@ -405,6 +408,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                         .error(R.drawable.ic_default_thumbnail)
                         .into(findViewById(R.id.header_icon))
             }
+        }
+    }
+
+    companion object {
+        fun navigateTo(context: Context) {
+            context.startActivity(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
         }
     }
 }
