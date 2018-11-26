@@ -85,7 +85,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
         Snackbar.make(view!!, error.type.msg, Snackbar.LENGTH_LONG)
                 .also {
                     if (error.type != VideoContract.State.FetchError.Type.NoVideos)
-                        it.setAction(R.string.snackbar_action_retry) { error.retry() }
+                        it.setAction(R.string.retry) { error.retry() }
                 }.show()
     }
 

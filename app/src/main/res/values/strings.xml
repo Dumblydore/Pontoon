@@ -13,6 +13,7 @@
     <string name="login_error_general">@string/error_general</string>
 
     <!-- Home -->
+    <string name="item_view_all">View All</string>
     <string name="home_subtitle_suffix">%o subscriptions</string>
     <string name="subscriptions_videos_subhead">Videos</string>
 
@@ -26,15 +27,18 @@
     <string name="video_error_general">@string/error_general</string>
 
     <!-- Player -->
-    <string name="player_releaseDate">Posted on %s.</string>
+    <string name="action_share">Share</string>
+    <string name="action_quality">Quality</string>
+    <string name="action_download">Download</string>
+
+    <string name="player_error_default">Video could not be played.</string>
 
     <!-- Details -->
+    <string name="details_postDate">Posted on %s.</string>
     <string name="details_commentLiked">You liked %s\'s comment.</string>
     <string name="details_commentDisliked">You disliked %s\'s comment.</string>
-    <plurals name="details_comment_replies">
-        <item quantity="one">View Reply</item>
-        <item quantity="other">View %x replies</item>
-    </plurals>
+    <string name="details_error_commentPost">Error posting comment.</string>
+    <string name="details_commentPosted">Comment posted!</string>
     <string name="details_comment_positiveDelta">+%x</string>
     <string name="details_comment_negativeDelta">-%x</string>
     <string name="details_comment_hint">Add a comment…</string>
@@ -46,12 +50,25 @@
     <string name="details_error_like">Failed to like comment.</string>
     <string name="details_error_dislike">Failed to dislike comment.</string>
 
+    <plurals name="details_comment_replies">
+        <item quantity="one">View Reply</item>
+        <item quantity="other">View %x replies</item>
+    </plurals>
+
     <!-- Replies -->
+    <string name="replies_header">%s\'s replies</string>
+    <string name="reply_subhead">Replying to %s</string>
+
     <string name="replies_error">Failed to load replies</string>
+    <string name="replies_error_cleared">Error occurred</string>
     <string name="replies_error_like">@string/details_error_like</string>
     <string name="replies_error_dislike">@string/details_error_dislike</string>
 
+    <!-- All Creators -->
+    <string name="creators_title">Creators</string>
+
     <!-- Creator -->
+    <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
     <string name="creator_error_noCreator">Couldn\'t load creator.</string>
     <string name="creator_error_noVideos">This creator has no videos.</string>
     <string name="creator_error_general">@string/error_general</string>
@@ -66,11 +83,12 @@
     <string name="history_error_noVideos">You haven\'t watched any videos</string>
     <string name="history_error_general">@string/error_general</string>
 
-    <!---->
+    <!-- Main Drawer -->
     <string name="action_profile">My Profile</string>
     <string name="action_prefs">Preferences</string>
     <string name="action_logout">Logout</string>
 
+    <!-- Main Bottom Nav-->
     <string name="nav_videos">Videos</string>
     <string name="nav_search">Search</string>
     <string name="nav_history">History</string>
@@ -99,6 +117,11 @@
     <string name="settings_refresh_edges">Refresh edges</string>
     <string name="settings_refresh_edges_description">Try this if videos aren\'t loading.</string>
 
+    <string name="settings_quality_cell">Quality over Cellular</string>
+    <string name="settings_quality_wifi">Quality over Wifi"</string>
+    <string name="settings_misc">Misc."</string>
+    <string name="settings_about">About"</string>
+
     <string name="settings_pip">Picture-in-Picture"</string>
     <string-array name="settings_pip_options">
         <item>Always</item>
@@ -111,17 +134,10 @@
         <item>Never</item>
     </string-array>
 
-    <string name="settings_quality_cell">Quality over Cellular</string>
-    <string name="settings_quality_wifi">Quality over Wifi"</string>
-    <string name="settings_misc">Misc."</string>
-    <string name="settings_about">About"</string>
-
+    <!-- About -->
     <string name="aboutLibraries_description_showIcon">true</string>
     <string name="aboutLibraries_description_showVersion">true</string>
     <string name="aboutLibraries_description_text">Made with ❤</string>
-
-
-    <string name="error_general">Something happened, Not sure what it was.</string>
 
     <!-- Quality -->
     <string name="quality_1080">1080p</string>
@@ -146,25 +162,30 @@
     <string name="download_start">Starting Download</string>
     <string name="download_error">Error Downloading video</string>
 
+    <!-- User -->
+    <string name="activity_comment_context">Posed a comment on %s:</string>
+
+    <!-- Misc -->
+    <string name="error_general">Something happened, Not sure what it was.</string>
+    <string name="lazy_error_retry">@string/retry</string>
+    <string name="retry">Try Again</string>
+
+    <!-- Animation -->
+
     <!-- Play Icon -->
     <string name="play_icon_upper_path_data">M 44 32 L 44 64 L 100 64 L 100 64 Z</string>
     <string name="play_icon_bottom_path_data">M 44 96 L 44 64 L 100 64 L 100 64 Z</string>
+
     <!-- Pause Icon -->
     <string name="pause_icon_upper_path_data">M 32 40 L 32 56  L 96 56 L 96 40 Z</string>
     <string name="pause_icon_bottom_path_data">M 32 88 L 32 72 L 96 72 L 96 88 Z</string>
-    <string name="action_share">Share</string>
-    <string name="action_quality">Quality</string>
-    <string name="item_view_all">View All</string>
-    <string name="creatorList_title">Creators</string>
-    <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
-    <string name="lazy_error_retry">Retry</string>
-    <string name="snackbar_action_retry">Retry</string>
-    <string name="replies_header">%s\'s replies</string>
-    <string name="action_download">Download</string>
-    <string name="replies_error_cleared">Error occurred</string>
-    <string name="details_error_commentPost">Error posting comment.</string>
-    <string name="details_commentPosted">Comment posted!</string>
-    <string name="reply_subhead">Replying to %s</string>
-    <string name="player_error_default">Video could not be played.</string>
-    <string name="activity_comment_context">Posed a comment on %s:</string>
+
+    <!-- Groups -->
+    <string name="play_icon_group_top">upperpart</string>
+    <string name="play_icon_group_bottom">bottompart</string>
+    <string name="play_icon_group_parts">parts</string>
+
+    <!-- Path Name -->
+    <string name="play_icon_top_path_name">upper</string>
+    <string name="play_icon_bottom_path_name">bottom</string>
 </resources>

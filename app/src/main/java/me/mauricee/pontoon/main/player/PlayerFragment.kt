@@ -1,5 +1,7 @@
 package me.mauricee.pontoon.main.player
 
+import android.graphics.drawable.Animatable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -26,8 +28,11 @@ import me.mauricee.pontoon.rx.glide.toSingle
 class PlayerFragment : BaseFragment<PlayerPresenter>(),
         PlayerContract.View, Player.ControlView {
 
+    private val playIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_play_to_pause) }
     private val playIcon by lazy { getDrawable(requireContext(), R.drawable.ic_play) }
+    private val pauseIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_pause_to_play) }
     private val pauseIcon by lazy { getDrawable(requireContext(), R.drawable.ic_pause) }
+
     private val previewArt by lazy { arguments!!.getString(PreviewArtKey) }
     private val qualityMenu by lazy { player_controls_toolbar.menu.findItem(R.id.action_quality) }
     private var isSeeking: Boolean = false
@@ -69,13 +74,13 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 if (state.displayPipIcon) player_controls_toolbar.setNavigationIcon(R.drawable.ic_arrow_down)
             }
             is PlayerContract.State.Playing -> {
-                player_controls_playPause.setImageDrawable(pauseIcon)
+                isPlaying(true)
                 player_controls_playPause.isVisible = true
                 player_controls_loading.isVisible = false
                 player_display.isVisible = true
             }
             is PlayerContract.State.Paused -> {
-                player_controls_playPause.setImageDrawable(playIcon)
+                isPlaying(false)
                 player_display.isVisible = true
                 player_controls_loading.isVisible = false
                 player_controls_playPause.isVisible = true
@@ -128,6 +133,18 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         }
     }
 
+    private fun isPlaying(isPlaying: Boolean) {
+        val isVisible = player_controls_playPause.isVisible
+        val currentIcon = when {
+            isVisible && isPlaying -> playIconAnimation
+            isVisible && !isPlaying -> pauseIconAnimation
+            !isVisible && isPlaying -> pauseIcon
+            else -> playIcon
+        }
+        player_controls_playPause.setImageDrawable(currentIcon)
+        player_controls_playPause.drawable.startAsAnimatable()
+    }
+
     override fun onControlsVisibilityChanged(isVisible: Boolean) {
         player_controls.isVisible = isVisible
         player_controls_progress.thumbVisibility = isVisible && !isSeeking
@@ -156,6 +173,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 else -> Observable.empty()
             }
         }
+    }
+
+    private fun Drawable.startAsAnimatable(): Unit {
+        (this as? Animatable)?.start()
     }
 
     companion object {

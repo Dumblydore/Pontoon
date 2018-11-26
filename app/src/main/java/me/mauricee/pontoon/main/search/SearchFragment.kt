@@ -60,7 +60,7 @@ class SearchFragment : BaseFragment<SearchPresenter>(), SearchContract.View {
         is SearchContract.State.FetchError -> {
             search_page_progress.isVisible = false
             Snackbar.make(view!!, state.type.msg, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.snackbar_action_retry) { state.retry() }
+                    .setAction(R.string.retry) { state.retry() }
                     .show()
         }
         is SearchContract.State.FinishFetching -> search_page_progress.isVisible = false

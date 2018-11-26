@@ -11,7 +11,9 @@
         android:layout_height="wrap_content"
         android:paddingStart="4dp"
         android:paddingEnd="4dp"
-        tools:listitem="@layout/item_video_card" />
+        tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_user_bubble"
+        tools:orientation="horizontal" />
 
     <View
         android:layout_width="match_parent"
@@ -22,9 +24,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:text="@string/subscriptions_videos_subhead"
-        android:textColor="?android:attr/textColorPrimary" />
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="12sp"
+        tools:textColor="@color/md_black_1000" />
 
     <include layout="@layout/item_video_card" />
 

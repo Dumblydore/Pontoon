@@ -15,12 +15,21 @@
         android:textSize="18sp"
         tools:text="An Error has occured" />
 
+
     <Button
         android:id="@+id/lazy_error_retry"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="8dp"
+        android:padding="8dp"
         android:text="@string/lazy_error_retry"
-        android:visibility="gone"/>
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:background="?android:attr/colorAccent"
+        tools:textColor="@color/md_white_1000"
+        tools:background="@color/colorAccent"
+        tools:visibility="visible" />
 
 </LinearLayout>

@@ -128,7 +128,7 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
             player_title.text = title
             player_subtitle.text = creator.name
             player_description.text = description
-            player_releaseDate.text = getString(R.string.player_releaseDate, formatter.format(releaseDate))
+            player_releaseDate.text = getString(R.string.details_postDate, formatter.format(releaseDate))
             Linkify.addLinks(player_description, Linkify.WEB_URLS)
         }
         GlideApp.with(this).load(info.creator.user.profileImage).circleCrop()
