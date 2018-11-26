@@ -19,6 +19,10 @@ class RxHelpers {
             return SingleTransformer { it.subscribeOn(Schedulers.io()).observeOn(observeOn) }
         }
 
+        fun applyCompletableSchedulers(observeOn: Scheduler = AndroidSchedulers.mainThread()): CompletableTransformer {
+            return CompletableTransformer { it.subscribeOn(Schedulers.io()).observeOn(observeOn) }
+        }
+
         fun <T> applyOnErrorReturnItem(error: T): ObservableTransformer<T, T> =
                 ObservableTransformer {
                     it.doOnError { loge("Error!", it) }.onErrorReturnItem(error)
@@ -28,8 +32,7 @@ class RxHelpers {
 
 fun <T> Single<T>.ioStream() = this.compose(RxHelpers.applySingleSchedulers())
 fun <T> Observable<T>.ioStream() = this.compose(RxHelpers.applyObservableSchedulers())
-
-
+fun Completable.doOnIo() = this.compose(RxHelpers.applyCompletableSchedulers())
 
 
 fun <T> T.toObservable() = Observable.just(this)!!

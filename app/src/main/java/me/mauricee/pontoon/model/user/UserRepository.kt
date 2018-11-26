@@ -1,11 +1,13 @@
 package me.mauricee.pontoon.model.user
 
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
+import me.mauricee.pontoon.ext.doOnIo
 import org.threeten.bp.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -61,7 +63,12 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
             userIds.toObservable().buffer(20).flatMap { floatPlaneApi.getUsers(*it.toTypedArray()) }
                     .flatMap { it.users.toObservable().map { it.user } }
                     .map { UserEntity(it.id, it.username, it.profileImage.path) }
-                    .toList().doOnSuccess { userDao.insert(*it.toTypedArray()) }
+                    .toList().doOnSuccess(this::cacheUsers)
+
+    private fun cacheUsers(it: MutableList<UserEntity>) {
+        Completable.fromCallable { userDao.insert(*it.toTypedArray()) }.doOnIo()
+                .onErrorComplete().subscribe()
+    }
 
     data class Creator(val id: String, val name: String, val url: String,
                        val about: String, val user: User)

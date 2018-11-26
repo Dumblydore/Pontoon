@@ -154,20 +154,26 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun toCreator(creator: UserRepository.Creator) {
         controller.pushFragment(CreatorFragment.newInstance(creator.id))
-        animationTouchListener.isExpanded = false
-        if (player.isActive()) setPlayerExpanded(false)
+        if (player.isActive()) {
+            animationTouchListener.isExpanded = false
+            setPlayerExpanded(false)
+        }
     }
 
     override fun toCreatorsList() {
         controller.pushFragment(CreatorListFragment.newInstance())
-        animationTouchListener.isExpanded = false
-        if (player.isActive()) setPlayerExpanded(false)
+        if (player.isActive()) {
+            animationTouchListener.isExpanded = false
+            setPlayerExpanded(false)
+        }
     }
 
     override fun toUser(user: UserRepository.User) {
         controller.pushFragment(UserFragment.newInstance(user.id))
-        animationTouchListener.isExpanded = false
-        if (player.isActive()) setPlayerExpanded(false)
+        if (player.isActive()) {
+            animationTouchListener.isExpanded = false
+            setPlayerExpanded(false)
+        }
         root.closeDrawer(main_drawer)
     }
 

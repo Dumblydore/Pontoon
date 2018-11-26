@@ -77,10 +77,6 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation "com.google.android.material:material:$google_support_version"
 
-    // use -ktx for Kotlin
-
-    //    implementation "com.jakewharton.timber:timber:4.7.0"
-
     //    Google Play
     implementation 'com.google.firebase:firebase-core:16.0.5'
     implementation 'com.google.firebase:firebase-crash:16.2.1'

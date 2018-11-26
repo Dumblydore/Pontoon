@@ -15,6 +15,7 @@ import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
+import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.ioStream
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.Player
@@ -133,10 +134,8 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     }
 
     fun addToWatchHistory(video: Video) {
-        Completable.fromCallable { videoDao.setWatched(Instant.now(), video.id) }.onErrorComplete()
-                .observeOn(Schedulers.io())
-                .subscribeOn(Schedulers.io())
-                .subscribe()
+        Completable.fromCallable { videoDao.setWatched(Instant.now(), video.id) }
+                .onErrorComplete().doOnIo().subscribe()
     }
 
     private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
@@ -146,12 +145,9 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     //TODO use proper id
     private fun cacheSubscriptions(subscriptions: List<Subscription>) = subscriptions.toObservable()
             .map { SubscriptionEntity(it.creatorId, it.plan.id, it.startDate, it.endDate) }
-            .toList()
+            .toList().flatMapCompletable { Completable.fromAction { subscriptionDao.insert(*it.toTypedArray()) } }
             .observeOn(Schedulers.io())
-            .subscribe { it ->
-                subscriptionDao.insert(*it.toTypedArray())
-            }
-
+            .onErrorComplete().subscribe()
 
     private fun validateSubscriptions(subscriptions: List<Subscription>) =
             if (subscriptions.isEmpty()) Single.error(NoSubscriptionsException())
