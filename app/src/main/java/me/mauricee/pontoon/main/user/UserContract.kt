@@ -15,16 +15,16 @@ class UserContract {
         object Loading : State()
         class User(val user: UserRepository.User) : State()
         class Activity(val activity: List<UserRepository.Activity>) : State()
-        class Error(val type: Type) : State() {
+        class Error(val type: Type = Type.General) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"
             override val level: EventTracker.Level
                 get() = EventTracker.Level.ERROR
 
             enum class Type(@StringRes msg: Int) {
-                NoActivity(R.string.user_error_noActivity),
-                NoPlaylist(R.string.user_error_noPlaylist),
-                NoSubscriptions(R.string.user_error_noSubscriptions),
+                Activity(R.string.user_error_activity),
+                User(R.string.user_error_user),
+                PlaybackFailed(R.string.user_error_playback),
                 General(R.string.user_error_general)
             }
         }

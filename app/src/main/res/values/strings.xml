@@ -101,9 +101,10 @@
     <string name="search_error_general">@string/error_general</string>
 
     <!-- User -->
-    <string name="user_error_noActivity">s% has no recent activity</string>
-    <string name="user_error_noPlaylist">s% has not added any playlist</string>
+    <string name="user_error_user">Couldn\'t load user data</string>
+    <string name="user_error_activity">Couldn\'t load user activity</string>
     <string name="user_error_noSubscriptions">s% isn\'t sharing their subscriptions with you at the moment.</string>
+    <string name="user_error_playback">Could\'nt load video.</string>
     <string name="user_error_general">@string/error_general</string>
 
     <!-- Settings -->

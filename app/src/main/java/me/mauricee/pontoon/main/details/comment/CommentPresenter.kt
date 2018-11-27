@@ -24,6 +24,7 @@ class CommentPresenter @Inject constructor(private val commentRepository: Commen
         }.onErrorResumeNext { ig: Throwable -> closeAfterAction { navigator.onCommentError() } }
     }.startWith(CommentContract.State.CurrentUser(userRepository.activeUser))
 
+
     private fun closeAfterAction(action: () -> Unit): Observable<CommentContract.State> {
         action()
         return CommentContract.State.Close.toObservable()

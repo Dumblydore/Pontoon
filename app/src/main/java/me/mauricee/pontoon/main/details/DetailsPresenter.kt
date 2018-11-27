@@ -25,6 +25,7 @@ class DetailsPresenter @Inject constructor(private val player: Player,
     override fun onViewAttached(view: DetailsContract.View): Observable<DetailsContract.State> =
             view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(this::handleAction).startWith(DetailsContract.State.Loading)
                     .startWith(DetailsContract.State.CurrentUser(userRepository.activeUser))
+                    .onErrorReturnItem(DetailsContract.State.Error())
 
     private fun handleAction(it: DetailsContract.Action): Observable<DetailsContract.State> = when (it) {
         is DetailsContract.Action.PlayVideo -> loadVideo(it)
