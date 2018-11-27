@@ -13,6 +13,7 @@ import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
@@ -209,6 +210,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             if (player.isActive()) player.onStop()
             LoginActivity.navigateTo(this)
             finish()
+        }
+        MainContract.State.SessionExpired -> {
+            AlertDialog.Builder(this)
+                    .setTitle(R.string.main_session_expired_title)
+                    .setMessage(R.string.main_session_expired_body)
+                    .setPositiveButton(android.R.string.ok) { _, _ -> miscActions.accept(MainContract.Action.Logout) }
+                    .create().show()
         }
     }.also { root.closeDrawer(main_drawer, true) }
 

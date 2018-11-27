@@ -189,4 +189,6 @@
     <!-- Path Name -->
     <string name="play_icon_top_path_name">upper</string>
     <string name="play_icon_bottom_path_name">bottom</string>
+    <string name="main_session_expired_body">Your session expired. You need to re-login.</string>
+    <string name="main_session_expired_title">Session Expired</string>
 </resources>

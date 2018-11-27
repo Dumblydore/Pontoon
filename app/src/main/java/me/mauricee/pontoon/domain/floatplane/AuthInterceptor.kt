@@ -3,8 +3,10 @@ package me.mauricee.pontoon.domain.floatplane
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.jakewharton.rxrelay2.PublishRelay
+import com.jakewharton.rxrelay2.Relay
+import io.reactivex.Observable
 import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.ext.logd
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
@@ -13,9 +15,14 @@ import javax.inject.Inject
 
 @AppScope
 class AuthInterceptor @Inject constructor(private val context: Context, private val sharedPreferences: SharedPreferences) : Interceptor {
+    private val sessionRelay: Relay<Boolean> = PublishRelay.create()
+    val sessionExpired: Observable<Boolean>
+        get() = sessionRelay.hide()
+
     private val cfduid = sharedPreferences.getString(Key, UUID.randomUUID().toString()).also {
         sharedPreferences.edit { putString(Key, it) }
     }
+
     private var sid: String = sharedPreferences.getString(SailsSid, "")
         set(value) {
             field = value
@@ -36,7 +43,7 @@ class AuthInterceptor @Inject constructor(private val context: Context, private 
 
     private fun checkIf403(response: Response) {
         if (!response.isSuccessful && response.code() == HTTP_FORBIDDEN) {
-            logd("attempt to relogin")
+            sessionRelay.accept(true)
         }
     }
 

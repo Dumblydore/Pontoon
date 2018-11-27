@@ -20,6 +20,7 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
     override fun onViewAttached(view: VideoContract.View): Observable<VideoContract.State> = view.actions
             .doOnNext { eventTracker.trackAction(it, view) }
             .flatMap(this::handleActions)
+            .onErrorReturnItem(VideoContract.State.Error())
 
     private fun handleActions(action: VideoContract.Action): Observable<VideoContract.State> = when (action) {
         is VideoContract.Action.Refresh -> getVideos(action.clean).startWith(VideoContract.State.Loading())

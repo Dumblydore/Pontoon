@@ -5,6 +5,7 @@ import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
+import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.PontoonDatabase
@@ -18,13 +19,14 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
                                         private val videoRepository: VideoRepository,
                                         private val player: Player,
                                         private val pontoonDatabase: PontoonDatabase,
+                                        private val authInterceptor: AuthInterceptor,
                                         private val navigator: MainContract.Navigator,
                                         eventTracker: EventTracker) :
         BasePresenter<MainContract.State, MainContract.View>(eventTracker), MainContract.Presenter {
 
-    override fun onViewAttached(view: MainContract.View): Observable<MainContract.State> = Observable.merge(videoRepository.subscriptions
-            .onErrorReturnItem(emptyList()).map { MainContract.State.CurrentUser(userRepository.activeUser, it.size) },
-            actions(view))
+    override fun onViewAttached(view: MainContract.View): Observable<MainContract.State> =
+            Observable.merge(subscriptions(), actions(view),
+                    authInterceptor.sessionExpired.map { MainContract.State.SessionExpired })
 
     private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
         when (it) {
@@ -37,6 +39,9 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
             }
         }
     }
+
+    private fun subscriptions() = videoRepository.subscriptions.onErrorReturnItem(emptyList())
+            .map { MainContract.State.CurrentUser(userRepository.activeUser, it.size) }
 
     private fun logout(): MainContract.State {
         accountManagerHelper.logout()

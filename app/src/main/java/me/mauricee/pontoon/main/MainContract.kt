@@ -19,6 +19,7 @@ interface MainContract {
         data class ExpandPlayer(val isExpanded: Boolean)
         object Preferences : State()
         object Logout : State()
+        object SessionExpired : State()
     }
 
     sealed class Action : EventTracker.Action {

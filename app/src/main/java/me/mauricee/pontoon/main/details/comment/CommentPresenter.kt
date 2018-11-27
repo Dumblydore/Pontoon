@@ -21,7 +21,7 @@ class CommentPresenter @Inject constructor(private val commentRepository: Commen
                     .flatMap { closeAfterAction { navigator.onCommentSuccess() } }
             is CommentContract.Action.Reply -> commentRepository.comment(action.text, action.commentId, action.videoId)
                     .flatMap { closeAfterAction { navigator.onCommentSuccess() } }
-        }.onErrorResumeNext { ig: Throwable -> closeAfterAction { navigator.onCommentError() } }
+        }.onErrorResumeNext { _: Throwable -> closeAfterAction { navigator.onCommentError() } }
     }.startWith(CommentContract.State.CurrentUser(userRepository.activeUser))
 
 

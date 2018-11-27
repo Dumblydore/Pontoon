@@ -128,7 +128,8 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             PlayerContract.State.DownloadFailed -> Toast.makeText(requireContext(), R.string.download_error, Toast.LENGTH_LONG).show()
             is PlayerContract.State.PreviewThumbnail -> {
                 subscriptions += GlideApp.with(this).asBitmap().load(state.path)
-                        .toSingle().subscribe { it -> player_controls_progress.timelineBitmap = it }
+                        .toSingle().subscribe({ it -> player_controls_progress.timelineBitmap = it },
+                                { player_controls_progress.timelineBitmap = null })
             }
         }
     }
