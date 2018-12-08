@@ -14,7 +14,8 @@ import me.mauricee.pontoon.login.login.LoginContract.State.Error.Type.*
 class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
 
     override val actions: Observable<LoginContract.Action>
-        get() = login_login.clicks().map{ LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString()) }
+        get() = Observable.merge(login_alternativeLogin.clicks().map { LoginContract.Action.LttLogin },
+                login_login.clicks().map { LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString()) })
 
     override fun getLayoutId(): Int = R.layout.fragment_login
 

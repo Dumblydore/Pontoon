@@ -12,6 +12,17 @@
         android:layout_gravity="center_vertical"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/login.error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:textAlignment="center"
+            android:textColor="@color/colorError"
+            android:visibility="gone"
+            tools:text="@string/login_error_credentials"
+            tools:visibility="visible" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/login.username"
             android:layout_width="match_parent"
@@ -34,7 +45,6 @@
                 android:maxLines="1"
                 tools:text="@string/default_user" />
         </com.google.android.material.textfield.TextInputLayout>
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/login.password"
@@ -71,12 +81,12 @@
                 android:id="@+id/login.login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/colorAccent"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/login_login"
                 android:textAlignment="center"
                 android:textColor="?android:attr/textColorPrimaryInverse"
-                android:background="@color/colorAccent"
                 app:cornerRadius="24dp" />
 
             <ProgressBar
@@ -89,17 +99,33 @@
                 tools:visibility="visible" />
         </FrameLayout>
 
-        <TextView
-            android:id="@+id/login.error"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/login.alternativeLogin"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:textAlignment="center"
-            android:textColor="@color/colorError"
-            android:visibility="gone"
-            tools:text="@string/login_error_credentials"
-            tools:visibility="visible" />
+            android:layout_gravity="center_horizontal"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:text="Other sign-in options"
+            android:textColor="?android:attr/colorAccent"
+            tools:textColor="@color/colorAccent" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/login.signUp"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="Not a member?"
+        android:textColor="?android:attr/colorAccent"
+        tools:textColor="@color/colorAccent" />
 
 </FrameLayout>

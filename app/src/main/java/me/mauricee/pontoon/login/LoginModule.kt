@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.login.login.LoginFragment
+import me.mauricee.pontoon.login.lttLogin.LttLoginFragment
 
 @Module
 abstract class LoginModule {
@@ -20,6 +21,9 @@ abstract class LoginModule {
 
     @ContributesAndroidInjector
     abstract fun contributeLoginFragment(): LoginFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeLttLoginFragment(): LttLoginFragment
 
     @Module
     companion object {

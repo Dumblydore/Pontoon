@@ -25,6 +25,7 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
 
     private fun handleActions(action: LoginContract.Action): Observable<LoginContract.State> = when (action) {
         is LoginContract.Action.Login -> verifyCredentials(action.username, action.password)
+        LoginContract.Action.LttLogin -> stateless(navigator::toLttLogin)
     }
 
     private fun verifyCredentials(username: String, password: String): Observable<LoginContract.State> = when {

@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.domain.floatplane
 
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.jakewharton.rxrelay2.PublishRelay
@@ -14,17 +13,17 @@ import java.util.*
 import javax.inject.Inject
 
 @AppScope
-class AuthInterceptor @Inject constructor(private val context: Context, private val sharedPreferences: SharedPreferences) : Interceptor {
+class AuthInterceptor @Inject constructor(private val sharedPreferences: SharedPreferences) : Interceptor {
     private val sessionRelay: Relay<Boolean> = PublishRelay.create()
     val sessionExpired: Observable<Boolean>
         get() = sessionRelay.hide()
 
-    private val cfduid = sharedPreferences.getString(Key, UUID.randomUUID().toString()).also {
+    val cfduid = sharedPreferences.getString(Key, UUID.randomUUID().toString()).also {
         sharedPreferences.edit { putString(Key, it) }
     }
 
-    private var sid: String = sharedPreferences.getString(SailsSid, "")
-        set(value) {
+    var sid: String = sharedPreferences.getString(SailsSid, "")
+        private set(value) {
             field = value
             sharedPreferences.edit { putString(SailsSid, value) }
         }
@@ -33,6 +32,11 @@ class AuthInterceptor @Inject constructor(private val context: Context, private 
             .addHeader("Cookie", "$CfDuid=$cfduid")
             .also { if (sid.isNotEmpty()) it.addHeader("Cookie", "$SailsSid=$sid") }
             .build().let(chain::proceed).also(::pullHeaderFromResponse).also(::checkIf403)
+
+    fun login(cfduid: String, sid: String) = sharedPreferences.edit {
+        putString(Key, cfduid)
+        putString(SailsSid, sid)
+    }
 
     private fun pullHeaderFromResponse(response: Response) {
         //KOTLIN
