@@ -140,6 +140,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             player.release()
     }
 
+    override fun setMenuExpanded(isExpanded: Boolean) {
+        if (isExpanded)
+            root.openDrawer(main_drawer, true)
+        else
+            root.closeDrawer(main_drawer, true)
+    }
+
     override fun playVideo(video: Video, commentId: String) {
         animationTouchListener.show()
         main_player.alpha = 1f

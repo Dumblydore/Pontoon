@@ -27,6 +27,7 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
         is VideoContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video) }
         is VideoContract.Action.Subscription -> stateless { mainNavigator.toCreator(action.creator) }
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
+        VideoContract.Action.NavMenu -> stateless { mainNavigator.setMenuExpanded(true) }
     }
 
 private fun getVideos(clean: Boolean) = preferences.displayUnwatchedVideos

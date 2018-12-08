@@ -53,5 +53,7 @@ interface MainContract {
 
         fun setPlayerExpanded(isExpanded: Boolean)
 
+        fun setMenuExpanded(isExpanded: Boolean)
+
     }
 }
