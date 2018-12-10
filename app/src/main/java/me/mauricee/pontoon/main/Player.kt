@@ -3,20 +3,19 @@ package me.mauricee.pontoon.main
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.TextureView
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.source.TrackGroupArray
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.Observable
@@ -25,12 +24,14 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
+import me.mauricee.pontoon.common.playback.LocalPlayback
+import me.mauricee.pontoon.common.playback.Playback
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.audio.AudioFocusManager
 import me.mauricee.pontoon.model.audio.FocusState
 import me.mauricee.pontoon.model.preferences.Preferences
-import me.mauricee.pontoon.model.video.Playback
+import me.mauricee.pontoon.model.video.PlaybackMetadata
 import me.mauricee.pontoon.model.video.Video
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -38,8 +39,7 @@ import javax.inject.Inject
 @MainScope
 class Player @Inject constructor(preferences: Preferences,
                                  lifecycleOwner: LifecycleOwner,
-                                 private val exoPlayer: SimpleExoPlayer,
-                                 private val networkSourceFactory: HlsMediaSource.Factory,
+                                 private val playbackFactory: Playback.Factory,
                                  private val focusManager: AudioFocusManager, private val context: Context,
                                  private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener, LifecycleObserver {
@@ -51,10 +51,12 @@ class Player @Inject constructor(preferences: Preferences,
                 field = value
                 stateSubject.accept(value)
                 PlaybackStateCompat.Builder(mediaSession.controller.playbackState)
-                        .setState(value, exoPlayer.currentPosition, 1f)
+                        .setState(value, currentPlayback.value.position, 1f)
                         .build().also(mediaSession::setPlaybackState)
             }
         }
+
+    private val currentPlayback = BehaviorRelay.createDefault(playbackFactory.initalPlayback())
 
     private val subs = CompositeDisposable()
 
@@ -73,7 +75,7 @@ class Player @Inject constructor(preferences: Preferences,
     val thumbnailTimeline: Observable<String>
         get() = timelineSubject
 
-    var currentlyPlaying: Playback? = null
+    var currentlyPlaying: PlaybackMetadata? = null
         set(value) {
             if (value?.video?.id != field?.video?.id && value != null) {
                 load(value)
@@ -86,7 +88,7 @@ class Player @Inject constructor(preferences: Preferences,
                         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
                         .build().apply(mediaSession::setMetadata)
             } else {
-                exoPlayer.stop()
+                currentPlayback.value.stop()
                 mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
             }
             field = value
@@ -119,14 +121,14 @@ class Player @Inject constructor(preferences: Preferences,
         set(value) {
             if (value != field) {
                 currentlyPlaying?.apply {
-                    val progress = exoPlayer.currentPosition
-                    when (value) {
+                    val progress = currentPlayback.value.position
+                    val source = when (value) {
                         QualityLevel.p1080 -> this.quality.p1080
                         QualityLevel.p720 -> this.quality.p720
                         QualityLevel.p480 -> this.quality.p480
                         QualityLevel.p360 -> this.quality.p360
-                    }.let(String::toUri).also { load(it) }
-                    exoPlayer.seekTo(progress)
+                    }
+                    currentPlayback.value.prepare(Playback.MediaItem(source, video, progress))
                 }
             }
             field = value
@@ -146,7 +148,7 @@ class Player @Inject constructor(preferences: Preferences,
     fun isActive(): Boolean = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
 
     fun bindToView(view: TextureView) {
-        exoPlayer.setVideoTextureView(view)
+        (currentPlayback.value as? LocalPlayback)?.bindToView(view)
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
@@ -160,16 +162,7 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-        state = when (playbackState) {
-            Player.STATE_READY -> {
-                durationRelay.accept(exoPlayer.duration)
-                if (playWhenReady) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
-            }
-            Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
-            Player.STATE_ENDED -> PlaybackStateCompat.STATE_STOPPED
-            Player.STATE_IDLE -> PlaybackStateCompat.STATE_NONE
-            else -> PlaybackStateCompat.STATE_NONE
-        }
+
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
@@ -180,14 +173,14 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onPlay() {
-        exoPlayer.playWhenReady = true
+        currentPlayback.value.play()
         state = PlaybackStateCompat.STATE_PLAYING
         focusManager.gain()
     }
 
     override fun onPause() {
         if (isActive()) {
-            exoPlayer.playWhenReady = false
+            currentPlayback.value.pause()
             state = PlaybackStateCompat.STATE_PAUSED
             focusManager.drop()
         }
@@ -200,7 +193,7 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onSeekTo(pos: Long) {
-        exoPlayer.seekTo(pos)
+        currentPlayback.value.position = pos
         onPlay()
     }
 
@@ -217,20 +210,23 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     fun release() {
-        exoPlayer.release()
+        currentPlayback.value.stop()
         focusManager.drop()
         mediaSession.release()
     }
 
     fun playPause() {
-        if (exoPlayer.playWhenReady) onPause() else onPlay()
+        if (state == PlaybackStateCompat.STATE_PLAYING)
+            onPause()
+        else if (state == PlaybackStateCompat.STATE_PAUSED)
+            onPlay()
     }
 
     fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .map { exoPlayer.currentPosition }.startWith(exoPlayer.currentPosition)
+            .map { currentPlayback.value.position }.startWith(currentPlayback.value.position)
 
     fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .map { exoPlayer.bufferedPosition }.startWith(exoPlayer.bufferedPosition)
+            .map { currentPlayback.value.bufferedPosition }.startWith(currentPlayback.value.bufferedPosition)
 
     fun toggleControls() {
         if (viewMode == ViewMode.PictureInPicture) return
@@ -245,13 +241,14 @@ class Player @Inject constructor(preferences: Preferences,
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun bind() {
         mediaSession.setCallback(this)
-        exoPlayer.addListener(this)
+        subs += currentPlayback.flatMap(Playback::playerState).subscribe { state = it }
+
         subs += focusManager.focus.subscribe { it ->
             when (it) {
-                FocusState.Gained -> exoPlayer.playWhenReady = state != PlaybackStateCompat.STATE_PAUSED
-                FocusState.Duck -> exoPlayer.playWhenReady = false
-                FocusState.Transient -> exoPlayer.playWhenReady = false
-                FocusState.Loss -> exoPlayer.playWhenReady = false
+                FocusState.Gained -> if (state != PlaybackStateCompat.STATE_PAUSED) currentPlayback.value.play()
+                FocusState.Duck,
+                FocusState.Transient,
+                FocusState.Loss -> currentPlayback.value.pause()
             }
         }
         subs += context.registerReceiver(IntentFilter(Intent.ACTION_HEADSET_PLUG))
@@ -263,8 +260,11 @@ class Player @Inject constructor(preferences: Preferences,
     fun clear() {
         subs.clear()
         mediaSession.setCallback(null)
-        exoPlayer.removeListener(this)
         mediaSession.release()
+    }
+
+    private fun toggleCast() {
+        currentPlayback.accept(playbackFactory.switchPlayback(currentPlayback.value, null))
     }
 
     private fun handleHeadsetChanges(intent: Intent) {
@@ -279,22 +279,18 @@ class Player @Inject constructor(preferences: Preferences,
         timelineSubject.accept("https://cms.linustechtips.com/get/sprite/by_guid/${video.id}")
     }
 
-    private fun load(playback: Playback) {
-        when (quality) {
+    private fun load(playback: PlaybackMetadata) {
+        val source = when (quality) {
             QualityLevel.p1080 -> playback.quality.p1080
             QualityLevel.p720 -> playback.quality.p720
             QualityLevel.p480 -> playback.quality.p480
             QualityLevel.p360 -> playback.quality.p360
-        }.toUri().let(::load)
+        }
 
         setMetadata(playback.video)
-        previewImageRelay.accept(playback.video.thumbnail)
-    }
-
-    private fun load(uri: Uri) {
-        exoPlayer.prepare(networkSourceFactory.createMediaSource(uri))
-        exoPlayer.playWhenReady = true
+        currentPlayback.value.prepare(Playback.MediaItem(source, playback.video))
         focusManager.gain()
+        previewImageRelay.accept(playback.video.thumbnail)
     }
 
     private fun notifyController(isVisible: Boolean, viewMode: ViewMode) = controller?.just {

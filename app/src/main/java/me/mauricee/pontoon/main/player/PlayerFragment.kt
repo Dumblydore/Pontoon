@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.google.android.gms.cast.framework.CastButtonFactory
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
@@ -64,6 +65,8 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 .into(player_preview)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
 
+        CastButtonFactory.setUpMediaRouteButton(requireContext().applicationContext,
+                player_controls_toolbar.menu, R.id.media_route_menu_item)
     }
 
     override fun updateState(state: PlayerContract.State) {

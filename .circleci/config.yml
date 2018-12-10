@@ -27,6 +27,7 @@ jobs:
           name: prepare properties.local
           command: |
             touch local.properties
+            echo "pontoon.castId=${PONTOON_CAST_ID}" >> local.properties
             echo "release.keyAlias=${SIGNING_RELEASE_KEY_ALIAS}" >> local.properties
             echo "release.keyPassword=${SIGNING_RELEASE_KEY_PASSWORD}" >> local.properties
             echo "release.storeFile=/home/circleci/repo/keystore/Pontoon.jks" >> local.properties

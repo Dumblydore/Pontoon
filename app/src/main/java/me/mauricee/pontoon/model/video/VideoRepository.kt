@@ -170,6 +170,6 @@ data class Video(val id: String, val title: String, val description: String, val
     constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail, video.watched)
 }
 
-data class Playback(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality)
+data class PlaybackMetadata(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality)
 
 data class SubscriptionFeed(val subscriptions: List<UserRepository.Creator>, val videos: VideoResult)

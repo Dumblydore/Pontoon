@@ -6,6 +6,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.gms.cast.framework.CastContext
 import com.isupatches.wisefy.WiseFy
 import dagger.Binds
 import dagger.Module
@@ -83,5 +84,10 @@ abstract class MainModule {
                 .apply {
                     videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
                 }
+
+        @Provides
+        @MainScope
+        @JvmStatic
+        fun providesCastContext(context: Context) = CastContext.getSharedInstance(context)
     }
 }

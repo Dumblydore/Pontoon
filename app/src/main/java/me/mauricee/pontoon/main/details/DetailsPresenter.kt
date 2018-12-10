@@ -9,7 +9,7 @@ import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
-import me.mauricee.pontoon.model.video.Playback
+import me.mauricee.pontoon.model.video.PlaybackMetadata
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
 
@@ -47,7 +47,7 @@ class DetailsPresenter @Inject constructor(private val player: Player,
 
     private fun loadVideoDetails(action: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> =
             videoRepository.getVideo(action.id).doOnSuccess(videoRepository::addToWatchHistory).flatMapObservable { video ->
-                videoRepository.getQualityOfVideo(action.id).doOnNext { player.currentlyPlaying = Playback(video, it) }
+                videoRepository.getQualityOfVideo(action.id).doOnNext { player.currentlyPlaying = PlaybackMetadata(video, it) }
                         .map { DetailsContract.State.VideoInfo(video) }
             }
 
