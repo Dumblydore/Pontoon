@@ -33,7 +33,7 @@ class CreatorListFragment : BaseFragment<CreatorListPresenter>(), CreatorListCon
         when (state) {
             CreatorListContract.State.Loading -> creatorList_container_lazy.state = LazyLayout.LOADING
             is CreatorListContract.State.DisplayCreators -> {
-                adapter.creators = state.creator
+                adapter.submitList(state.creator)
                 creatorList_container_lazy.state = LazyLayout.SUCCESS
             }
             is CreatorListContract.State.Error -> {

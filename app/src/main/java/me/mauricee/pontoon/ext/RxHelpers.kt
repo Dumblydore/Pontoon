@@ -30,9 +30,10 @@ class RxHelpers {
     }
 }
 
-fun <T> Single<T>.ioStream() = this.compose(RxHelpers.applySingleSchedulers())
-fun <T> Observable<T>.ioStream() = this.compose(RxHelpers.applyObservableSchedulers())
+fun <T> Single<T>.doOnIo() = this.compose(RxHelpers.applySingleSchedulers())
+fun <T> Observable<T>.doOnIo() = this.compose(RxHelpers.applyObservableSchedulers())
 fun Completable.doOnIo() = this.compose(RxHelpers.applyCompletableSchedulers())
+
 
 
 fun <T> T.toObservable() = Observable.just(this)!!

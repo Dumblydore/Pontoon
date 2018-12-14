@@ -11,9 +11,12 @@ import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.*
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
-import me.mauricee.pontoon.ext.ioStream
 import me.mauricee.pontoon.model.user.UserRepository
+import org.threeten.bp.Instant
+import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.random.Random
 
 private typealias CommentPojo = me.mauricee.pontoon.domain.floatplane.Comment
 
@@ -37,6 +40,15 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
         }
     }.compose(RxHelpers.applyObservableSchedulers())
 
+    //TODO Stub
+    fun getLiveStreamComments(videoId: String): Observable<List<Comment>> = Observable.interval(5, TimeUnit.SECONDS)
+            .map { Random.nextInt(1, 10) }
+            .map { range -> IntRange(0, range).map { generateStubComment(videoId) } }
+
+    private fun generateStubComment(videoId: String, id: String = UUID.randomUUID().toString()) =
+            Comment(id, videoId, videoId, "Comment -> $id", Instant.now(), Instant.now(), 0, 0, emptyList(),
+                    userRepository.activeUser)
+
     fun getReplies(commentId: String): Single<List<Comment>> =
             commentDao.getCommentsOfParent(commentId).flatMapObservable {
                 val users = it.map { it.user }.distinct().let { userRepository.getUsers(*it.toTypedArray()) }
@@ -48,7 +60,7 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                                 Comment(comment.id, commentId, comment.video, comment.text, comment.editDate, comment.postDate, comment.likes, comment.dislikes, t2, t1)
                             })
                 }
-            }.toList().onErrorReturnItem(emptyList()).ioStream()
+            }.toList().onErrorReturnItem(emptyList()).doOnIo()
 
 
     fun like(comment: Comment): Observable<Comment> = interactWithComment(comment, CommentInteraction.Type.Like)

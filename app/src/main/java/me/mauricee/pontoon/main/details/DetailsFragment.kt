@@ -79,10 +79,10 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
             }
             is DetailsContract.State.Error -> handleError(state.type)
             is DetailsContract.State.Comments -> {
-                commentsAdapter.comments = state.comments.toMutableList()
-                scrollToSelectedComment()
+                commentsAdapter.submitList(state.comments.toMutableList())
+                scrollToSelectedComment(state.comments)
             }
-            is DetailsContract.State.RelatedVideos -> relatedVideosAdapter.videos = state.relatedVideos
+            is DetailsContract.State.RelatedVideos -> relatedVideosAdapter.submitList(state.relatedVideos)
             is DetailsContract.State.Like -> {
                 commentsAdapter.updateComment(state.comment)
                 snack(getString(R.string.details_commentLiked, state.comment.user.username))
@@ -112,10 +112,10 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
         }
     }
 
-    private fun scrollToSelectedComment() {
+    private fun scrollToSelectedComment(comments: List<Comment>) {
         arguments?.getString(CommentKey, "")?.apply {
             if (isNotBlank()) {
-                val commentIndex = commentsAdapter.comments.indexOfFirst { it.id == this }
+                val commentIndex = comments.indexOfFirst { it.id == this }
                         .let { player_comments.getChildAt(it).y.toInt() }
                 player_details.smoothScrollTo(0, commentIndex)
             }
@@ -142,19 +142,19 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
     }
 
     override fun comment(video: Video, comment: Comment?) {
-        CommentDialogFragment.newInstance(comment, video).also {it. show(childFragmentManager, tag) }
+        CommentDialogFragment.newInstance(comment, video).also { it.show(childFragmentManager, tag) }
     }
 
     override fun displayReplies(parent: Comment) {
-        RepliesDialogFragment.newInstance(parent).also{ it.show(childFragmentManager, tag) }
+        RepliesDialogFragment.newInstance(parent).also { it.show(childFragmentManager, tag) }
     }
 
     override fun onCommentSuccess() {
-        Snackbar.make(view!!, R.string.details_commentPosted,Snackbar.LENGTH_LONG).show()
+        Snackbar.make(view!!, R.string.details_commentPosted, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onCommentError() {
-        Snackbar.make(view!!, R.string.details_error_commentPost,Snackbar.LENGTH_LONG).show()
+        Snackbar.make(view!!, R.string.details_error_commentPost, Snackbar.LENGTH_LONG).show()
     }
 
     companion object {

@@ -59,7 +59,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
             }
             is VideoContract.State.DisplayVideos -> displayVideos(state.videos)
             is VideoContract.State.Error -> processError(state)
-            is VideoContract.State.DisplaySubscriptions -> videoAdapter.subscriptionAdapter.user = state.subscriptions
+            is VideoContract.State.DisplaySubscriptions -> videoAdapter.subscriptionAdapter.submitList(state.subscriptions)
             is VideoContract.State.FinishPageFetch -> videos_page_progress.isVisible = false
             is VideoContract.State.FetchError -> processFetchError(state)
         }

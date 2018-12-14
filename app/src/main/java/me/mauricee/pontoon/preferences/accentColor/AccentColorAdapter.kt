@@ -10,6 +10,7 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_color_list.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
+import me.mauricee.pontoon.common.ModelAdapter
 import me.mauricee.pontoon.common.theme.AccentColor
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.common.theme.accentColor
@@ -17,7 +18,8 @@ import me.mauricee.pontoon.preferences.CircleHelper
 import me.mauricee.pontoon.preferences.darken
 import javax.inject.Inject
 
-class AccentColorAdapter @Inject constructor(private val circleHelper: CircleHelper, private val themeManager: ThemeManager) : BaseAdapter<AccentColor, AccentColorAdapter.ViewHolder>() {
+class AccentColorAdapter @Inject constructor(private val circleHelper: CircleHelper, private val themeManager: ThemeManager)
+    : ModelAdapter<AccentColor, AccentColorAdapter.ViewHolder>(AccentColor.ItemCallback) {
     private val colors = AccentColor.values()
     private var newSelectedColor: AccentColor? = null
 

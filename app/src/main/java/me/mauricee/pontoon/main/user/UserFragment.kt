@@ -37,7 +37,7 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
         is UserContract.State.User -> user_toolbar.title = state.user.username
         UserContract.State.Loading -> user_container_lazy.state = LazyLayout.LOADING
         is UserContract.State.Activity -> {
-            adapter.activity = state.activity
+            adapter.submitList(state.activity)
             user_container_lazy.state = LazyLayout.SUCCESS
         }
         is UserContract.State.Error -> user_container_lazy.state = LazyLayout.ERROR

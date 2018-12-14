@@ -14,32 +14,20 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.glide.GlideApp
+import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
-class RelatedVideoAdapter @Inject constructor() : BaseAdapter<DetailsContract.Action, RelatedVideoAdapter.ViewHolder>() {
-
-    //TODO move this into presenter
-    var videos: List<me.mauricee.pontoon.model.video.Video> = emptyList()
-        set(value) {
-            subscriptions += Observable.fromCallable {
-                DiffUtil.calculateDiff(DiffCallback(field, value))
-            }.compose(RxHelpers.applyObservableSchedulers()).subscribe {
-                field = value
-                it.dispatchUpdatesTo(this)
-            }
-        }
+class RelatedVideoAdapter @Inject constructor() : BaseAdapter<Video, DetailsContract.Action, RelatedVideoAdapter.ViewHolder>(Video.ItemCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             LayoutInflater.from(parent.context).inflate(R.layout.item_video_list, parent, false).let(this::ViewHolder)
 
-    override fun getItemCount(): Int = videos.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(videos[position])
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position))
 
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            subscriptions += view.clicks().map { DetailsContract.Action.PlayVideo(videos[layoutPosition].id) }
+            subscriptions += view.clicks().map { DetailsContract.Action.PlayVideo(getItem(layoutPosition).id) }
                     .subscribe(relay::accept)
         }
 
@@ -56,19 +44,5 @@ class RelatedVideoAdapter @Inject constructor() : BaseAdapter<DetailsContract.Ac
 
             }
         }
-    }
-
-    inner class DiffCallback(private val old: List<me.mauricee.pontoon.model.video.Video>,
-                             private val new: List<me.mauricee.pontoon.model.video.Video>) : DiffUtil.Callback() {
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                old[oldItemPosition].id === new[newItemPosition].id
-
-        override fun getOldListSize(): Int = old.size
-
-        override fun getNewListSize(): Int = new.size
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                old[oldItemPosition] == new[newItemPosition]
     }
 }

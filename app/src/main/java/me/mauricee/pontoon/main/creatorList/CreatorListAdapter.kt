@@ -14,28 +14,19 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-class CreatorListAdapter @Inject constructor() : BaseAdapter<CreatorListContract.Action, CreatorListAdapter.ViewHolder>() {
-
-    var creators: List<UserRepository.Creator> = emptyList()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-
-
-    override fun getItemCount(): Int = creators.size
+class CreatorListAdapter @Inject constructor() : BaseAdapter<UserRepository.Creator, CreatorListContract.Action, CreatorListAdapter.ViewHolder>(UserRepository.CreatorItemCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_creator_card, parent, false).let(this::ViewHolder)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(creators[position])
+        holder.bind(getItem(position))
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         init {
-            subscriptions += view.clicks().map { CreatorListContract.Action.Creator(creators[layoutPosition]) }
+            subscriptions += view.clicks().map { CreatorListContract.Action.Creator(getItem(layoutPosition)) }
                     .subscribe(relay::accept)
         }
 

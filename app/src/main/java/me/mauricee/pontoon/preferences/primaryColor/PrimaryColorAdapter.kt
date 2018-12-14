@@ -10,6 +10,7 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_color_list.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
+import me.mauricee.pontoon.common.ModelAdapter
 import me.mauricee.pontoon.common.theme.PrimaryColor
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.common.theme.primaryColor
@@ -17,7 +18,8 @@ import me.mauricee.pontoon.preferences.CircleHelper
 import me.mauricee.pontoon.preferences.darken
 import javax.inject.Inject
 
-class PrimaryColorAdapter @Inject constructor(private val circleHelper: CircleHelper, private val themeManager: ThemeManager) : BaseAdapter<PrimaryColor, PrimaryColorAdapter.ViewHolder>() {
+class PrimaryColorAdapter @Inject constructor(private val circleHelper: CircleHelper, private val themeManager: ThemeManager) :
+        ModelAdapter<PrimaryColor, PrimaryColorAdapter.ViewHolder>(PrimaryColor.ItemCallback) {
 
     private val colors = PrimaryColor.values()
     private var newSelectedColor: PrimaryColor? = null

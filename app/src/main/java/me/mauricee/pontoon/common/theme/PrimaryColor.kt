@@ -3,6 +3,7 @@ package me.mauricee.pontoon.common.theme
 import android.content.Context
 import android.content.res.Resources
 import androidx.annotation.StyleRes
+import androidx.recyclerview.widget.DiffUtil
 import me.mauricee.pontoon.R
 
 enum class PrimaryColor(@StyleRes val style: Int) {
@@ -56,6 +57,13 @@ enum class PrimaryColor(@StyleRes val style: Int) {
     }
 
     companion object {
+
+        val ItemCallback = object : DiffUtil.ItemCallback<PrimaryColor>() {
+            override fun areItemsTheSame(oldItem: PrimaryColor, newItem: PrimaryColor): Boolean = oldItem.ordinal == newItem.ordinal
+
+            override fun areContentsTheSame(oldItem: PrimaryColor, newItem: PrimaryColor): Boolean = newItem == oldItem
+        }
+
         fun valueOf(key: String): PrimaryColor = when (key) {
             "Default" -> Default
             "Red" -> Red

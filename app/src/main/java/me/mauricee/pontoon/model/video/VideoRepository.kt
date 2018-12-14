@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
+import androidx.recyclerview.widget.DiffUtil
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -16,7 +17,6 @@ import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
-import me.mauricee.pontoon.ext.ioStream
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
@@ -97,7 +97,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                         .map { it ->
                             Video(vid.id, vid.title, vid.description, vid.releaseDate, vid.duration, it, vid.thumbnail, null)
                         }.firstOrError()
-            }.ioStream()
+            }.doOnIo()
 
     fun getRelatedVideos(video: String): Single<List<Video>> = floatPlaneApi.getRelatedVideos(video).flatMap { videos ->
         videos.map { it.creator }.distinct().toTypedArray().let { userRepo.getCreators(*it) }
@@ -168,7 +168,16 @@ data class Video(val id: String, val title: String, val description: String, val
 
     constructor(video: me.mauricee.pontoon.domain.floatplane.Video, creator: UserRepository.Creator) : this(video.guid, video.title, video.description, video.releaseDate, video.duration, creator, video.defaultThumbnail, null)
     constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail, video.watched)
+
+    companion object {
+        val ItemCallback = object : DiffUtil.ItemCallback<Video>() {
+            override fun areItemsTheSame(oldItem: Video, newItem: Video): Boolean = oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: Video, newItem: Video): Boolean = newItem == oldItem
+        }
+    }
 }
+
 
 data class Playback(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality)
 

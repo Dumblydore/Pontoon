@@ -54,7 +54,7 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View 
         RepliesContract.State.Loading -> replies_lazy.state = LazyLayout.LOADING
         is RepliesContract.State.Replies -> {
             replies_header.title = getString(R.string.replies_header, state.parent.user.username)
-            adapter.comments = state.comments.toMutableList()
+            adapter.submitList(state.comments)
             replies_lazy.state = LazyLayout.SUCCESS
         }
         is RepliesContract.State.Liked -> {

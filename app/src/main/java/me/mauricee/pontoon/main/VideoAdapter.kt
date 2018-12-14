@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
@@ -10,19 +11,12 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
+import me.mauricee.pontoon.common.ModelAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
-class VideoAdapter @Inject constructor() : BaseAdapter<Video, VideoAdapter.ViewHolder>() {
-
-    var videos: List<Video> = emptyList()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-
-    override fun getItemCount(): Int = videos.size
+class VideoAdapter @Inject constructor() : ModelAdapter<Video, VideoAdapter.ViewHolder>(Video.ItemCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_video_card, parent, false)
@@ -30,12 +24,12 @@ class VideoAdapter @Inject constructor() : BaseAdapter<Video, VideoAdapter.ViewH
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        videos[position].let(holder::bind)
+        getItem(position).let(holder::bind)
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            subscriptions += view.clicks().subscribe { videos[layoutPosition].let(relay::accept) }
+            subscriptions += view.clicks().subscribe { getItem(layoutPosition).let(relay::accept) }
         }
 
         fun bind(video: Video) {

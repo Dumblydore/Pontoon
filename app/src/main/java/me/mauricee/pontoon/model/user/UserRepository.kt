@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.model.user
 
+import androidx.recyclerview.widget.DiffUtil
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -76,5 +77,19 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
     data class User(val id: String, val username: String, val profileImage: String)
 
     data class Activity(val comment: String, val posted: Instant, val videoTitle: String, val videoId: String)
+
+    companion object {
+        val ActivityItemCallback = object : DiffUtil.ItemCallback<Activity>() {
+            override fun areItemsTheSame(oldItem: Activity, newItem: Activity): Boolean = oldItem.posted.nano == newItem.posted.nano
+
+            override fun areContentsTheSame(oldItem: Activity, newItem: Activity): Boolean = newItem == oldItem
+        }
+
+        val CreatorItemCallback = object : DiffUtil.ItemCallback<Creator>() {
+            override fun areItemsTheSame(oldItem: Creator, newItem: Creator): Boolean = oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: Creator, newItem: Creator): Boolean = newItem == oldItem
+        }
+    }
 }
 
