@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.details
+package me.mauricee.pontoon.main.details.video
 
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable

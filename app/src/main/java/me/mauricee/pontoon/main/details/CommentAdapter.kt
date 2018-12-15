@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.item_comment.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.glide.GlideApp
+import me.mauricee.pontoon.main.details.video.DetailsContract
 import me.mauricee.pontoon.model.comment.Comment
 import javax.inject.Inject
 

@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.details.comment
+package me.mauricee.pontoon.main.details.video.comment
 
 import android.content.Context
 import android.os.Bundle

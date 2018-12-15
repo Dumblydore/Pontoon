@@ -1,10 +1,10 @@
-package me.mauricee.pontoon.main.details.comment
+package me.mauricee.pontoon.main.details.video.comment
 
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.main.details.DetailsContract
+import me.mauricee.pontoon.main.details.video.DetailsContract
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject

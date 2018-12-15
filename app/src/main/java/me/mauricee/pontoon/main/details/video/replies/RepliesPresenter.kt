@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.details.replies
+package me.mauricee.pontoon.main.details.video.replies
 
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
@@ -6,7 +6,7 @@ import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
-import me.mauricee.pontoon.main.details.DetailsContract
+import me.mauricee.pontoon.main.details.video.DetailsContract
 import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository

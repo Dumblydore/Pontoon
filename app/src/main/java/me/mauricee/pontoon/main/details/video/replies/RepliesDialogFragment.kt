@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.details.replies
+package me.mauricee.pontoon.main.details.video.replies
 
 import android.content.Context
 import android.os.Bundle
@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.fragment_replies.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.main.details.CommentAdapter
-import me.mauricee.pontoon.main.details.DetailsContract
+import me.mauricee.pontoon.main.details.video.DetailsContract
 import me.mauricee.pontoon.model.comment.Comment
 import java.lang.RuntimeException
 import javax.inject.Inject

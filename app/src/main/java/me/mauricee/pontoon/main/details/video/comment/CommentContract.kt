@@ -1,8 +1,7 @@
-package me.mauricee.pontoon.main.details.comment
+package me.mauricee.pontoon.main.details.video.comment
 
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.comment.Comment
 import me.mauricee.pontoon.model.user.UserRepository
 
 interface CommentContract {

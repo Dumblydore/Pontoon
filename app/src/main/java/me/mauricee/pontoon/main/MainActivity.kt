@@ -42,7 +42,7 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.login.LoginActivity
 import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
-import me.mauricee.pontoon.main.details.DetailsFragment
+import me.mauricee.pontoon.main.details.video.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
 import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment

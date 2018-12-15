@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.details.replies
+package me.mauricee.pontoon.main.details.video.replies
 
 import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract

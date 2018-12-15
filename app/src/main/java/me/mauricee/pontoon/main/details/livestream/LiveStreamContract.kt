@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.details
+package me.mauricee.pontoon.main.details.livestream
 
 import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract
@@ -11,17 +11,10 @@ import me.mauricee.pontoon.model.video.Video
 
 private typealias CommentModel = Comment
 
-interface DetailsContract {
+interface LiveStreamContract {
     interface View : BaseContract.View<State, Action>
 
     interface Presenter : BaseContract.Presenter<View>
-
-    interface Navigator {
-        fun comment(video: Video, comment: Comment? = null)
-        fun displayReplies(parent: Comment)
-        fun onCommentSuccess()
-        fun onCommentError()
-    }
 
     sealed class Action : EventTracker.Action {
         object ViewCreator : Action()
