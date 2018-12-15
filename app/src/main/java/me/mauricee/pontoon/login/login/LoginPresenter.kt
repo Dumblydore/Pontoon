@@ -24,11 +24,11 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                     .onErrorReturnItem(LoginContract.State.Error())
 
     private fun handleActions(action: LoginContract.Action): Observable<LoginContract.State> = when (action) {
-        is LoginContract.Action.Login -> verifyCredentials(action.username, action.password)
+        is LoginContract.Action.Login -> attemptLogin(action.username, action.password)
         LoginContract.Action.LttLogin -> stateless(navigator::toLttLogin)
     }
 
-    private fun verifyCredentials(username: String, password: String): Observable<LoginContract.State> = when {
+    private fun attemptLogin(username: String, password: String): Observable<LoginContract.State> = when {
         username.isEmpty() -> LoginContract.State.Error(LoginContract.State.Error.Type.MissingUsername).toObservable()
         password.isEmpty() -> LoginContract.State.Error(LoginContract.State.Error.Type.MissingPassword).toObservable()
         else -> login(LoginRequest(username, password))
