@@ -191,4 +191,6 @@
     <string name="play_icon_bottom_path_name">bottom</string>
     <string name="main_session_expired_body">Your session expired. You need to re-login.</string>
     <string name="main_session_expired_title">Session Expired</string>
+    <string name="login.signup">Not a member?</string>
+    <string name="lttLogin.error">Could not log in. Please try again later.</string>
 </resources>

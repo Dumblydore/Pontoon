@@ -8,11 +8,10 @@ import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.login.login.LoginFragment
-import me.mauricee.pontoon.login.lttLogin.LttLoginFragment
+import me.mauricee.pontoon.login.webLogin.WebLoginFragment
 import me.mauricee.pontoon.main.MainActivity
 
 class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
-
 
     override val name: String
         get() = "Login"
@@ -27,8 +26,19 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
                 .build()
     }
 
+    override fun onBackPressed() {
+        if(controller.isRootFragment)
+            super.onBackPressed()
+        else
+            controller.popFragment()
+    }
+
     override fun toLttLogin() {
-        controller.pushFragment(LttLoginFragment())
+        controller.pushFragment(WebLoginFragment.loginWithLttForum())
+    }
+
+    override fun toDiscord() {
+        controller.pushFragment(WebLoginFragment.loginWithDiscord())
     }
 
     override fun toSubscriptions() {

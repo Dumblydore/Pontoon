@@ -14,6 +14,7 @@ interface LoginContract {
     sealed class Action : EventTracker.Action {
         data class Login(val username: String, val password: String) : Action()
         object LttLogin : Action()
+        object DiscordLogin : Action()
     }
 
     sealed class State : EventTracker.State {

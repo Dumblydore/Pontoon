@@ -19,6 +19,12 @@ interface FloatPlaneApi {
     @get:GET("user/self")
     val self: Observable<User>
 
+    @POST("auth/logout")
+    fun logout() : Completable
+
+    @POST("auth/login")
+    fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
+
     @GET("user/info")
     fun getUsers(@Query("id") vararg id: String): Observable<User.Response>
 
@@ -42,12 +48,6 @@ interface FloatPlaneApi {
 
     @GET("user/activity")
     fun getActivity(@Query("id") id: String): Observable<Activity.Response>
-
-    @GET
-    fun login(@Url callbackUrl: String) : Completable
-
-    @POST("auth/login")
-    fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
 
     @POST("video/comment")
     fun post(@Body comment: CommentPost): Observable<Comment>

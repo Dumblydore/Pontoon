@@ -98,20 +98,49 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
         </FrameLayout>
+    </LinearLayout>
 
-        <Button
-            android:id="@+id/login.alternativeLogin"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="start|bottom"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
+
+        <ImageButton
+            android:id="@+id/login.lttForum"
             style="?android:attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="8dp"
             android:layout_gravity="center_horizontal"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp"
-            android:text="Other sign-in options"
-            android:textColor="?android:attr/colorAccent"
-            tools:textColor="@color/colorAccent" />
+            android:background="@drawable/ic_color"
+            android:backgroundTint="?android:attr/colorPrimary"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_lttforum"
+            android:tint="?android:attr/colorAccent"
+            tools:backgroundTint="@color/colorAccent"
+            tools:tint="@color/colorPrimary" />
+
+        <ImageButton
+            android:id="@+id/login.discord"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/ic_color"
+            android:backgroundTint="?android:attr/colorPrimary"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_discord"
+            android:tint="?android:attr/colorAccent"
+            tools:backgroundTint="@color/colorAccent"
+            tools:tint="@color/colorPrimary" />
+
     </LinearLayout>
 
     <Button
@@ -124,7 +153,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="Not a member?"
+        android:text="@string/login.signup"
         android:textColor="?android:attr/colorAccent"
         tools:textColor="@color/colorAccent" />
 

@@ -9,12 +9,14 @@ import kotlinx.android.synthetic.main.fragment_login.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.R.id.login_alternativeLogin
 import me.mauricee.pontoon.login.login.LoginContract.State.Error.Type.*
 
 class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
 
     override val actions: Observable<LoginContract.Action>
-        get() = Observable.merge(login_alternativeLogin.clicks().map { LoginContract.Action.LttLogin },
+        get() = Observable.merge(login_lttForum.clicks().map { LoginContract.Action.LttLogin },
+                login_lttForum.clicks().map { LoginContract.Action.DiscordLogin },
                 login_login.clicks().map { LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString()) })
 
     override fun getLayoutId(): Int = R.layout.fragment_login
