@@ -6,6 +6,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import me.mauricee.pontoon.di.AppScope
+import me.mauricee.pontoon.ext.logd
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
@@ -28,12 +29,16 @@ class AuthInterceptor @Inject constructor(private val sharedPreferences: SharedP
             sharedPreferences.edit { putString(SailsSid, value) }
         }
 
-    override fun intercept(chain: Interceptor.Chain): Response = chain.request().newBuilder()
-            .addHeader("Cookie", "$CfDuid=$cfduid")
-            .also { if (sid.isNotEmpty()) it.addHeader("Cookie", "$SailsSid=$sid") }
-            .build().let(chain::proceed).also(::pullHeaderFromResponse).also(::checkIf403)
+    override fun intercept(chain: Interceptor.Chain): Response {
+        logd("SailsSid=$sid")
+        logd("CfDuid=$cfduid")
+        return chain.request().newBuilder()
+                .addHeader("Cookie", "$CfDuid=$cfduid")
+                .also { if (sid.isNotEmpty()) it.addHeader("Cookie", "$SailsSid=$sid") }
+                .build().let(chain::proceed).also(::pullHeaderFromResponse).also(::checkIf403)
+    }
 
-    fun login(cfduid: String, sid: String) = sharedPreferences.edit {
+    fun login(cfduid: String, sid: String) = sharedPreferences.edit(true) {
         putString(Key, cfduid)
         putString(SailsSid, sid)
     }

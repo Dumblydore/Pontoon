@@ -17,7 +17,7 @@ interface FloatPlaneApi {
     val edges: Observable<Edge.Response>
 
     @get:GET("user/self")
-    val self: Observable<User.Container>
+    val self: Observable<User>
 
     @GET("user/info")
     fun getUsers(@Query("id") vararg id: String): Observable<User.Response>

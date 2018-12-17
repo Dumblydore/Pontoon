@@ -10,6 +10,6 @@ interface LttLoginContract {
 
     sealed class State : EventTracker.State
     sealed class Action : EventTracker.Action {
-        data class Login(val respCode: String) : Action()
+        data class Login(val respCode: String, val cookies: String) : Action()
     }
 }
