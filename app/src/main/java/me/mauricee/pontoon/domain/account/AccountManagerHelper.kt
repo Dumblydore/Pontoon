@@ -22,21 +22,25 @@ class AccountManagerHelper @Inject constructor(private val sharedPreferences: Sh
     val isLoggedIn: Boolean
         get() = sharedPreferences.contains(UserData)
 
-    internal val cfduid = sharedPreferences.getString(CfDuid, UUID.randomUUID().toString()).also {
-        sharedPreferences.edit { putString(CfDuid, it) }
-    }
+    internal var cfduid = sharedPreferences.getString(CfDuid, UUID.randomUUID().toString())
+            .also { sharedPreferences.edit { putString(CfDuid, it) } }
+        private set(value) {
+            if (field != value) {
+                sharedPreferences.edit(true) { putString(CfDuid, value) }
+            }
+        }
 
     internal var sid: String = sharedPreferences.getString(SailsSid, "")
         set(value) {
             if (field != value) {
                 field = value
-                sharedPreferences.edit { putString(SailsSid, value) }
+                sharedPreferences.edit(true) { putString(SailsSid, value) }
             }
         }
 
-    fun login(cfduid: String, sid: String) = sharedPreferences.edit(true) {
-        putString(CfDuid, cfduid)
-        putString(SailsSid, sid)
+    fun login(cfduid: String, sid: String) {
+        this.cfduid = cfduid
+        this.sid = sid
     }
 
     fun logout() = sharedPreferences.edit(true) {

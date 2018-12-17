@@ -26,6 +26,7 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
     private fun handleActions(action: LoginContract.Action): Observable<LoginContract.State> = when (action) {
         is LoginContract.Action.Login -> attemptLogin(action.username, action.password)
         LoginContract.Action.LttLogin -> stateless(navigator::toLttLogin)
+        LoginContract.Action.DiscordLogin -> stateless(navigator::toDiscord)
     }
 
     private fun attemptLogin(username: String, password: String): Observable<LoginContract.State> = when {

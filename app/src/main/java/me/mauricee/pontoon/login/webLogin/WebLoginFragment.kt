@@ -3,6 +3,7 @@ package me.mauricee.pontoon.login.webLogin
 import android.os.Bundle
 import android.view.View
 import android.webkit.CookieManager
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -11,9 +12,10 @@ import androidx.fragment.app.Fragment
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.plusAssign
+import kotlinx.android.synthetic.main.fragment_web_login.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.R.id.login_webview
 
 
 class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.View {
@@ -29,13 +31,13 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
         super.onViewCreated(view, savedInstanceState)
         setupWebview()
         login_webview.loadUrl(url)
+        subscriptions += RxToolbar.navigationClicks(login_toolbar).subscribe { requireActivity().onBackPressed() }
     }
 
     private fun setupWebview() {
         CookieManager.getInstance().apply {
             setAcceptThirdPartyCookies(login_webview, true)
         }
-        WebView.setWebContentsDebuggingEnabled(true)
         login_webview.settings.apply {
             javaScriptEnabled = true
             loadWithOverviewMode = true
@@ -43,14 +45,20 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
         login_webview.webViewClient = Webclient()
     }
 
-    override fun updateState(state: WebLoginContract.State) = when(state) {
+    override fun updateState(state: WebLoginContract.State) = when (state) {
         is WebLoginContract.State.Error -> {
-            Toast.makeText(requireContext(), getString(R.string.lttLogin_error),Toast.LENGTH_LONG).show()
-            activity?.onBackPressed()
+            Toast.makeText(requireContext(), getString(R.string.lttLogin_error), Toast.LENGTH_LONG).show()
+            requireActivity().onBackPressed()
         }
     }
 
     inner class Webclient : WebViewClient() {
+
+        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+            view.loadUrl(request.url.toString());
+            return false // then it is not handled by default action
+        }
+
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
             if (url.toUri().path.contains(CallbackPath)) {
