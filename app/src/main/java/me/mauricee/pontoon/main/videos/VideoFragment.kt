@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.core.view.isVisible
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -44,7 +43,6 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        videos_toolbar.navigationIcon = DrawerArrowDrawable(requireContext())
         videos_list.layoutManager = LayoutManager(requireContext())
         videos_list.adapter = videoAdapter
         videos_container_lazy.setupWithSwipeRefreshLayout(videos_container)
