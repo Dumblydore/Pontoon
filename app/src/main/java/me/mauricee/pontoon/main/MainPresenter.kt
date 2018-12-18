@@ -6,6 +6,7 @@ import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
+import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.PontoonDatabase
@@ -18,6 +19,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
                                         private val userRepository: UserRepository,
                                         private val videoRepository: VideoRepository,
                                         private val player: Player,
+                                        private val floatPlaneApi: FloatPlaneApi,
                                         private val pontoonDatabase: PontoonDatabase,
                                         private val authInterceptor: AuthInterceptor,
                                         private val navigator: MainContract.Navigator,
@@ -25,27 +27,35 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
         BasePresenter<MainContract.State, MainContract.View>(eventTracker), MainContract.Presenter {
 
     override fun onViewAttached(view: MainContract.View): Observable<MainContract.State> =
-            Observable.merge(subscriptions(), actions(view),
-                    authInterceptor.sessionExpired.map { MainContract.State.SessionExpired })
+            Observable.merge(subscriptions(), actions(view), authInterceptor.sessionExpired.map { MainContract.State.SessionExpired })
 
     private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
         when (it) {
-            is MainContract.Action.Logout -> Observable.fromCallable(::logout).compose(RxHelpers.applyObservableSchedulers())
+            is MainContract.Action.Logout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
             is MainContract.Action.Profile -> stateless { navigator.toUser(userRepository.activeUser) }
             is MainContract.Action.Preferences -> MainContract.State.Preferences.toObservable()
-            is MainContract.Action.PlayerClicked -> stateless {
-                if (!animationTouchListener.isExpanded) animationTouchListener.isExpanded = true
-                else player.toggleControls()
-            }
+            is MainContract.Action.PlayerClicked -> toggleControls()
+            is MainContract.Action.PlayVideo -> playVideo(it)
+            MainContract.Action.Expired -> logout()
         }
     }
+
+    private fun toggleControls(): Observable<MainContract.State> {
+        return stateless {
+            if (!animationTouchListener.isExpanded) animationTouchListener.isExpanded = true
+            else player.toggleControls()
+        }
+    }
+
+    private fun playVideo(it: MainContract.Action.PlayVideo) =
+            videoRepository.getVideo(it.videoId).flatMapObservable { stateless { navigator.playVideo(it) } }
 
     private fun subscriptions() = videoRepository.subscriptions.onErrorReturnItem(emptyList())
             .map { MainContract.State.CurrentUser(userRepository.activeUser, it.size) }
 
-    private fun logout(): MainContract.State {
+    private fun logout(): Observable<MainContract.State> = Observable.fromCallable {
         accountManagerHelper.logout()
         pontoonDatabase.clearAllTables()
-        return MainContract.State.Logout
+        MainContract.State.Logout
     }
 }

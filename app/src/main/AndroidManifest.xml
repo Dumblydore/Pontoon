@@ -26,15 +26,49 @@
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="http"
+                    android:host="www.floatplane.com"
+                    android:pathPrefix="/activate-account" />
+
+                <data
+                    android:scheme="https"
+                    android:host="www.floatplane.com"
+                    android:pathPrefix="/activate-account" />
+
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="http"
+                    android:host="www.floatplane.com"
+                    android:pathPrefix="/video" />
+
+                <data
+                    android:scheme="https"
+                    android:host="www.floatplane.com"
+                    android:pathPrefix="/video" />
             </intent-filter>
         </activity>
         <activity android:name=".login.LoginActivity" />
         <activity
-            android:screenOrientation="portrait"
             android:name=".main.MainActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
+            android:screenOrientation="portrait"
             android:supportsPictureInPicture="true" />
 
         <activity android:name=".preferences.PreferencesActivity" />

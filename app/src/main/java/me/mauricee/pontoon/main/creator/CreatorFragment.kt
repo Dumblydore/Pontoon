@@ -4,7 +4,9 @@ import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.Fragment
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.ChangeBounds
@@ -96,9 +98,8 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
 
     companion object {
         private const val CreatorKey = "Creator"
-        fun newInstance(creator: String): CreatorFragment = Bundle().let {
-            it.putString(CreatorKey, creator)
-            CreatorFragment().apply { arguments = it }
+        fun newInstance(creator: String): Fragment = CreatorFragment().apply {
+            arguments = bundleOf(CreatorKey to creator)
         }
     }
 }

@@ -1,11 +1,9 @@
 package me.mauricee.pontoon.domain.floatplane
 
+import io.reactivex.Completable
 import io.reactivex.Observable
 import okhttp3.ResponseBody
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface FloatPlaneApi {
 
@@ -17,6 +15,18 @@ interface FloatPlaneApi {
 
     @get:GET("edges")
     val edges: Observable<Edge.Response>
+
+    @get:GET("user/self")
+    val self: Observable<User>
+
+    @POST("auth/logout")
+    fun logout() : Completable
+
+    @POST("activation/email/confirm")
+    fun confirmEmail(@Body confirmationRequest: ConfirmationRequest) : Completable
+
+    @POST("auth/login")
+    fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
 
     @GET("user/info")
     fun getUsers(@Query("id") vararg id: String): Observable<User.Response>
@@ -41,9 +51,6 @@ interface FloatPlaneApi {
 
     @GET("user/activity")
     fun getActivity(@Query("id") id: String): Observable<Activity.Response>
-
-    @POST("auth/login")
-    fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
 
     @POST("video/comment")
     fun post(@Body comment: CommentPost): Observable<Comment>
