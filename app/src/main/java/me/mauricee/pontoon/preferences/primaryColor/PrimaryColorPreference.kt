@@ -5,6 +5,7 @@ import android.content.res.TypedArray
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.preference.DialogPreference
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -72,7 +73,7 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
         }
 
         companion object {
-            fun newInstance(key: String): Fragment = Fragment().apply { arguments = Bundle().apply { putString(ARG_KEY, key) } }
+            fun newInstance(key: String): Fragment = Fragment().apply { arguments = bundleOf(ARG_KEY to key) }
         }
     }
 

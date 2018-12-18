@@ -24,9 +24,11 @@ interface MainContract {
 
     sealed class Action : EventTracker.Action {
         object Logout : Action()
+        object Expired : Action()
         object Preferences : Action()
         object Profile : Action()
         object PlayerClicked : Action()
+        data class PlayVideo(val videoId :String) : Action()
 
 
         companion object {

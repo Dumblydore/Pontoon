@@ -29,18 +29,26 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     override fun onViewAttached(view: MainContract.View): Observable<MainContract.State> =
             Observable.merge(subscriptions(), actions(view), authInterceptor.sessionExpired.map { MainContract.State.SessionExpired })
 
-    private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }
-            .flatMap {
-                when (it) {
-                    is MainContract.Action.Logout -> floatPlaneApi.logout().andThen(logout())
-                    is MainContract.Action.Profile -> stateless { navigator.toUser(userRepository.activeUser) }
-                    is MainContract.Action.Preferences -> MainContract.State.Preferences.toObservable()
-                    is MainContract.Action.PlayerClicked -> stateless {
-                        if (!animationTouchListener.isExpanded) animationTouchListener.isExpanded = true
-                        else player.toggleControls()
-                    }
-                }
-            }
+    private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
+        when (it) {
+            is MainContract.Action.Logout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
+            is MainContract.Action.Profile -> stateless { navigator.toUser(userRepository.activeUser) }
+            is MainContract.Action.Preferences -> MainContract.State.Preferences.toObservable()
+            is MainContract.Action.PlayerClicked -> toggleControls()
+            is MainContract.Action.PlayVideo -> playVideo(it)
+            MainContract.Action.Expired -> logout()
+        }
+    }
+
+    private fun toggleControls(): Observable<MainContract.State> {
+        return stateless {
+            if (!animationTouchListener.isExpanded) animationTouchListener.isExpanded = true
+            else player.toggleControls()
+        }
+    }
+
+    private fun playVideo(it: MainContract.Action.PlayVideo) =
+            videoRepository.getVideo(it.videoId).flatMapObservable { stateless { navigator.playVideo(it) } }
 
     private fun subscriptions() = videoRepository.subscriptions.onErrorReturnItem(emptyList())
             .map { MainContract.State.CurrentUser(userRepository.activeUser, it.size) }

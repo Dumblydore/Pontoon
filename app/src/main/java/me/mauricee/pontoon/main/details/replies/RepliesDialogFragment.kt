@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
@@ -103,7 +104,7 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View 
         private const val ParentKey: String = "PARENT"
 
         fun newInstance(comment: Comment) = RepliesDialogFragment().apply {
-            arguments = Bundle().apply { putString(ParentKey, comment.id) }
+            arguments = bundleOf(ParentKey to comment.id)
         }
     }
 }

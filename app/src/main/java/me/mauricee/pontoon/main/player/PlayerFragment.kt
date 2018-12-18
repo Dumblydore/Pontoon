@@ -7,7 +7,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
@@ -182,6 +184,6 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     companion object {
         private const val PreviewArtKey = "PreviewArt"
-        fun newInstance(previewArt: String) = PlayerFragment().apply { arguments = Bundle().apply { putString(PreviewArtKey, previewArt) } }
+        fun newInstance(previewArt: String): Fragment = PlayerFragment().apply { arguments = bundleOf(PreviewArtKey to previewArt) }
     }
 }

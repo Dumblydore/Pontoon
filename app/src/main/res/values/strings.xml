@@ -3,16 +3,19 @@
     <string name="login_username">Username</string>
     <string name="login_password">Password</string>
     <string name="login_login">Login</string>
-    <string name="videos_toolbar_title">Subscriptions</string>
-
+    <string name="login_signup">Not a member?</string>
     <string name="login_error_missingUsername">Enter Username</string>
     <string name="login_error_missingPassword">Enter Password</string>
     <string name="login_error_credentials">Invalid login, check your Username/Password</string>
     <string name="login_error_network">Check your connection</string>
+    <string name="login_error_activation">There was an issue activating your account.</string>
     <string name="login_error_service">There\'s an issue with the service, try again later</string>
     <string name="login_error_general">@string/error_general</string>
 
+    <string name="lttLogin_error">Could not log in. Please try again later.</string>
+
     <!-- Home -->
+    <string name="videos_toolbar_title">Subscriptions</string>
     <string name="item_view_all">View All</string>
     <string name="home_subtitle_suffix">%o subscriptions</string>
     <string name="subscriptions_videos_subhead">Videos</string>
@@ -30,7 +33,6 @@
     <string name="action_share">Share</string>
     <string name="action_quality">Quality</string>
     <string name="action_download">Download</string>
-
     <string name="player_error_default">Video could not be played.</string>
 
     <!-- Details -->
@@ -166,13 +168,6 @@
     <!-- User -->
     <string name="activity_comment_context">Posed a comment on %s:</string>
 
-    <!-- Misc -->
-    <string name="error_general">Something happened, Not sure what it was.</string>
-    <string name="lazy_error_retry">@string/retry</string>
-    <string name="retry">Try Again</string>
-
-    <!-- Animation -->
-
     <!-- Play Icon -->
     <string name="play_icon_upper_path_data">M 44 32 L 44 64 L 100 64 L 100 64 Z</string>
     <string name="play_icon_bottom_path_data">M 44 96 L 44 64 L 100 64 L 100 64 Z</string>
@@ -189,8 +184,14 @@
     <!-- Path Name -->
     <string name="play_icon_top_path_name">upper</string>
     <string name="play_icon_bottom_path_name">bottom</string>
+
+
+    <!-- Misc -->
+    <string name="error_general">Something happened, Not sure what it was.</string>
+    <string name="lazy_error_retry">@string/retry</string>
+    <string name="retry">Try Again</string>
+    <string name="filter_view_http_floatplane">Floatplane Web Filter</string>
     <string name="main_session_expired_body">Your session expired. You need to re-login.</string>
     <string name="main_session_expired_title">Session Expired</string>
-    <string name="login.signup">Not a member?</string>
-    <string name="lttLogin.error">Could not log in. Please try again later.</string>
+
 </resources>

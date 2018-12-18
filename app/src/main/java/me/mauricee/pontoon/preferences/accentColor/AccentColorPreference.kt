@@ -5,6 +5,7 @@ import android.content.res.TypedArray
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.preference.DialogPreference
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -66,13 +67,13 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
             AndroidSupportInjection.inject(this)
             super.onBindDialogView(view)
             view.preference_base_themes.adapter = adapter
-            view.preference_base_themes.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL, false)
+            view.preference_base_themes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             selection = adapter.actions.subscribe { selectedAccentColor = it }
             selectedAccentColor = themeManager.accentColor
         }
 
         companion object {
-            fun newInstance(key: String): Fragment = Fragment().apply { arguments = Bundle().apply { putString(ARG_KEY, key) } }
+            fun newInstance(key: String): Fragment = Fragment().apply { arguments = bundleOf(ARG_KEY to key) }
         }
     }
 

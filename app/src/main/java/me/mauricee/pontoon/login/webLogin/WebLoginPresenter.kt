@@ -15,14 +15,14 @@ class WebLoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlan
                                             eventTracker: EventTracker) : BasePresenter<WebLoginContract.State, WebLoginContract.View>(eventTracker) {
 
     override fun onViewAttached(view: WebLoginContract.View): Observable<WebLoginContract.State> =
-            view.actions.flatMap<WebLoginContract.State> {
+            view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap<WebLoginContract.State> {
                 when (it) {
                     is WebLoginContract.Action.Login -> {
                         getKeysFromCookie(it.cookies)
                         floatPlaneApi.self.flatMap { user ->
                             stateless {
                                 accountManagerHelper.account = user
-                                navigator.toSubscriptions()
+                                navigator.onSuccessfulLogin()
                             }
                         }
                     }

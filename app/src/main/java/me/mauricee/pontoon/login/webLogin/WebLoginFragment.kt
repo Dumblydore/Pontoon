@@ -3,12 +3,13 @@ package me.mauricee.pontoon.login.webLogin
 import android.os.Bundle
 import android.view.View
 import android.webkit.CookieManager
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
@@ -53,15 +54,10 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
     }
 
     inner class Webclient : WebViewClient() {
-
-        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-            view.loadUrl(request.url.toString());
-            return false // then it is not handled by default action
-        }
-
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
-            if (url.toUri().path.contains(CallbackPath)) {
+            val uriPath = url.toUri().path
+            if (uriPath.contains(CallbackPath) || uriPath.contains(ConfirmPath)) {
                 actionsRelay.accept(WebLoginContract.Action.Login(url, CookieManager.getInstance().getCookie(url)))
             }
         }
@@ -71,10 +67,11 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
 
         private const val UrlKey = "Url_Key"
         private const val CallbackPath = "/connect/login/callback"
+        private const val ConfirmPath = "api/activation/email/confirm"
         private const val LttUrl = "https://www.floatplane.com/api/connect/ltt?redirect=$CallbackPath&create=true&login=true"
         private const val DiscordUrl = "https://www.floatplane.com/api/connect/discord?redirect=$CallbackPath&create=true&login=true"
 
-        fun loginWithLttForum(): Fragment = WebLoginFragment().apply { arguments = Bundle().apply { putString(UrlKey, LttUrl) } }
-        fun loginWithDiscord(): Fragment = WebLoginFragment().apply { arguments = Bundle().apply { putString(UrlKey, DiscordUrl) } }
+        fun loginWithLttForum(): Fragment = WebLoginFragment().apply { arguments = bundleOf(UrlKey to LttUrl) }
+        fun loginWithDiscord(): Fragment = WebLoginFragment().apply { arguments = bundleOf(UrlKey to DiscordUrl) }
     }
 }

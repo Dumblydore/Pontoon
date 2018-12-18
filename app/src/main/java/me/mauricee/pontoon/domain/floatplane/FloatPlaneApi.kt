@@ -22,6 +22,9 @@ interface FloatPlaneApi {
     @POST("auth/logout")
     fun logout() : Completable
 
+    @POST("activation/email/confirm")
+    fun confirmEmail(@Body confirmationRequest: ConfirmationRequest) : Completable
+
     @POST("auth/login")
     fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
 
