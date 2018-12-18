@@ -13,6 +13,10 @@ interface LoginContract {
 
     sealed class Action : EventTracker.Action {
         data class Login(val username: String, val password: String) : Action()
+        data class Activate(val code: String, val username: String) : Action()
+        object LttLogin : Action()
+        object DiscordLogin : Action()
+        object SignUp: Action()
     }
 
     sealed class State : EventTracker.State {
@@ -28,6 +32,7 @@ interface LoginContract {
                 MissingPassword(R.string.login_error_missingPassword),
                 Credentials(R.string.login_error_credentials),
                 Network(R.string.login_error_network),
+                Activation(R.string.login_error_activation),
                 Service(R.string.login_error_service),
                 General(R.string.login_error_general)
             }

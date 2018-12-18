@@ -12,6 +12,17 @@
         android:layout_gravity="center_vertical"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/login.error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:textAlignment="center"
+            android:textColor="@color/colorError"
+            android:visibility="gone"
+            tools:text="@string/login_error_credentials"
+            tools:visibility="visible" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/login.username"
             android:layout_width="match_parent"
@@ -34,7 +45,6 @@
                 android:maxLines="1"
                 tools:text="@string/default_user" />
         </com.google.android.material.textfield.TextInputLayout>
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/login.password"
@@ -71,12 +81,12 @@
                 android:id="@+id/login.login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/colorAccent"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/login_login"
                 android:textAlignment="center"
                 android:textColor="?android:attr/textColorPrimaryInverse"
-                android:background="@color/colorAccent"
                 app:cornerRadius="24dp" />
 
             <ProgressBar
@@ -88,18 +98,65 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
         </FrameLayout>
-
-        <TextView
-            android:id="@+id/login.error"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:textAlignment="center"
-            android:textColor="@color/colorError"
-            android:visibility="gone"
-            tools:text="@string/login_error_credentials"
-            tools:visibility="visible" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="start|bottom"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
+
+        <ImageButton
+            android:id="@+id/login.lttForum"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="8dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/ic_color"
+            android:backgroundTint="?android:attr/colorPrimary"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_lttforum"
+            android:tint="?android:attr/colorAccent"
+            tools:backgroundTint="@color/colorAccent"
+            tools:tint="@color/colorPrimary" />
+
+        <!--TODO Hide this for now. It'll kick user back to discord login screen after they logged in.-->
+        <ImageButton
+            android:id="@+id/login.discord"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/ic_color"
+            android:backgroundTint="?android:attr/colorPrimary"
+            android:padding="8dp"
+            android:visibility="gone"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_discord"
+            android:tint="?android:attr/colorAccent"
+            tools:backgroundTint="@color/colorAccent"
+            tools:tint="@color/colorPrimary" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/login.signUp"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="@string/login_signup"
+        android:textColor="?android:attr/colorAccent"
+        tools:textColor="@color/colorAccent" />
 
 </FrameLayout>

@@ -91,6 +91,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override val actions: Observable<MainContract.Action>
         get() = Observable.merge(miscActions, RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
+                .compose(checkForVideoToPlay())
+
     /*
     *  Setting up guideline parameters to change the
     *  guideline percent value as per user touch event
@@ -138,6 +140,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         wiseFy.dump()
         if (isFinishing)
             player.release()
+    }
+
+    override fun setMenuExpanded(isExpanded: Boolean) {
+        if (isExpanded)
+            root.openDrawer(main_drawer, true)
+        else
+            root.closeDrawer(main_drawer, true)
     }
 
     override fun playVideo(video: Video, commentId: String) {
@@ -215,7 +224,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             AlertDialog.Builder(this)
                     .setTitle(R.string.main_session_expired_title)
                     .setMessage(R.string.main_session_expired_body)
-                    .setPositiveButton(android.R.string.ok) { _, _ -> miscActions.accept(MainContract.Action.Logout) }
+                    .setPositiveButton(android.R.string.ok) { _, _ -> miscActions.accept(MainContract.Action.Expired) }
+                    .setCancelable(false)
                     .create().show()
         }
     }.also { root.closeDrawer(main_drawer, true) }
@@ -419,9 +429,25 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
     }
 
+    private fun checkForVideoToPlay(): (Observable<MainContract.Action>) -> Observable<MainContract.Action> {
+        return {
+            if (intent.hasExtra(VideoToPlayKey)) {
+                val id = intent.getStringExtra(VideoToPlayKey)
+                intent.removeExtra(VideoToPlayKey)
+                it.startWith(MainContract.Action.PlayVideo(id))
+            } else
+                it
+        }
+    }
+
     companion object {
+        private const val VideoToPlayKey = "VideoToPlay"
+
         fun navigateTo(context: Context) {
             context.startActivity(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
         }
+
+        fun playVideo(context: Context, videoId: String) = context.startActivity(Intent(context, MainActivity::class.java)
+                .putExtra(VideoToPlayKey, videoId).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
     }
 }

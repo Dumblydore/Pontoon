@@ -15,6 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="?android:attr/actionBarSize"
             android:transitionName="toolbar"
+            app:navigationIcon="@drawable/ic_menu"
             app:layout_scrollFlags="scroll|enterAlways"
             app:title="@string/videos_toolbar_title"
             app:titleTextColor="@color/white" />
