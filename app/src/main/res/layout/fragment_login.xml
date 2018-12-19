@@ -115,18 +115,17 @@
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_marginEnd="8dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/ic_color"
-            android:backgroundTint="?android:attr/colorPrimary"
+            android:backgroundTint="?android:attr/colorAccent"
             android:padding="8dp"
+            android:layout_marginEnd="8dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_lttforum"
-            android:tint="?android:attr/colorAccent"
+            android:tint="?android:attr/colorPrimary"
             tools:backgroundTint="@color/colorAccent"
-            tools:tint="@color/colorPrimary" />
+            tools:tint="@color/colorPrimary"  />
 
-        <!--TODO Hide this for now. It'll kick user back to discord login screen after they logged in.-->
         <ImageButton
             android:id="@+id/login.discord"
             style="?android:attr/borderlessButtonStyle"
@@ -134,12 +133,11 @@
             android:layout_height="36dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/ic_color"
-            android:backgroundTint="?android:attr/colorPrimary"
+            android:backgroundTint="?android:attr/colorAccent"
             android:padding="8dp"
-            android:visibility="gone"
             android:scaleType="centerInside"
             android:src="@drawable/ic_discord"
-            android:tint="?android:attr/colorAccent"
+            android:tint="?android:attr/colorPrimary"
             tools:backgroundTint="@color/colorAccent"
             tools:tint="@color/colorPrimary" />
 
@@ -151,10 +149,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
+        android:padding="16dp"
         android:text="@string/login_signup"
         android:textColor="?android:attr/colorAccent"
         tools:textColor="@color/colorAccent" />
