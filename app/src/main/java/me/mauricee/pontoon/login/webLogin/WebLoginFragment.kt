@@ -3,6 +3,7 @@ package me.mauricee.pontoon.login.webLogin
 import android.os.Bundle
 import android.view.View
 import android.webkit.CookieManager
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -54,6 +55,12 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
     }
 
     inner class Webclient : WebViewClient() {
+
+        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+            login_webview.settings.domStorageEnabled = !request.url.host.contains("floatplane")
+            return super.shouldOverrideUrlLoading(view, request)
+        }
+
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
             val uriPath = url.toUri().path
