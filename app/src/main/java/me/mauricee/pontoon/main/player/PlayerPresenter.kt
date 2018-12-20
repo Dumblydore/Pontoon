@@ -31,6 +31,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                     watchState(), watchProgress(), watchDuration(), watchPreview(), watchTimeline()))
                     .startWith(mutableListOf(PlayerContract.State.Bind(player, !orientationManager.isFullscreen), PlayerContract.State.Quality(player.quality))
                             .also { if (!player.isActive()) it += PlayerContract.State.Loading })
+                    .doOnError { loge("PlayerPresenter error!", it) }
                     .onErrorReturnItem(PlayerContract.State.Error)
 
     private fun handleActions(action: PlayerContract.Action): Observable<PlayerContract.State> = when (action) {

@@ -33,6 +33,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username", "")}\""
         resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password", "")}\""
+        resValue 'string', 'cast_id', "\"${localProperties.getProperty("pontoon.castId", "")}\""
     }
     buildTypes {
         release {

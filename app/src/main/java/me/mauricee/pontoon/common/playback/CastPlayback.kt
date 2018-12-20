@@ -1,27 +1,27 @@
 package me.mauricee.pontoon.common.playback
 
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.net.toUri
 import com.google.android.gms.cast.Cast
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaLoadOptions
 import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.framework.CastSession
-import com.google.android.gms.cast.framework.SessionManager
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.images.WebImage
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
-import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.ext.logd
 
 class CastPlayback(private val session: CastSession) : Playback, Cast.Listener() {
 
-    private val remoteMediaClient: RemoteMediaClient = session.remoteMediaClient
+    private val remoteMediaClient: RemoteMediaClient by lazy { session.remoteMediaClient }
     private val relay: Relay<Int> = PublishRelay.create()
     override val bufferedPosition: Long
         get() = 0L
     override val playerState: Observable<Int>
-        get() = relay.hide()
+        get() = Observable.just(PlaybackStateCompat.STATE_PLAYING)
     override var position: Long
         get() = remoteMediaClient.approximateStreamPosition
         set(value) {
@@ -30,6 +30,37 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
 
     init {
         session.addCastListener(this)
+        remoteMediaClient.registerCallback(object : RemoteMediaClient.Callback() {
+            override fun onPreloadStatusUpdated() {
+                super.onPreloadStatusUpdated()
+                logd("remoteMediaClient onPreloadStatusUpdated")
+            }
+
+            override fun onSendingRemoteMediaRequest() {
+                super.onSendingRemoteMediaRequest()
+                logd("remoteMediaClient onSendingRemoteMediaRequest")
+            }
+
+            override fun onMetadataUpdated() {
+                super.onMetadataUpdated()
+                logd("remoteMediaClient onMetadataUpdated")
+            }
+
+            override fun onAdBreakStatusUpdated() {
+                super.onAdBreakStatusUpdated()
+                logd("remoteMediaClient onAdBreakStatusUpdated")
+            }
+
+            override fun onStatusUpdated() {
+                super.onStatusUpdated()
+                logd("remoteMediaClient onStatusUpdated")
+            }
+
+            override fun onQueueStatusUpdated() {
+                super.onQueueStatusUpdated()
+                logd("remoteMediaClient onQueueStatusUpdated")
+            }
+        })
     }
 
     override fun pause() {
@@ -41,7 +72,7 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
     }
 
     override fun stop() {
-        remoteMediaClient.stop()
+//        remoteMediaClient.stop()
         session.removeCastListener(this)
     }
 
@@ -52,7 +83,7 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
             putString(MediaMetadata.KEY_SUBTITLE, video.creator.name)
             addImage(WebImage(mediaItem.video.thumbnail.toUri()))
         }
-        val info = MediaInfo.Builder("")
+        val info = MediaInfo.Builder(mediaItem.source)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .setContentType("videos/mp4")
                 .setMetadata(metaData)

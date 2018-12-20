@@ -1,18 +1,21 @@
 package me.mauricee.pontoon.common.playback
 
 import android.content.Context
-import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.SessionManager
 import io.reactivex.Observable
+import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.rx.cast.SessionEvent
+import me.mauricee.pontoon.rx.cast.events
 import javax.inject.Inject
 
 interface Playback {
 
     val bufferedPosition: Long
 
-    @PlaybackStateCompat.State
+
     val playerState: Observable<Int>
 
     var position: Long
@@ -25,25 +28,30 @@ interface Playback {
 
     fun prepare(mediaItem: MediaItem)
 
+    //    fun release()
     data class MediaItem(val source: String, val video: Video, val position: Long = 0L)
 
     class Factory @Inject constructor(private val hlsSource: HlsMediaSource.Factory, private val castSessionManager: SessionManager, private val context: Context) {
 
-        fun initalPlayback() = createLocalPlayback()
+        val playback: Observable<Playback>
+            get() = castSessionManager.events().flatMap {
+                when {
+                    it.isConnected() -> createCastPlayback((it as SessionEvent.ConnectedEvent).castSession).toObservable()
+                    it.isDisconnected() -> createLocalPlayback().toObservable()
+                    else -> Observable.empty()
+                }
+            }
+
+        val initialPlayback: Playback
+            get() = createLocalPlayback()
 
         private fun createLocalPlayback(): Playback {
             return LocalPlayback(hlsSource, context)
         }
 
-        private fun createCastPlayback(): Playback {
-            return CastPlayback(castSessionManager.currentCastSession)
-        }
-
-        fun switchPlayback(currentPlayback: Playback, itemToPlay: MediaItem?): Playback {
-            val newPlayback = if (currentPlayback is LocalPlayback) createCastPlayback() else createLocalPlayback()
-            itemToPlay?.let { newPlayback.prepare(it) }
-            return newPlayback
+        private fun createCastPlayback(castSession: CastSession): Playback {
+            return CastPlayback(castSession)
         }
     }
-
 }
+

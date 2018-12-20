@@ -7,7 +7,7 @@ import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.ext.RxHelpers
+import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.PontoonDatabase
 import me.mauricee.pontoon.model.user.UserRepository
@@ -53,9 +53,9 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     private fun subscriptions() = videoRepository.subscriptions.onErrorReturnItem(emptyList())
             .map { MainContract.State.CurrentUser(userRepository.activeUser, it.size) }
 
-    private fun logout(): Observable<MainContract.State> = Observable.fromCallable {
+    private fun logout(): Observable<MainContract.State> = Observable.fromCallable<MainContract.State>{
         accountManagerHelper.logout()
         pontoonDatabase.clearAllTables()
         MainContract.State.Logout
-    }
+    }.doOnIo()
 }

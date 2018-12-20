@@ -11,14 +11,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.PlaybackParameters
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
-import com.google.android.exoplayer2.source.TrackGroupArray
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -28,6 +23,7 @@ import me.mauricee.pontoon.common.playback.LocalPlayback
 import me.mauricee.pontoon.common.playback.Playback
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.model.audio.AudioFocusManager
 import me.mauricee.pontoon.model.audio.FocusState
 import me.mauricee.pontoon.model.preferences.Preferences
@@ -41,8 +37,7 @@ class Player @Inject constructor(preferences: Preferences,
                                  lifecycleOwner: LifecycleOwner,
                                  private val playbackFactory: Playback.Factory,
                                  private val focusManager: AudioFocusManager, private val context: Context,
-                                 private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
-        Player.EventListener, LifecycleObserver {
+                                 private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(), LifecycleObserver {
 
     @PlaybackStateCompat.State
     private var state: Int = PlaybackStateCompat.STATE_NONE
@@ -51,12 +46,12 @@ class Player @Inject constructor(preferences: Preferences,
                 field = value
                 stateSubject.accept(value)
                 PlaybackStateCompat.Builder(mediaSession.controller.playbackState)
-                        .setState(value, currentPlayback.value.position, 1f)
+                        .setState(value, currentPlayback.position, 1f)
                         .build().also(mediaSession::setPlaybackState)
             }
         }
 
-    private val currentPlayback = BehaviorRelay.createDefault(playbackFactory.initalPlayback())
+    private var currentPlayback: Playback = playbackFactory.initialPlayback
 
     private val subs = CompositeDisposable()
 
@@ -88,7 +83,7 @@ class Player @Inject constructor(preferences: Preferences,
                         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
                         .build().apply(mediaSession::setMetadata)
             } else {
-                currentPlayback.value.stop()
+                currentPlayback.stop()
                 mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
             }
             field = value
@@ -121,14 +116,14 @@ class Player @Inject constructor(preferences: Preferences,
         set(value) {
             if (value != field) {
                 currentlyPlaying?.apply {
-                    val progress = currentPlayback.value.position
+                    val progress = currentPlayback.position
                     val source = when (value) {
                         QualityLevel.p1080 -> this.quality.p1080
                         QualityLevel.p720 -> this.quality.p720
                         QualityLevel.p480 -> this.quality.p480
                         QualityLevel.p360 -> this.quality.p360
                     }
-                    currentPlayback.value.prepare(Playback.MediaItem(source, video, progress))
+                    currentPlayback.prepare(Playback.MediaItem(source, video, progress))
                 }
             }
             field = value
@@ -148,39 +143,18 @@ class Player @Inject constructor(preferences: Preferences,
     fun isActive(): Boolean = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
 
     fun bindToView(view: TextureView) {
-        (currentPlayback.value as? LocalPlayback)?.bindToView(view)
-    }
-
-    override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-    }
-
-    override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-    }
-
-    override fun onPlayerError(error: ExoPlaybackException?) {
-        state = PlaybackStateCompat.STATE_ERROR
-    }
-
-    override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-
-    }
-
-    override fun onLoadingChanged(isLoading: Boolean) {
-
-    }
-
-    override fun onRepeatModeChanged(repeatMode: Int) {
+        (currentPlayback as? LocalPlayback)?.bindToView(view)
     }
 
     override fun onPlay() {
-        currentPlayback.value.play()
+        currentPlayback.play()
         state = PlaybackStateCompat.STATE_PLAYING
         focusManager.gain()
     }
 
     override fun onPause() {
         if (isActive()) {
-            currentPlayback.value.pause()
+            currentPlayback.pause()
             state = PlaybackStateCompat.STATE_PAUSED
             focusManager.drop()
         }
@@ -193,24 +167,12 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onSeekTo(pos: Long) {
-        currentPlayback.value.position = pos
+        currentPlayback.position = pos
         onPlay()
     }
 
-    override fun onSeekProcessed() {
-    }
-
-    override fun onPositionDiscontinuity(reason: Int) {
-    }
-
-    override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-    }
-
-    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-    }
-
     fun release() {
-        currentPlayback.value.stop()
+        currentPlayback.stop()
         focusManager.drop()
         mediaSession.release()
     }
@@ -223,10 +185,12 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .map { currentPlayback.value.position }.startWith(currentPlayback.value.position)
+            .flatMapSingle{ Single.fromCallable { currentPlayback.position }.subscribeOn(AndroidSchedulers.mainThread()) }
+            .startWith(currentPlayback.position)
 
     fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .map { currentPlayback.value.bufferedPosition }.startWith(currentPlayback.value.bufferedPosition)
+            .flatMapSingle{ Single.fromCallable { currentPlayback.bufferedPosition }.subscribeOn(AndroidSchedulers.mainThread()) }
+            .startWith(currentPlayback.bufferedPosition)
 
     fun toggleControls() {
         if (viewMode == ViewMode.PictureInPicture) return
@@ -241,14 +205,18 @@ class Player @Inject constructor(preferences: Preferences,
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun bind() {
         mediaSession.setCallback(this)
-        subs += currentPlayback.flatMap(Playback::playerState).subscribe { state = it }
+        subs += playbackFactory.playback
+                .doOnNext(this::switchPlayback)
+                .startWith(currentPlayback)
+                .flatMap(Playback::playerState)
+                .subscribe { state = it }
 
         subs += focusManager.focus.subscribe { it ->
             when (it) {
-                FocusState.Gained -> if (state != PlaybackStateCompat.STATE_PAUSED) currentPlayback.value.play()
+                FocusState.Gained -> if (state != PlaybackStateCompat.STATE_PAUSED) currentPlayback.play()
                 FocusState.Duck,
                 FocusState.Transient,
-                FocusState.Loss -> currentPlayback.value.pause()
+                FocusState.Loss -> currentPlayback.pause()
             }
         }
         subs += context.registerReceiver(IntentFilter(Intent.ACTION_HEADSET_PLUG))
@@ -263,14 +231,17 @@ class Player @Inject constructor(preferences: Preferences,
         mediaSession.release()
     }
 
-    private fun toggleCast() {
-        currentPlayback.accept(playbackFactory.switchPlayback(currentPlayback.value, null))
-    }
-
     private fun handleHeadsetChanges(intent: Intent) {
         if ((intent.getIntExtra("state", -1) == 0)) {
             onPause()
         }
+    }
+
+    private fun switchPlayback(newPlayback: Playback) {
+        currentlyPlaying?.with { newPlayback.prepare(Playback.MediaItem(it.quality.p1080, it.video, currentPlayback.position)) }
+        currentPlayback.stop()
+        newPlayback.play()
+        currentPlayback = newPlayback
     }
 
     //TODO Not sure if this is the best way of doing it. It might be better to have it as a part of Video.
@@ -288,7 +259,7 @@ class Player @Inject constructor(preferences: Preferences,
         }
 
         setMetadata(playback.video)
-        currentPlayback.value.prepare(Playback.MediaItem(source, playback.video))
+        currentPlayback.prepare(Playback.MediaItem(source, playback.video))
         focusManager.gain()
         previewImageRelay.accept(playback.video.thumbnail)
     }

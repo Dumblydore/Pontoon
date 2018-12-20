@@ -73,6 +73,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
 
     private fun displayVideos(videos: PagedList<Video>) {
         videoAdapter.submitList(videos)
+        videos_list.smoothScrollToPosition(0)
         videos_container_lazy.state = LazyLayout.SUCCESS
     }
 

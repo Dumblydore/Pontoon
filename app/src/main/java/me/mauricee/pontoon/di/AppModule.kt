@@ -8,11 +8,14 @@ import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.os.Handler
 import android.os.PowerManager
+import androidx.mediarouter.media.MediaRouter
 import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
+import com.google.android.gms.cast.framework.CastContext
+import com.google.android.gms.cast.framework.SessionManager
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.novoda.downloadmanager.DownloadManagerBuilder
@@ -181,5 +184,14 @@ abstract class AppModule {
         @JvmStatic
         fun provideStorage(context: Context): StorageRoot = StorageRootFactory.createPrimaryStorageDownloadsDirectoryRoot(context)
 
+
+        @Provides
+        fun provideMediaRouter(context: Context): MediaRouter = MediaRouter.getInstance(context)
+
+
+        @AppScope
+        @Provides
+        @JvmStatic
+        fun provideSessionManager(context: Context): SessionManager = CastContext.getSharedInstance(context).sessionManager
     }
 }

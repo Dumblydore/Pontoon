@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.common.playback
 
 import android.content.Context
+import android.support.v4.media.session.PlaybackStateCompat
 import android.view.TextureView
 import androidx.core.net.toUri
 import com.google.android.exoplayer2.*
@@ -13,7 +14,7 @@ import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 
 
-//TODO maybe put media session in this?
+
 class LocalPlayback(private val networkSourceFactory: HlsMediaSource.Factory, context: Context) : Playback,
         Player.EventListener {
 
@@ -49,6 +50,7 @@ class LocalPlayback(private val networkSourceFactory: HlsMediaSource.Factory, co
 
     override fun prepare(mediaItem: Playback.MediaItem) {
         player.prepare(networkSourceFactory.createMediaSource(mediaItem.source.toUri()))
+        player.playWhenReady = true
     }
 
     fun bindToView(view: TextureView) {
@@ -56,42 +58,52 @@ class LocalPlayback(private val networkSourceFactory: HlsMediaSource.Factory, co
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun onSeekProcessed() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        eventRelay.accept(PlaybackStateCompat.STATE_PLAYING)
     }
 
-    override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onTracksChanged(trackGroups: TrackGroupArray, trackSelections: TrackSelectionArray) {
+
     }
 
-    override fun onPlayerError(error: ExoPlaybackException?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onPlayerError(error: ExoPlaybackException) {
+        eventRelay.accept(PlaybackStateCompat.STATE_ERROR)
+
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onPositionDiscontinuity(reason: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun onRepeatModeChanged(repeatMode: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val state = when (playbackState) {
+            Player.STATE_READY -> {
+//                durationRelay.accept(player.duration)
+                if (playWhenReady) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
+            }
+            Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
+            Player.STATE_ENDED -> PlaybackStateCompat.STATE_STOPPED
+            Player.STATE_IDLE -> PlaybackStateCompat.STATE_NONE
+            else -> PlaybackStateCompat.STATE_NONE
+        }
+        eventRelay.accept(state)
     }
 }

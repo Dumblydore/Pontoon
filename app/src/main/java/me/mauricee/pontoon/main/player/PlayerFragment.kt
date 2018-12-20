@@ -72,6 +72,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     }
 
     override fun updateState(state: PlayerContract.State) {
+        player_controls_error.isVisible = false
         when (state) {
             is PlayerContract.State.Bind -> {
                 state.player.bindToView(player_display)
@@ -94,13 +95,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_display.isVisible = false
                 player_controls_loading.isVisible = true
                 player_controls_playPause.isVisible = false
-                player_controls_error.isVisible = false
                 player_controls_progress.bufferedProgress = 0
             }
             is PlayerContract.State.Buffering -> {
                 player_controls_loading.isVisible = true
                 player_controls_playPause.isVisible = false
-                player_controls_error.isVisible = false
             }
             is PlayerContract.State.Duration -> {
                 player_controls_duration.text = state.formattedDuration
