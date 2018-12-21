@@ -36,6 +36,26 @@ jobs:
           paths:
             - ./configs
             - local.properties
+  build_test:
+        <<: *defaults
+        steps:
+          - checkout
+          - restore_cache:
+              keys:
+                - configs-{{ arch }}-{{ .Branch }}-
+                - configs-{{ arch }}-
+                - configs-
+          - run:
+              name: move config files
+              command: |
+                mv ./configs/fabric.properties ./app
+                mv ./configs/google-services.json ./app
+          - run:
+              name: chmod permissions
+              command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
+          - run:
+              name: Build and Test
+              command: ./gradlew clean assembleDebug test -P buildNumber=${CIRCLE_BUILD_NUM}
   build_release:
       <<: *defaults
       steps:
@@ -69,6 +89,12 @@ workflows:
   build-and-deploy:
     jobs:
       - build
+      - build_test:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
       - build_release:
           requires:
             - build
