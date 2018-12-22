@@ -11,7 +11,8 @@ import me.mauricee.pontoon.domain.floatplane.User
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.login.LoginNavigator
 import retrofit2.HttpException
-import java.net.SocketTimeoutException
+import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
+import java.net.HttpURLConnection.HTTP_UNAVAILABLE
 import javax.inject.Inject
 
 class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
@@ -29,8 +30,8 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
         is LoginContract.Action.Login -> attemptLogin(action.username, action.password)
         is LoginContract.Action.Activate -> attemptActivation(action.code, action.username)
         LoginContract.Action.LttLogin -> stateless(navigator::toLttLogin)
-        LoginContract.Action.DiscordLogin -> stateless(navigator::toDiscord)
-        LoginContract.Action.SignUp -> stateless(navigator::toSignup)
+        LoginContract.Action.DiscordLogin -> stateless(navigator::toDiscordLogin)
+        LoginContract.Action.SignUp -> stateless(navigator::toSignUp)
     }
 
     private fun attemptActivation(code: String, username: String): Observable<LoginContract.State> =
@@ -58,13 +59,12 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
 
     private fun processError(error: Throwable): LoginContract.State.Error = when (error) {
         is HttpException -> processHttpCode(error.code())
-        is SocketTimeoutException -> LoginContract.State.Error.Type.Service
         else -> LoginContract.State.Error.Type.General
     }.let(LoginContract.State::Error)
 
     private fun processHttpCode(code: Int) = when (code) {
-        401 -> LoginContract.State.Error.Type.Credentials
-        500 -> LoginContract.State.Error.Type.Service
+        HTTP_UNAUTHORIZED -> LoginContract.State.Error.Type.Credentials
+        HTTP_UNAVAILABLE -> LoginContract.State.Error.Type.Service
         else -> LoginContract.State.Error.Type.Network
     }
 
