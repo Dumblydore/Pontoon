@@ -15,6 +15,8 @@ import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
+import me.mauricee.pontoon.ext.doOnIo
+import me.mauricee.pontoon.ext.ioStream
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
@@ -49,11 +51,11 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     private fun subscriptionsFromCache() = subscriptionDao.getSubscriptions()
             .map { it.map { it.creator }.toTypedArray() }
 
-    fun getSubscriptionFeed(unwatchedOnly: Boolean = false): Observable<SubscriptionFeed> = subscriptions.map {
-        SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly))
+    fun getSubscriptionFeed(unwatchedOnly: Boolean = false, clean: Boolean): Observable<SubscriptionFeed> = subscriptions.map {
+        SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly, refresh = clean))
     }
 
-    fun getVideos(vararg creator: UserRepository.Creator, unwatchedOnly: Boolean = false): VideoResult {
+    fun getVideos(vararg creator: UserRepository.Creator, unwatchedOnly: Boolean = false, refresh: Boolean): VideoResult {
         val callback = videoCallbackFactory.newInstance(*creator)
         val creators = creator.map { it.id }.toTypedArray()
         val factory = if (unwatchedOnly) videoDao.getUnwatchedVideosByCreators(*creators) else
@@ -64,6 +66,14 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 .setBoundaryCallback(callback)
                 .buildObservable()
                 .doOnDispose(callback::dispose)
+                .apply {
+                    if (refresh) {
+                        Completable.fromCallable { videoDao.clearCreatorVideos(*creators) }
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io())
+                                .onErrorComplete().subscribe().also { doOnDispose(it::dispose) }
+                    }
+                }
                 .let { VideoResult(it, callback.state, callback::retry) }
     }
 
@@ -87,7 +97,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                         .map { it ->
                             Video(vid.id, vid.title, vid.description, vid.releaseDate, vid.duration, it, vid.thumbnail, null)
                         }.firstOrError()
-            }.compose(RxHelpers.applySingleSchedulers())
+            }.ioStream()
 
     fun getRelatedVideos(video: String): Single<List<Video>> = floatPlaneApi.getRelatedVideos(video).flatMap { videos ->
         videos.map { it.creator }.distinct().toTypedArray().let { userRepo.getCreators(*it) }
@@ -124,10 +134,8 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     }
 
     fun addToWatchHistory(video: Video) {
-        Completable.fromCallable { videoDao.setWatched(Instant.now(), video.id) }.onErrorComplete()
-                .observeOn(Schedulers.io())
-                .subscribeOn(Schedulers.io())
-                .subscribe()
+        Completable.fromCallable { videoDao.setWatched(Instant.now(), video.id) }
+                .onErrorComplete().doOnIo().subscribe()
     }
 
     private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
@@ -137,12 +145,9 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     //TODO use proper id
     private fun cacheSubscriptions(subscriptions: List<Subscription>) = subscriptions.toObservable()
             .map { SubscriptionEntity(it.creatorId, it.plan.id, it.startDate, it.endDate) }
-            .toList()
+            .toList().flatMapCompletable { Completable.fromAction { subscriptionDao.insert(*it.toTypedArray()) } }
             .observeOn(Schedulers.io())
-            .subscribe { it ->
-                subscriptionDao.insert(*it.toTypedArray())
-            }
-
+            .onErrorComplete().subscribe()
 
     private fun validateSubscriptions(subscriptions: List<Subscription>) =
             if (subscriptions.isEmpty()) Single.error(NoSubscriptionsException())

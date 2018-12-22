@@ -1,6 +1,8 @@
 package me.mauricee.pontoon.main
 
 import android.app.PictureInPictureParams
+import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
@@ -11,11 +13,17 @@ import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.transition.*
+import androidx.fragment.app.transaction
+import androidx.transition.ChangeBounds
+import androidx.transition.Fade
+import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
@@ -66,8 +74,25 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     private val fragmentContainer: Int
         get() = R.id.main_container
 
+    /** To prevent view flickering when pip is resizing*/
+    private var lastConfiguration: Int = -1
+        set(value) {
+            if (field != value) {
+                supportFragmentManager.findFragmentById(main_player.id)?.also {
+                    supportFragmentManager.transaction {
+                        detach(it)
+                        attach(it)
+                    }
+                }
+            }
+            field = value
+        }
+
+
     override val actions: Observable<MainContract.Action>
         get() = Observable.merge(miscActions, RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
+                .compose(checkForVideoToPlay())
+
     /*
     *  Setting up guideline parameters to change the
     *  guideline percent value as per user touch event
@@ -91,11 +116,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         paramsGlMarginEnd = guidelineMarginEnd.layoutParams as ConstraintLayout.LayoutParams
 
         main_player.setOnTouchListener(animationTouchListener)
-
-        if (player.isActive())
-            setPlayerExpanded(false)
-        else
-            dismiss()
+        hide()
 
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
@@ -110,8 +131,22 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun onStop() {
         super.onStop()
-        player.onPause()
         mainPresenter.detachView()
+        player.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        wiseFy.dump()
+        if (isFinishing)
+            player.release()
+    }
+
+    override fun setMenuExpanded(isExpanded: Boolean) {
+        if (isExpanded)
+            root.openDrawer(main_drawer, true)
+        else
+            root.closeDrawer(main_drawer, true)
     }
 
     override fun playVideo(video: Video, commentId: String) {
@@ -131,29 +166,31 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun toCreator(creator: UserRepository.Creator) {
         controller.pushFragment(CreatorFragment.newInstance(creator.id))
-        animationTouchListener.isExpanded = false
-        setPlayerExpanded(false)
+        if (player.isActive()) {
+            animationTouchListener.isExpanded = false
+            setPlayerExpanded(false)
+        }
     }
 
     override fun toCreatorsList() {
         controller.pushFragment(CreatorListFragment.newInstance())
-        animationTouchListener.isExpanded = false
-        setPlayerExpanded(false)
+        if (player.isActive()) {
+            animationTouchListener.isExpanded = false
+            setPlayerExpanded(false)
+        }
     }
 
     override fun toUser(user: UserRepository.User) {
         controller.pushFragment(UserFragment.newInstance(user.id))
-        animationTouchListener.isExpanded = false
-        setPlayerExpanded(false)
+        if (player.isActive()) {
+            animationTouchListener.isExpanded = false
+            setPlayerExpanded(false)
+        }
         root.closeDrawer(main_drawer)
     }
 
     override fun onClick(view: View) {
-        if (!animationTouchListener.isExpanded) {
-            animationTouchListener.isExpanded = true
-        } else {
-            miscActions.accept(MainContract.Action.ClickEvent)
-        }
+        miscActions.accept(MainContract.Action.PlayerClicked)
     }
 
     override fun onDismiss(view: View) {
@@ -174,16 +211,31 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun updateState(state: MainContract.State) = when (state) {
         is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
-        is MainContract.State.Preferences -> PreferencesActivity.navigateTo(this)
-        is MainContract.State.Logout -> LoginActivity.navigateTo(this)
-    }.also { root.closeDrawer(main_drawer) }
+        is MainContract.State.Preferences -> {
+            if (player.isPlaying()) player.onPause()
+            PreferencesActivity.navigateTo(this)
+        }
+        is MainContract.State.Logout -> {
+            if (player.isActive()) player.onStop()
+            LoginActivity.navigateTo(this)
+            finish()
+        }
+        MainContract.State.SessionExpired -> {
+            AlertDialog.Builder(this)
+                    .setTitle(R.string.main_session_expired_title)
+                    .setMessage(R.string.main_session_expired_body)
+                    .setPositiveButton(android.R.string.ok) { _, _ -> miscActions.accept(MainContract.Action.Expired) }
+                    .setCancelable(false)
+                    .create().show()
+        }
+    }.also { root.closeDrawer(main_drawer, true) }
 
     override fun onBackPressed() {
         if (orientationManager.isFullscreen) {
             orientationManager.isFullscreen = false
         } else if (root.isDrawerOpen(main_drawer)) {
-            root.closeDrawer(main_drawer)
-        } else if (animationTouchListener.isExpanded) {
+            root.closeDrawer(main_drawer, true)
+        } else if (animationTouchListener.isExpanded && player.isActive()) {
             animationTouchListener.isExpanded = false
             if (!isPortrait()) {
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -212,23 +264,22 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         enterPictureInPictureMode(PictureInPictureParams.Builder()
                 .setAspectRatio(Rational.parseRational("16:9"))
                 .build())
+        player.controlsVisible = false
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        val isPortrait = isPortrait() || newConfig?.orientation == Configuration.ORIENTATION_PORTRAIT
+        val isPortrait = isPortrait() || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT
         if (isPortrait) {
-
             animationTouchListener.isEnabled = true
-            enableFullScreen(false)
         } else {
             animationTouchListener.isEnabled = false
             if (!animationTouchListener.isExpanded) {
                 animationTouchListener.isExpanded = true
             }
-            enableFullScreen(true)
         }
-
+        enableFullScreen(!isPortrait)
+        lastConfiguration = newConfig.orientation
         //Update this params in last after all configuration changes are done
         main.updateParams(constraintSet) {
             constrainHeight(main_player.id, if (isPortrait) 0 else getDeviceHeight())
@@ -310,6 +361,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
             interpolator = AnticipateOvershootInterpolator(1.0f)
             duration = 250
+            doAfter { player.onStop() }
         })
     }
 
@@ -326,6 +378,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
             interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
             duration = 250
+            doAfter { player.viewMode = if (isExpanded) Player.ViewMode.Expanded else Player.ViewMode.PictureInPicture }
         })
     }
 
@@ -334,6 +387,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
      * more than 50% horizontally
      */
     private fun dismiss() {
+        player.onStop()
         main.updateParams(constraintSet) {
             setGuidelinePercent(guidelineVertical.id, VideoTouchHandler.MIN_HORIZONTAL_LIMIT - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
             setGuidelinePercent(guidelineMarginEnd.id, 0F)
@@ -342,24 +396,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                     .addTransition(Fade()).apply {
                         interpolator = AnticipateOvershootInterpolator(1.0f)
                         duration = 250
-                        addListener(object : Transition.TransitionListener {
-                            override fun onTransitionResume(transition: Transition) {
-                            }
-
-                            override fun onTransitionPause(transition: Transition) {
-                            }
-
-                            override fun onTransitionCancel(transition: Transition) {
-                            }
-
-                            override fun onTransitionStart(transition: Transition) {
-                            }
-
-                            override fun onTransitionEnd(transition: Transition) {
-//                    //Remove Video when swipe animation is ended
-                                removeFragmentByID(R.id.main_player)
-                            }
-                        })
+                        doAfter { removeFragmentByID(R.id.main_player) }
                     })
         }
     }
@@ -370,10 +407,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            player.viewMode = Player.ViewMode.FullScreen
         } else {
+            player.viewMode = Player.ViewMode.Expanded
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }
+        main_fullscreenbg.isVisible = isEnabled
     }
 
     private fun displayUser(user: UserRepository.User, subCount: Int) {
@@ -387,5 +427,27 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                         .into(findViewById(R.id.header_icon))
             }
         }
+    }
+
+    private fun checkForVideoToPlay(): (Observable<MainContract.Action>) -> Observable<MainContract.Action> {
+        return {
+            if (intent.hasExtra(VideoToPlayKey)) {
+                val id = intent.getStringExtra(VideoToPlayKey)
+                intent.removeExtra(VideoToPlayKey)
+                it.startWith(MainContract.Action.PlayVideo(id))
+            } else
+                it
+        }
+    }
+
+    companion object {
+        private const val VideoToPlayKey = "VideoToPlay"
+
+        fun navigateTo(context: Context) {
+            context.startActivity(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+        }
+
+        fun playVideo(context: Context, videoId: String) = context.startActivity(Intent(context, MainActivity::class.java)
+                .putExtra(VideoToPlayKey, videoId).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
     }
 }

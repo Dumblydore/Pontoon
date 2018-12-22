@@ -9,11 +9,12 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.OrientationManager
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.video.VideoRepository
-import org.threeten.bp.Duration
 import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
@@ -28,14 +29,18 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
                     watchState(), watchProgress(), watchDuration(), watchPreview(), watchTimeline()))
-                    .startWith(listOf(PlayerContract.State.Bind(player), PlayerContract.State.Loading, PlayerContract.State.Quality(player.quality)))
+                    .startWith(mutableListOf(PlayerContract.State.Bind(player, !orientationManager.isFullscreen), PlayerContract.State.Quality(player.quality))
+                            .also { if (!player.isActive()) it += PlayerContract.State.Loading })
+                    .onErrorReturnItem(PlayerContract.State.Error)
 
     private fun handleActions(action: PlayerContract.Action): Observable<PlayerContract.State> = when (action) {
         PlayerContract.Action.SkipForward -> stateless { }
         PlayerContract.Action.SkipBackward -> stateless { }
         PlayerContract.Action.MinimizePlayer -> stateless {
-            player.controlsVisible = false
-            navigator.setPlayerExpanded(false)
+            if (player.viewMode != Player.ViewMode.FullScreen) {
+                player.controlsVisible = false
+                navigator.setPlayerExpanded(false)
+            }
         }
         PlayerContract.Action.ToggleFullscreen -> stateless { orientationManager.apply { isFullscreen = !isFullscreen } }
         is PlayerContract.Action.PlayPause -> stateless { player.playPause() }
@@ -46,12 +51,12 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     private fun watchProgress() = Observable.combineLatest<Long, Long, PlayerContract.State>(player.progress().distinctUntilChanged(),
             player.bufferedProgress().distinctUntilChanged(), BiFunction { t1, t2 ->
-        PlayerContract.State.Progress((t1 / 1000).toInt(), (t2 / 1000).toInt(), formatMillis(t1))
+        PlayerContract.State.Progress(t1, t2 / 1000, t1.toDuration())
     })
 
     private fun watchPreview() = player.previewImage.map(PlayerContract.State::Preview)
 
-    private fun watchDuration() = player.duration.map { PlayerContract.State.Duration((it / 1000).toInt(), formatMillis(it)) }
+    private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(it, it.toDuration()) }
 
     private fun watchState() = player.playbackState.map {
         when (it) {
@@ -59,6 +64,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             PlaybackStateCompat.STATE_PAUSED -> PlayerContract.State.Paused
             PlaybackStateCompat.STATE_BUFFERING -> PlayerContract.State.Buffering
             PlaybackStateCompat.STATE_CONNECTING -> PlayerContract.State.Loading
+            PlaybackStateCompat.STATE_ERROR -> PlayerContract.State.Error
             else -> PlayerContract.State.Paused
         }
     }
@@ -69,18 +75,14 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         videoRepository.getDownloadLink(video.id, qualityLevel).map {
             Batch.with(storageRoot, DownloadBatchIdCreator.createSanitizedFrom(video.id), video.title)
                     .downloadFrom(it).apply()
-        }.flatMapObservable { stateless { downloadManager.download(it.build()) } }
+        }.flatMapObservable {
+            Observable.fromCallable<PlayerContract.State> {
+                downloadManager.download(it.build())
+                PlayerContract.State.DownloadStart
+            }
+        }.doOnError { loge("Error downloading.", it) }
                 .onErrorReturnItem(PlayerContract.State.DownloadFailed)
-    }
 
-    private fun formatMillis(ms: Long) = Duration.ofMillis(ms).let {
-        val seconds = it.seconds
-        val absSeconds = Math.abs(seconds)
-        val positive = String.format(
-                "%02d:%02d",
-                absSeconds % 3600 / 60,
-                absSeconds % 60)
-        if (seconds < 0) "-$positive" else positive
     }
 
 }

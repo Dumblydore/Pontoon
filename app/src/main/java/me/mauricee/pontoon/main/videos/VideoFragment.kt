@@ -9,6 +9,7 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
+import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_videos.*
@@ -31,13 +32,14 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
         get() = Observable.merge(RxSwipeRefreshLayout.refreshes(videos_container),
                 videos_container_lazy.retries())
                 .doOnNext { videoAdapter.submitList(null) }
-                .map { VideoContract.Action.Refresh }
+                .map { VideoContract.Action.Refresh(true) }
 
     override val actions: Observable<VideoContract.Action>
         get() = Observable.merge(refreshes, miscActions,
                 videoAdapter.actions.map(VideoContract.Action::PlayVideo),
                 videoAdapter.subscriptionAdapter.actions)
-                .startWith(VideoContract.Action.Refresh)
+                .startWith(VideoContract.Action.Refresh(false))
+                .mergeWith(RxToolbar.navigationClicks(videos_toolbar).map { VideoContract.Action.NavMenu })
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -85,7 +87,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
         Snackbar.make(view!!, error.type.msg, Snackbar.LENGTH_LONG)
                 .also {
                     if (error.type != VideoContract.State.FetchError.Type.NoVideos)
-                        it.setAction(R.string.snackbar_action_retry) { error.retry() }
+                        it.setAction(R.string.retry) { error.retry() }
                 }.show()
     }
 

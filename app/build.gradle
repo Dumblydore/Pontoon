@@ -5,10 +5,9 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'io.fabric'
-//apply plugin: "androidx.navigation.safeargs"
 
 def major = 0
-def minor = 8
+def minor = 9
 def patch = (project.findProperty('buildNumber') ?: "0").toInteger()
 
 Properties localProperties = new Properties()
@@ -40,13 +39,15 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             proguardFiles fileTree('proguard').asList().toArray()
-
+            resValue 'string', 'app_name', '"Pontoon"'
             resValue 'string', 'default_user', '""'
             resValue 'string', 'default_pass', '""'
             signingConfig signingConfigs.Release
             pseudoLocalesEnabled true
         }
         debug {
+            resValue 'string', 'app_name', '"Pontoon Debug"'
+            applicationIdSuffix ".debug"
             versionNameSuffix '-debug'
         }
     }
@@ -67,7 +68,7 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:$google_support_version"
     implementation "androidx.preference:preference:$google_support_version"
 
-    implementation "androidx.appcompat:appcompat:$google_support_version"
+    implementation "androidx.appcompat:appcompat:1.0.2"
     implementation "androidx.recyclerview:recyclerview:$google_support_version"
     implementation "androidx.core:core:$google_support_version"
     implementation "androidx.media:media:$google_support_version"
@@ -75,19 +76,11 @@ dependencies {
 //    implementation "androidx.mediarouter:mediarouter:$google_support_version"
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation "com.google.android.material:material:$google_support_version"
-    implementation "android.arch.navigation:navigation-fragment-ktx:$nav_version"
-    implementation "android.arch.navigation:navigation-ui-ktx:$nav_version"
-    implementation "android.arch.work:work-runtime:$work_version" // use -ktx for Kotlin
-
-
-    // use -ktx for Kotlin
-
-    //    implementation "com.jakewharton.timber:timber:4.7.0"
 
     //    Google Play
-    implementation 'com.google.firebase:firebase-core:16.0.3'
-    implementation 'com.google.firebase:firebase-crash:16.2.0'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
+    implementation 'com.google.firebase:firebase-core:16.0.5'
+    implementation 'com.google.firebase:firebase-crash:16.2.1'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.6'
 
     //  UI
     implementation 'com.ncapdevi:frag-nav:2.4.0'

@@ -15,16 +15,20 @@ interface MainContract {
     interface Presenter : BaseContract.Presenter<MainContract.View>
 
     sealed class State : EventTracker.State {
-        class CurrentUser(val user: UserRepository.User, val subCount: Int) : State()
+        data class CurrentUser(val user: UserRepository.User, val subCount: Int) : State()
+        data class ExpandPlayer(val isExpanded: Boolean)
         object Preferences : State()
         object Logout : State()
+        object SessionExpired : State()
     }
 
     sealed class Action : EventTracker.Action {
         object Logout : Action()
+        object Expired : Action()
         object Preferences : Action()
         object Profile : Action()
-        object ClickEvent : Action()
+        object PlayerClicked : Action()
+        data class PlayVideo(val videoId :String) : Action()
 
 
         companion object {
@@ -50,6 +54,8 @@ interface MainContract {
         fun playVideo(video: Video, commentId: String = "")
 
         fun setPlayerExpanded(isExpanded: Boolean)
+
+        fun setMenuExpanded(isExpanded: Boolean)
 
     }
 }

@@ -2,6 +2,7 @@ package me.mauricee.pontoon.analytics
 
 import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
+import me.mauricee.pontoon.ext.just
 import javax.inject.Inject
 
 
@@ -11,7 +12,7 @@ class FirebaseTracker @Inject constructor(private val analytics: FirebaseAnalyti
             Bundle().apply {
                 putString(FirebaseAnalytics.Param.CONTENT, page.name)
                 putString(FirebaseAnalytics.Param.CONTENT_TYPE, "action")
-            }.also { analytics.logEvent(action.tag, it) }
+            }.just { analytics.logEvent(action.tag, this) }
         }
     }
 
@@ -20,7 +21,7 @@ class FirebaseTracker @Inject constructor(private val analytics: FirebaseAnalyti
             Bundle().apply {
                 putString(FirebaseAnalytics.Param.CONTENT, page.name)
                 putString(FirebaseAnalytics.Param.CONTENT_TYPE, "state")
-            }.also { analytics.logEvent(state.tag, it) }
+            }.just { analytics.logEvent(state.tag, this) }
         }
     }
 }

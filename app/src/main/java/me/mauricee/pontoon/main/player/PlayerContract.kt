@@ -14,17 +14,18 @@ interface PlayerContract {
         object Playing : State()
         object Loading : State()
         object Buffering : State()
-        class PreviewThumbnail(val url: String) : State()
         object DownloadStart : State()
         object DownloadFailed : State()
-        class Bind(val player: Player) : State()
+        object Error : State()
+        class Bind(val player: Player, val displayPipIcon: Boolean) : State()
         class Preview(val path: String) : State()
-        class Duration(val duration: Int, val formattedDuration: String) : State() {
+        class PreviewThumbnail(val path: String) : State()
+        class Duration(val duration: Long, val formattedDuration: String) : State() {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }
 
-        class Progress(val progress: Int, val bufferedProgress: Int, val formattedProgress: String) : State() {
+        class Progress(val progress: Long, val bufferedProgress: Long, val formattedProgress: String) : State() {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }
@@ -38,7 +39,7 @@ interface PlayerContract {
         object ToggleFullscreen : Action()
         object MinimizePlayer : Action()
         class SeekProgress(val progress: Int) : Action()
-        class Quality(val qualityLevel: Player.QualityLevel) : Action()
         class Download(val quality: Player.QualityLevel) : Action()
+        class Quality(val qualityLevel: Player.QualityLevel) : Action()
     }
 }

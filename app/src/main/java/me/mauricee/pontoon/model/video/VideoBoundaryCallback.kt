@@ -21,6 +21,10 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
 
     private var isLoading = false
 
+    init {
+        onZeroItemsLoaded()
+    }
+
     override fun onZeroItemsLoaded() {
         super.onZeroItemsLoaded()
         if (isLoading) return

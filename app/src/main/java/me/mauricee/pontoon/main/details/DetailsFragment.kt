@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.details
 import android.os.Bundle
 import android.text.util.Linkify
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionInflater
@@ -128,7 +129,7 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
             player_title.text = title
             player_subtitle.text = creator.name
             player_description.text = description
-            player_releaseDate.text = getString(R.string.player_releaseDate, formatter.format(releaseDate))
+            player_releaseDate.text = getString(R.string.details_postDate, formatter.format(releaseDate))
             Linkify.addLinks(player_description, Linkify.WEB_URLS)
         }
         GlideApp.with(this).load(info.creator.user.profileImage).circleCrop()
@@ -142,19 +143,19 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
     }
 
     override fun comment(video: Video, comment: Comment?) {
-        CommentDialogFragment.newInstance(comment, video).also {it. show(childFragmentManager, tag) }
+        CommentDialogFragment.newInstance(comment, video).also { it.show(childFragmentManager, tag) }
     }
 
     override fun displayReplies(parent: Comment) {
-        RepliesDialogFragment.newInstance(parent).also{ it.show(childFragmentManager, tag) }
+        RepliesDialogFragment.newInstance(parent).also { it.show(childFragmentManager, tag) }
     }
 
     override fun onCommentSuccess() {
-        Snackbar.make(view!!, R.string.details_commentPosted,Snackbar.LENGTH_LONG).show()
+        Snackbar.make(view!!, R.string.details_commentPosted, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onCommentError() {
-        Snackbar.make(view!!, R.string.details_error_commentPost,Snackbar.LENGTH_LONG).show()
+        Snackbar.make(view!!, R.string.details_error_commentPost, Snackbar.LENGTH_LONG).show()
     }
 
     companion object {
@@ -163,10 +164,7 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
 
         fun newInstance(videoId: String, commentId: String = ""): DetailsFragment =
                 DetailsFragment().also {
-                    it.arguments = Bundle().apply {
-                        putString(VideoKey, videoId)
-                        putString(CommentKey, commentId)
-                    }
+                    it.arguments = bundleOf(VideoKey to videoId, CommentKey to commentId)
                 }
     }
 }

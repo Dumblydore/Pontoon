@@ -4,7 +4,9 @@ import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.Fragment
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.ChangeBounds
@@ -35,11 +37,11 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
     lateinit var videoAdapter: VideoPageAdapter
 
     private val refreshes
-        get() = RxSwipeRefreshLayout.refreshes(creator_container).map { CreatorContract.Action.Refresh(creator) }
+        get() = RxSwipeRefreshLayout.refreshes(creator_container).map { CreatorContract.Action.Refresh(creator, true) }
 
     override val actions: Observable<CreatorContract.Action>
         get() = Observable.merge(refreshes, videoAdapter.actions.map(CreatorContract.Action::PlayVideo))
-                .startWith(CreatorContract.Action.Refresh(creator))
+                .startWith(CreatorContract.Action.Refresh(creator, false))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,9 +98,8 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
 
     companion object {
         private const val CreatorKey = "Creator"
-        fun newInstance(creator: String): CreatorFragment = Bundle().let {
-            it.putString(CreatorKey, creator)
-            CreatorFragment().apply { arguments = it }
+        fun newInstance(creator: String): Fragment = CreatorFragment().apply {
+            arguments = bundleOf(CreatorKey to creator)
         }
     }
 }

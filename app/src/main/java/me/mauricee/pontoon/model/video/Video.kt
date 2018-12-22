@@ -48,4 +48,7 @@ interface VideoDao {
     @Query("UPDATE Video SET watched = :watched WHERE id = :id")
     fun setWatched(watched: Instant, id: String)
 
+    @Query("DELETE From Video WHERE creator IN (:creators)")
+    fun clearCreatorVideos(vararg creators: String)
+
 }

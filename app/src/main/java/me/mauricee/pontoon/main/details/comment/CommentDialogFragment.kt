@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.jakewharton.rxbinding2.view.clicks
@@ -23,7 +24,9 @@ import javax.inject.Inject
 class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View {
 
     private val subscriptions = CompositeDisposable()
-    private val replyingTo: String
+    private val replyingId: String
+        get() = arguments!!.getString(ReplyKey, NoReply)
+    private val replyName: String
         get() = arguments!!.getString(NameKey, NoReply)
     private val videoId: String
         get() = arguments!!.getString(VideoKey, "")
@@ -32,7 +35,7 @@ class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View 
 
     override val actions: Observable<CommentContract.Action>
         get() = comment_submit.clicks().map { comment_edit.text.toString() }.map<CommentContract.Action> {
-            if (replyingTo == NoReply) CommentContract.Action.Comment(it, videoId) else CommentContract.Action.Reply(it, replyingTo, videoId)
+            if (replyingId == NoReply) CommentContract.Action.Comment(it, videoId) else CommentContract.Action.Reply(it, replyingId, videoId)
         }
 
     override fun onAttach(context: Context) {
@@ -47,6 +50,10 @@ class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subscriptions += comment_edit.textChanges().subscribe { comment_submit.isVisible = it.isNotBlank() }
+        comment_reply.apply {
+            isVisible = replyName != NoReply
+            text = getString(R.string.reply_subhead, replyName)
+        }
         presenter.attachView(this)
     }
 
@@ -74,15 +81,15 @@ class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View 
 
     companion object {
         private const val NameKey: String = "NAME"
+        private const val ReplyKey: String = "REPLY"
         private const val VideoKey: String = "VIDEO"
 
         private const val NoReply = "NO_REPLY"
 
         fun newInstance(replyingTo: Comment? = null, video: Video) = CommentDialogFragment().apply {
-            arguments = Bundle().apply {
-                putString(NameKey, replyingTo?.user?.username
-                        ?: NoReply); putString(VideoKey, video.id)
-            }
+            arguments = bundleOf(VideoKey to (replyingTo?.user?.id ?: NoReply),
+                    NameKey to (replyingTo?.user?.username ?: NoReply),
+                    VideoKey to video.id)
         }
     }
 }

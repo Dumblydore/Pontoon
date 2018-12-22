@@ -19,6 +19,7 @@ class SearchPresenter @Inject constructor(private val navigator: MainContract.Na
                     videoRepository.subscriptions, view.actions.doOnNext { eventTracker.trackAction(it, view) },
                     BiFunction { t1, t2 -> Pair(t1, t2) })
                     .flatMap { handleActions(it.first, it.second) }
+                    .onErrorReturnItem(SearchContract.State.Error())
 
     private fun handleActions(creators: List<UserRepository.Creator>, action: SearchContract.Action): Observable<SearchContract.State> =
             when (action) {

@@ -15,10 +15,11 @@ interface VideoContract {
     interface Presenter : BaseContract.Presenter<View>
 
     sealed class Action : EventTracker.Action {
-        object Refresh : Action()
+        class Refresh(val clean: Boolean) : Action()
         class Subscription(val creator: UserRepository.Creator) : Action()
         class PlayVideo(val video: Video) : Action()
         object Creators : Action()
+        object NavMenu : Action()
     }
 
     sealed class State : EventTracker.State {

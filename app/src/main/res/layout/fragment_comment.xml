@@ -6,12 +6,23 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/comment.header"
-        android:layout_width="wrap_content"
+        android:id="@+id/comment.reply"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:padding="8dp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="12sp"
+        tools:text="Replying to person"
+        tools:textColor="@color/md_grey_500" />
+
+    <TextView
+        android:id="@+id/comment.header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
         android:text="@string/details_comment_header"
         android:textColor="?android:attr/textColorPrimary"
+        tools:textColor="@color/white"
         android:textSize="18sp" />
 
     <FrameLayout

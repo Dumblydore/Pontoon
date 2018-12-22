@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/player_controls"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,27 +10,36 @@
 <androidx.appcompat.widget.Toolbar
     android:id="@+id/player.controls.toolbar"
     android:layout_width="match_parent"
-    app:navigationIcon="@drawable/ic_arrow_down"
     android:layout_height="?android:attr/actionBarSize"/>
-    
-    
+
+
     <ImageButton
         android:id="@+id/player_controls_playPause"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/player_controls_position"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start|bottom"
+        android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         android:fontFamily="sans-serif-light"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
         android:textColor="@color/white"
         android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:text="5:05" />
 
     <TextView
@@ -38,13 +47,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:layout_marginEnd="32dp"
         android:layout_marginBottom="8dp"
         android:fontFamily="sans-serif-light"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
         android:textColor="@color/white"
         android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/player_controls_fullscreen"
         tools:text="10:10" />
 
 
@@ -53,9 +61,11 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="1dp"
         android:layout_marginEnd="4dp"
         android:background="?android:attr/selectableItemBackground"
-        android:src="@drawable/ic_fullscreen" />
+        android:src="@drawable/ic_fullscreen"
+        app:layout_constraintBottom_toBottomOf="@+id/player_controls_duration"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/player_controls_duration" />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

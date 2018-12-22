@@ -8,9 +8,10 @@ import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.os.Handler
 import android.os.PowerManager
-import android.support.v4.media.session.MediaSessionCompat
 import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -87,12 +88,6 @@ abstract class AppModule {
         @Provides
         @AppScope
         @JvmStatic
-        fun providesSession(context: Context): MediaSessionCompat =
-                MediaSessionCompat(context, "Pontoon")
-
-        @Provides
-        @AppScope
-        @JvmStatic
         fun providesWifiManager(context: Context): WifiManager =
                 context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
@@ -157,6 +152,12 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
+        fun providesHlsFactory(okHttpClient: OkHttpClient, agent: String) =
+                HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null))
+
+        @AppScope
+        @Provides
+        @JvmStatic
         fun providesDateFormatter() = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault())
@@ -179,5 +180,6 @@ abstract class AppModule {
         @Provides
         @JvmStatic
         fun provideStorage(context: Context): StorageRoot = StorageRootFactory.createPrimaryStorageDownloadsDirectoryRoot(context)
+
     }
 }

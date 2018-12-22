@@ -17,20 +17,22 @@ class UserPresenter @Inject constructor(private val videoRepository: VideoReposi
 
     override fun onViewAttached(view: UserContract.View): Observable<UserContract.State> = view.actions
             .doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleAction)
+            .onErrorReturnItem(UserContract.State.Error())
 
     private fun handleAction(action: UserContract.Action): Observable<UserContract.State> = when (action) {
         is UserContract.Action.Refresh -> refresh(action.userId)
         is UserContract.Action.Video -> navigateToVideo(action)
     }
 
-    private fun navigateToVideo(action: UserContract.Action.Video) = videoRepository.getVideo(action.comment.video)
+    private fun navigateToVideo(action: UserContract.Action.Video) = videoRepository.getVideo(action.videoId)
             .flatMapObservable { stateless { navigator.playVideo(it) } }
-
+            .onErrorReturnItem(UserContract.State.Error(UserContract.State.Error.Type.PlaybackFailed))
 
     private fun refresh(userId: String): Observable<UserContract.State> {
         return userRepository.getUsers(userId).map { it.first() }.flatMap {
             userRepository.getActivity(it).map<UserContract.State>(UserContract.State::Activity)
                     .startWith(UserContract.State.User(it))
         }.startWith(UserContract.State.Loading)
+                .onErrorReturnItem(UserContract.State.Error(UserContract.State.Error.Type.Activity))
     }
 }
