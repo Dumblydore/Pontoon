@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.main
 
+import io.reactivex.Completable
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
@@ -7,8 +8,7 @@ import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.ext.ioStream
-import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.model.PontoonDatabase
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
@@ -31,9 +31,9 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
 
     private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
         when (it) {
-            is MainContract.Action.Logout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
+            is MainContract.Action.SuccessfulLogout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
             is MainContract.Action.Profile -> stateless { navigator.toUser(userRepository.activeUser) }
-            is MainContract.Action.Preferences -> MainContract.State.Preferences.toObservable()
+            is MainContract.Action.Preferences -> stateless { navigator.toPreferences() }
             is MainContract.Action.PlayerClicked -> toggleControls()
             is MainContract.Action.PlayVideo -> playVideo(it)
             MainContract.Action.Expired -> logout()
@@ -53,9 +53,9 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     private fun subscriptions() = videoRepository.subscriptions.onErrorReturnItem(emptyList())
             .map { MainContract.State.CurrentUser(userRepository.activeUser, it.size) }
 
-    private fun logout(): Observable<MainContract.State> = Observable.fromCallable<MainContract.State> {
+    private fun logout(): Observable<MainContract.State> = Completable.fromAction {
         accountManagerHelper.logout()
         pontoonDatabase.clearAllTables()
-        MainContract.State.Logout
-    }.ioStream()
+    }.doOnIo().onErrorComplete().andThen(Observable.just<MainContract.State>(MainContract.State.Logout))
+
 }

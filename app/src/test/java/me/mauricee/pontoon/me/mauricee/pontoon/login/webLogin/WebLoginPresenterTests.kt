@@ -12,6 +12,7 @@ import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.login.LoginNavigator
 import me.mauricee.pontoon.login.webLogin.WebLoginContract
 import me.mauricee.pontoon.login.webLogin.WebLoginPresenter
+import me.mauricee.pontoon.me.mauricee.pontoon.rule.MockkRule
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.SchedulerRule
 import org.junit.After
 import org.junit.Before
@@ -22,6 +23,8 @@ class WebLoginPresenterTests {
 
     @get:Rule
     val schedulerRule = SchedulerRule()
+    @get:Rule
+    val mockkRule = MockkRule(relaxed = true)
 
     @MockK
     lateinit var floatPlaneApi: FloatPlaneApi
@@ -40,7 +43,6 @@ class WebLoginPresenterTests {
 
     @Before
     fun setUp() {
-        MockKAnnotations.init(this)
         presenter = WebLoginPresenter(floatPlaneApi, accountManagerHelper, loginNavigator, eventTracker)
     }
 
@@ -77,10 +79,5 @@ class WebLoginPresenterTests {
             accountManagerHelper setProperty "account" value user
             loginNavigator.onSuccessfulLogin()
         }
-    }
-
-    @After
-    fun tearDown() {
-        clearAllMocks()
     }
 }

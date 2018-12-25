@@ -55,7 +55,7 @@ jobs:
               command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
           - run:
               name: Build and Test
-              command: ./gradlew clean assembleDebug test -P buildNumber=${CIRCLE_BUILD_NUM}
+              command: ./gradlew clean assembleDebug test
   build_release:
       <<: *defaults
       steps:

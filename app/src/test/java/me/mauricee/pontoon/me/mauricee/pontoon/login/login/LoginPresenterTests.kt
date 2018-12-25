@@ -13,6 +13,7 @@ import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.login.LoginNavigator
 import me.mauricee.pontoon.login.login.LoginContract
 import me.mauricee.pontoon.login.login.LoginPresenter
+import me.mauricee.pontoon.me.mauricee.pontoon.rule.MockkRule
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.SchedulerRule
 import org.junit.After
 import org.junit.Before
@@ -26,6 +27,8 @@ class LoginPresenterTests {
 
     @get:Rule
     val schedulerRule = SchedulerRule()
+    @get:Rule
+    val mockkRule = MockkRule(relaxed = true)
 
     @MockK
     lateinit var httpException: HttpException
@@ -47,7 +50,6 @@ class LoginPresenterTests {
 
     @Before
     fun setUp() {
-        MockKAnnotations.init(this, relaxed = true)
         presenter = LoginPresenter(floatPlaneApi, mockAccountManagerHelper, mockLoginNavigator, mockEventTracker)
         userContainer = User.Container("", user)
     }
@@ -271,10 +273,5 @@ class LoginPresenterTests {
             view getProperty "actions"
             mockLoginNavigator.toSignUp()
         }
-    }
-
-    @After
-    fun tearDown() {
-        unmockkAll()
     }
 }
