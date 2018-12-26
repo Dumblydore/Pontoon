@@ -57,5 +57,4 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
         accountManagerHelper.logout()
         pontoonDatabase.clearAllTables()
     }.doOnIo().onErrorComplete().andThen(Observable.just<MainContract.State>(MainContract.State.Logout))
-
 }
