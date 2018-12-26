@@ -2,6 +2,7 @@ package me.mauricee.pontoon.main.player
 
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.common.playback.PlaybackLocation
 import me.mauricee.pontoon.main.Player
 
 interface PlayerContract {
@@ -10,13 +11,13 @@ interface PlayerContract {
     interface Presenter : BaseContract.Presenter<View>
 
     sealed class State : EventTracker.State {
-        object Paused : State()
-        object Playing : State()
-        object Loading : State()
-        object Buffering : State()
         object DownloadStart : State()
         object DownloadFailed : State()
         object Error : State()
+        object Loading : State()
+        class Paused(val location: PlaybackLocation) : State()
+        class Playing(val location: PlaybackLocation) : State()
+        class Buffering(val location: PlaybackLocation) : State()
         class Bind(val player: Player, val displayPipIcon: Boolean) : State()
         class Preview(val path: String) : State()
         class PreviewThumbnail(val path: String) : State()

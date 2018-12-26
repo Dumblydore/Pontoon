@@ -52,8 +52,6 @@ internal class CastSessionManagerEventObservable(private val sessionManager: Ses
         }
 
         override fun onSessionResuming(session: CastSession, sessionId: String) {
-            if (!isDisposed)
-                observer.onNext(SessionEvent.ConnectedEvent.Resuming(session))
         }
 
         override fun onSessionEnding(session: CastSession) {

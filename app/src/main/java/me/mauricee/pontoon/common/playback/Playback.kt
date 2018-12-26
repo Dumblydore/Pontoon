@@ -15,6 +15,7 @@ interface Playback {
 
     val bufferedPosition: Long
 
+    val location: PlaybackLocation
 
     val playerState: Observable<Int>
 
@@ -43,15 +44,17 @@ interface Playback {
             }
 
         val initialPlayback: Playback
-            get() = createLocalPlayback()
+            get() = if (checkForConnection())
+                createCastPlayback(castSessionManager.currentCastSession)
+            else
+                createLocalPlayback()
 
-        private fun createLocalPlayback(): Playback {
-            return LocalPlayback(hlsSource, context)
-        }
+        private fun createLocalPlayback(): Playback = LocalPlayback(hlsSource, context)
 
-        private fun createCastPlayback(castSession: CastSession): Playback {
-            return CastPlayback(castSession)
-        }
+        private fun createCastPlayback(castSession: CastSession): Playback = CastPlayback(castSession)
+
+        private fun checkForConnection() = castSessionManager.currentCastSession?.let {
+            castSessionManager.currentCastSession.isConnected || castSessionManager.currentCastSession.isConnecting
+        } ?: false
     }
 }
-

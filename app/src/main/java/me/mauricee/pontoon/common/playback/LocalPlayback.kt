@@ -12,15 +12,18 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
-
+import me.mauricee.pontoon.ext.prepareAnd
 
 
 class LocalPlayback(private val networkSourceFactory: HlsMediaSource.Factory, context: Context) : Playback,
         Player.EventListener {
 
     private val player: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
+
     private val eventRelay: Relay<Int> = PublishRelay.create()
 
+    override val location: PlaybackLocation
+        get() = PlaybackLocation.Local
     override val bufferedPosition: Long
         get() = player.bufferedPosition
     override val playerState: Observable<Int>
@@ -49,7 +52,9 @@ class LocalPlayback(private val networkSourceFactory: HlsMediaSource.Factory, co
     }
 
     override fun prepare(mediaItem: Playback.MediaItem) {
-        player.prepare(networkSourceFactory.createMediaSource(mediaItem.source.toUri()))
+        player.prepareAnd(networkSourceFactory.createMediaSource(mediaItem.source.toUri())) {
+            it.seekTo(mediaItem.position)
+        }
         player.playWhenReady = true
     }
 

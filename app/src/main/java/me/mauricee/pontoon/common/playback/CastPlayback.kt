@@ -9,6 +9,7 @@ import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.images.WebImage
+import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
@@ -17,11 +18,13 @@ import me.mauricee.pontoon.ext.logd
 class CastPlayback(private val session: CastSession) : Playback, Cast.Listener() {
 
     private val remoteMediaClient: RemoteMediaClient by lazy { session.remoteMediaClient }
-    private val relay: Relay<Int> = PublishRelay.create()
+    private val playbackState: Relay<Int> = BehaviorRelay.create()
+    override val location: PlaybackLocation
+        get() = PlaybackLocation.Remote
     override val bufferedPosition: Long
         get() = 0L
     override val playerState: Observable<Int>
-        get() = Observable.just(PlaybackStateCompat.STATE_PLAYING)
+        get() = playbackState.hide()
     override var position: Long
         get() = remoteMediaClient.approximateStreamPosition
         set(value) {
@@ -33,32 +36,18 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
         remoteMediaClient.registerCallback(object : RemoteMediaClient.Callback() {
             override fun onPreloadStatusUpdated() {
                 super.onPreloadStatusUpdated()
-                logd("remoteMediaClient onPreloadStatusUpdated")
-            }
-
-            override fun onSendingRemoteMediaRequest() {
-                super.onSendingRemoteMediaRequest()
-                logd("remoteMediaClient onSendingRemoteMediaRequest")
-            }
-
-            override fun onMetadataUpdated() {
-                super.onMetadataUpdated()
-                logd("remoteMediaClient onMetadataUpdated")
-            }
-
-            override fun onAdBreakStatusUpdated() {
-                super.onAdBreakStatusUpdated()
-                logd("remoteMediaClient onAdBreakStatusUpdated")
+                playbackState.accept(PlaybackStateCompat.STATE_CONNECTING)
             }
 
             override fun onStatusUpdated() {
                 super.onStatusUpdated()
-                logd("remoteMediaClient onStatusUpdated")
-            }
-
-            override fun onQueueStatusUpdated() {
-                super.onQueueStatusUpdated()
-                logd("remoteMediaClient onQueueStatusUpdated")
+                val newState = when {
+                    remoteMediaClient.isPlaying -> PlaybackStateCompat.STATE_PLAYING
+                    remoteMediaClient.isPaused -> PlaybackStateCompat.STATE_PAUSED
+                    remoteMediaClient.isBuffering -> PlaybackStateCompat.STATE_BUFFERING
+                    else -> PlaybackStateCompat.STATE_NONE
+                }
+                playbackState.accept(newState)
             }
         })
     }
@@ -72,7 +61,7 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
     }
 
     override fun stop() {
-//        remoteMediaClient.stop()
+        remoteMediaClient.stop()
         session.removeCastListener(this)
     }
 

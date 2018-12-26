@@ -9,6 +9,7 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.common.playback.PlaybackLocation
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.main.MainContract
@@ -28,8 +29,8 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
-                    watchState(), watchProgress(), watchDuration(), watchPreview(), watchTimeline()))
-                    .startWith(mutableListOf(PlayerContract.State.Bind(player, !orientationManager.isFullscreen), PlayerContract.State.Quality(player.quality))
+                    watchState(), watchProgress(), watchDuration(), watchPreview(), watchTimeline(), watchVideoBind()))
+                    .startWith(mutableListOf<PlayerContract.State>(PlayerContract.State.Quality(player.quality))
                             .also { if (!player.isActive()) it += PlayerContract.State.Loading })
                     .doOnError { loge("PlayerPresenter error!", it) }
                     .onErrorReturnItem(PlayerContract.State.Error)
@@ -59,18 +60,23 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(it, it.toDuration()) }
 
-    private fun watchState() = player.playbackState.map {
-        when (it) {
-            PlaybackStateCompat.STATE_PLAYING -> PlayerContract.State.Playing
-            PlaybackStateCompat.STATE_PAUSED -> PlayerContract.State.Paused
-            PlaybackStateCompat.STATE_BUFFERING -> PlayerContract.State.Buffering
+    private fun watchState() = Observable.combineLatest<PlaybackLocation, Int, PlayerContract.State>(player.playbackLocation,
+            player.playbackState, BiFunction { location, state ->
+        when (state) {
+            PlaybackStateCompat.STATE_PLAYING -> PlayerContract.State.Playing(location)
+            PlaybackStateCompat.STATE_PAUSED -> PlayerContract.State.Paused(location)
+            PlaybackStateCompat.STATE_BUFFERING -> PlayerContract.State.Buffering(location)
             PlaybackStateCompat.STATE_CONNECTING -> PlayerContract.State.Loading
             PlaybackStateCompat.STATE_ERROR -> PlayerContract.State.Error
-            else -> PlayerContract.State.Paused
+            else -> PlayerContract.State.Paused(location)
         }
-    }
+    })
 
     private fun watchTimeline() = player.thumbnailTimeline.map(PlayerContract.State::PreviewThumbnail)
+
+    private fun watchVideoBind() = player.playbackLocation.filter { it == PlaybackLocation.Local }.map {
+        PlayerContract.State.Bind(player, !orientationManager.isFullscreen)
+    }
 
     private fun downloadVideo(qualityLevel: Player.QualityLevel) = player.currentlyPlaying!!.video.let { video ->
         videoRepository.getDownloadLink(video.id, qualityLevel).map {
@@ -83,7 +89,6 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             }
         }.doOnError { loge("Error downloading.", it) }
                 .onErrorReturnItem(PlayerContract.State.DownloadFailed)
-
     }
 
 }

@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.fragment_player.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.playback.PlaybackLocation
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
@@ -83,11 +84,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 isPlaying(true)
                 player_controls_playPause.isVisible = true
                 player_controls_loading.isVisible = false
-                player_display.isVisible = true
+                player_display.isVisible = state.location == PlaybackLocation.Local
             }
             is PlayerContract.State.Paused -> {
                 isPlaying(false)
-                player_display.isVisible = true
+                player_display.isVisible = state.location == PlaybackLocation.Local
                 player_controls_loading.isVisible = false
                 player_controls_playPause.isVisible = true
             }

@@ -24,6 +24,10 @@
         <item name="android:textColorSecondary">@color/textDarkSecondary</item>
     </style>
 
+    <style name="player_toolbar">
+        <item name="android:textColorSecondary">@android:color/white</item>
+    </style>
+
     <style name="AppAlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="colorAccent">?android:attr/colorAccent</item>
     </style>

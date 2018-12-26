@@ -12,6 +12,8 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.PublishRelay
+import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -21,6 +23,7 @@ import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.common.playback.LocalPlayback
 import me.mauricee.pontoon.common.playback.Playback
+import me.mauricee.pontoon.common.playback.PlaybackLocation
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.ext.with
@@ -54,6 +57,11 @@ class Player @Inject constructor(preferences: Preferences,
     private var currentPlayback: Playback = playbackFactory.initialPlayback
 
     private val subs = CompositeDisposable()
+
+    private val locationRelay: Relay<PlaybackLocation> = BehaviorRelay.createDefault(currentPlayback.location)
+
+    val playbackLocation: Observable<PlaybackLocation>
+        get() = locationRelay.hide()
 
     private val stateSubject = BehaviorRelay.create<Int>()
     val playbackState: Observable<Int> = stateSubject
@@ -185,11 +193,11 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .flatMapSingle{ Single.fromCallable { currentPlayback.position }.subscribeOn(AndroidSchedulers.mainThread()) }
+            .flatMapSingle { Single.fromCallable { currentPlayback.position }.subscribeOn(AndroidSchedulers.mainThread()) }
             .startWith(currentPlayback.position)
 
     fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .flatMapSingle{ Single.fromCallable { currentPlayback.bufferedPosition }.subscribeOn(AndroidSchedulers.mainThread()) }
+            .flatMapSingle { Single.fromCallable { currentPlayback.bufferedPosition }.subscribeOn(AndroidSchedulers.mainThread()) }
             .startWith(currentPlayback.bufferedPosition)
 
     fun toggleControls() {
@@ -206,6 +214,7 @@ class Player @Inject constructor(preferences: Preferences,
     fun bind() {
         mediaSession.setCallback(this)
         subs += playbackFactory.playback
+                .doOnNext { locationRelay.accept(it.location) }
                 .doOnNext(this::switchPlayback)
                 .startWith(currentPlayback)
                 .flatMap(Playback::playerState)

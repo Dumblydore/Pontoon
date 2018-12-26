@@ -65,7 +65,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     //  Google
-    implementation "androidx.core:core-ktx:$google_support_version"
+    implementation "androidx.core:core-ktx:1.0.1"
     implementation "androidx.fragment:fragment-ktx:$google_support_version"
     implementation "androidx.preference:preference:$google_support_version"
 
@@ -79,10 +79,10 @@ dependencies {
     implementation "com.google.android.material:material:$google_support_version"
 
     //    Google Play
-    implementation 'com.google.firebase:firebase-core:16.0.5'
+    implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-crash:16.2.1'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.6'
-    implementation'com.google.android.gms:play-services-cast-framework:16.1.0'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
+    implementation'com.google.android.gms:play-services-cast-framework:16.1.2'
 
     //  UI
     implementation 'com.ncapdevi:frag-nav:2.4.0'
@@ -139,8 +139,8 @@ dependencies {
     testImplementation "android.arch.persistence.room:testing:$arch_components_version"
 
     //  Android tests
-    androidTestImplementation 'androidx.test:runner:1.1.0-alpha3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha3'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
     //  Processors
     kapt "androidx.room:room-compiler:$arch_components_version"
