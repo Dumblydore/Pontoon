@@ -22,7 +22,8 @@ jobs:
             aws configure set s3.signature_version s3v4
             aws s3 cp s3://mauricee.me-server/keystore/pontoon/Pontoon.jks ./configs --region us-west-2
             aws s3 cp s3://mauricee.me-server/keystore/pontoon/fabric.properties ./configs --region us-west-2
-            aws s3 cp s3://mauricee.me-server/keystore/pontoon/debug/google-services.json ./configs --region us-west-2
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/release/google-services.json ./configs/google-services.release.json --region us-west-2
+            aws s3 cp s3://mauricee.me-server/keystore/pontoon/debug/google-services.json ./configs/google-services.debug.json --region us-west-2
       - run:
           name: prepare properties.local
           command: |
@@ -49,7 +50,7 @@ jobs:
               name: move config files
               command: |
                 mv ./configs/fabric.properties ./app
-                mv ./configs/google-services.json ./app
+                mv ./configs/google-services.release.json ./app/google-services.json
           - run:
               name: chmod permissions
               command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
@@ -71,7 +72,7 @@ jobs:
               mkdir ./keystore
               mv ./configs/Pontoon.jks ./keystore
               mv ./configs/fabric.properties ./app
-              mv ./configs/google-services.json ./app
+              mv ./configs/google-services.debug.json ./app/google-services.json
         - run:
             name: chmod permissions
             command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
