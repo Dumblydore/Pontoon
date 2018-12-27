@@ -6,6 +6,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <View
+        android:id="@+id/player.border"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
         android:id="@+id/player.content"
         android:layout_width="wrap_content"
@@ -22,9 +28,9 @@
 
     <ImageView
         android:id="@+id/player.content.preview"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop" />
 
     <ProgressBar
         android:id="@+id/player.content.loader"

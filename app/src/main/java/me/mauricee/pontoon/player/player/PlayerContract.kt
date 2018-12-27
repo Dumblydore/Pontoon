@@ -20,7 +20,7 @@ interface PlayerContract {
         object DownloadFailed : State()
         object Error : State()
 
-        class Bind(val player: Player, val displayPipIcon: Boolean) : State()
+        class Bind(val displayPipIcon: Boolean) : State()
         class Preview(val path: String) : State()
         class PreviewThumbnail(val path: String) : State()
         class Duration(val duration: Long, val formattedDuration: String) : State() {

@@ -13,9 +13,10 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.video.VideoListener
 import kotlinx.android.synthetic.main.layout_player.view.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
-import kotlinx.android.synthetic.main.view_timebar.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.LazyLayout
+import me.mauricee.pontoon.ext.NumberUtil
+import me.mauricee.pontoon.ext.logd
+import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
@@ -25,6 +26,9 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
     init {
         View.inflate(context, R.layout.layout_player, this)
+        player_content.setAspectRatioListener { targetAspectRatio, naturalAspectRatio, aspectRatioMismatch ->
+            player_border.isVisible = aspectRatioMismatch
+        }
     }
 
     var player: SimpleExoPlayer? = null
@@ -48,10 +52,12 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         player.setVideoSurfaceView(player_content_surface)
         updateBuffering(false)
         updateErrorMsg(false)
+        updateForCurrentTrackSelections(true)
     }
 
     override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
         val videoAspectRatio = if (height == 0 || width == 0) 1f else width * pixelWidthHeightRatio / height
+
         player_content.setAspectRatio(videoAspectRatio)
     }
 
@@ -69,6 +75,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     }
 
     override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
+        updateForCurrentTrackSelections()
 
     }
 
@@ -108,12 +115,24 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         }
     }
 
+    fun setThumbnail(previewArt: String) {
+        GlideApp.with(this).load(previewArt).placeholder(R.drawable.ic_default_thumbnail)
+                .error(R.drawable.ic_default_thumbnail)
+                .into(player_content_preview)
+    }
+
     fun showController() {
         player_controls.isVisible = true
     }
 
     fun hideController() {
         player_controls.isVisible = false
+    }
+
+    private fun updateForCurrentTrackSelections(isNewPlayer: Boolean = false) {
+        if (isNewPlayer || player?.currentTrackGroups?.isEmpty == true) {
+            player_content_preview.isVisible = true
+        }
     }
 
     private fun updateBuffering(animate: Boolean) {

@@ -26,16 +26,20 @@ import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.rx.glide.toSingle
+import javax.inject.Inject
 
 class PlayerFragment : BaseFragment<PlayerPresenter>(),
         PlayerContract.View, Player.ControlView {
+
+    @Inject
+    lateinit var player: Player
 
     private val playIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_play_to_pause) }
     private val playIcon by lazy { getDrawable(requireContext(), R.drawable.ic_play) }
     private val pauseIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_pause_to_play) }
     private val pauseIcon by lazy { getDrawable(requireContext(), R.drawable.ic_pause) }
 
-    private val previewArt by lazy { arguments?.getString(PreviewArtKey) ?: ""}
+    private val previewArt by lazy { arguments?.getString(PreviewArtKey) ?: "" }
     private val qualityMenu by lazy { player_controls_toolbar.menu.findItem(R.id.action_quality) }
     private var isSeeking: Boolean = false
 
@@ -61,17 +65,25 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        GlideApp.with(this).load(previewArt).placeholder(R.drawable.ic_default_thumbnail)
-                .error(R.drawable.ic_default_thumbnail)
-                .into(player_content_preview)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
+        player_display.setThumbnail(previewArt)
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        player.bindToView(player_display)
+        player.controller = this
+    }
+
+    override fun onPause() {
+        super.onPause()
+        player.controller = null
     }
 
     override fun updateState(state: PlayerContract.State) {
         when (state) {
             is PlayerContract.State.Bind -> {
-                state.player.bindToView(player_display)
-                state.player.controller = this
                 if (state.displayPipIcon) player_controls_toolbar.setNavigationIcon(R.drawable.ic_arrow_down)
                 player_display.showController()
             }
@@ -91,11 +103,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                     player_controls_progress.progress = state.progress
                 player_controls_progress.bufferedProgress = state.bufferedProgress
             }
-            is PlayerContract.State.Preview -> {
-                GlideApp.with(this).load(state.path)
-                        .placeholder(R.drawable.ic_default_thumbnail).error(R.drawable.ic_default_thumbnail)
-                        .transition(DrawableTransitionOptions.withCrossFade()).into(player_content_preview)
-            }
+            is PlayerContract.State.Preview -> player_display.setThumbnail(state.path)
             is PlayerContract.State.Quality -> {
                 when (state.qualityLevel) {
                     Player.QualityLevel.p1080 -> qualityMenu.subMenu.findItem(R.id.action_p1080).isChecked = true

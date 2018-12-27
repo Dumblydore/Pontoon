@@ -28,7 +28,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
                     watchState(), watchProgress(), watchPreview(), watchTimeline(), watchDuration()))
-                    .startWith(mutableListOf(PlayerContract.State.Bind(player, player.viewMode == Player.ViewMode.PictureInPicture),
+                    .startWith(mutableListOf(PlayerContract.State.Bind(player.viewMode == Player.ViewMode.Expanded),
                             PlayerContract.State.Quality(player.quality)))
                     .onErrorReturnItem(PlayerContract.State.Error)
 

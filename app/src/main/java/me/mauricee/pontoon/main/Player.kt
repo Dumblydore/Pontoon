@@ -98,7 +98,7 @@ class Player @Inject constructor(preferences: Preferences,
     var viewMode: ViewMode = ViewMode.Expanded
         set(value) {
             field = value
-            notifyController(controlsVisible, field)
+            controlsVisible = false
         }
 
     var controlsVisible: Boolean = false
