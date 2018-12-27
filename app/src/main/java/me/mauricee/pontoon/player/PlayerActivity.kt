@@ -12,6 +12,7 @@ import me.mauricee.pontoon.ext.NumberUtil
 import me.mauricee.pontoon.ext.getDeviceHeight
 import me.mauricee.pontoon.ext.getDeviceWidth
 import me.mauricee.pontoon.main.Player
+import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.player.player.PlayerContract
 import javax.inject.Inject
 
@@ -20,6 +21,8 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
     lateinit var player: Player
     @Inject
     lateinit var animationTouchListener: VideoTouchHandler
+    @Inject
+    lateinit var preferences: Preferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

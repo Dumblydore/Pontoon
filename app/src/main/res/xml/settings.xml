@@ -23,6 +23,10 @@
             android:defaultValue="true"
             android:key="settings_hide"
             android:title="@string/settings_hide" />
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="settings_notch"
+            android:title="@string/settings_notch" />
         <androidx.preference.ListPreference
             android:defaultValue="Always"
             android:entries="@array/settings_pip_options"

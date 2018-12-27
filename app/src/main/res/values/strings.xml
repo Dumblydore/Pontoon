@@ -125,6 +125,7 @@
     <string name="settings_misc">Misc."</string>
     <string name="settings_about">About"</string>
 
+    <string name="settings_notch">Use notch area</string>
     <string name="settings_pip">Picture-in-Picture"</string>
     <string-array name="settings_pip_options">
         <item>Always</item>
