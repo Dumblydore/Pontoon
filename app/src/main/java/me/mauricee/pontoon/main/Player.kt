@@ -7,11 +7,9 @@ import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.view.TextureView
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player
@@ -86,6 +84,8 @@ class Player @Inject constructor(preferences: Preferences,
                         .putString(MediaMetadataCompat.METADATA_KEY_TITLE, value.video.title)
                         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
                         .build().apply(mediaSession::setMetadata)
+            } else if (value != null) {
+                exoPlayer.playWhenReady = true
             } else {
                 exoPlayer.stop()
                 mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
@@ -113,7 +113,7 @@ class Player @Inject constructor(preferences: Preferences,
     var controller: ControlView? = null
         set(value) {
             field = value
-            field?.onControlsVisibilityChanged(controlsVisible)
+            controlsVisible = false
         }
 
     var quality: QualityLevel = preferences.defaultQualityLevel
@@ -300,14 +300,24 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     private fun notifyController(isVisible: Boolean, viewMode: ViewMode) = controller?.just {
-        if (viewMode == ViewMode.FullScreen) onProgressVisibilityChanged(isVisible)
-        else if (viewMode == ViewMode.PictureInPicture) onAcceptUserInputChanged(isVisible)
+        when (viewMode) {
+            ViewMode.FullScreen -> {
+                onProgressVisibilityChanged(isVisible)
+                displayFullscreenIcon(true)
+            }
+            ViewMode.PictureInPicture -> {
+                onAcceptUserInputChanged(isVisible)
+                displayFullscreenIcon(false)
+            }
+            else -> displayFullscreenIcon(false)
+        }
     }
 
     interface ControlView {
         fun onControlsVisibilityChanged(isVisible: Boolean)
         fun onProgressVisibilityChanged(isVisible: Boolean)
         fun onAcceptUserInputChanged(canAccept: Boolean)
+        fun displayFullscreenIcon(isFullscreen: Boolean)
     }
 
     enum class QualityLevel {

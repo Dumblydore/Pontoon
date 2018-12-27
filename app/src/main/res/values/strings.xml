@@ -193,5 +193,6 @@
     <string name="filter_view_http_floatplane">Floatplane Web Filter</string>
     <string name="main_session_expired_body">Your session expired. You need to re-login.</string>
     <string name="main_session_expired_title">Session Expired</string>
+    <string name="player_share">Share Video</string>
 
 </resources>

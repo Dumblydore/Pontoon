@@ -1,5 +1,7 @@
 package me.mauricee.pontoon.player.player
 
+import android.content.Intent
+import android.content.Intent.ACTION_SEND
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -10,7 +12,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
@@ -18,13 +19,13 @@ import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_player.*
-import kotlinx.android.synthetic.main.layout_player.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
+import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.rx.glide.toSingle
 import javax.inject.Inject
 
@@ -33,6 +34,8 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     @Inject
     lateinit var player: Player
+    @Inject
+    lateinit var playerControls: PlayerContract.Controls
 
     private val playIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_play_to_pause) }
     private val playIcon by lazy { getDrawable(requireContext(), R.drawable.ic_play) }
@@ -69,23 +72,17 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         player_display.setThumbnail(previewArt)
     }
 
-
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         player.bindToView(player_display)
         player.controller = this
-    }
-
-    override fun onPause() {
-        super.onPause()
-        player.controller = null
+        subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
     }
 
     override fun updateState(state: PlayerContract.State) {
         when (state) {
             is PlayerContract.State.Bind -> {
                 if (state.displayPipIcon) player_controls_toolbar.setNavigationIcon(R.drawable.ic_arrow_down)
-                player_display.showController()
             }
             is PlayerContract.State.Playing -> {
                 isPlaying(true)
@@ -126,6 +123,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_duration.text = state.formattedDuration
                 player_controls_progress.duration = state.duration
             }
+            is PlayerContract.State.ShareUrl -> startActivity(Intent.createChooser(createShareIntent(state.video),getString(R.string.player_share)))
         }
     }
 
@@ -157,6 +155,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         player_controls_progress.acceptTapsFromUser = canAccept
     }
 
+    override fun displayFullscreenIcon(isFullscreen: Boolean) {
+        player_display.isInFullscreen = isFullscreen
+    }
+
     private fun itemClicks(): Observable<PlayerContract.Action> {
         return RxToolbar.itemClicks(player_controls_toolbar).flatMap<PlayerContract.Action> {
             when (it.itemId) {
@@ -168,7 +170,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 R.id.action_download_p720 -> PlayerContract.Action.Download(Player.QualityLevel.p720).toObservable()
                 R.id.action_download_p480 -> PlayerContract.Action.Download(Player.QualityLevel.p480).toObservable()
                 R.id.action_download_p360 -> PlayerContract.Action.Download(Player.QualityLevel.p360).toObservable()
-                R.id.action_share -> Observable.empty()
+                R.id.action_share -> PlayerContract.Action.RequestShare.toObservable()
                 else -> Observable.empty()
             }
         }
@@ -176,6 +178,12 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     private fun Drawable.startAsAnimatable() {
         (this as? Animatable)?.start()
+    }
+
+    private fun createShareIntent(video: Video) = Intent(ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, video.title)
+        putExtra(Intent.EXTRA_TEXT, video.toBrowsableUrl())
     }
 
     companion object {

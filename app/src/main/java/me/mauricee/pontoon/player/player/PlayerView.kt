@@ -11,14 +11,18 @@ import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.video.VideoListener
+import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.Relay
+import io.reactivex.Observable
 import kotlinx.android.synthetic.main.layout_player.view.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.NumberUtil
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {
+
+    private val behavioRelay: Relay<String> = BehaviorRelay.create()
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -26,10 +30,10 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
     init {
         View.inflate(context, R.layout.layout_player, this)
-        player_content.setAspectRatioListener { targetAspectRatio, naturalAspectRatio, aspectRatioMismatch ->
-            player_border.isVisible = aspectRatioMismatch
-        }
     }
+
+    val ratio: Observable<String>
+        get() = behavioRelay.hide()
 
     var player: SimpleExoPlayer? = null
         set(value) {
@@ -38,6 +42,12 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             }
             field = value
             value?.let(::registerPlayer)
+        }
+
+    var isInFullscreen: Boolean = false
+        set(value) {
+            field = value
+            player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen ).let { resources.getDrawable(it, null) })
         }
 
     private fun unregisterPlayer(player: SimpleExoPlayer) {
@@ -56,9 +66,11 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     }
 
     override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
-        val videoAspectRatio = if (height == 0 || width == 0) 1f else width * pixelWidthHeightRatio / height
-
+        val realWidth = width * pixelWidthHeightRatio
+        val videoAspectRatio = if (height == 0 || width == 0) 1f else realWidth / height
+        val ratio = NumberUtil.asFraction(realWidth.toLong(), height.toLong(), ":")
         player_content.setAspectRatio(videoAspectRatio)
+        behavioRelay.accept(ratio)
     }
 
     override fun onRenderedFirstFrame() {
@@ -115,18 +127,38 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         }
     }
 
+
     fun setThumbnail(previewArt: String) {
         GlideApp.with(this).load(previewArt).placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
                 .into(player_content_preview)
     }
 
-    fun showController() {
-        player_controls.isVisible = true
+    fun showController(animate: Boolean = true) {
+        if (animate) {
+            player_controls.animate()
+                    .setDuration(250)
+                    .alpha(1f)
+                    .withStartAction {
+                        player_controls.isVisible = true
+                        player_controls.alpha = 0f
+                    }.start()
+        } else {
+            player_controls.isVisible = false
+        }
     }
 
-    fun hideController() {
-        player_controls.isVisible = false
+    fun hideController(animate: Boolean = true) {
+        if (animate) {
+            player_controls.animate()
+                    .setDuration(250)
+                    .alpha(0f)
+                    .withStartAction { player_controls.alpha = 1f }
+                    .withEndAction { player_controls.isVisible = false }
+                    .start()
+        } else {
+            player_controls.isVisible = false
+        }
     }
 
     private fun updateForCurrentTrackSelections(isNewPlayer: Boolean = false) {

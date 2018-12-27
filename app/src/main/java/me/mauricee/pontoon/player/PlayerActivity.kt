@@ -2,17 +2,20 @@ package me.mauricee.pontoon.player
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.activity_player.*
 import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
+import me.mauricee.pontoon.ext.NumberUtil
+import me.mauricee.pontoon.ext.getDeviceHeight
+import me.mauricee.pontoon.ext.getDeviceWidth
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.player.player.PlayerContract
 import javax.inject.Inject
 
 class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
-
     @Inject
     lateinit var player: Player
     @Inject
@@ -22,7 +25,6 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
         playerRoot.setOnTouchListener(animationTouchListener)
-        player.viewMode = Player.ViewMode.FullScreen
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -39,6 +41,7 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
 
     private fun enableFullScreen(isEnabled: Boolean) {
         if (isEnabled) {
+            player.viewMode = Player.ViewMode.FullScreen
             window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     // Set the content to appear under the system bars so that the
                     // content doesn't resize when the system bars hide and show.
@@ -53,6 +56,11 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }
     }
+
+    override fun setVideoRatio(ratio: String) {
+        player_border.isVisible = NumberUtil.asFraction(getDeviceWidth().toLong(), getDeviceHeight().toLong()) == ratio
+    }
+
 
     override fun toggleFullscreen() {
         onBackPressed()

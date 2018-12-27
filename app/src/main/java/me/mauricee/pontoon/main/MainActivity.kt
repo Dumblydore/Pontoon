@@ -44,7 +44,6 @@ import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
-import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
@@ -53,6 +52,7 @@ import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.player.PlayerActivity
 import me.mauricee.pontoon.player.player.PlayerContract
+import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import javax.inject.Inject
 
@@ -73,8 +73,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     lateinit var preferences: Preferences
 
     private val miscActions = PublishRelay.create<MainContract.Action>()
-
-    private val fragmentContainer: Int
+    private var currentPlayerRatio: String = "16:9"
+    private
+    val fragmentContainer: Int
         get() = R.id.main_container
 
     /** To prevent view flickering when pip is resizing*/
@@ -191,6 +192,16 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         root.closeDrawer(main_drawer)
     }
 
+    override fun setVideoRatio(ratio: String) {
+        currentPlayerRatio = ratio
+        main.updateParams {
+            setDimensionRatio(main_player.id, "h,$ratio")
+            TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
+                duration = 250
+            })
+        }
+    }
+
     override fun toggleFullscreen() {
         player.viewMode = Player.ViewMode.FullScreen
         startActivity(Intent(this, PlayerActivity::class.java))
@@ -267,31 +278,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun goIntoPip() {
-        setPlayerExpanded(true)
+        expandPlayerTo(true, Player.ViewMode.FullScreen)
         enterPictureInPictureMode(PictureInPictureParams.Builder()
-                .setAspectRatio(Rational.parseRational("16:9"))
+                .setAspectRatio(Rational.parseRational(currentPlayerRatio))
                 .build())
-        player.controlsVisible = false
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        val isPortrait = isPortrait() || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT
-        if (isPortrait) {
-            animationTouchListener.isEnabled = true
-        } else {
-            animationTouchListener.isEnabled = false
-            if (!animationTouchListener.isExpanded) {
-                animationTouchListener.isExpanded = true
-            }
-        }
-        enableFullScreen(!isPortrait)
-        lastConfiguration = newConfig.orientation
-        //Update this params in last after all configuration changes are done
-        main.updateParams(constraintSet) {
-            constrainHeight(main_player.id, if (isPortrait) 0 else getDeviceHeight())
-            constrainWidth(main_player.id, if (isPortrait) 0 else getDeviceWidth())
-        }
     }
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
@@ -375,7 +365,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     /**
      * Expand or collapse the video fragment animation
      */
-    override fun setPlayerExpanded(isExpanded: Boolean) = main.updateParams(constraintSet) {
+    override fun setPlayerExpanded(isExpanded: Boolean) = expandPlayerTo(isExpanded, Player.ViewMode.Expanded)
+
+    private fun expandPlayerTo(isExpanded: Boolean, expandedState: Player.ViewMode) = main.updateParams(constraintSet) {
         setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else VideoTouchHandler.MIN_VERTICAL_LIMIT)
         setGuidelinePercent(guidelineVertical.id, if (isExpanded) 0F else VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
         setGuidelinePercent(guidelineBottom.id, if (isExpanded) 1F else VideoTouchHandler.MIN_BOTTOM_LIMIT)
@@ -385,7 +377,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
             interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
             duration = 250
-            doAfter { player.viewMode = if (isExpanded) Player.ViewMode.Expanded else Player.ViewMode.PictureInPicture }
+            doAfter { player.viewMode = if (isExpanded) expandedState else Player.ViewMode.PictureInPicture }
         })
     }
 

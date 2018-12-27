@@ -46,6 +46,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         is PlayerContract.Action.Download -> downloadVideo(action.quality)
         is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.qualityLevel; PlayerContract.State.Quality(action.qualityLevel) }
         is PlayerContract.Action.SeekProgress -> stateless { player.onSeekTo((action.progress * 1000).toLong()) }
+        PlayerContract.Action.RequestShare -> PlayerContract.State.ShareUrl(player.currentlyPlaying!!.video).toObservable()
     }
 
     private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(it, it.toDuration()) }
