@@ -12,7 +12,6 @@ import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.main.OrientationManager
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
@@ -28,7 +27,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
                     watchState(), watchProgress(), watchPreview(), watchTimeline(), watchDuration()))
-                    .startWith(mutableListOf(PlayerContract.State.Bind(player.viewMode == Player.ViewMode.Expanded),
+                    .startWith(mutableListOf(PlayerContract.State.Bind(player.viewMode != Player.ViewMode.FullScreen),
                             PlayerContract.State.Quality(player.quality)))
                     .onErrorReturnItem(PlayerContract.State.Error)
 
