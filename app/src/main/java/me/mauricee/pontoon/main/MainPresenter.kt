@@ -9,7 +9,6 @@ import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.doOnIo
-import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.PontoonDatabase
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
@@ -32,9 +31,9 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
 
     private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
         when (it) {
-            is MainContract.Action.Logout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
+            is MainContract.Action.SuccessfulLogout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
             is MainContract.Action.Profile -> stateless { navigator.toUser(userRepository.activeUser) }
-            is MainContract.Action.Preferences -> MainContract.State.Preferences.toObservable()
+            is MainContract.Action.Preferences -> stateless { navigator.toPreferences() }
             is MainContract.Action.PlayerClicked -> toggleControls()
             is MainContract.Action.PlayVideo -> playVideo(it)
             MainContract.Action.Expired -> logout()

@@ -167,6 +167,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
     }
 
+    override fun toPreferences() {
+        if (player.isPlaying()) player.onPause()
+        PreferencesActivity.navigateTo(this)
+    }
+
     override fun toCreator(creator: UserRepository.Creator) {
         controller.pushFragment(CreatorFragment.newInstance(creator.id))
         if (player.isActive()) {
@@ -229,10 +234,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun updateState(state: MainContract.State) = when (state) {
         is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
-        is MainContract.State.Preferences -> {
-            if (player.isPlaying()) player.onPause()
-            PreferencesActivity.navigateTo(this)
-        }
         is MainContract.State.Logout -> {
             if (player.isActive()) player.onStop()
             LoginActivity.navigateTo(this)

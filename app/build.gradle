@@ -55,7 +55,11 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
+
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -136,6 +140,9 @@ dependencies {
 
     //  Tests
     testImplementation 'junit:junit:4.12'
+    testImplementation 'net.bytebuddy:byte-buddy:1.8.22'
+    testImplementation 'net.bytebuddy:byte-buddy-agent:1.8.22'
+    testImplementation "io.mockk:mockk:1.8.13.kotlin13"
     testImplementation "android.arch.persistence.room:testing:$arch_components_version"
 
     //  Android tests

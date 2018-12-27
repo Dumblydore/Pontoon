@@ -18,6 +18,7 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_web_login.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ext.with
 
 
 class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.View {
@@ -61,11 +62,13 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
             return super.shouldOverrideUrlLoading(view, request)
         }
 
+
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
-            val uriPath = url.toUri().path
-            if (uriPath.contains(CallbackPath) || uriPath.contains(ConfirmPath)) {
-                actionsRelay.accept(WebLoginContract.Action.Login(url, CookieManager.getInstance().getCookie(url)))
+            url.toUri().path?.with { uriPath ->
+                if (uriPath.contains(CallbackPath) || uriPath.contains(ConfirmPath)) {
+                    actionsRelay.accept(WebLoginContract.Action.Login(CookieManager.getInstance().getCookie(url)))
+                }
             }
         }
     }

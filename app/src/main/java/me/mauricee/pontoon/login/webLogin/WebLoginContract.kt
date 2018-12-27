@@ -12,6 +12,6 @@ interface WebLoginContract {
         object Error : State()
     }
     sealed class Action : EventTracker.Action {
-        data class Login(val respCode: String, val cookies: String) : Action()
+        data class Login(val cookies: String) : Action()
     }
 }
