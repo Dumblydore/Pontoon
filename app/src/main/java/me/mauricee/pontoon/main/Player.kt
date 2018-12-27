@@ -7,11 +7,9 @@ import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.view.TextureView
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player
@@ -25,6 +23,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
+import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.audio.AudioFocusManager
@@ -32,12 +31,12 @@ import me.mauricee.pontoon.model.audio.FocusState
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.player.player.PlayerView
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-@MainScope
+@AppScope
 class Player @Inject constructor(preferences: Preferences,
-                                 lifecycleOwner: LifecycleOwner,
                                  private val exoPlayer: SimpleExoPlayer,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
                                  private val focusManager: AudioFocusManager, private val context: Context,
@@ -85,6 +84,8 @@ class Player @Inject constructor(preferences: Preferences,
                         .putString(MediaMetadataCompat.METADATA_KEY_TITLE, value.video.title)
                         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
                         .build().apply(mediaSession::setMetadata)
+            } else if (value != null) {
+                exoPlayer.playWhenReady = true
             } else {
                 exoPlayer.stop()
                 mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
@@ -97,7 +98,7 @@ class Player @Inject constructor(preferences: Preferences,
     var viewMode: ViewMode = ViewMode.Expanded
         set(value) {
             field = value
-            notifyController(controlsVisible, field)
+            controlsVisible = false
         }
 
     var controlsVisible: Boolean = false
@@ -112,7 +113,7 @@ class Player @Inject constructor(preferences: Preferences,
     var controller: ControlView? = null
         set(value) {
             field = value
-            field?.onControlsVisibilityChanged(controlsVisible)
+            controlsVisible = false
         }
 
     var quality: QualityLevel = preferences.defaultQualityLevel
@@ -138,15 +139,16 @@ class Player @Inject constructor(preferences: Preferences,
                         PlaybackStateCompat.ACTION_PLAY_PAUSE or
                         PlaybackStateCompat.ACTION_PLAY)
                 .build())
-        lifecycleOwner.lifecycle.addObserver(this)
+        bind()
+//        lifecycleOwner.lifecycle.addObserver(this)
     }
 
     fun isPlaying() = state == PlaybackStateCompat.STATE_PLAYING
 
     fun isActive(): Boolean = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
 
-    fun bindToView(view: TextureView) {
-        exoPlayer.setVideoTextureView(view)
+    fun bindToView(view: PlayerView) {
+        view.player = exoPlayer
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
@@ -298,14 +300,24 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     private fun notifyController(isVisible: Boolean, viewMode: ViewMode) = controller?.just {
-        if (viewMode == ViewMode.FullScreen) onProgressVisibilityChanged(isVisible)
-        else if (viewMode == ViewMode.PictureInPicture) onAcceptUserInputChanged(isVisible)
+        when (viewMode) {
+            ViewMode.FullScreen -> {
+                onProgressVisibilityChanged(isVisible)
+                displayFullscreenIcon(true)
+            }
+            ViewMode.PictureInPicture -> {
+                onAcceptUserInputChanged(isVisible)
+                displayFullscreenIcon(false)
+            }
+            else -> displayFullscreenIcon(false)
+        }
     }
 
     interface ControlView {
         fun onControlsVisibilityChanged(isVisible: Boolean)
         fun onProgressVisibilityChanged(isVisible: Boolean)
         fun onAcceptUserInputChanged(canAccept: Boolean)
+        fun displayFullscreenIcon(isFullscreen: Boolean)
     }
 
     enum class QualityLevel {

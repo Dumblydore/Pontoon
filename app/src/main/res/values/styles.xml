@@ -9,12 +9,14 @@
         <item name="android:textColor">@color/textLightPrimary</item>
         <item name="android:textColorPrimary">@color/textLightPrimary</item>
         <item name="android:textColorSecondary">@color/textLightSecondary</item>
+        <item name="android:actionOverflowButtonStyle">@style/MyActionButtonOverflow</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
         <item name="android:textColorPrimary">@color/textDarkPrimary</item>
         <item name="android:textColor">@color/textDarkPrimary</item>
         <item name="android:textColorSecondary">@color/textDarkSecondary</item>
+        <item name="android:actionOverflowButtonStyle">@style/MyActionButtonOverflow</item>
     </style>
 
     <style name="AppTheme.Black" parent="AppTheme.Dark">
@@ -22,14 +24,18 @@
         <item name="android:textColorPrimary">@color/textDarkPrimary</item>
         <item name="android:textColor">@color/textDarkPrimary</item>
         <item name="android:textColorSecondary">@color/textDarkSecondary</item>
+        <item name="android:actionOverflowButtonStyle">@style/MyActionButtonOverflow</item>
     </style>
 
     <style name="AppAlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="colorAccent">?android:attr/colorAccent</item>
     </style>
 
-    <style name="AppAlertDialogContent"
-        parent="Theme.AppCompat.DayNight">
+    <style name="MyActionButtonOverflow" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">@color/md_white_1000</item>
+    </style>
+
+    <style name="AppAlertDialogContent" parent="Theme.AppCompat.DayNight">
         <!-- To keep the color of EditText -->
         <item name="colorAccent">@color/colorAccent</item>
     </style>
@@ -39,9 +45,11 @@
     <style name="AppTheme.Dark.Launcher">
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
+
     <style name="AppTheme.Light.Launcher">
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
+
     <style name="AppTheme.Black.Launcher">
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
