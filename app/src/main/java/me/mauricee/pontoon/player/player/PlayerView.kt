@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.layout_player.view.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.NumberUtil
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {
@@ -47,7 +48,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     var isInFullscreen: Boolean = false
         set(value) {
             field = value
-            player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen ).let { resources.getDrawable(it, null) })
+            player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen).let { resources.getDrawable(it, null) })
         }
 
     private fun unregisterPlayer(player: SimpleExoPlayer) {
@@ -136,15 +137,13 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
     fun showController(animate: Boolean = true) {
         if (animate) {
+            player_controls.isVisible = true
             player_controls.animate()
                     .setDuration(250)
                     .alpha(1f)
-                    .withStartAction {
-                        player_controls.isVisible = true
-                        player_controls.alpha = 0f
-                    }.start()
+                    .start()
         } else {
-            player_controls.isVisible = false
+            player_controls.isVisible = true
         }
     }
 

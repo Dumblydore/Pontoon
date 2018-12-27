@@ -19,7 +19,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.transaction
 import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
@@ -72,26 +71,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     @Inject
     lateinit var preferences: Preferences
 
+    private var goingIntoFullscreen = false
     private val miscActions = PublishRelay.create<MainContract.Action>()
     private var currentPlayerRatio: String = "16:9"
-    private
-    val fragmentContainer: Int
+    private val fragmentContainer: Int
         get() = R.id.main_container
-
-    /** To prevent view flickering when pip is resizing*/
-    private var lastConfiguration: Int = -1
-        set(value) {
-            if (field != value) {
-                supportFragmentManager.findFragmentById(main_player.id)?.also {
-                    supportFragmentManager.transaction {
-                        detach(it)
-                        attach(it)
-                    }
-                }
-            }
-            field = value
-        }
-
 
     override val actions: Observable<MainContract.Action>
         get() = Observable.merge(miscActions, RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
@@ -130,12 +114,15 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onStart() {
         super.onStart()
         mainPresenter.attachView(this)
+        goingIntoFullscreen = false
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
     }
 
     override fun onStop() {
         super.onStop()
         mainPresenter.detachView()
+        if (!goingIntoFullscreen)
+            player.onPause()
     }
 
     override fun onDestroy() {
@@ -154,7 +141,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun playVideo(video: Video, commentId: String) {
         animationTouchListener.show()
-        main_player.alpha = 1f
         loadFragment {
             replace(R.id.main_player, PlayerFragment.newInstance(video.thumbnail))
         }
@@ -202,13 +188,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         main.updateParams {
             setDimensionRatio(main_player.id, "h,$ratio")
             TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
-                duration = 250
+                duration = 150
             })
         }
     }
 
     override fun toggleFullscreen() {
-        player.viewMode = Player.ViewMode.FullScreen
+        goingIntoFullscreen = true
         startActivity(Intent(this, PlayerActivity::class.java))
     }
 
@@ -267,7 +253,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && player.viewMode != Player.ViewMode.FullScreen) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !goingIntoFullscreen) {
             val pip = preferences.pictureInPicture
             when {
                 pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()
@@ -313,7 +299,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         val movedPercent = percentVerticalMoved / VideoTouchHandler.MIN_VERTICAL_LIMIT
         val percentHorizontalMoved = VideoTouchHandler.MIN_HORIZONTAL_LIMIT * movedPercent
         val percentBottomMoved = 1F - movedPercent * (1F - VideoTouchHandler.MIN_BOTTOM_LIMIT)
-        loge("Bottom : $percentBottomMoved")
         val percentMarginMoved = 1F - movedPercent * (1F - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
 
         paramsGlHorizontal.guidePercent = percentVerticalMoved
@@ -325,8 +310,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         guidelineVertical.layoutParams = paramsGlVertical
         guidelineBottom.layoutParams = paramsGlBottom
         guidelineMarginEnd.layoutParams = paramsGlMarginEnd
-
-        main_details.alpha = 1.0F - movedPercent
     }
 
     /**
@@ -337,15 +320,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         //Prevent guidelines to go out of screen bound
         val percentHorizontalMoved = Math.max(-0.25F, Math.min(VideoTouchHandler.MIN_HORIZONTAL_LIMIT, percentScrollSwipe))
         val percentMarginMoved = percentHorizontalMoved + (VideoTouchHandler.MIN_MARGIN_END_LIMIT - VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
-        val movedPercent = percentHorizontalMoved / VideoTouchHandler.MIN_HORIZONTAL_LIMIT
 
         paramsGlVertical.guidePercent = percentHorizontalMoved
         paramsGlMarginEnd.guidePercent = percentMarginMoved
 
         guidelineVertical.layoutParams = paramsGlVertical
         guidelineMarginEnd.layoutParams = paramsGlMarginEnd
-        main_player.alpha = movedPercent
-
     }
 
     /**
@@ -368,18 +348,21 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
      */
     override fun setPlayerExpanded(isExpanded: Boolean) = expandPlayerTo(isExpanded, Player.ViewMode.Expanded)
 
-    private fun expandPlayerTo(isExpanded: Boolean, expandedState: Player.ViewMode) = main.updateParams(constraintSet) {
-        setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else VideoTouchHandler.MIN_VERTICAL_LIMIT)
-        setGuidelinePercent(guidelineVertical.id, if (isExpanded) 0F else VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
-        setGuidelinePercent(guidelineBottom.id, if (isExpanded) 1F else VideoTouchHandler.MIN_BOTTOM_LIMIT)
-        setGuidelinePercent(guidelineMarginEnd.id, if (isExpanded) 1F else VideoTouchHandler.MIN_MARGIN_END_LIMIT)
-        setAlpha(main_details.id, if (isExpanded) 1.0F else 0F)
+    private fun expandPlayerTo(isExpanded: Boolean, expandedState: Player.ViewMode) {
+        main_player.alpha = 1f
+        main.updateParams(constraintSet) {
+            setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else VideoTouchHandler.MIN_VERTICAL_LIMIT)
+            setGuidelinePercent(guidelineVertical.id, if (isExpanded) 0F else VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
+            setGuidelinePercent(guidelineBottom.id, if (isExpanded) 1F else VideoTouchHandler.MIN_BOTTOM_LIMIT)
+            setGuidelinePercent(guidelineMarginEnd.id, if (isExpanded) 1F else VideoTouchHandler.MIN_MARGIN_END_LIMIT)
+            setAlpha(main_details.id, if (isExpanded) 1.0F else 0F)
 
-        TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
-            interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
-            duration = 250
-            doAfter { player.viewMode = if (isExpanded) expandedState else Player.ViewMode.PictureInPicture }
-        })
+            TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
+                interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
+                duration = 250
+                doAfter { player.viewMode = if (isExpanded) expandedState else Player.ViewMode.PictureInPicture }
+            })
+        }
     }
 
     /**

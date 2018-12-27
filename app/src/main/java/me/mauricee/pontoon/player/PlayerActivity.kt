@@ -61,7 +61,7 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
     }
 
     override fun setVideoRatio(ratio: String) {
-        player_border.isVisible = NumberUtil.asFraction(getDeviceWidth().toLong(), getDeviceHeight().toLong()) == ratio
+        player_border.isVisible = NumberUtil.asFraction(getDeviceWidth().toLong(), getDeviceHeight().toLong()) != ratio
     }
 
 
@@ -75,11 +75,6 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
 
     override fun onClick(view: View) {
         player.toggleControls()
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        player.viewMode = Player.ViewMode.Expanded
     }
 
     override fun onDismiss(view: View) {
