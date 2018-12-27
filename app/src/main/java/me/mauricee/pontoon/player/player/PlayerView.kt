@@ -18,7 +18,6 @@ import kotlinx.android.synthetic.main.layout_player.view.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.NumberUtil
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {

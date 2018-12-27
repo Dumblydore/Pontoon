@@ -25,7 +25,6 @@ import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.ext.just
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.audio.AudioFocusManager
 import me.mauricee.pontoon.model.audio.FocusState
@@ -238,7 +237,6 @@ class Player @Inject constructor(preferences: Preferences,
             .map { exoPlayer.bufferedPosition }.startWith(exoPlayer.bufferedPosition)
 
     fun toggleControls() {
-        logd("toggleControls: $viewMode")
         if (viewMode == ViewMode.PictureInPicture) return
         controllerTimeout?.dispose()
         controllerTimeout = (if (controlsVisible) false.toObservable()
