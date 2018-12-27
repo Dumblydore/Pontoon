@@ -53,9 +53,6 @@ interface MainContract {
 
         fun playVideo(video: Video, commentId: String = "")
 
-        fun setPlayerExpanded(isExpanded: Boolean)
-
         fun setMenuExpanded(isExpanded: Boolean)
-
     }
 }

@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.player
+package me.mauricee.pontoon.player.player
 
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.analytics.EventTracker
@@ -8,15 +8,18 @@ interface PlayerContract {
 
     interface View : BaseContract.View<State, Action>
     interface Presenter : BaseContract.Presenter<View>
+    interface Controls {
+        fun toggleFullscreen()
+        fun setPlayerExpanded(isExpanded: Boolean)
+    }
 
     sealed class State : EventTracker.State {
         object Paused : State()
         object Playing : State()
-        object Loading : State()
-        object Buffering : State()
         object DownloadStart : State()
         object DownloadFailed : State()
         object Error : State()
+
         class Bind(val player: Player, val displayPipIcon: Boolean) : State()
         class Preview(val path: String) : State()
         class PreviewThumbnail(val path: String) : State()
@@ -29,6 +32,7 @@ interface PlayerContract {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }
+
         class Quality(val qualityLevel: Player.QualityLevel) : State()
     }
 

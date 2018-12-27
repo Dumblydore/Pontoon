@@ -25,6 +25,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
+import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.audio.AudioFocusManager
@@ -32,12 +33,12 @@ import me.mauricee.pontoon.model.audio.FocusState
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.player.player.PlayerView
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-@MainScope
+@AppScope
 class Player @Inject constructor(preferences: Preferences,
-                                 lifecycleOwner: LifecycleOwner,
                                  private val exoPlayer: SimpleExoPlayer,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
                                  private val focusManager: AudioFocusManager, private val context: Context,
@@ -138,15 +139,16 @@ class Player @Inject constructor(preferences: Preferences,
                         PlaybackStateCompat.ACTION_PLAY_PAUSE or
                         PlaybackStateCompat.ACTION_PLAY)
                 .build())
-        lifecycleOwner.lifecycle.addObserver(this)
+        bind()
+//        lifecycleOwner.lifecycle.addObserver(this)
     }
 
     fun isPlaying() = state == PlaybackStateCompat.STATE_PLAYING
 
     fun isActive(): Boolean = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
 
-    fun bindToView(view: TextureView) {
-        exoPlayer.setVideoTextureView(view)
+    fun bindToView(view: PlayerView) {
+        view.player = exoPlayer
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {

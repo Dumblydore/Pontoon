@@ -1,15 +1,15 @@
 package me.mauricee.pontoon.main
 
+import android.app.Activity
 import android.content.pm.ActivityInfo
 import javax.inject.Inject
 
-@MainScope
-class OrientationManager @Inject constructor(private val mainActivity: MainActivity) {
+class OrientationManager @Inject constructor(private val activity: Activity) {
 
     var isFullscreen: Boolean = false
         set(value) {
             field = value
-            mainActivity.requestedOrientation = if (field) ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            activity.requestedOrientation = if (field) ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 }

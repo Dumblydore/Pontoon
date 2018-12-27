@@ -110,11 +110,13 @@ dependencies {
         transitive = false
     }
     implementation "com.google.dagger:dagger:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:$dagger_version"
+    // ExoPlayer
     implementation "com.google.android.exoplayer:exoplayer-core:$exo_player_version"
+    implementation "com.google.android.exoplayer:exoplayer-ui:$exo_player_version"
     implementation "com.google.android.exoplayer:extension-okhttp:$exo_player_version"
     implementation "com.google.android.exoplayer:extension-mediasession:$exo_player_version"
     implementation "com.google.android.exoplayer:exoplayer-hls:$exo_player_version"
-    implementation "com.google.dagger:dagger-android-support:$dagger_version"
 
     //  Architecture Components
     implementation "androidx.room:room-runtime:$arch_components_version"

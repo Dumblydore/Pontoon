@@ -44,17 +44,20 @@ import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
-import me.mauricee.pontoon.main.player.PlayerFragment
+import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.player.PlayerActivity
+import me.mauricee.pontoon.player.player.PlayerContract
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import javax.inject.Inject
 
-class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, MainContract.View {
+class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, MainContract.View,
+        PlayerContract.Controls {
 
     @Inject
     lateinit var mainPresenter: MainPresenter
@@ -132,7 +135,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onStop() {
         super.onStop()
         mainPresenter.detachView()
-        player.onPause()
     }
 
     override fun onDestroy() {
@@ -187,6 +189,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             setPlayerExpanded(false)
         }
         root.closeDrawer(main_drawer)
+    }
+
+    override fun toggleFullscreen() {
+        player.viewMode = Player.ViewMode.FullScreen
+        startActivity(Intent(this, PlayerActivity::class.java))
     }
 
     override fun onClick(view: View) {
@@ -248,7 +255,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && player.viewMode != Player.ViewMode.FullScreen) {
             val pip = preferences.pictureInPicture
             when {
                 pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()

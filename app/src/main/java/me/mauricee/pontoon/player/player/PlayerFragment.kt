@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.player
+package me.mauricee.pontoon.player.player
 
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -19,6 +18,7 @@ import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_player.*
+import kotlinx.android.synthetic.main.layout_player.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
@@ -35,7 +35,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     private val pauseIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_pause_to_play) }
     private val pauseIcon by lazy { getDrawable(requireContext(), R.drawable.ic_pause) }
 
-    private val previewArt by lazy { arguments!!.getString(PreviewArtKey) }
+    private val previewArt by lazy { arguments?.getString(PreviewArtKey) ?: ""}
     private val qualityMenu by lazy { player_controls_toolbar.menu.findItem(R.id.action_quality) }
     private var isSeeking: Boolean = false
 
@@ -63,9 +63,8 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         super.onViewCreated(view, savedInstanceState)
         GlideApp.with(this).load(previewArt).placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
-                .into(player_preview)
+                .into(player_content_preview)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
-
     }
 
     override fun updateState(state: PlayerContract.State) {
@@ -74,34 +73,17 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 state.player.bindToView(player_display)
                 state.player.controller = this
                 if (state.displayPipIcon) player_controls_toolbar.setNavigationIcon(R.drawable.ic_arrow_down)
+                player_display.showController()
             }
             is PlayerContract.State.Playing -> {
                 isPlaying(true)
                 player_controls_playPause.isVisible = true
-                player_controls_loading.isVisible = false
                 player_display.isVisible = true
             }
             is PlayerContract.State.Paused -> {
                 isPlaying(false)
                 player_display.isVisible = true
-                player_controls_loading.isVisible = false
                 player_controls_playPause.isVisible = true
-            }
-            is PlayerContract.State.Loading -> {
-                player_display.isVisible = false
-                player_controls_loading.isVisible = true
-                player_controls_playPause.isVisible = false
-                player_controls_error.isVisible = false
-                player_controls_progress.bufferedProgress = 0
-            }
-            is PlayerContract.State.Buffering -> {
-                player_controls_loading.isVisible = true
-                player_controls_playPause.isVisible = false
-                player_controls_error.isVisible = false
-            }
-            is PlayerContract.State.Duration -> {
-                player_controls_duration.text = state.formattedDuration
-                player_controls_progress.duration = state.duration
             }
             is PlayerContract.State.Progress -> {
                 player_controls_position.text = state.formattedProgress
@@ -109,9 +91,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                     player_controls_progress.progress = state.progress
                 player_controls_progress.bufferedProgress = state.bufferedProgress
             }
-            is PlayerContract.State.Preview -> GlideApp.with(this).load(state.path)
-                    .placeholder(R.drawable.ic_default_thumbnail).error(R.drawable.ic_default_thumbnail)
-                    .transition(DrawableTransitionOptions.withCrossFade()).into(player_preview)
+            is PlayerContract.State.Preview -> {
+                GlideApp.with(this).load(state.path)
+                        .placeholder(R.drawable.ic_default_thumbnail).error(R.drawable.ic_default_thumbnail)
+                        .transition(DrawableTransitionOptions.withCrossFade()).into(player_content_preview)
+            }
             is PlayerContract.State.Quality -> {
                 when (state.qualityLevel) {
                     Player.QualityLevel.p1080 -> qualityMenu.subMenu.findItem(R.id.action_p1080).isChecked = true
@@ -121,10 +105,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 }
             }
             PlayerContract.State.Error -> {
-                player_preview.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
-                player_controls_loading.isVisible = false
                 player_controls_playPause.isVisible = false
-                player_controls_error.isVisible = true
             }
             PlayerContract.State.DownloadStart -> Toast.makeText(requireContext(), R.string.download_start, Toast.LENGTH_LONG).show()
             PlayerContract.State.DownloadFailed -> Toast.makeText(requireContext(), R.string.download_error, Toast.LENGTH_LONG).show()
@@ -132,6 +113,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 subscriptions += GlideApp.with(this).asBitmap().load(state.path)
                         .toSingle().subscribe({ it -> player_controls_progress.timelineBitmap = it },
                                 { player_controls_progress.timelineBitmap = null })
+            }
+            is PlayerContract.State.Duration -> {
+                player_controls_duration.text = state.formattedDuration
+                player_controls_progress.duration = state.duration
             }
         }
     }
@@ -149,7 +134,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     }
 
     override fun onControlsVisibilityChanged(isVisible: Boolean) {
-        player_controls.isVisible = isVisible
+        if (isVisible)
+            player_display.showController()
+        else
+            player_display.hideController()
         player_controls_progress.thumbVisibility = isVisible && !isSeeking
     }
 
@@ -178,7 +166,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         }
     }
 
-    private fun Drawable.startAsAnimatable(): Unit {
+    private fun Drawable.startAsAnimatable() {
         (this as? Animatable)?.start()
     }
 
