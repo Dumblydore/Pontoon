@@ -1,12 +1,19 @@
 package me.mauricee.pontoon.preferences.settings
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
 import dagger.android.support.AndroidSupportInjection
+import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.preferences.PreferencesNavigator
 import me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
@@ -20,6 +27,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     @Inject
     lateinit var edgeRepository: EdgeRepository
 
+    private val subscriptions = CompositeDisposable()
+
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
@@ -28,7 +37,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings)
         findPreference("settings_about").setOnPreferenceClickListener { navigator.toAbout(); true }
-        findPreference("settings_refresh_edges").setOnPreferenceClickListener { edgeRepository.refresh(); true }
+        findPreference("settings_refresh_edges").setOnPreferenceClickListener {
+            subscriptions += edgeRepository.refresh().andThen(Observable.just("Refreshed!"))
+                    .startWith("Refreshing...")
+                    .onErrorReturnItem("Error refreshing edges")
+                    .subscribe { text -> Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show() };
+            true
+        }
+        if (!hasNotch()) {
+            logd("device does not have notch")
+            (findPreference("settings_general") as PreferenceCategory).removePreference(findPreference("settings_notch"))
+        }
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
@@ -43,6 +62,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun bindFragment(fragment: PreferenceDialogFragmentCompat) = fragment
             .also { it.setTargetFragment(this, 0) }
             .show(fragmentManager, "$DialogPrefix.BaseThemePreference")
+
+    private fun hasNotch() =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+            requireActivity().window.decorView.rootWindowInsets?.displayCutout != null
 
     companion object {
         const val DialogPrefix = "androidx.preference.PreferenceCategory"
