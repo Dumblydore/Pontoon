@@ -14,12 +14,15 @@ import io.reactivex.functions.Function4
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
+import me.mauricee.pontoon.model.livestream.ChatSession
+import me.mauricee.pontoon.model.livestream.LivestreamResult
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
 import me.mauricee.pontoon.model.user.UserRepository
@@ -31,6 +34,7 @@ import javax.inject.Inject
 class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                                           private val edgeRepo: EdgeRepository,
                                           private val videoDao: VideoDao,
+                                          private val chatSessionBuilder: ChatSession.Builder,
                                           private val floatPlaneApi: FloatPlaneApi,
                                           private val subscriptionDao: SubscriptionDao,
                                           private val searchCallbackFactory: SearchBoundaryCallback.Factory,
@@ -76,6 +80,14 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 }
                 .let { VideoResult(it, callback.state, callback::retry) }
     }
+
+
+    fun getLivestream(creator: UserRepository.Creator): Single<LivestreamResult> =
+            Observable.combineLatest<LiveStreamMetadata, String, LivestreamResult>(floatPlaneApi.getCreator(creator.id).map { it.first().liveStream!! },
+                    edgeRepo.streamingHost.toObservable(), BiFunction { metadata, host ->
+                LivestreamResult("$host${metadata.streamPath}", chatSessionBuilder.startSession(metadata))
+            }).singleOrError()
+
 
     fun search(query: String, vararg filteredSubs: UserRepository.Creator): VideoResult {
         val callback = searchCallbackFactory.newInstance(query, *filteredSubs)
@@ -164,7 +176,8 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
 
 data class Quality(val p360: String, val p480: String, val p720: String, val p1080: String)
 data class Video(val id: String, val title: String, val description: String, val releaseDate: Instant,
-                 val duration: Long, val creator: UserRepository.Creator, val thumbnail: String, val watched: Instant?) {
+                 val duration: Long, val creator: UserRepository.Creator, val thumbnail: String, val watched: Instant?,
+                 val isLiveStream: Boolean = false) {
 
     constructor(video: me.mauricee.pontoon.domain.floatplane.Video, creator: UserRepository.Creator) : this(video.guid, video.title, video.description, video.releaseDate, video.duration, creator, video.defaultThumbnail, null)
     constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail, video.watched)

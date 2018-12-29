@@ -9,4 +9,4 @@ import okhttp3.Response
 
 fun Call.asObservable(): Observable<Response> = CallObservable(this)
 fun Call.asSingle(): Single<Response> = CallObservable(this).singleOrError()
-fun OkHttpClient.openSocket(request: Request): Observable<WebSocketEvent> = WebsocketObservable(request, this)
+fun OkHttpClient.openSocket(request: Request): Observable<WebSocketEvent> = WebSocketObservable(request, this)

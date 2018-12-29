@@ -9,7 +9,7 @@ import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-internal class WebsocketObservable(private val request: Request, private val okHttpClient: OkHttpClient) : Observable<WebSocketEvent>() {
+internal class WebSocketObservable(private val request: Request, private val okHttpClient: OkHttpClient) : Observable<WebSocketEvent>() {
     override fun subscribeActual(observer: Observer<in WebSocketEvent>) {
         okHttpClient.newWebSocket(request, Listener(okHttpClient, observer))
     }
@@ -41,10 +41,6 @@ internal class WebsocketObservable(private val request: Request, private val okH
             if (!isDisposed()) {
                 observer.onError(t)
             }
-        }
-
-        override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-            super.onClosing(webSocket, code, reason)
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
