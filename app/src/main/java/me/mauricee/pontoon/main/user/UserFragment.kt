@@ -2,6 +2,8 @@ package me.mauricee.pontoon.main.user
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
 import io.reactivex.Observable
@@ -45,6 +47,6 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
 
     companion object {
         private const val UserKey = "UserKey"
-        fun newInstance(userId: String) = UserFragment().apply { arguments = Bundle().apply { putString(UserKey, userId) } }
+        fun newInstance(userId: String): Fragment = UserFragment().apply { arguments = bundleOf(UserKey to userId) }
     }
 }

@@ -1,5 +1,8 @@
 package me.mauricee.pontoon.login
 
 interface LoginNavigator {
-    fun toSubscriptions()
+    fun onSuccessfulLogin()
+    fun toDiscordLogin()
+    fun toLttLogin()
+    fun toSignUp()
 }

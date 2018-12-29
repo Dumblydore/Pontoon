@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/login"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <fragment
-        android:id="@+id/my_nav_host_fragment"
-        android:name="me.mauricee.pontoon.login.login.LoginFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-
-</FrameLayout>
+    android:layout_height="match_parent"/>

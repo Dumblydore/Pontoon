@@ -19,6 +19,7 @@ interface VideoContract {
         class Subscription(val creator: UserRepository.Creator) : Action()
         class PlayVideo(val video: Video) : Action()
         object Creators : Action()
+        object NavMenu : Action()
     }
 
     sealed class State : EventTracker.State {

@@ -14,12 +14,15 @@ class Preferences @Inject constructor(private val sharedPreferences: SharedPrefe
         get() = sharedPreferences.watchBoolean(DisplayUnwatchedVideosKey)
     val defaultQualityLevel: Player.QualityLevel
         get() = (if (wiseFy.isDeviceConnectedToWifiNetwork()) sharedPreferences.getString(QualityWifiKey, "p1080")
-        else sharedPreferences.getString(QualityCellKey, "p360")).let { Player.QualityLevel.valueOf(it) }
+        else sharedPreferences.getString(QualityCellKey, "p360")).let { Player.QualityLevel.valueOf(it!!) }
     val pictureInPicture: PictureInPicture
-        get() = PictureInPicture.valueOf(sharedPreferences.getString(PictureKey, PictureInPicture.Always.name))
+        get() = PictureInPicture.valueOf(sharedPreferences.getString(PictureKey, PictureInPicture.Always.name)!!)
+    val fullscreenOverNotch: Observable<Boolean>
+        get() = sharedPreferences.watchBoolean(FullscreenOverNotchKey, false)
 
     companion object {
         private const val DisplayUnwatchedVideosKey = "settings_hide"
+        private const val FullscreenOverNotchKey = "settings_notch"
         private const val PictureKey = "settings_picture"
         private const val QualityCellKey = "settings_quality_cell"
         private const val QualityWifiKey = "settings_quality_wifi"
