@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.details.video
 import android.os.Bundle
 import android.text.util.Linkify
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionInflater
@@ -164,10 +165,7 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
 
         fun newInstance(videoId: String, commentId: String = ""): DetailsFragment =
                 DetailsFragment().also {
-                    it.arguments = Bundle().apply {
-                        putString(VideoKey, videoId)
-                        putString(CommentKey, commentId)
-                    }
+                    it.arguments = bundleOf(VideoKey to videoId, CommentKey to commentId)
                 }
     }
 }

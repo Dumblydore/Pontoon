@@ -19,7 +19,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.transaction
 import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
@@ -44,17 +43,20 @@ import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.video.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
-import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.player.PlayerActivity
+import me.mauricee.pontoon.player.player.PlayerContract
+import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import javax.inject.Inject
 
-class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, MainContract.View {
+class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, MainContract.View,
+        PlayerContract.Controls {
 
     @Inject
     lateinit var mainPresenter: MainPresenter
@@ -69,28 +71,16 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     @Inject
     lateinit var preferences: Preferences
 
+    private var goingIntoFullscreen = false
     private val miscActions = PublishRelay.create<MainContract.Action>()
-
+    private var currentPlayerRatio: String = "16:9"
     private val fragmentContainer: Int
         get() = R.id.main_container
 
-    /** To prevent view flickering when pip is resizing*/
-    private var lastConfiguration: Int = -1
-        set(value) {
-            if (field != value) {
-                supportFragmentManager.findFragmentById(main_player.id)?.also {
-                    supportFragmentManager.transaction {
-                        detach(it)
-                        attach(it)
-                    }
-                }
-            }
-            field = value
-        }
-
-
     override val actions: Observable<MainContract.Action>
         get() = Observable.merge(miscActions, RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
+                .compose(checkForVideoToPlay())
+
     /*
     *  Setting up guideline parameters to change the
     *  guideline percent value as per user touch event
@@ -124,13 +114,15 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onStart() {
         super.onStart()
         mainPresenter.attachView(this)
+        goingIntoFullscreen = false
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
     }
 
     override fun onStop() {
         super.onStop()
         mainPresenter.detachView()
-        player.onPause()
+        if (!goingIntoFullscreen)
+            player.onPause()
     }
 
     override fun onDestroy() {
@@ -140,9 +132,15 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             player.release()
     }
 
+    override fun setMenuExpanded(isExpanded: Boolean) {
+        if (isExpanded)
+            root.openDrawer(main_drawer, true)
+        else
+            root.closeDrawer(main_drawer, true)
+    }
+
     override fun playVideo(video: Video, commentId: String) {
         animationTouchListener.show()
-        main_player.alpha = 1f
         loadFragment {
             replace(R.id.main_player, PlayerFragment.newInstance(video.thumbnail))
         }
@@ -153,6 +151,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             animationTouchListener.isExpanded = true
             setPlayerExpanded(true)
         }
+    }
+
+    override fun toPreferences() {
+        if (player.isPlaying()) player.onPause()
+        PreferencesActivity.navigateTo(this)
     }
 
     override fun toCreator(creator: UserRepository.Creator) {
@@ -180,6 +183,21 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         root.closeDrawer(main_drawer)
     }
 
+    override fun setVideoRatio(ratio: String) {
+        currentPlayerRatio = ratio
+        main.updateParams {
+            setDimensionRatio(main_player.id, "h,$ratio")
+            TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
+                duration = 150
+            })
+        }
+    }
+
+    override fun toggleFullscreen() {
+        goingIntoFullscreen = true
+        startActivity(Intent(this, PlayerActivity::class.java))
+    }
+
     override fun onClick(view: View) {
         miscActions.accept(MainContract.Action.PlayerClicked)
     }
@@ -202,10 +220,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun updateState(state: MainContract.State) = when (state) {
         is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
-        is MainContract.State.Preferences -> {
-            if (player.isPlaying()) player.onPause()
-            PreferencesActivity.navigateTo(this)
-        }
         is MainContract.State.Logout -> {
             if (player.isActive()) player.onStop()
             LoginActivity.navigateTo(this)
@@ -215,7 +229,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             AlertDialog.Builder(this)
                     .setTitle(R.string.main_session_expired_title)
                     .setMessage(R.string.main_session_expired_body)
-                    .setPositiveButton(android.R.string.ok) { _, _ -> miscActions.accept(MainContract.Action.Logout) }
+                    .setPositiveButton(android.R.string.ok) { _, _ -> miscActions.accept(MainContract.Action.Expired) }
+                    .setCancelable(false)
                     .create().show()
         }
     }.also { root.closeDrawer(main_drawer, true) }
@@ -238,7 +253,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !goingIntoFullscreen) {
             val pip = preferences.pictureInPicture
             when {
                 pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()
@@ -250,31 +265,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun goIntoPip() {
-        setPlayerExpanded(true)
+        expandPlayerTo(true, Player.ViewMode.FullScreen)
         enterPictureInPictureMode(PictureInPictureParams.Builder()
-                .setAspectRatio(Rational.parseRational("16:9"))
+                .setAspectRatio(Rational.parseRational(currentPlayerRatio))
                 .build())
-        player.controlsVisible = false
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        val isPortrait = isPortrait() || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT
-        if (isPortrait) {
-            animationTouchListener.isEnabled = true
-        } else {
-            animationTouchListener.isEnabled = false
-            if (!animationTouchListener.isExpanded) {
-                animationTouchListener.isExpanded = true
-            }
-        }
-        enableFullScreen(!isPortrait)
-        lastConfiguration = newConfig.orientation
-        //Update this params in last after all configuration changes are done
-        main.updateParams(constraintSet) {
-            constrainHeight(main_player.id, if (isPortrait) 0 else getDeviceHeight())
-            constrainWidth(main_player.id, if (isPortrait) 0 else getDeviceWidth())
-        }
     }
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
@@ -305,7 +299,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         val movedPercent = percentVerticalMoved / VideoTouchHandler.MIN_VERTICAL_LIMIT
         val percentHorizontalMoved = VideoTouchHandler.MIN_HORIZONTAL_LIMIT * movedPercent
         val percentBottomMoved = 1F - movedPercent * (1F - VideoTouchHandler.MIN_BOTTOM_LIMIT)
-        loge("Bottom : $percentBottomMoved")
         val percentMarginMoved = 1F - movedPercent * (1F - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
 
         paramsGlHorizontal.guidePercent = percentVerticalMoved
@@ -317,8 +310,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         guidelineVertical.layoutParams = paramsGlVertical
         guidelineBottom.layoutParams = paramsGlBottom
         guidelineMarginEnd.layoutParams = paramsGlMarginEnd
-
-        main_details.alpha = 1.0F - movedPercent
     }
 
     /**
@@ -329,15 +320,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         //Prevent guidelines to go out of screen bound
         val percentHorizontalMoved = Math.max(-0.25F, Math.min(VideoTouchHandler.MIN_HORIZONTAL_LIMIT, percentScrollSwipe))
         val percentMarginMoved = percentHorizontalMoved + (VideoTouchHandler.MIN_MARGIN_END_LIMIT - VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
-        val movedPercent = percentHorizontalMoved / VideoTouchHandler.MIN_HORIZONTAL_LIMIT
 
         paramsGlVertical.guidePercent = percentHorizontalMoved
         paramsGlMarginEnd.guidePercent = percentMarginMoved
 
         guidelineVertical.layoutParams = paramsGlVertical
         guidelineMarginEnd.layoutParams = paramsGlMarginEnd
-        main_player.alpha = movedPercent
-
     }
 
     /**
@@ -358,18 +346,23 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     /**
      * Expand or collapse the video fragment animation
      */
-    override fun setPlayerExpanded(isExpanded: Boolean) = main.updateParams(constraintSet) {
-        setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else VideoTouchHandler.MIN_VERTICAL_LIMIT)
-        setGuidelinePercent(guidelineVertical.id, if (isExpanded) 0F else VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
-        setGuidelinePercent(guidelineBottom.id, if (isExpanded) 1F else VideoTouchHandler.MIN_BOTTOM_LIMIT)
-        setGuidelinePercent(guidelineMarginEnd.id, if (isExpanded) 1F else VideoTouchHandler.MIN_MARGIN_END_LIMIT)
-        setAlpha(main_details.id, if (isExpanded) 1.0F else 0F)
+    override fun setPlayerExpanded(isExpanded: Boolean) = expandPlayerTo(isExpanded, Player.ViewMode.Expanded)
 
-        TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
-            interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
-            duration = 250
-            doAfter { player.viewMode = if (isExpanded) Player.ViewMode.Expanded else Player.ViewMode.PictureInPicture }
-        })
+    private fun expandPlayerTo(isExpanded: Boolean, expandedState: Player.ViewMode) {
+        main_player.alpha = 1f
+        main.updateParams(constraintSet) {
+            setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else VideoTouchHandler.MIN_VERTICAL_LIMIT)
+            setGuidelinePercent(guidelineVertical.id, if (isExpanded) 0F else VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
+            setGuidelinePercent(guidelineBottom.id, if (isExpanded) 1F else VideoTouchHandler.MIN_BOTTOM_LIMIT)
+            setGuidelinePercent(guidelineMarginEnd.id, if (isExpanded) 1F else VideoTouchHandler.MIN_MARGIN_END_LIMIT)
+            setAlpha(main_details.id, if (isExpanded) 1.0F else 0F)
+
+            TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
+                interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
+                duration = 250
+                doAfter { player.viewMode = if (isExpanded) expandedState else Player.ViewMode.PictureInPicture }
+            })
+        }
     }
 
     /**
@@ -419,9 +412,25 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
     }
 
+    private fun checkForVideoToPlay(): (Observable<MainContract.Action>) -> Observable<MainContract.Action> {
+        return {
+            if (intent.hasExtra(VideoToPlayKey)) {
+                val id = intent.getStringExtra(VideoToPlayKey)
+                intent.removeExtra(VideoToPlayKey)
+                it.startWith(MainContract.Action.PlayVideo(id))
+            } else
+                it
+        }
+    }
+
     companion object {
+        private const val VideoToPlayKey = "VideoToPlay"
+
         fun navigateTo(context: Context) {
             context.startActivity(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
         }
+
+        fun playVideo(context: Context, videoId: String) = context.startActivity(Intent(context, MainActivity::class.java)
+                .putExtra(VideoToPlayKey, videoId).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
     }
 }

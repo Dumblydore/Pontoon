@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.jakewharton.rxbinding2.view.clicks
@@ -86,11 +87,9 @@ class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View 
         private const val NoReply = "NO_REPLY"
 
         fun newInstance(replyingTo: Comment? = null, video: Video) = CommentDialogFragment().apply {
-            arguments = Bundle().apply {
-                putString(ReplyKey, replyingTo?.user?.id ?: NoReply)
-                putString(NameKey, replyingTo?.user?.username ?: NoReply)
-                putString(VideoKey, video.id)
-            }
+            arguments = bundleOf(VideoKey to (replyingTo?.user?.id ?: NoReply),
+                    NameKey to (replyingTo?.user?.username ?: NoReply),
+                    VideoKey to video.id)
         }
     }
 }

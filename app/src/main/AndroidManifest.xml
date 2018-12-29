@@ -26,16 +26,55 @@
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="www.floatplane.com"
+                    android:pathPrefix="/activate-account"
+                    android:scheme="http" />
+
+                <data
+                    android:host="www.floatplane.com"
+                    android:pathPrefix="/activate-account"
+                    android:scheme="https" />
+
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="www.floatplane.com"
+                    android:pathPrefix="/video"
+                    android:scheme="http" />
+
+                <data
+                    android:host="www.floatplane.com"
+                    android:pathPrefix="/video"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <activity android:name=".login.LoginActivity" />
         <activity
-            android:screenOrientation="portrait"
             android:name=".main.MainActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
+            android:screenOrientation="portrait"
             android:supportsPictureInPicture="true" />
+
+        <activity
+            android:name=".player.PlayerActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensorLandscape" />
 
         <activity android:name=".preferences.PreferencesActivity" />
     </application>

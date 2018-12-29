@@ -169,6 +169,8 @@ data class Video(val id: String, val title: String, val description: String, val
     constructor(video: me.mauricee.pontoon.domain.floatplane.Video, creator: UserRepository.Creator) : this(video.guid, video.title, video.description, video.releaseDate, video.duration, creator, video.defaultThumbnail, null)
     constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail, video.watched)
 
+    fun toBrowsableUrl(): String = "https://www.floatplane.com/video/$id"
+
     companion object {
         val ItemCallback = object : DiffUtil.ItemCallback<Video>() {
             override fun areItemsTheSame(oldItem: Video, newItem: Video): Boolean = oldItem.id == newItem.id
@@ -177,7 +179,6 @@ data class Video(val id: String, val title: String, val description: String, val
         }
     }
 }
-
 
 data class Playback(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality)
 
