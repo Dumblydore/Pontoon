@@ -32,6 +32,8 @@ import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.player.player.PlayerView
+import me.mauricee.pontoon.rx.context.BroadcastEvent
+import me.mauricee.pontoon.rx.context.registerReceiver
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
