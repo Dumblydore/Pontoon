@@ -30,9 +30,9 @@ open class StateBoundaryCallback<T : Any> : PagedList.BoundaryCallback<T>() {
     }
 
     enum class State {
-        LOADING,
-        ERROR,
-        FETCHED,
-        FINISHED
+        Loading,
+        Error,
+        Fetched,
+        Finished
     }
 }
