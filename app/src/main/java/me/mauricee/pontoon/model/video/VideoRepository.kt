@@ -22,7 +22,7 @@ import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.model.livestream.ChatSession
-import me.mauricee.pontoon.model.livestream.LivestreamResult
+import me.mauricee.pontoon.model.livestream.LiveStreamResult
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
 import me.mauricee.pontoon.model.user.UserRepository
@@ -82,10 +82,10 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     }
 
 
-    fun getLivestream(creator: UserRepository.Creator): Single<LivestreamResult> =
-            Observable.combineLatest<LiveStreamMetadata, String, LivestreamResult>(floatPlaneApi.getCreator(creator.id).map { it.first().liveStream!! },
+    fun getLivestream(creator: UserRepository.Creator): Single<LiveStreamResult> =
+            Observable.combineLatest<LiveStreamMetadata, String, LiveStreamResult>(floatPlaneApi.getCreator(creator.id).map { it.first().liveStream!! },
                     edgeRepo.streamingHost.toObservable(), BiFunction { metadata, host ->
-                LivestreamResult("$host${metadata.streamPath}", chatSessionBuilder.startSession(metadata))
+                LiveStreamResult("$host${metadata.streamPath}", chatSessionBuilder.startSession(metadata))
             }).singleOrError()
 
 
