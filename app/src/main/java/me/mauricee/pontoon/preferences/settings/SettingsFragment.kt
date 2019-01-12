@@ -13,6 +13,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ext.hasNotch
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.preferences.PreferencesNavigator
@@ -36,6 +37,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings)
+
         findPreference("settings_about").setOnPreferenceClickListener { navigator.toAbout(); true }
         findPreference("settings_refresh_edges").setOnPreferenceClickListener {
             subscriptions += edgeRepository.refresh().andThen(Observable.just("Refreshed!"))
@@ -44,7 +46,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     .subscribe { text -> Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show() };
             true
         }
-        if (!hasNotch()) {
+        if (!requireActivity().hasNotch()) {
             logd("device does not have notch")
             (findPreference("settings_general") as PreferenceCategory).removePreference(findPreference("settings_notch"))
         }
@@ -62,10 +64,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun bindFragment(fragment: PreferenceDialogFragmentCompat) = fragment
             .also { it.setTargetFragment(this, 0) }
             .show(fragmentManager, "$DialogPrefix.BaseThemePreference")
-
-    private fun hasNotch() =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-            requireActivity().window.decorView.rootWindowInsets?.displayCutout != null
 
     companion object {
         const val DialogPrefix = "androidx.preference.PreferenceCategory"

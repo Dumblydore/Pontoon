@@ -24,32 +24,32 @@ class SearchBoundaryCallback(private val query: String,
         super.onZeroItemsLoaded()
         if (isLoading) return
         isLoading = true
-        stateRelay.accept(State.LOADING)
+        stateRelay.accept(State.Loading)
         disposable += creators.toObservable().flatMap { api.getVideos(it.id).flatMapIterable { it } }
                 .filter { it.title.contains(query, true) }
                 .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
-                .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.ERROR) })
+                .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: Video) {
         super.onItemAtEndLoaded(itemAtEnd)
         if (isLoading) return
         isLoading = true
-        stateRelay.accept(State.LOADING)
+        stateRelay.accept(State.Loading)
         disposable += creators.toObservable().flatMap {
             api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id))
         }.flatMapIterable { it }
                 .filter { it.title.contains(query, true) }
                 .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
-                .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.ERROR) })
+                .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
     }
 
     private fun cacheVideos(it: MutableList<VideoEntity>) {
         when {
-            videoDao.cacheVideos(*it.toTypedArray()).isNotEmpty() -> stateRelay.accept(State.FETCHED)
-            else -> stateRelay.accept(State.FINISHED)
+            videoDao.cacheVideos(*it.toTypedArray()).isNotEmpty() -> stateRelay.accept(State.Fetched)
+            else -> stateRelay.accept(State.Finished)
         }
         isLoading = false
     }

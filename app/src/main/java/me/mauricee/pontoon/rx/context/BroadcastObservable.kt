@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main
+package me.mauricee.pontoon.rx.context
 
 import android.content.BroadcastReceiver
 import android.content.Context
