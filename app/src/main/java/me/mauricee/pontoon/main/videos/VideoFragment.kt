@@ -45,6 +45,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
         super.onViewCreated(view, savedInstanceState)
         videos_list.layoutManager = LayoutManager(requireContext())
         videos_list.adapter = videoAdapter
+
         videos_container_lazy.setupWithSwipeRefreshLayout(videos_container)
     }
 

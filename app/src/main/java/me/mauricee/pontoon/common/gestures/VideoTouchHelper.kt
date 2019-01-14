@@ -1,12 +1,17 @@
 package me.mauricee.pontoon.common.gestures
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.res.Resources
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import dagger.Reusable
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainActivity
+import me.mauricee.pontoon.main.MainScope
+import me.mauricee.pontoon.player.PlayerScope
 import javax.inject.Inject
 
 /**
@@ -17,7 +22,11 @@ import javax.inject.Inject
  * it modular
  */
 
-class VideoTouchHandler @Inject constructor(activity: MainActivity, private var gestureEventsListener: GestureEvents) : View.OnTouchListener {
+@Reusable
+class VideoTouchHandler @Inject constructor(activity: Activity, private var gestureEventsListener: GestureEvents) : View.OnTouchListener {
+    init {
+        logd("creating video touch handler")
+    }
 
     companion object {
         val TAG = VideoTouchHandler::class.java.simpleName

@@ -2,6 +2,7 @@ package me.mauricee.pontoon.ext
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -60,11 +61,14 @@ fun AppCompatActivity.removeFragment(fragment: Fragment?): Boolean = fragment?.l
     supportFragmentManager.beginTransaction().remove(fragment).commit();true
 } ?: false
 
+fun Activity.hasNotch() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+        window.decorView.rootWindowInsets?.displayCutout != null
+
 fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View =
         LayoutInflater.from(context).inflate(layoutId, this, attachToRoot)
 
 inline fun Transition.doAfter(crossinline action: () -> Unit) {
-    this.addListener(object: Transition.TransitionListener {
+    this.addListener(object : Transition.TransitionListener {
         override fun onTransitionEnd(transition: Transition) {
             action()
         }

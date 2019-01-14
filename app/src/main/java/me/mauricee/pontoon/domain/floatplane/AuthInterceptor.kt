@@ -51,7 +51,7 @@ class AuthInterceptor @Inject constructor(private val accountManager: AccountMan
     }
 
     companion object {
-        private const val SailsSid = "sails.sid"
-        private const val CfDuid = "__cfduid"
+        const val SailsSid = "sails.sid"
+        const val CfDuid = "__cfduid"
     }
 }

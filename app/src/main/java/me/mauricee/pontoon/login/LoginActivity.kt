@@ -34,8 +34,6 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
                 .build()
     }
 
-    private fun isActivationRoute() = intent.hasExtra(ActivationKey) && intent.hasExtra(UsernameKey)
-
     override fun onBackPressed() {
         if (controller.isRootFragment)
             super.onBackPressed()
@@ -45,9 +43,9 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
 
     override fun toLttLogin() = controller.pushFragment(WebLoginFragment.loginWithLttForum())
 
-    override fun toDiscord() = controller.pushFragment(WebLoginFragment.loginWithDiscord())
+    override fun toDiscordLogin() = controller.pushFragment(WebLoginFragment.loginWithDiscord())
 
-    override fun toSignup() = startActivity(Intent(Intent.ACTION_VIEW, SignupUrl.toUri()))
+    override fun toSignUp() = startActivity(Intent(Intent.ACTION_VIEW, SignupUrl.toUri()))
 
     override fun onSuccessfulLogin() {
         MainActivity.navigateTo(this)

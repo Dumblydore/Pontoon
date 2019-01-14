@@ -16,8 +16,7 @@
         android:icon="@drawable/ic_settings"
         android:title="@string/action_quality">
         <menu>
-            <group android:id="@+id/group"
-                android:checkableBehavior="single">
+            <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/action_p1080"
                     android:title="@string/quality_1080" />

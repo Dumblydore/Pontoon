@@ -1,12 +1,13 @@
-package me.mauricee.pontoon.main.player
+package me.mauricee.pontoon.player.player
 
+import android.content.Intent
+import android.content.Intent.ACTION_SEND
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -27,17 +28,24 @@ import me.mauricee.pontoon.common.playback.PlaybackLocation
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
+import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.rx.glide.toSingle
+import javax.inject.Inject
 
 class PlayerFragment : BaseFragment<PlayerPresenter>(),
         PlayerContract.View, Player.ControlView {
+
+    @Inject
+    lateinit var player: Player
+    @Inject
+    lateinit var playerControls: PlayerContract.Controls
 
     private val playIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_play_to_pause) }
     private val playIcon by lazy { getDrawable(requireContext(), R.drawable.ic_play) }
     private val pauseIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_pause_to_play) }
     private val pauseIcon by lazy { getDrawable(requireContext(), R.drawable.ic_pause) }
 
-    private val previewArt by lazy { arguments!!.getString(PreviewArtKey) }
+    private val previewArt by lazy { arguments?.getString(PreviewArtKey) ?: "" }
     private val qualityMenu by lazy { player_controls_toolbar.menu.findItem(R.id.action_quality) }
     private var isSeeking: Boolean = false
 
@@ -63,21 +71,24 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        GlideApp.with(this).load(previewArt).placeholder(R.drawable.ic_default_thumbnail)
-                .error(R.drawable.ic_default_thumbnail)
-                .into(player_preview)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
+        player_display.setThumbnail(previewArt)
 
         CastButtonFactory.setUpMediaRouteButton(requireContext().applicationContext,
                 player_controls_toolbar.menu, R.id.media_route_menu_item)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        player.bindToView(player_display)
+        player.controller = this
+        subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
     }
 
     override fun updateState(state: PlayerContract.State) {
         player_controls_error.isVisible = false
         when (state) {
             is PlayerContract.State.Bind -> {
-                state.player.bindToView(player_display)
-                state.player.controller = this
                 if (state.displayPipIcon) player_controls_toolbar.setNavigationIcon(R.drawable.ic_arrow_down)
             }
             is PlayerContract.State.Playing -> {
@@ -96,11 +107,13 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_display.isVisible = false
                 player_controls_loading.isVisible = true
                 player_controls_playPause.isVisible = false
+                player_controls_error.isVisible = false
                 player_controls_progress.bufferedProgress = 0
             }
             is PlayerContract.State.Buffering -> {
                 player_controls_loading.isVisible = true
                 player_controls_playPause.isVisible = false
+                player_controls_error.isVisible = false
             }
             is PlayerContract.State.Duration -> {
                 player_controls_duration.text = state.formattedDuration
@@ -112,9 +125,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                     player_controls_progress.progress = state.progress
                 player_controls_progress.bufferedProgress = state.bufferedProgress
             }
-            is PlayerContract.State.Preview -> GlideApp.with(this).load(state.path)
-                    .placeholder(R.drawable.ic_default_thumbnail).error(R.drawable.ic_default_thumbnail)
-                    .transition(DrawableTransitionOptions.withCrossFade()).into(player_preview)
+            is PlayerContract.State.Preview -> player_display.setThumbnail(state.path)
             is PlayerContract.State.Quality -> {
                 when (state.qualityLevel) {
                     Player.QualityLevel.p1080 -> qualityMenu.subMenu.findItem(R.id.action_p1080).isChecked = true
@@ -124,10 +135,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 }
             }
             PlayerContract.State.Error -> {
-                player_preview.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
-                player_controls_loading.isVisible = false
                 player_controls_playPause.isVisible = false
-                player_controls_error.isVisible = true
             }
             PlayerContract.State.DownloadStart -> Toast.makeText(requireContext(), R.string.download_start, Toast.LENGTH_LONG).show()
             PlayerContract.State.DownloadFailed -> Toast.makeText(requireContext(), R.string.download_error, Toast.LENGTH_LONG).show()
@@ -136,6 +144,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                         .toSingle().subscribe({ it -> player_controls_progress.timelineBitmap = it },
                                 { player_controls_progress.timelineBitmap = null })
             }
+            is PlayerContract.State.Duration -> {
+                player_controls_duration.text = state.formattedDuration
+                player_controls_progress.duration = state.duration
+            }
+            is PlayerContract.State.ShareUrl -> startActivity(Intent.createChooser(createShareIntent(state.video),getString(R.string.player_share)))
         }
     }
 
@@ -152,7 +165,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     }
 
     override fun onControlsVisibilityChanged(isVisible: Boolean) {
-        player_controls.isVisible = isVisible
+        if (isVisible)
+            player_display.showController()
+        else
+            player_display.hideController()
         player_controls_progress.thumbVisibility = isVisible && !isSeeking
     }
 
@@ -162,6 +178,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     override fun onAcceptUserInputChanged(canAccept: Boolean) {
         player_controls_progress.acceptTapsFromUser = canAccept
+    }
+
+    override fun displayFullscreenIcon(isFullscreen: Boolean) {
+        player_display.isInFullscreen = isFullscreen
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {
@@ -175,14 +195,20 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 R.id.action_download_p720 -> PlayerContract.Action.Download(Player.QualityLevel.p720).toObservable()
                 R.id.action_download_p480 -> PlayerContract.Action.Download(Player.QualityLevel.p480).toObservable()
                 R.id.action_download_p360 -> PlayerContract.Action.Download(Player.QualityLevel.p360).toObservable()
-                R.id.action_share -> Observable.empty()
+                R.id.action_share -> PlayerContract.Action.RequestShare.toObservable()
                 else -> Observable.empty()
             }
         }
     }
 
-    private fun Drawable.startAsAnimatable(): Unit {
+    private fun Drawable.startAsAnimatable() {
         (this as? Animatable)?.start()
+    }
+
+    private fun createShareIntent(video: Video) = Intent(ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, video.title)
+        putExtra(Intent.EXTRA_TEXT, video.toBrowsableUrl())
     }
 
     companion object {

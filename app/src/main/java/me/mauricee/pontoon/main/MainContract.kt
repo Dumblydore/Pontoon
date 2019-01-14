@@ -15,15 +15,13 @@ interface MainContract {
     interface Presenter : BaseContract.Presenter<MainContract.View>
 
     sealed class State : EventTracker.State {
-        data class CurrentUser(val user: UserRepository.User, val subCount: Int) : State()
-        data class ExpandPlayer(val isExpanded: Boolean)
-        object Preferences : State()
         object Logout : State()
         object SessionExpired : State()
+        data class CurrentUser(val user: UserRepository.User, val subCount: Int) : State()
     }
 
     sealed class Action : EventTracker.Action {
-        object Logout : Action()
+        object SuccessfulLogout : Action()
         object Expired : Action()
         object Preferences : Action()
         object Profile : Action()
@@ -33,7 +31,7 @@ interface MainContract {
 
         companion object {
             fun fromNavDrawer(@IdRes id: Int) = when (id) {
-                R.id.action_logout -> Logout
+                R.id.action_logout -> SuccessfulLogout
                 R.id.action_prefs -> Preferences
                 R.id.action_profile -> Profile
                 else -> throw RuntimeException("Invalid Navigation Drawer option")
@@ -45,6 +43,8 @@ interface MainContract {
 
 //        val optionsBottomSheet: OptionsBottomSheetView
 
+        fun toPreferences()
+
         fun toCreator(creator: UserRepository.Creator)
 
         fun toCreatorsList()
@@ -53,9 +53,6 @@ interface MainContract {
 
         fun playVideo(video: Video, commentId: String = "")
 
-        fun setPlayerExpanded(isExpanded: Boolean)
-
         fun setMenuExpanded(isExpanded: Boolean)
-
     }
 }

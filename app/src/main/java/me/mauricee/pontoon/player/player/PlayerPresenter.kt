@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.player
+package me.mauricee.pontoon.player.player
 
 import android.support.v4.media.session.PlaybackStateCompat
 import com.novoda.downloadmanager.Batch
@@ -12,8 +12,7 @@ import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.playback.PlaybackLocation
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.ext.toDuration
-import me.mauricee.pontoon.main.MainContract
-import me.mauricee.pontoon.main.OrientationManager
+import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
@@ -22,14 +21,13 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                                           private val videoRepository: VideoRepository,
                                           private val downloadManager: DownloadManager,
                                           private val storageRoot: StorageRoot,
-                                          private val navigator: MainContract.Navigator,
-                                          private val orientationManager: OrientationManager,
+                                          private val controls: PlayerContract.Controls,
                                           eventTracker: EventTracker) :
         BasePresenter<PlayerContract.State, PlayerContract.View>(eventTracker), PlayerContract.Presenter {
 
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
-                    watchState(), watchProgress(), watchDuration(), watchPreview(), watchTimeline(), watchVideoBind()))
+                    watchState(), watchProgress(), watchDuration(), watchPreview(), watchTimeline()))
                     .startWith(mutableListOf<PlayerContract.State>(PlayerContract.State.Quality(player.quality))
                             .also { if (!player.isActive()) it += PlayerContract.State.Loading })
                     .doOnError { loge("PlayerPresenter error!", it) }
@@ -41,15 +39,18 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         PlayerContract.Action.MinimizePlayer -> stateless {
             if (player.viewMode != Player.ViewMode.FullScreen) {
                 player.controlsVisible = false
-                navigator.setPlayerExpanded(false)
+                controls.setPlayerExpanded(false)
             }
         }
-        PlayerContract.Action.ToggleFullscreen -> stateless { orientationManager.apply { isFullscreen = !isFullscreen } }
+        PlayerContract.Action.ToggleFullscreen -> stateless { controls.toggleFullscreen() }
         is PlayerContract.Action.PlayPause -> stateless { player.playPause() }
         is PlayerContract.Action.Download -> downloadVideo(action.quality)
         is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.qualityLevel; PlayerContract.State.Quality(action.qualityLevel) }
         is PlayerContract.Action.SeekProgress -> stateless { player.onSeekTo((action.progress * 1000).toLong()) }
+        PlayerContract.Action.RequestShare -> PlayerContract.State.ShareUrl(player.currentlyPlaying!!.video).toObservable()
     }
+
+    private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(it, it.toDuration()) }
 
     private fun watchProgress() = Observable.combineLatest<Long, Long, PlayerContract.State>(player.progress().distinctUntilChanged(),
             player.bufferedProgress().distinctUntilChanged(), BiFunction { t1, t2 ->
@@ -57,8 +58,6 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     })
 
     private fun watchPreview() = player.previewImage.map(PlayerContract.State::Preview)
-
-    private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(it, it.toDuration()) }
 
     private fun watchState() = Observable.combineLatest<PlaybackLocation, Int, PlayerContract.State>(player.playbackLocation,
             player.playbackState, BiFunction { location, state ->
@@ -73,10 +72,6 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     })
 
     private fun watchTimeline() = player.thumbnailTimeline.map(PlayerContract.State::PreviewThumbnail)
-
-    private fun watchVideoBind() = player.playbackLocation.filter { it == PlaybackLocation.Local }.map {
-        PlayerContract.State.Bind(player, !orientationManager.isFullscreen)
-    }
 
     private fun downloadVideo(qualityLevel: Player.QualityLevel) = player.currentlyPlaying!!.video.let { video ->
         videoRepository.getDownloadLink(video.id, qualityLevel).map {

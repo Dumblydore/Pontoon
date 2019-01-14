@@ -11,13 +11,17 @@ import android.os.PowerManager
 import androidx.mediarouter.media.MediaRouter
 import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
+import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.SessionManager
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.isupatches.wisefy.WiseFy
 import com.novoda.downloadmanager.DownloadManagerBuilder
 import com.novoda.downloadmanager.StorageRoot
 import com.novoda.downloadmanager.StorageRootFactory
@@ -37,6 +41,9 @@ import me.mauricee.pontoon.login.LoginScope
 import me.mauricee.pontoon.main.MainActivity
 import me.mauricee.pontoon.main.MainModule
 import me.mauricee.pontoon.main.MainScope
+import me.mauricee.pontoon.player.PlayerActivity
+import me.mauricee.pontoon.player.PlayerModule
+import me.mauricee.pontoon.player.PlayerScope
 import me.mauricee.pontoon.preferences.PreferenceModule
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import me.mauricee.pontoon.preferences.PreferencesScope
@@ -69,6 +76,10 @@ abstract class AppModule {
     @MainScope
     @ContributesAndroidInjector(modules = [MainModule::class])
     abstract fun contributeMainActivity(): MainActivity
+
+    @PlayerScope
+    @ContributesAndroidInjector(modules = [PlayerModule::class])
+    abstract fun contributePlayerActivity(): PlayerActivity
 
     @PreferencesScope
     @ContributesAndroidInjector(modules = [PreferenceModule::class])
@@ -193,5 +204,24 @@ abstract class AppModule {
         @Provides
         @JvmStatic
         fun provideSessionManager(context: Context): SessionManager = CastContext.getSharedInstance(context).sessionManager
+        @Provides
+        @AppScope
+        @JvmStatic
+        fun providesSession(context: Context): MediaSessionCompat =
+                MediaSessionCompat(context, "Pontoon")
+
+        @Provides
+        @AppScope
+        @JvmStatic
+        fun providesWiseFy(context: Context): WiseFy = WiseFy.Brains(context).getSmarts()
+
+        @Provides
+        @AppScope
+        @JvmStatic
+        fun providesExoPlayer(context: Context) = ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
+                .apply {
+                    videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+                }
+
     }
 }

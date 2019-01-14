@@ -1,7 +1,6 @@
 package me.mauricee.pontoon.domain.account
 
 import android.content.SharedPreferences
-import android.service.autofill.UserData
 import androidx.core.content.edit
 import com.google.gson.Gson
 import me.mauricee.pontoon.di.AppScope
@@ -10,7 +9,7 @@ import java.util.*
 import javax.inject.Inject
 
 @AppScope
-class AccountManagerHelper @Inject constructor(private val sharedPreferences: SharedPreferences,
+open class AccountManagerHelper @Inject constructor(private val sharedPreferences: SharedPreferences,
                                                private val gson: Gson) {
 
     var account: User

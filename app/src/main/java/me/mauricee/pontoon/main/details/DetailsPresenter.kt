@@ -2,9 +2,11 @@ package me.mauricee.pontoon.main.details
 
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.doOnMainThread
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toObservable
@@ -51,8 +53,8 @@ class DetailsPresenter @Inject constructor(private val player: Player,
     private fun loadVideoDetails(action: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> =
             videoRepository.getVideo(action.id).doOnSuccess(videoRepository::addToWatchHistory).flatMapObservable { video ->
                 videoRepository.getQualityOfVideo(action.id)
-                        .flatMapCompletable { Completable.fromAction { player.currentlyPlaying = PlaybackMetadata(video, it) }.doOnMainThread() }
-                        .andThen(DetailsContract.State.VideoInfo(video).toObservable())
+                        .flatMap {it -> Completable.fromAction { player.currentlyPlaying = PlaybackMetadata(video, it) }.doOnMainThread().andThen(Observable.just(it )) }
+                        .map { DetailsContract.State.VideoInfo(video) }
             }
 
     private fun loadRelatedVideos(video: String): Observable<DetailsContract.State> =
