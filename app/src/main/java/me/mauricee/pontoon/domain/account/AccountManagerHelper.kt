@@ -10,12 +10,12 @@ import javax.inject.Inject
 
 @AppScope
 open class AccountManagerHelper @Inject constructor(private val sharedPreferences: SharedPreferences,
-                                               private val gson: Gson) {
+                                                    private val gson: Gson) {
 
     var account: User
         get() = sharedPreferences.getString(UserData, "").let { gson.fromJson(it, User::class.java) }
         set(value) {
-            sharedPreferences.edit { putString(UserData, gson.toJson(value)) }
+            sharedPreferences.edit(commit = true) { putString(UserData, gson.toJson(value)) }
         }
 
     val isLoggedIn: Boolean
