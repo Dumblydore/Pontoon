@@ -33,7 +33,7 @@ internal class CastSessionManagerEventObservable(private val sessionManager: Ses
 
         override fun onSessionSuspended(session: CastSession, errorCode: Int) {
             if (!isDisposed)
-                observer.onNext(SessionEvent.DisconnectedEvent.Suspended)
+                observer.onNext(SessionEvent.Suspended)
         }
 
         override fun onSessionEnded(session: CastSession, errorCode: Int) {
@@ -52,6 +52,8 @@ internal class CastSessionManagerEventObservable(private val sessionManager: Ses
         }
 
         override fun onSessionResuming(session: CastSession, sessionId: String) {
+            if (!isDisposed)
+                observer.onNext(SessionEvent.Resuming(session))
         }
 
         override fun onSessionEnding(session: CastSession) {
@@ -77,17 +79,17 @@ sealed class SessionEvent {
     sealed class ConnectedEvent(val castSession: CastSession) : SessionEvent() {
         class Started(castSession: CastSession) : ConnectedEvent(castSession)
         class Resumed(castSession: CastSession) : ConnectedEvent(castSession)
-        class Resuming(castSession: CastSession) : ConnectedEvent(castSession)
     }
 
     sealed class DisconnectedEvent : SessionEvent() {
-        object Suspended : DisconnectedEvent()
         object Ended : DisconnectedEvent()
         object StartFailed : DisconnectedEvent()
         object ResumeFailed : DisconnectedEvent()
     }
 
     object Starting : SessionEvent()
+    class Resuming(val castSession: CastSession) : SessionEvent()
+    object Suspended : SessionEvent()
     object Ending : SessionEvent()
 
 

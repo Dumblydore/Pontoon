@@ -7,12 +7,10 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.TextureView
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -33,14 +31,11 @@ import me.mauricee.pontoon.model.audio.FocusState
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.PlaybackMetadata
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.player.player.PlayerView
-import me.mauricee.pontoon.rx.context.BroadcastEvent
-import me.mauricee.pontoon.rx.context.registerReceiver
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AppScope
-class Player @Inject constructor(preferences: Preferences,
+class Player @Inject constructor(private val preferences: Preferences,
                                  private val playbackFactory: Playback.Factory,
                                  private val focusManager: AudioFocusManager, private val context: Context,
                                  private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(), LifecycleObserver {
@@ -81,6 +76,19 @@ class Player @Inject constructor(preferences: Preferences,
     val thumbnailTimeline: Observable<String>
         get() = timelineSubject
 
+    //TODO it may be better to make this an observable
+    private var isForeground = false
+
+    val canGoIntoPip: Boolean
+        get() = preferences.pictureInPicture.let { pip ->
+            when {
+                currentPlayback.location == PlaybackLocation.Remote -> false
+                pip == Preferences.PictureInPicture.Always && isActive() -> true
+                pip == Preferences.PictureInPicture.OnlyWhenPlaying && isPlaying() -> true
+                else -> false
+            }
+        }
+
     var currentlyPlaying: PlaybackMetadata? = null
         set(value) {
             if (value?.video?.id != field?.video?.id && value != null) {
@@ -94,7 +102,7 @@ class Player @Inject constructor(preferences: Preferences,
                         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
                         .build().apply(mediaSession::setMetadata)
             } else if (value != null) {
-                exoPlayer.playWhenReady = true
+                currentPlayback.play()
             } else {
                 currentPlayback.stop()
                 mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
@@ -138,7 +146,7 @@ class Player @Inject constructor(preferences: Preferences,
                         QualityLevel.p480 -> this.quality.p480
                         QualityLevel.p360 -> this.quality.p360
                     }
-                    currentPlayback.prepare(Playback.MediaItem(source, video, progress))
+                    currentPlayback.prepare(Playback.MediaItem(source, video, progress), true)
                 }
             }
             field = value
@@ -221,7 +229,7 @@ class Player @Inject constructor(preferences: Preferences,
         mediaSession.setCallback(this)
         subs += playbackFactory.playback
                 .doOnNext { locationRelay.accept(it.location) }
-                .doOnNext(this::switchPlayback)
+                .map(this::switchPlayback)
                 .startWith(currentPlayback)
                 .flatMap(Playback::playerState)
                 .subscribe { state = it }
@@ -246,17 +254,35 @@ class Player @Inject constructor(preferences: Preferences,
         mediaSession.release()
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    fun onForeGround() {
+        isForeground = true
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun onLifecyclePause() {
+        if (currentPlayback.location == PlaybackLocation.Local) {
+            onPause()
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun onBackground() {
+        isForeground = false
+    }
+
+
     private fun handleHeadsetChanges(intent: Intent) {
         if ((intent.getIntExtra("state", -1) == 0)) {
             onPause()
         }
     }
 
-    private fun switchPlayback(newPlayback: Playback) {
-        currentlyPlaying?.with { newPlayback.prepare(Playback.MediaItem(it.quality.p1080, it.video, currentPlayback.position)) }
+    private fun switchPlayback(newPlayback: Playback): Playback {
+        currentlyPlaying?.with { newPlayback.prepare(Playback.MediaItem(it.quality.p1080, it.video, currentPlayback.position), isForeground) }
         currentPlayback.stop()
-        newPlayback.play()
         currentPlayback = newPlayback
+        return currentPlayback
     }
 
     //TODO Not sure if this is the best way of doing it. It might be better to have it as a part of Video.
@@ -274,7 +300,7 @@ class Player @Inject constructor(preferences: Preferences,
         }
 
         setMetadata(playback.video)
-        currentPlayback.prepare(Playback.MediaItem(source, playback.video))
+        currentPlayback.prepare(Playback.MediaItem(source, playback.video), true)
         focusManager.gain()
         previewImageRelay.accept(playback.video.thumbnail)
     }

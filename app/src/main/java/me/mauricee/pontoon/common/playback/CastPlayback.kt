@@ -10,10 +10,8 @@ import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.images.WebImage
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
-import me.mauricee.pontoon.ext.logd
 
 class CastPlayback(private val session: CastSession) : Playback, Cast.Listener() {
 
@@ -61,11 +59,11 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
     }
 
     override fun stop() {
-        remoteMediaClient.stop()
-        session.removeCastListener(this)
+//        remoteMediaClient.stop()
+//        session.removeCastListener(this)
     }
 
-    override fun prepare(mediaItem: Playback.MediaItem) {
+    override fun prepare(mediaItem: Playback.MediaItem, playOnPrepare: Boolean) {
         val video = mediaItem.video
         val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE).apply {
             putString(MediaMetadata.KEY_TITLE, video.title)
@@ -74,13 +72,14 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
         }
         val info = MediaInfo.Builder(mediaItem.source)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                .setContentType("videos/mp4")
+                .setContentType("application/x-mpegurl")
                 .setMetadata(metaData)
-                .setStreamDuration(video.duration)
+//                .setStreamDuration(1000)
+//                .setMediaTracks(listOf(MediaTrack.Builder()))
                 .build()
         val options = MediaLoadOptions.Builder()
                 .setAutoplay(true)
-                .setPlayPosition(mediaItem.position)
+                .setPlayPosition(0)
                 .build()
         remoteMediaClient.load(info, options)
     }

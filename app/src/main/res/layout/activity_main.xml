@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     tools:context=".main.MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,6 +45,8 @@
             android:clickable="true"
             android:elevation="4dp"
             android:focusable="true"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             app:layout_constraintDimensionRatio="h,16:9"
             app:layout_constraintEnd_toEndOf="@+id/guidelineMarginEnd"
             app:layout_constraintStart_toStartOf="@+id/guidelineVertical"

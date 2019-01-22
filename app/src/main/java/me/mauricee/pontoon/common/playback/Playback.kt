@@ -27,7 +27,7 @@ interface Playback {
 
     fun stop()
 
-    fun prepare(mediaItem: MediaItem)
+    fun prepare(mediaItem: MediaItem, playOnPrepare: Boolean)
 
     //    fun release()
     data class MediaItem(val source: String, val video: Video, val position: Long = 0L)

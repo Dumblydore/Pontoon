@@ -141,6 +141,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun playVideo(video: Video, commentId: String) {
         animationTouchListener.show()
+        main_player.alpha = 1f
         loadFragment {
             replace(R.id.main_player, PlayerFragment.newInstance(video.thumbnail))
         }
@@ -253,13 +254,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !goingIntoFullscreen) {
-            val pip = preferences.pictureInPicture
-            when {
-                pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()
-                pip == Preferences.PictureInPicture.OnlyWhenPlaying && player.isPlaying() -> goIntoPip()
-            }
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (player.canGoIntoPip) goIntoPip()
         }
     }
 
@@ -310,6 +306,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         guidelineVertical.layoutParams = paramsGlVertical
         guidelineBottom.layoutParams = paramsGlBottom
         guidelineMarginEnd.layoutParams = paramsGlMarginEnd
+
+        main_details.alpha = 1.0F - movedPercent
     }
 
     /**

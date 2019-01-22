@@ -9,6 +9,7 @@
         <item name="android:textColor">@color/textLightPrimary</item>
         <item name="android:textColorPrimary">@color/textLightPrimary</item>
         <item name="android:textColorSecondary">@color/textLightSecondary</item>
+        <item name="android:toolbarStyle">@style/Theme.AppCompat.Light.DarkActionBar</item>
         <item name="android:actionOverflowButtonStyle">@style/MyActionButtonOverflow</item>
     </style>
 
@@ -16,6 +17,7 @@
         <item name="android:textColorPrimary">@color/textDarkPrimary</item>
         <item name="android:textColor">@color/textDarkPrimary</item>
         <item name="android:textColorSecondary">@color/textDarkSecondary</item>
+        <item name="android:toolbarStyle">@style/Theme.AppCompat.Light.DarkActionBar</item>
         <item name="android:actionOverflowButtonStyle">@style/MyActionButtonOverflow</item>
     </style>
 
