@@ -15,8 +15,8 @@
             android:layout_width="match_parent"
             android:layout_height="?android:attr/actionBarSize"
             android:transitionName="toolbar"
-            app:navigationIcon="@drawable/ic_menu"
             app:layout_scrollFlags="scroll|enterAlways"
+            app:navigationIcon="@drawable/ic_menu"
             app:title="@string/videos_toolbar_title"
             app:titleTextColor="@color/white" />
 
@@ -31,7 +31,8 @@
         <me.mauricee.pontoon.common.LazyLayout
             android:id="@+id/videos.container.lazy"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:display_retry="true">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/videos.list"
@@ -47,8 +48,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:indeterminate="true"
         android:layout_marginBottom="-6dp"
+        android:indeterminate="true"
         android:indeterminateBehavior="repeat"
         android:visibility="gone"
         tools:visibility="visible" />

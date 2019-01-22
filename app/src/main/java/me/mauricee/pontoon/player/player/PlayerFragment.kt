@@ -72,6 +72,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         player_display.setThumbnail(previewArt)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        player.controller = null
+    }
+
     override fun onStart() {
         super.onStart()
         player.bindToView(player_display)
