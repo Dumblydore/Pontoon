@@ -18,6 +18,8 @@ import kotlinx.android.synthetic.main.layout_player.view.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.NumberUtil
+import me.mauricee.pontoon.ext.asFraction
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {
@@ -50,6 +52,16 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen).let { resources.getDrawable(it, null) })
         }
 
+
+    public fun pitchVideo(scaleTo: Float) {
+        val viewAspectRatio = measuredWidth / measuredHeight
+        val maxScale = 1 + (1 - (videoAspectRatio / viewAspectRatio))
+        val newScale = Math.max(1f, Math.min(maxScale, scaleTo))
+        logd("videoAspectRatio: $maxScale | view aspectRatio: $viewAspectRatio")
+        player_content.scaleX = newScale
+        player_content.scaleY = newScale
+    }
+
     private fun unregisterPlayer(player: SimpleExoPlayer) {
         player.removeVideoListener(this)
         player.setVideoSurfaceView(null)
@@ -59,16 +71,18 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     private fun registerPlayer(player: SimpleExoPlayer) {
         player.addListener(this)
         player.addVideoListener(this)
-        player.setVideoSurfaceView(player_content_surface)
+        player.setVideoTextureView(player_content_surface)
         updateBuffering(false)
         updateErrorMsg(false)
         updateForCurrentTrackSelections(true)
     }
 
+    private var videoAspectRatio = 0f
     override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
         val realWidth = width * pixelWidthHeightRatio
+
         val videoAspectRatio = if (height == 0 || width == 0) 1f else realWidth / height
-        val ratio = NumberUtil.asFraction(realWidth.toLong(), height.toLong(), ":")
+        val ratio = (realWidth.toLong() to height.toLong()).asFraction(":")
         player_content.setAspectRatio(videoAspectRatio)
         behavioRelay.accept(ratio)
     }

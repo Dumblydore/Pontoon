@@ -8,7 +8,7 @@ import me.mauricee.pontoon.common.LazyLayout
 class RetryObservable internal constructor(private val lazyLayout: LazyLayout) : Observable<Boolean>() {
 
     override fun subscribeActual(observer: Observer<in Boolean>) {
-        Listener(lazyLayout, observer).also(observer::onSubscribe)
+        lazyLayout.retryListener = Listener(lazyLayout, observer).also(observer::onSubscribe)
     }
 
     private class Listener(private val lazyLayout: LazyLayout,
