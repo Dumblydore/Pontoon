@@ -5,6 +5,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.rx.okhttp.asSingle
 import okhttp3.OkHttpClient
@@ -22,7 +23,7 @@ class EdgeRepository @Inject constructor(private val edgeDao: EdgeDao,
         get() = preCache { edgeDao.getStreamingEdgeHosts().flatMap(::getAvailableHosts) }
     
     fun refresh(): Completable = Single.fromCallable { edgeDao.clear() }.flatMapCompletable { cacheEdges() }
-            .subscribeOn(Schedulers.io())
+            .doOnIo()
 
     private fun cacheEdges(): Completable = floatPlaneApi.edges.flatMapIterable { it.edges }
             .map { EdgeEntity(it.allowStreaming, it.allowDownload, it.hostname) }
