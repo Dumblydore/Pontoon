@@ -12,7 +12,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxbinding2.view.clicks
@@ -21,10 +20,10 @@ import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_player.*
+import kotlinx.android.synthetic.main.layout_player.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.playback.PlaybackLocation
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
@@ -94,24 +93,24 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             is PlayerContract.State.Playing -> {
                 isPlaying(true)
                 player_controls_playPause.isVisible = true
-                player_controls_loading.isVisible = false
-                player_display.isVisible = state.location == PlaybackLocation.Local
+                player_content_loader.isVisible = false
+//                player_display.isVisible = state.location == PlaybackLocation.Local
             }
             is PlayerContract.State.Paused -> {
                 isPlaying(false)
-                player_display.isVisible = state.location == PlaybackLocation.Local
-                player_controls_loading.isVisible = false
+//                player_display.isVisible = state.location == PlaybackLocation.Local
+                player_content_loader.isVisible = false
                 player_controls_playPause.isVisible = true
             }
             is PlayerContract.State.Loading -> {
-                player_display.isVisible = false
-                player_controls_loading.isVisible = true
+//                player_display.isVisible = false
+                player_content_loader.isVisible = true
                 player_controls_playPause.isVisible = false
                 player_controls_error.isVisible = false
                 player_controls_progress.bufferedProgress = 0
             }
             is PlayerContract.State.Buffering -> {
-                player_controls_loading.isVisible = true
+                player_content_loader.isVisible = true
                 player_controls_playPause.isVisible = false
                 player_controls_error.isVisible = false
             }

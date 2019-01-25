@@ -25,7 +25,6 @@ import me.mauricee.pontoon.model.subscription.SubscriptionEntity
 import me.mauricee.pontoon.model.user.UserRepository
 import okhttp3.ResponseBody
 import org.threeten.bp.Instant
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class VideoRepository @Inject constructor(private val userRepo: UserRepository,
@@ -38,16 +37,16 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                                           private val pageListConfig: PagedList.Config) {
 
     val subscriptions: Observable<List<UserRepository.Creator>> = Observable.mergeArray(subscriptionsFromCache(), subscriptionsFromNetwork())
-            .debounce(400, TimeUnit.MILLISECONDS)
+            .filter { it.isNotEmpty() }
             .flatMap { userRepo.getCreators(*it) }
             .compose(RxHelpers.applyObservableSchedulers())
 
     private fun subscriptionsFromNetwork() = floatPlaneApi.subscriptions.flatMapSingle(this::validateSubscriptions)
-            .flatMap { subs -> Completable.fromAction { cacheSubscriptions(subs) }.andThen(Observable.just(subs)) }
+            .flatMap { subs -> cacheSubscriptions(subs).andThen(Observable.just(subs)) }
             .map { subs -> subs.map { it.creatorId }.toTypedArray() }
 
     private fun subscriptionsFromCache() = subscriptionDao.getSubscriptions()
-            .map { it.map { it.creator }.toTypedArray() }
+            .map { creators -> creators.map { it.creator }.toTypedArray() }
 
     fun getSubscriptionFeed(unwatchedOnly: Boolean = false, clean: Boolean): Observable<SubscriptionFeed> = subscriptions.map {
         SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly, refresh = clean))
@@ -139,8 +138,6 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
             .map { it.toEntity() }.singleOrError()
 
-
-    //TODO use proper id
     private fun cacheSubscriptions(subscriptions: List<Subscription>) = subscriptions.toObservable()
             .map { SubscriptionEntity(it.creatorId, it.plan.id, it.startDate, it.endDate) }
             .toList().flatMapCompletable { Completable.fromAction { subscriptionDao.insert(*it.toTypedArray()) } }

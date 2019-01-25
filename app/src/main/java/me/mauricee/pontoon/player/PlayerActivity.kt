@@ -28,6 +28,7 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
         playerRoot.setOnTouchListener(animationTouchListener)
+        player.bindToLifecycle(this)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

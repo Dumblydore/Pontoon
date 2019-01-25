@@ -2,7 +2,6 @@ package me.mauricee.pontoon.common.playback
 
 import android.content.Context
 import android.support.v4.media.session.PlaybackStateCompat
-import android.view.TextureView
 import androidx.core.net.toUri
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -13,11 +12,11 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import me.mauricee.pontoon.ext.prepareAnd
+import me.mauricee.pontoon.player.player.PlayerView
 
 
 class LocalPlayback(private val networkSourceFactory: HlsMediaSource.Factory, context: Context) : Playback,
         Player.EventListener {
-
     private val player: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
 
     private val eventRelay: Relay<Int> = BehaviorRelay.create()
@@ -33,6 +32,9 @@ class LocalPlayback(private val networkSourceFactory: HlsMediaSource.Factory, co
         set(value) {
             player.seekTo(value)
         }
+    private val durationRelay: Relay<Long> = BehaviorRelay.create()
+    override val duration: Observable<Long>
+        get() = durationRelay.hide()
 
     init {
         player.addListener(this)
@@ -58,8 +60,8 @@ class LocalPlayback(private val networkSourceFactory: HlsMediaSource.Factory, co
         player.playWhenReady = playOnPrepare
     }
 
-    fun bindToView(view: TextureView) {
-        player.setVideoTextureView(view)
+    fun bindToView(view: PlayerView) {
+        view.player = player
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
@@ -101,7 +103,7 @@ class LocalPlayback(private val networkSourceFactory: HlsMediaSource.Factory, co
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         val state = when (playbackState) {
             Player.STATE_READY -> {
-//                durationRelay.accept(player.duration)
+                durationRelay.accept(player.duration)
                 if (playWhenReady) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
             }
             Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING

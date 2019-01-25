@@ -36,5 +36,5 @@ fun Completable.doOnIo() = this.compose(RxHelpers.applyCompletableSchedulers())
 fun Completable.doOnMainThread() = this.compose(RxHelpers.applyCompletableSchedulers(AndroidSchedulers.mainThread(), AndroidSchedulers.mainThread()))
 
 
-fun <T> T.toObservable() = Observable.just(this)!!
+fun <T> T.toObservable() = Observable.just(this)
 

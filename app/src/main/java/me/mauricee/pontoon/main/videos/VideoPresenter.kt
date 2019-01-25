@@ -4,6 +4,7 @@ import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.StateBoundaryCallback
+import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.VideoRepository
@@ -42,7 +43,7 @@ private fun getVideos(clean: Boolean) = preferences.displayUnwatchedVideos
         is VideoRepository.NoSubscriptionsException -> VideoContract.State.Error.Type.NoSubscriptions
         is HttpException -> VideoContract.State.Error.Type.Network
         else -> VideoContract.State.Error.Type.Unknown
-    }.let(VideoContract.State::Error)
+    }.let(VideoContract.State::Error).also { loge("error!", e) }
 
     private fun processPaginationState(state: StateBoundaryCallback.State, retry: () -> Unit): VideoContract.State = when (state) {
         StateBoundaryCallback.State.Loading -> VideoContract.State.Loading(false)

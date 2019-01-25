@@ -24,7 +24,6 @@ interface PlayerContract {
         class Paused(val location: PlaybackLocation) : State()
         class Playing(val location: PlaybackLocation) : State()
         class Buffering(val location: PlaybackLocation) : State()
-        class Bind(val player: Player, val displayPipIcon: Boolean) : State()
         class ShareUrl(val video: Video) : State()
         class Bind(val displayPipIcon: Boolean) : State()
         class Preview(val path: String) : State()

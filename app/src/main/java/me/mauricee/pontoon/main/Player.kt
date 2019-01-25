@@ -6,9 +6,9 @@ import android.content.IntentFilter
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.view.TextureView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
@@ -31,6 +31,9 @@ import me.mauricee.pontoon.model.audio.FocusState
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.PlaybackMetadata
 import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.player.player.PlayerView
+import me.mauricee.pontoon.rx.context.BroadcastEvent
+import me.mauricee.pontoon.rx.context.registerReceiver
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -164,7 +167,7 @@ class Player @Inject constructor(private val preferences: Preferences,
 
     fun isActive(): Boolean = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
 
-    fun bindToView(view: TextureView) {
+    fun bindToView(view: PlayerView) {
         (currentPlayback as? LocalPlayback)?.bindToView(view)
     }
 
@@ -224,8 +227,26 @@ class Player @Inject constructor(private val preferences: Preferences,
                 .subscribe { controlsVisible = it }.also { subs += it }
     }
 
+    private var currentLifecycle: Lifecycle? = null
+        set(value) {
+            if (currentLifecycle != value) {
+                currentLifecycle?.removeObserver(this)
+            }
+            value?.with {
+                it.addObserver(this)
+                if (it.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                    onCreate()
+                }
+            }
+            field = value
+        }
+
+    fun bindToLifecycle(lifecycleOwner: LifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(this)
+    }
+
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun bind() {
+    fun onCreate() {
         mediaSession.setCallback(this)
         subs += playbackFactory.playback
                 .doOnNext { locationRelay.accept(it.location) }
@@ -248,7 +269,7 @@ class Player @Inject constructor(private val preferences: Preferences,
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun clear() {
+    fun onDestroy() {
         subs.clear()
         mediaSession.setCallback(null)
         mediaSession.release()
@@ -259,12 +280,6 @@ class Player @Inject constructor(private val preferences: Preferences,
         isForeground = true
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    fun onLifecyclePause() {
-        if (currentPlayback.location == PlaybackLocation.Local) {
-            onPause()
-        }
-    }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onBackground() {

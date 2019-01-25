@@ -12,6 +12,7 @@ import com.google.android.gms.common.images.WebImage
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
+import me.mauricee.pontoon.ext.just
 
 class CastPlayback(private val session: CastSession) : Playback, Cast.Listener() {
 
@@ -28,6 +29,9 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
         set(value) {
             remoteMediaClient.seek(value)
         }
+    private val durationRelay: Relay<Long> = BehaviorRelay.create()
+    override val duration: Observable<Long>
+        get() = durationRelay.hide()
 
     init {
         session.addCastListener(this)
@@ -39,6 +43,7 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
 
             override fun onStatusUpdated() {
                 super.onStatusUpdated()
+                remoteMediaClient.streamDuration.just { if (this > 0) durationRelay.accept(this) }
                 val newState = when {
                     remoteMediaClient.isPlaying -> PlaybackStateCompat.STATE_PLAYING
                     remoteMediaClient.isPaused -> PlaybackStateCompat.STATE_PAUSED
@@ -59,8 +64,8 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
     }
 
     override fun stop() {
-//        remoteMediaClient.stop()
-//        session.removeCastListener(this)
+        remoteMediaClient.stop()
+        session.removeCastListener(this)
     }
 
     override fun prepare(mediaItem: Playback.MediaItem, playOnPrepare: Boolean) {
@@ -74,12 +79,10 @@ class CastPlayback(private val session: CastSession) : Playback, Cast.Listener()
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .setContentType("application/x-mpegurl")
                 .setMetadata(metaData)
-//                .setStreamDuration(1000)
-//                .setMediaTracks(listOf(MediaTrack.Builder()))
                 .build()
         val options = MediaLoadOptions.Builder()
                 .setAutoplay(true)
-                .setPlayPosition(0)
+                .setPlayPosition(mediaItem.position)
                 .build()
         remoteMediaClient.load(info, options)
     }

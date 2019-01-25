@@ -109,6 +109,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
+        player.bindToLifecycle(this)
     }
 
     override fun onStart() {

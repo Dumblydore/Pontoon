@@ -14,8 +14,8 @@
         android:layout_gravity="center"
         app:resize_mode="fixed_height">
 
-        <SurfaceView
-            android:id="@+id/player.content.surface"
+        <TextureView
+            android:id="@+id/player.content.texture"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

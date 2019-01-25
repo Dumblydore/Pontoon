@@ -19,6 +19,8 @@ interface Playback {
 
     val playerState: Observable<Int>
 
+    val duration: Observable<Long>
+
     var position: Long
 
     fun pause()
@@ -29,7 +31,6 @@ interface Playback {
 
     fun prepare(mediaItem: MediaItem, playOnPrepare: Boolean)
 
-    //    fun release()
     data class MediaItem(val source: String, val video: Video, val position: Long = 0L)
 
     class Factory @Inject constructor(private val hlsSource: HlsMediaSource.Factory, private val castSessionManager: SessionManager, private val context: Context) {

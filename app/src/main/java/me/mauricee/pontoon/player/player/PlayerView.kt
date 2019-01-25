@@ -59,7 +59,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     private fun registerPlayer(player: SimpleExoPlayer) {
         player.addListener(this)
         player.addVideoListener(this)
-        player.setVideoSurfaceView(player_content_surface)
+        player.setVideoTextureView(player_content_texture)
         updateBuffering(false)
         updateErrorMsg(false)
         updateForCurrentTrackSelections(true)

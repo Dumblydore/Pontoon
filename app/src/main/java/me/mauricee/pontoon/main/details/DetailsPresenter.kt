@@ -2,14 +2,11 @@ package me.mauricee.pontoon.main.details
 
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.doOnMainThread
 import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.comment.CommentRepository
@@ -52,9 +49,9 @@ class DetailsPresenter @Inject constructor(private val player: Player,
 
     private fun loadVideoDetails(action: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> =
             videoRepository.getVideo(action.id).doOnSuccess(videoRepository::addToWatchHistory).flatMapObservable { video ->
-                videoRepository.getQualityOfVideo(action.id)
-                        .flatMap {it -> Completable.fromAction { player.currentlyPlaying = PlaybackMetadata(video, it) }.doOnMainThread().andThen(Observable.just(it )) }
-                        .map { DetailsContract.State.VideoInfo(video) }
+                videoRepository.getQualityOfVideo(action.id).flatMap { it ->
+                    Completable.fromAction { player.currentlyPlaying = PlaybackMetadata(video, it) }.doOnMainThread().andThen(Observable.just(it))
+                }.map { DetailsContract.State.VideoInfo(video) }
             }
 
     private fun loadRelatedVideos(video: String): Observable<DetailsContract.State> =
@@ -66,10 +63,4 @@ class DetailsPresenter @Inject constructor(private val player: Player,
                     .flatMapSingle { it -> it.toObservable().filter { it.video == it.parent }.toList() }
                     .onErrorReturnItem(emptyList())
                     .map(DetailsContract.State::Comments)
-
-    override fun onViewDetached() {
-        super.onViewDetached()
-        player.onPause()
-    }
-
 }

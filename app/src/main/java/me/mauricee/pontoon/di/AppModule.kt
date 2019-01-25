@@ -8,6 +8,7 @@ import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.os.Handler
 import android.os.PowerManager
+import android.support.v4.media.session.MediaSessionCompat
 import androidx.mediarouter.media.MediaRouter
 import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
@@ -204,6 +205,7 @@ abstract class AppModule {
         @Provides
         @JvmStatic
         fun provideSessionManager(context: Context): SessionManager = CastContext.getSharedInstance(context).sessionManager
+
         @Provides
         @AppScope
         @JvmStatic
@@ -222,6 +224,12 @@ abstract class AppModule {
                 .apply {
                     videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
                 }
+
+
+        @Provides
+        @MainScope
+        @JvmStatic
+        fun providesCastContext(context: Context) = CastContext.getSharedInstance(context)
 
     }
 }
