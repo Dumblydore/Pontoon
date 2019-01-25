@@ -117,7 +117,10 @@ class LazyLayout : FrameLayout {
 
         successView?.visibility = View.GONE
 
-        lazy_error_retry?.setOnClickListener { retryListener?.onRetry() }
+        lazy_error_retry?.setOnClickListener {
+            state = LOADING
+            retryListener?.onRetry()
+        }
         updateViewState()
     }
 
