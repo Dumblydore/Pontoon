@@ -4,6 +4,10 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
+import android.util.Log
+import android.view.KeyEvent.ACTION_UP
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.view.isVisible
@@ -17,14 +21,27 @@ import io.reactivex.Observable
 import kotlinx.android.synthetic.main.layout_player.view.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.ext.NumberUtil
 import me.mauricee.pontoon.ext.asFraction
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
     private val behavioRelay: Relay<String> = BehaviorRelay.create()
+    private var maxScale = 0f
+    private var currentScale = 1f
+
+    private val scaleGestureDetectorListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            Log.d(PlayerView::javaClass.name, "scaling: ${detector.scaleFactor}")
+            currentScale *= detector.scaleFactor
+            val newScale = Math.max(1f, Math.min(maxScale, currentScale))
+            player_content.scaleX = newScale
+            player_content.scaleY = newScale
+            return true
+        }
+    }
+    private val scaleGestureDetector = ScaleGestureDetector(context, scaleGestureDetectorListener)
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -52,14 +69,12 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen).let { resources.getDrawable(it, null) })
         }
 
-
-    public fun pitchVideo(scaleTo: Float) {
-        val viewAspectRatio = measuredWidth / measuredHeight
-        val maxScale = 1 + (1 - (videoAspectRatio / viewAspectRatio))
-        val newScale = Math.max(1f, Math.min(maxScale, scaleTo))
-        logd("videoAspectRatio: $maxScale | view aspectRatio: $viewAspectRatio")
-        player_content.scaleX = newScale
-        player_content.scaleY = newScale
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return if (isInFullscreen && event.action != ACTION_UP) {
+            scaleGestureDetector.onTouchEvent(event)
+        } else {
+            super.onTouchEvent(event)
+        }
     }
 
     private fun unregisterPlayer(player: SimpleExoPlayer) {
@@ -77,13 +92,13 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         updateForCurrentTrackSelections(true)
     }
 
-    private var videoAspectRatio = 0f
     override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
+        val viewRatio = measuredWidth.toFloat() / measuredHeight.toFloat()
         val realWidth = width * pixelWidthHeightRatio
-
         val videoAspectRatio = if (height == 0 || width == 0) 1f else realWidth / height
         val ratio = (realWidth.toLong() to height.toLong()).asFraction(":")
         player_content.setAspectRatio(videoAspectRatio)
+        maxScale = Math.round((1 + (1 - (videoAspectRatio / viewRatio))) * 100f) / 100f
         behavioRelay.accept(ratio)
     }
 

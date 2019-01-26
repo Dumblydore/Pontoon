@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.player.player
 
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
@@ -24,12 +23,10 @@ import kotlinx.android.synthetic.main.fragment_player.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.player.PlayerActivity
 import me.mauricee.pontoon.rx.glide.toSingle
 import javax.inject.Inject
 
@@ -75,18 +72,6 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         super.onViewCreated(view, savedInstanceState)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
         player_display.setThumbnail(previewArt)
-        if (requireActivity() is PlayerActivity) {
-            a = ObjectAnimator.ofFloat(1f, 4f).apply {
-                repeatCount = 5
-                repeatMode = ValueAnimator.REVERSE
-                duration = 5000
-                startDelay = 500
-                addUpdateListener {
-                    (it.animatedValue as? Float)?.just(player_display::pitchVideo)
-                }
-                start()
-            }
-        }
     }
 
     override fun onDestroyView() {

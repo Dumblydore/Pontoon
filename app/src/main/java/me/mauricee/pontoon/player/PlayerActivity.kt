@@ -2,15 +2,11 @@ package me.mauricee.pontoon.player
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.activity_player.*
 import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
-import me.mauricee.pontoon.ext.NumberUtil
-import me.mauricee.pontoon.ext.getDeviceHeight
-import me.mauricee.pontoon.ext.getDeviceWidth
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.player.player.PlayerContract
@@ -61,7 +57,6 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
     }
 
     override fun setVideoRatio(ratio: String) {
-        player_border.isVisible = NumberUtil.asFraction(getDeviceWidth().toLong(), getDeviceHeight().toLong()) != ratio
     }
 
 
@@ -93,4 +88,8 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
 
     }
 
+    override fun onBackPressed() {
+        player.viewMode = Player.ViewMode.Expanded
+        super.onBackPressed()
+    }
 }
