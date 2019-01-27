@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.util.Log
-import android.view.KeyEvent.ACTION_UP
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
@@ -32,6 +32,11 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
     private val scaleGestureDetectorListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
 
+        var scaling = false
+        override fun onScaleEnd(detector: ScaleGestureDetector?) {
+            scaling = false
+        }
+
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             Log.d(PlayerView::javaClass.name, "scaling: ${detector.scaleFactor}")
             currentScale *= detector.scaleFactor
@@ -40,7 +45,27 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             player_content.scaleY = newScale
             return true
         }
+
+        override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+            scaling = true
+            return super.onScaleBegin(detector)
+        }
     }
+
+    private val gestureDetectorListener = object : GestureDetector.SimpleOnGestureListener() {
+        //        override fun onSingleTapUp(e: MotionEvent?): Boolean = scaleGestureDetector.isInProgress
+//        override fun onDown(e: MotionEvent?): Boolean = scaleGestureDetector.isInProgress
+//        override fun onContextClick(e: MotionEvent?): Boolean = scaleGestureDetector.isInProgress
+//        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean = scaleGestureDetector.isInProgress
+
+        override fun onShowPress(e: MotionEvent?) {
+            super.onShowPress(e)
+
+            if (!scaleGestureDetector.isInProgress) performClick()
+        }
+    }
+
+    private val gestureDetector = GestureDetector(context, gestureDetectorListener)
     private val scaleGestureDetector = ScaleGestureDetector(context, scaleGestureDetectorListener)
 
     constructor(context: Context) : super(context)
@@ -69,9 +94,29 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen).let { resources.getDrawable(it, null) })
         }
 
+    var pointerCount = 0
+//    override fun onTouchEvent(event: MotionEvent): Boolean {
+//        val action = event.action and MotionEvent.ACTION_MASK
+//        when (action) {
+//            MotionEvent.ACTION_POINTER_DOWN -> pointerCount++
+//            MotionEvent.ACTION_POINTER_UP -> pointerCount--
+//            MotionEvent.ACTION_DOWN -> pointerCount++
+//            MotionEvent.ACTION_UP -> pointerCount--
+//            MotionEvent.ACTION_CANCEL -> pointerCount = 0
+//        }
+//
+//        return if (isInFullscreen && pointerCount > 1 && action == MotionEvent.ACTION_MOVE) {
+//            scaleGestureDetector.onTouchEvent(event)
+//        } else {
+//            super.onTouchEvent(event)
+//        }
+//    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return if (isInFullscreen && event.action != ACTION_UP) {
+        return if (isInFullscreen) {
+            gestureDetector.onTouchEvent(event)
             scaleGestureDetector.onTouchEvent(event)
+            true
         } else {
             super.onTouchEvent(event)
         }
