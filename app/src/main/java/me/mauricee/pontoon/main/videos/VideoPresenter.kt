@@ -23,7 +23,7 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
             .onErrorReturnItem(VideoContract.State.Error())
 
     private fun handleActions(action: VideoContract.Action): Observable<VideoContract.State> = when (action) {
-        is VideoContract.Action.Refresh -> getVideos(action.clean).startWith(VideoContract.State.Loading())
+        is VideoContract.Action.Refresh ->stateless {  }// getVideos(action.clean).startWith(VideoContract.State.Loading())
         is VideoContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video) }
         is VideoContract.Action.Subscription -> stateless { mainNavigator.toCreator(action.creator) }
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }

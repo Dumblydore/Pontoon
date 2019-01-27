@@ -25,6 +25,7 @@ interface MainContract {
         object Expired : Action()
         object Preferences : Action()
         object Profile : Action()
+        object NightMode : Action()
         object PlayerClicked : Action()
         data class PlayVideo(val videoId :String) : Action()
 
@@ -34,6 +35,7 @@ interface MainContract {
                 R.id.action_logout -> SuccessfulLogout
                 R.id.action_prefs -> Preferences
                 R.id.action_profile -> Profile
+                R.id.action_dayNight -> NightMode
                 else -> throw RuntimeException("Invalid Navigation Drawer option")
             }
         }

@@ -47,7 +47,7 @@
 
                         <TextView
                             android:id="@+id/player.title"
-                            style="@style/TextAppearanceTitle"
+                            android:textAppearance="?attr/titleTextAppearance"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
@@ -60,7 +60,7 @@
 
                         <TextView
                             android:id="@+id/player.subtitle"
-                            style="@style/TextAppearanceSubtitle"
+                            android:textAppearance="?attr/subtitleTextAppearance"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
@@ -93,7 +93,7 @@
 
                     <TextView
                         android:id="@+id/player.releaseDate"
-                        style="@style/TextAppearanceSubtitle"
+                        android:textAppearance="?attr/subtitleTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"

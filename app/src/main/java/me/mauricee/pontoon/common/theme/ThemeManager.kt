@@ -2,10 +2,14 @@ package me.mauricee.pontoon.common.theme
 
 import android.app.Activity
 import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
+import com.crashlytics.android.Crashlytics
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.disposables.Disposable
 import me.mauricee.pontoon.di.AppScope
+import me.mauricee.pontoon.ext.logd
 import javax.inject.Inject
 
 @AppScope
@@ -55,12 +59,26 @@ class ThemeManager @Inject constructor(private val preferences: SharedPreference
             }
         }
 
-    fun attach(activity: Activity): Disposable {
+    private var delegate: AppCompatDelegate? = null
+    fun attach(activity: AppCompatActivity): Disposable {
         activity.setStyle(style)
+        delegate = activity.delegate
         return relay.subscribe {
             activity.setStyle(it)
             activity.recreate()
         }
+    }
+
+    private var mode = AppCompatDelegate.MODE_NIGHT_YES
+        set(value) {
+            delegate?.apply {
+                setLocalNightMode(value)
+            }
+            field = value
+        }
+
+    fun toggleNightMode() {
+        mode = if (mode == AppCompatDelegate.MODE_NIGHT_YES) AppCompatDelegate.MODE_NIGHT_NO else AppCompatDelegate.MODE_NIGHT_YES
     }
 
     fun commit() {

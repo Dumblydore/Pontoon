@@ -26,12 +26,7 @@ class LaunchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
-        @StyleRes val launcherTheme = when (themeManager.style) {
-            is Style.Light -> R.style.AppTheme_Light_Launcher
-            is Style.Black -> R.style.AppTheme_Light_Launcher
-            is Style.Dark -> R.style.AppTheme_Light_Launcher
-        }
-        setTheme(launcherTheme)
+        setTheme(R.style.AppTheme_Launcher)
         super.onCreate(savedInstanceState)
         Fabric.with(this, Crashlytics())
         PreferenceManager.setDefaultValues(this, R.xml.settings, false)

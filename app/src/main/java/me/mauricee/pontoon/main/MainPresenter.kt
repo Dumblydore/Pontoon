@@ -5,6 +5,7 @@ import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
+import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
@@ -22,6 +23,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
                                         private val floatPlaneApi: FloatPlaneApi,
                                         private val pontoonDatabase: PontoonDatabase,
                                         private val authInterceptor: AuthInterceptor,
+                                        private val themeManager: ThemeManager,
                                         private val navigator: MainContract.Navigator,
                                         eventTracker: EventTracker) :
         BasePresenter<MainContract.State, MainContract.View>(eventTracker), MainContract.Presenter {
@@ -37,6 +39,10 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
             is MainContract.Action.PlayerClicked -> toggleControls()
             is MainContract.Action.PlayVideo -> playVideo(it)
             MainContract.Action.Expired -> logout()
+            MainContract.Action.NightMode -> stateless {
+                navigator.setMenuExpanded(false)
+                themeManager.toggleNightMode()
+            }
         }
     }
 

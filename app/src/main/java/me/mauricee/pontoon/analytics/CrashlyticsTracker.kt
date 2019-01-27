@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.analytics
 
+import android.content.Context
 import com.crashlytics.android.Crashlytics
 import java.util.*
 import javax.inject.Inject
@@ -9,6 +10,7 @@ class CrashlyticsTracker @Inject constructor(): EventTracker.Tracker {
 
     init {
         val handler = Thread.getDefaultUncaughtExceptionHandler()
+
         Thread.setDefaultUncaughtExceptionHandler { paramThread, paramThrowable ->
             Crashlytics.log(actionStateQueue.reduce { i, i2 -> i + "$i2\n" })
             handler.uncaughtException(paramThread, paramThrowable)

@@ -156,6 +156,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun toPreferences() {
         if (player.isPlaying()) player.onPause()
         PreferencesActivity.navigateTo(this)
+        recreate()
     }
 
     override fun toCreator(creator: UserRepository.Creator) {
@@ -223,8 +224,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         is MainContract.State.Logout -> {
             if (player.isActive()) player.onStop()
             LoginActivity.navigateTo(this)
-            finish()
+            finishAffinity()
         }
+
         MainContract.State.SessionExpired -> {
             AlertDialog.Builder(this)
                     .setTitle(R.string.main_session_expired_title)
@@ -233,7 +235,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                     .setCancelable(false)
                     .create().show()
         }
-    }.also { root.closeDrawer(main_drawer, true) }
+    }
 
     override fun onBackPressed() {
         if (orientationManager.isFullscreen) {

@@ -8,5 +8,4 @@
     android:orientation="vertical"
     android:paddingTop="@dimen/alert_def_padding"
     android:paddingBottom="@dimen/alert_def_padding"
-    android:theme="@style/AppAlertDialogContent"
     tools:listitem="@layout/item_color_list" />
