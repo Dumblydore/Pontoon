@@ -47,7 +47,7 @@
 
                         <TextView
                             android:id="@+id/player.title"
-                            android:textAppearance="?attr/titleTextAppearance"
+                            style="?attr/titleTextAppearance"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
@@ -60,7 +60,7 @@
 
                         <TextView
                             android:id="@+id/player.subtitle"
-                            android:textAppearance="?attr/subtitleTextAppearance"
+                            style="?attr/subtitleTextAppearance"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
@@ -79,7 +79,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="?android:attr/textColorSecondary" />
+                        android:background="?android:attr/dividerHorizontal" />
 
                     <TextView
                         android:id="@+id/player.description"
@@ -93,7 +93,7 @@
 
                     <TextView
                         android:id="@+id/player.releaseDate"
-                        android:textAppearance="?attr/subtitleTextAppearance"
+                        style="?attr/subtitleTextAppearance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -109,7 +109,7 @@
                         android:id="@+id/player.description.divider"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="?android:attr/textColorSecondary"
+                        android:background="?android:attr/dividerHorizontal"
                         android:visibility="gone"
                         tools:visibility="visible" />
 
@@ -152,7 +152,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="?android:attr/textColorSecondary" />
+                        android:background="?android:attr/dividerHorizontal" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/player.comments"
