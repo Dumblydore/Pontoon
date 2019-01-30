@@ -5,6 +5,7 @@ import com.isupatches.wisefy.WiseFy
 import io.reactivex.Observable
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.rx.preferences.watchBoolean
+import me.mauricee.pontoon.rx.preferences.watchString
 import javax.inject.Inject
 
 
@@ -19,8 +20,14 @@ class Preferences @Inject constructor(private val sharedPreferences: SharedPrefe
         get() = PictureInPicture.valueOf(sharedPreferences.getString(PictureKey, PictureInPicture.Always.name)!!)
     val fullscreenOverNotch: Observable<Boolean>
         get() = sharedPreferences.watchBoolean(FullscreenOverNotchKey, false)
+    val dayNightMode: Observable<String>
+        get() = sharedPreferences.watchString(DayNightMode)
+    val amoledNightMode: Observable<Boolean>
+        get() = sharedPreferences.watchBoolean(AmoledNightMode, emitIfExists = false)
 
     companion object {
+        private const val DayNightMode = "settings_night_mode_behavior"
+        private const val AmoledNightMode = "settings_amoled_night_mode"
         private const val DisplayUnwatchedVideosKey = "settings_hide"
         private const val FullscreenOverNotchKey = "settings_notch"
         private const val PictureKey = "settings_picture"

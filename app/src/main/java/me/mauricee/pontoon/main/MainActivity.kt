@@ -71,7 +71,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     @Inject
     lateinit var preferences: Preferences
 
-    private var goingIntoFullscreen = false
+    private var stayingInsideApp = false
     private val miscActions = PublishRelay.create<MainContract.Action>()
     private var currentPlayerRatio: String = "16:9"
     private val fragmentContainer: Int
@@ -104,7 +104,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         paramsGlMarginEnd = guidelineMarginEnd.layoutParams as ConstraintLayout.LayoutParams
 
         main_player.setOnTouchListener(animationTouchListener)
-        hide()
+        if (player.isActive()) {
+            player.currentlyPlaying?.video?.let {
+                playVideo(it)
+            }
+        } else {
+            hide()
+        }
 
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
@@ -114,15 +120,15 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onStart() {
         super.onStart()
         mainPresenter.attachView(this)
-        goingIntoFullscreen = false
+        stayingInsideApp = false
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
     }
 
     override fun onStop() {
         super.onStop()
         mainPresenter.detachView()
-        if (!goingIntoFullscreen)
-            player.onPause()
+//        if (!stayingInsideApp)
+//            player.onPause()
     }
 
     override fun onDestroy() {
@@ -149,14 +155,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
         main.doOnPreDraw {
             animationTouchListener.isExpanded = true
-            setPlayerExpanded(true)
         }
     }
 
     override fun toPreferences() {
         if (player.isPlaying()) player.onPause()
         PreferencesActivity.navigateTo(this)
-        recreate()
     }
 
     override fun toCreator(creator: UserRepository.Creator) {
@@ -195,7 +199,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun toggleFullscreen() {
-        goingIntoFullscreen = true
+        stayingInsideApp = true
         startActivity(Intent(this, PlayerActivity::class.java))
     }
 
@@ -255,7 +259,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !goingIntoFullscreen) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !stayingInsideApp) {
             val pip = preferences.pictureInPicture
             when {
                 pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()
