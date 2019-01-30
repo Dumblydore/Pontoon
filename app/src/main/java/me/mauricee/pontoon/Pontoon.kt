@@ -3,7 +3,6 @@ package me.mauricee.pontoon
 import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
-import me.mauricee.pontoon.analytics.CrashlyticsTracker
 import me.mauricee.pontoon.analytics.DebugTracker
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.analytics.FirebaseTracker
@@ -18,13 +17,11 @@ class Pontoon : DaggerApplication() {
     lateinit var fireBaseTracker: FirebaseTracker
     @Inject
     lateinit var debugTracker: DebugTracker
-    @Inject
-    lateinit var crashlyticsTracker: CrashlyticsTracker
 
     override fun onCreate() {
         super.onCreate()
         AndroidThreeTen.init(this)
-        EventTracker.trackers += listOf(fireBaseTracker, crashlyticsTracker)
+        EventTracker.trackers += fireBaseTracker
         if (BuildConfig.DEBUG)
             EventTracker.trackers += debugTracker
     }
