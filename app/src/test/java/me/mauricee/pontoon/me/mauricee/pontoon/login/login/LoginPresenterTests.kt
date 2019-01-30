@@ -114,7 +114,7 @@ class LoginPresenterTests {
         verifyAll {
             view getProperty "actions"
             view.updateState(LoginContract.State.Loading)
-            view.updateState(LoginContract.State.Error(LoginContract.State.Error.Type.Credentials))
+            view.updateState(LoginContract.State.NetworkError(LoginContract.State.NetworkError.Type.Credentials, HttpURLConnection.HTTP_UNAUTHORIZED))
         }
 
         verifyAll(inverse = true) {
@@ -134,7 +134,7 @@ class LoginPresenterTests {
         verifyAll {
             view getProperty "actions"
             view.updateState(LoginContract.State.Loading)
-            view.updateState(LoginContract.State.Error(LoginContract.State.Error.Type.Service))
+            view.updateState(LoginContract.State.NetworkError(LoginContract.State.NetworkError.Type.Service, HttpURLConnection.HTTP_UNAVAILABLE))
         }
 
         verifyAll(inverse = true) {
@@ -147,14 +147,14 @@ class LoginPresenterTests {
     fun shouldError_Network_WhenActionLogin_HttpExceptionOther() {
         every { view.actions } returns LoginContract.Action.Login("username", "password").toObservable()
         every { floatPlaneApi.login(any()) } returns Observable.error(httpException)
-        every { httpException.code() } returns HTTP_BAD_GATEWAY
+        every { httpException.code() } returns 600
 
         presenter.attachView(view)
 
         verifyAll {
             view getProperty "actions"
             view.updateState(LoginContract.State.Loading)
-            view.updateState(LoginContract.State.Error(LoginContract.State.Error.Type.Network))
+            view.updateState(LoginContract.State.NetworkError(LoginContract.State.NetworkError.Type.Unknown, 600))
         }
 
         verifyAll(inverse = true) {
