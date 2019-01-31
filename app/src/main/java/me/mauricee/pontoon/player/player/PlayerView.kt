@@ -69,13 +69,13 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen).let { resources.getDrawable(it, null) })
         }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        return if (isInFullscreen && event.action != ACTION_UP) {
-            scaleGestureDetector.onTouchEvent(event)
-        } else {
-            super.onTouchEvent(event)
-        }
-    }
+//    override fun onTouchEvent(event: MotionEvent): Boolean {
+//        return if (isInFullscreen && event.action != ACTION_UP) {
+//            scaleGestureDetector.onTouchEvent(event)
+//        } else {
+//            super.onTouchEvent(event)
+//        }
+//    }
 
     private fun unregisterPlayer(player: SimpleExoPlayer) {
         player.removeVideoListener(this)
