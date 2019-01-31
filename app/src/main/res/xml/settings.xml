@@ -45,6 +45,10 @@
             android:entryValues="@array/settings_quality_values"
             android:key="settings_quality_wifi"
             android:title="@string/settings_quality_wifi" />
+        <Preference
+            android:key="settings_test_crash"
+            android:title="Crash app"
+            android:summary="This will crash the app. You should not see this in a production build!"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:key="settings_misc"

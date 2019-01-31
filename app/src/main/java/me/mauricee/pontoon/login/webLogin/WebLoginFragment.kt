@@ -58,7 +58,7 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
     inner class Webclient : WebViewClient() {
 
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-            login_webview.settings.domStorageEnabled = !request.url.host.contains("floatplane")
+            view.settings.domStorageEnabled = !request.url.host.contains("floatplane")
             return super.shouldOverrideUrlLoading(view, request)
         }
 

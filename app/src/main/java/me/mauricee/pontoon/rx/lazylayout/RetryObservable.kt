@@ -12,8 +12,8 @@ class RetryObservable internal constructor(private val lazyLayout: LazyLayout) :
     }
 
     private class Listener(private val lazyLayout: LazyLayout,
-                           private val observer: Observer<in Boolean>) : LazyLayout.RetryListener,
-            MainThreadDisposable() {
+                           private val observer: Observer<in Boolean>) :
+            LazyLayout.RetryListener, MainThreadDisposable() {
         override fun onDispose() {
             lazyLayout.retryListener = null
         }

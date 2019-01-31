@@ -43,11 +43,11 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
             .compose(RxHelpers.applyObservableSchedulers())
 
     private fun subscriptionsFromNetwork() = floatPlaneApi.subscriptions.flatMapSingle(this::validateSubscriptions)
-            .flatMap { subs -> Completable.fromAction { cacheSubscriptions(subs) }.andThen(Observable.just(subs)) }
+            .flatMap { subs -> cacheSubscriptions(subs).andThen(Observable.just(subs)) }
             .map { subs -> subs.map { it.creatorId }.toTypedArray() }
 
     private fun subscriptionsFromCache() = subscriptionDao.getSubscriptions()
-            .map { it.map { it.creator }.toTypedArray() }
+            .map { it.map { it.creator }.toTypedArray() }.filter { it.isNotEmpty() }
 
     fun getSubscriptionFeed(unwatchedOnly: Boolean = false, clean: Boolean): Observable<SubscriptionFeed> = subscriptions.map {
         SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly, refresh = clean))
@@ -139,8 +139,6 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
     private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
             .map { it.toEntity() }.singleOrError()
 
-
-    //TODO use proper id
     private fun cacheSubscriptions(subscriptions: List<Subscription>) = subscriptions.toObservable()
             .map { SubscriptionEntity(it.creatorId, it.plan.id, it.startDate, it.endDate) }
             .toList().flatMapCompletable { Completable.fromAction { subscriptionDao.insert(*it.toTypedArray()) } }

@@ -57,15 +57,15 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
         navigator.onSuccessfulLogin()
     }
 
-    private fun processError(error: Throwable): LoginContract.State.Error = when (error) {
+    private fun processError(error: Throwable): LoginContract.State = when (error) {
         is HttpException -> processHttpCode(error.code())
-        else -> LoginContract.State.Error.Type.General
-    }.let(LoginContract.State::Error)
-
-    private fun processHttpCode(code: Int) = when (code) {
-        HTTP_UNAUTHORIZED -> LoginContract.State.Error.Type.Credentials
-        HTTP_UNAVAILABLE -> LoginContract.State.Error.Type.Service
-        else -> LoginContract.State.Error.Type.Network
+        else -> LoginContract.State.Error()
     }
+
+    private fun processHttpCode(code: Int): LoginContract.State.NetworkError = when (code) {
+        in 400..499 -> LoginContract.State.NetworkError.Type.Credentials
+        in 500..599 -> LoginContract.State.NetworkError.Type.Service
+        else -> LoginContract.State.NetworkError.Type.Unknown
+    }.let { LoginContract.State.NetworkError(it, code) }
 
 }

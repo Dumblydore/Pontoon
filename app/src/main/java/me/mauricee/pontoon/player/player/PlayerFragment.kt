@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.player.player
 
-import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
 import android.graphics.drawable.Animatable
@@ -67,17 +66,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
     }
 
-    var a: ValueAnimator? = null
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
         player_display.setThumbnail(previewArt)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        player.controller = null
-        a?.cancel()
     }
 
     override fun onStart() {
@@ -85,6 +77,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         player.bindToView(player_display)
         player.controller = this
         subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        player.controlsVisible = false
     }
 
     override fun updateState(state: PlayerContract.State) {

@@ -6,10 +6,11 @@ import android.os.Bundle
 import com.mikepenz.aboutlibraries.LibsBuilder
 import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ext.loadFragment
 import me.mauricee.pontoon.preferences.settings.SettingsFragment
 
-class PreferencesActivity : BaseActivity(), PreferencesNavigator {
+class PreferencesActivity : BaseActivity(), PreferencesNavigator, EventTracker.Page {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
