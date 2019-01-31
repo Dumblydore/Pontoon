@@ -4,18 +4,24 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.jakewharton.rxrelay2.PublishRelay
+import dagger.Reusable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
-import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.model.preferences.Preferences
 import javax.inject.Inject
 
-//TODO consolidate Preferences & SharedPreferences?
-@AppScope
-class ThemeManager @Inject constructor(private val prefs: Preferences, private val preferences: SharedPreferences) {
+@Reusable
+class ThemeManager @Inject constructor(private val prefs: Preferences,
+                                       private val preferences: SharedPreferences,
+                                       private val activity: AppCompatActivity) : LifecycleObserver {
+
+    private val subs = CompositeDisposable()
+
     private val relay = PublishRelay.create<Style>()
     var baseTheme: BaseTheme
         set(value) {
@@ -58,29 +64,23 @@ class ThemeManager @Inject constructor(private val prefs: Preferences, private v
             }
         }
 
-    private var delegate: AppCompatDelegate? = null
+    private var mode = AppCompatDelegate.getDefaultNightMode()
 
-    fun init() {
-        prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
-    }
-
-    fun attach(activity: AppCompatActivity): Disposable {
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    fun onCreate() {
+        subs += prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
         activity.setStyle(style)
-        delegate = activity.delegate
-        val subs = CompositeDisposable()
         subs += relay.subscribe {
             activity.setStyle(it)
             activity.recreate()
         }
         subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
-        return subs
     }
 
-    private var mode = AppCompatDelegate.getDefaultNightMode()
 
     fun toggleNightMode() {
         mode = if (mode == AppCompatDelegate.MODE_NIGHT_YES) AppCompatDelegate.MODE_NIGHT_NO else AppCompatDelegate.MODE_NIGHT_YES
-        delegate?.apply { setLocalNightMode(mode) }
+        activity.delegate.setLocalNightMode(mode)
     }
 
     fun setDayNightBehavior(behavior: DayNightBehavior) = when (behavior) {
@@ -90,6 +90,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences, private v
     }.with {
         AppCompatDelegate.setDefaultNightMode(it)
         mode = it
+        activity.delegate.applyDayNight()
     }
 
     fun setAmoledMode(isAmoledMode: Boolean) {
@@ -104,6 +105,11 @@ class ThemeManager @Inject constructor(private val prefs: Preferences, private v
     private fun convertToStyle(base: BaseTheme, primary: PrimaryColor, accent: AccentColor): Style = when (base) {
         BaseTheme.Light -> Style.Light(primary, accent)
         BaseTheme.Black -> Style.Black(primary, accent)
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun clear() {
+        subs.clear()
     }
 
     companion object {

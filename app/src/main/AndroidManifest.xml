@@ -65,7 +65,10 @@
         <activity android:name=".login.LoginActivity" />
         <activity
             android:name=".main.MainActivity"
+            android:allowTaskReparenting="true"
+            android:autoRemoveFromRecents="true"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:screenOrientation="portrait"
