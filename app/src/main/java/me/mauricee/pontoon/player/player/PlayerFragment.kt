@@ -128,7 +128,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_duration.text = state.formattedDuration
                 player_controls_progress.duration = state.duration
             }
-            is PlayerContract.State.ShareUrl -> startActivity(Intent.createChooser(createShareIntent(state.video),getString(R.string.player_share)))
+            is PlayerContract.State.ShareUrl -> startActivity(Intent.createChooser(createShareIntent(state.video), getString(R.string.player_share)))
         }
     }
 
