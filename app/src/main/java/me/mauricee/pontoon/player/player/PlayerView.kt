@@ -4,10 +4,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
-import android.util.Log
-import android.view.KeyEvent.ACTION_UP
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.view.isVisible
@@ -29,19 +25,6 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     private val behavioRelay: Relay<String> = BehaviorRelay.create()
     private var maxScale = 0f
     private var currentScale = 1f
-
-    private val scaleGestureDetectorListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-
-        override fun onScale(detector: ScaleGestureDetector): Boolean {
-            Log.d(PlayerView::javaClass.name, "scaling: ${detector.scaleFactor}")
-            currentScale *= detector.scaleFactor
-            val newScale = Math.max(1f, Math.min(maxScale, currentScale))
-            player_content.scaleX = newScale
-            player_content.scaleY = newScale
-            return true
-        }
-    }
-    private val scaleGestureDetector = ScaleGestureDetector(context, scaleGestureDetectorListener)
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -69,13 +52,12 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen).let { resources.getDrawable(it, null) })
         }
 
-//    override fun onTouchEvent(event: MotionEvent): Boolean {
-//        return if (isInFullscreen && event.action != ACTION_UP) {
-//            scaleGestureDetector.onTouchEvent(event)
-//        } else {
-//            super.onTouchEvent(event)
-//        }
-//    }
+    fun scaleVideo(scaleTo: Float) {
+        currentScale = scaleTo
+        val newScale = Math.max(1f, Math.min(maxScale, currentScale))
+        player_content.scaleX = newScale
+        player_content.scaleY = newScale
+    }
 
     private fun unregisterPlayer(player: SimpleExoPlayer) {
         player.removeVideoListener(this)
