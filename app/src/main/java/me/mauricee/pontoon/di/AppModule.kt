@@ -29,6 +29,7 @@ import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.FirebaseNetworkInterceptor
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.launch.LaunchActivity
@@ -152,8 +153,10 @@ abstract class AppModule {
         @JvmStatic
         fun providesFloatPlaneApi(converterFactory: GsonConverterFactory,
                                   authInterceptor: AuthInterceptor,
+                                  firebaseNetworkInterceptor: FirebaseNetworkInterceptor,
                                   callFactory: RxJava2CallAdapterFactory, client: OkHttpClient):
-                FloatPlaneApi = client.newBuilder().addInterceptor(authInterceptor).build()
+                FloatPlaneApi = client.newBuilder().addInterceptor(authInterceptor)
+                .addInterceptor(firebaseNetworkInterceptor).build()
                 .let { Retrofit.Builder().client(it) }
                 .addConverterFactory(converterFactory)
                 .addConverterFactory(ScalarsConverterFactory.create())

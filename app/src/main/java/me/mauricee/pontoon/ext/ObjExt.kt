@@ -9,3 +9,5 @@ class NumberUtil {
         fun asFraction(a: Long, b: Long, delimitter: String = "/"): String = gcm(a, b).let { "${a / it}$delimitter${b / it}" }
     }
 }
+
+fun Pair<Long, Long>.asFraction(delimitter: String = "/") = NumberUtil.asFraction(first, second, delimitter)

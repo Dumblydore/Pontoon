@@ -20,7 +20,7 @@
             android:textAlignment="center"
             android:textColor="@color/colorError"
             android:visibility="gone"
-            tools:text="@string/login_error_credentials"
+            tools:text="@string/login_error_network_credentials"
             tools:visibility="visible" />
 
         <com.google.android.material.textfield.TextInputLayout

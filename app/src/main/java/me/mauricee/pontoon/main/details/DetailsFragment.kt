@@ -83,7 +83,10 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
                 commentsAdapter.comments = state.comments.toMutableList()
                 scrollToSelectedComment()
             }
-            is DetailsContract.State.RelatedVideos -> relatedVideosAdapter.videos = state.relatedVideos
+            is DetailsContract.State.RelatedVideos -> {
+                relatedVideosAdapter.videos = state.relatedVideos
+                player_relatedVideos_divider.isVisible = true
+            }
             is DetailsContract.State.Like -> {
                 commentsAdapter.updateComment(state.comment)
                 snack(getString(R.string.details_commentLiked, state.comment.user.username))

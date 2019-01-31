@@ -98,8 +98,8 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
             }.ioStream()
 
     fun getRelatedVideos(video: String): Single<List<Video>> = floatPlaneApi.getRelatedVideos(video).flatMap { videos ->
-        videos.map { it.creator }.distinct().toTypedArray().let { userRepo.getCreators(*it) }
-                .flatMap { it.toObservable() }
+        videos.map { it.creator }.distinct().toTypedArray().let { userRepo.getCreators(*it).firstOrError() }
+                .flatMapObservable { it.toObservable() }
                 .flatMap { creator ->
                     videos.toObservable().filter { it.creator == creator.id }.map { Video(it, creator) }
                 }

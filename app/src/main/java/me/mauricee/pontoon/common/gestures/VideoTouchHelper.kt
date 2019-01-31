@@ -5,13 +5,11 @@ import android.app.Activity
 import android.content.res.Resources
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import dagger.Reusable
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.loge
-import me.mauricee.pontoon.main.MainActivity
-import me.mauricee.pontoon.main.MainScope
-import me.mauricee.pontoon.player.PlayerScope
 import javax.inject.Inject
 
 /**
@@ -54,6 +52,7 @@ class VideoTouchHandler @Inject constructor(activity: Activity, private var gest
 
     //Gesture controls and scroll flags
     private var gestureDetector = GestureDetector(activity, GestureControl())
+    private var scaleGestureDetector = ScaleGestureDetector(activity, ScaleControl())
     private var isTopScroll = false
     private var isSwipeScroll = false
 
@@ -66,6 +65,7 @@ class VideoTouchHandler @Inject constructor(activity: Activity, private var gest
     private var percentMarginMoved = MIN_MARGIN_END_LIMIT
 
     var isEnabled = true
+    var pinchToZoomEnabled = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(view: View, event: MotionEvent): Boolean {
@@ -74,6 +74,15 @@ class VideoTouchHandler @Inject constructor(activity: Activity, private var gest
             //return only when player is more than threshold value i.e is already expanded
             if (percentVertical > SCALE_THRESHOLD) return true
         }
+
+        if (pinchToZoomEnabled) {
+            scaleGestureDetector.onTouchEvent(event)
+            if (scaleGestureDetector.isInProgress) {
+                gestureEventsListener.onScale(scaleGestureDetector.scaleFactor)
+            }
+            return true
+        }
+
 
         if (!isEnabled) {
             return true

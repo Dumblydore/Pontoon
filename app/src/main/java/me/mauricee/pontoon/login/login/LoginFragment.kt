@@ -14,6 +14,7 @@ import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.toast
 import me.mauricee.pontoon.login.login.LoginContract.State.Error.Type.*
+import me.mauricee.pontoon.login.login.LoginContract.State.NetworkError.Type.*
 
 class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
 
@@ -43,6 +44,7 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         when (state) {
             is LoginContract.State.Error -> handleError(state)
             is LoginContract.State.Loading -> displayLoadingState()
+            is LoginContract.State.NetworkError -> handleNetworkError(state)
         }
     }
 
@@ -53,6 +55,18 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         login_progress.isVisible = true
     }
 
+    private fun handleNetworkError(error: LoginContract.State.NetworkError) {
+        login_progress.isVisible = false
+        login_login.apply {
+            text = getString(R.string.login_login)
+            isEnabled = true
+        }
+        login_error.apply {
+            isVisible = true
+            text = getString(error.type.msg, error.code)
+        }
+    }
+
     private fun handleError(error: LoginContract.State.Error) {
         val msg = getString(error.type.msg)
         login_login.isEnabled = true
@@ -61,11 +75,9 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         when (error.type) {
             MissingUsername -> login_username_edit.error = msg
             MissingPassword -> login_password_edit.error = msg
-            Credentials -> login_error.apply { isVisible = true; text = msg }
             Network -> login_error.apply { isVisible = true; text = msg }
-            Service -> login_error.apply { isVisible = true; text = msg }
             General -> login_error.apply { isVisible = true; text = msg }
-            LoginContract.State.Error.Type.Activation -> toast(msg)
+            Activation -> toast(msg)
         }
     }
 

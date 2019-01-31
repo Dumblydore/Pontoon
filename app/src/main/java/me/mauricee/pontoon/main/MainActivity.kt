@@ -316,6 +316,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         guidelineVertical.layoutParams = paramsGlVertical
         guidelineBottom.layoutParams = paramsGlBottom
         guidelineMarginEnd.layoutParams = paramsGlMarginEnd
+
+        main_details.alpha = 1.0F - movedPercent
     }
 
     /**

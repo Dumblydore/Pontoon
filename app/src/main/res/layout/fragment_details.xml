@@ -122,6 +122,14 @@
                         tools:layout_height="256dp"
                         tools:listitem="@layout/item_video_list" />
 
+                    <View
+                        android:id="@+id/player.relatedVideos.divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?android:attr/textColorSecondary"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
                     <FrameLayout
                         android:id="@+id/player.addComment"
                         android:layout_width="match_parent"
