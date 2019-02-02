@@ -2,6 +2,7 @@
     <!-- Login -->
     <string name="login_username">Username</string>
     <string name="login_password">Password</string>
+    <string name="login_token">Token</string>
     <string name="login_login">Login</string>
     <string name="login_signup">Not a member?</string>
     <string name="login_error_missingUsername">Enter Username.</string>
@@ -11,7 +12,8 @@
 
     <string name="login_error_network_unknown">@string/error_network_general</string>
     <string name="login_error_network_service">There\'s an issue with the service, try again later (%s).</string>
-    <string name="login_error_network_credentials">Invalid login, check your Username/Password (%s).</string>
+    <string name="login_error_network_credentials">Invalid login, check your credentials (%s).</string>
+    <string name="login_error_invalid_authCode">Invalid token.</string>
     <string name="login_error_network_activation">There was an issue activating your account.</string>
 
     <string name="login_error_general">@string/error_general</string>
