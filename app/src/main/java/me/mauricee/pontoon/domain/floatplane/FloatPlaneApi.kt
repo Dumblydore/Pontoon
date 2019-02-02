@@ -3,7 +3,10 @@ package me.mauricee.pontoon.domain.floatplane
 import io.reactivex.Completable
 import io.reactivex.Observable
 import okhttp3.ResponseBody
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface FloatPlaneApi {
 
@@ -27,6 +30,9 @@ interface FloatPlaneApi {
 
     @POST("auth/login")
     fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
+
+    @POST("auth/checkFor2faLogin")
+    fun login(@Body token: LoginAuthToken): Observable<User.Container>
 
     @GET("user/info")
     fun getUsers(@Query("id") vararg id: String): Observable<User.Response>
