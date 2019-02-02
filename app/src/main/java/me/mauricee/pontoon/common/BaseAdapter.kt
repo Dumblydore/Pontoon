@@ -6,10 +6,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
-abstract class BaseAdapter<T, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>(), Disposable {
+abstract class BaseAdapter<Model, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>(), Disposable {
 
-    internal val relay = PublishRelay.create<T>()
-    val actions: Observable<T>
+    internal val relay = PublishRelay.create<Model>()
+    val actions: Observable<Model>
         get() = relay
 
     internal val subscriptions = CompositeDisposable()

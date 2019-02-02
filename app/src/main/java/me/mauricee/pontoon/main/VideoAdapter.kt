@@ -9,12 +9,12 @@ import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.BaseAdapter
+import me.mauricee.pontoon.common.BaseListAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
-class VideoAdapter @Inject constructor() : BaseAdapter<Video, VideoAdapter.ViewHolder>() {
+class VideoAdapter @Inject constructor() : BaseListAdapter<Video, Video, VideoAdapter.ViewHolder>(Video.ItemCallback) {
 
     var videos: List<Video> = emptyList()
         set(value) {

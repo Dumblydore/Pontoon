@@ -33,12 +33,12 @@ class CreatorListFragment : BaseFragment<CreatorListPresenter>(), CreatorListCon
         when (state) {
             CreatorListContract.State.Loading -> creatorList_container_lazy.state = LazyLayout.LOADING
             is CreatorListContract.State.DisplayCreators -> {
-                adapter.creators = state.creator
+                adapter.submitList(state.creator)
                 creatorList_container_lazy.state = LazyLayout.SUCCESS
             }
             is CreatorListContract.State.Error -> {
-                when(state.type) {
-                    CreatorListContract.State.Error.Type.Unsubscribed -> Snackbar.make(view!!,getString(R.string.creator_list_unsubscribed), Snackbar.LENGTH_SHORT).show()
+                when (state.type) {
+                    CreatorListContract.State.Error.Type.Unsubscribed -> Snackbar.make(view!!, getString(R.string.creator_list_unsubscribed), Snackbar.LENGTH_SHORT).show()
                     CreatorListContract.State.Error.Type.Network,
                     CreatorListContract.State.Error.Type.Unknown -> {
                         creatorList_container_lazy.state = LazyLayout.ERROR

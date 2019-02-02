@@ -3,46 +3,30 @@ package me.mauricee.pontoon.main.details
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
-import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.BaseAdapter
-import me.mauricee.pontoon.ext.RxHelpers
+import me.mauricee.pontoon.common.BaseListAdapter
 import me.mauricee.pontoon.glide.GlideApp
+import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
-class RelatedVideoAdapter @Inject constructor() : BaseAdapter<DetailsContract.Action, RelatedVideoAdapter.ViewHolder>() {
-
-    //TODO move this into presenter
-    var videos: List<me.mauricee.pontoon.model.video.Video> = emptyList()
-        set(value) {
-            subscriptions += Observable.fromCallable {
-                DiffUtil.calculateDiff(DiffCallback(field, value))
-            }.compose(RxHelpers.applyObservableSchedulers()).subscribe {
-                field = value
-                it.dispatchUpdatesTo(this)
-            }
-        }
+class RelatedVideoAdapter @Inject constructor() : BaseListAdapter<DetailsContract.Action, Video, RelatedVideoAdapter.ViewHolder>(Video.ItemCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             LayoutInflater.from(parent.context).inflate(R.layout.item_video_list, parent, false).let(this::ViewHolder)
 
-    override fun getItemCount(): Int = videos.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(videos[position])
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position))
 
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            subscriptions += view.clicks().map { DetailsContract.Action.PlayVideo(videos[layoutPosition].id) }
+            subscriptions += view.clicks().map { DetailsContract.Action.PlayVideo(getItem(layoutPosition).id) }
                     .subscribe(relay::accept)
         }
-
 
         fun bind(video: me.mauricee.pontoon.model.video.Video) {
             itemView.let {
@@ -53,22 +37,7 @@ class RelatedVideoAdapter @Inject constructor() : BaseAdapter<DetailsContract.Ac
                         .placeholder(R.drawable.ic_default_thumbnail)
                         .error(R.drawable.ic_default_thumbnail)
                         .into(itemView.item_icon_big)
-
             }
         }
-    }
-
-    inner class DiffCallback(private val old: List<me.mauricee.pontoon.model.video.Video>,
-                             private val new: List<me.mauricee.pontoon.model.video.Video>) : DiffUtil.Callback() {
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                old[oldItemPosition].id === new[newItemPosition].id
-
-        override fun getOldListSize(): Int = old.size
-
-        override fun getNewListSize(): Int = new.size
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                old[oldItemPosition] == new[newItemPosition]
     }
 }

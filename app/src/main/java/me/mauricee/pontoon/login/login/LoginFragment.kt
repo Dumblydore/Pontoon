@@ -14,14 +14,13 @@ import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.toast
 import me.mauricee.pontoon.login.login.LoginContract.State.Error.Type.*
-import me.mauricee.pontoon.login.login.LoginContract.State.NetworkError.Type.*
 
 class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
 
     private val activation: String
-        get() = arguments!!.getString(ActivationKey)
+        get() = arguments?.getString(ActivationKey) ?: ""
     private val username: String
-        get() = arguments!!.getString(UsernameKey)
+        get() = arguments?.getString(UsernameKey) ?: ""
 
     override val actions: Observable<LoginContract.Action>
         get() = Observable.merge(login_lttForum.clicks().map { LoginContract.Action.LttLogin },

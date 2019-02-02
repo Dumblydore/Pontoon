@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
+import androidx.recyclerview.widget.DiffUtil
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -166,6 +167,14 @@ data class Video(val id: String, val title: String, val description: String, val
     constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail, video.watched)
 
     fun toBrowsableUrl(): String = "https://www.floatplane.com/video/$id"
+
+    companion object {
+        val ItemCallback = object : DiffUtil.ItemCallback<Video>() {
+            override fun areItemsTheSame(oldItem: Video, newItem: Video): Boolean = oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: Video, newItem: Video): Boolean = newItem == oldItem
+        }
+    }
 }
 
 data class Playback(val video: me.mauricee.pontoon.model.video.Video, val quality: Quality)
