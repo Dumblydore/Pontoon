@@ -9,15 +9,15 @@ import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_end_user_bubble.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.BaseAdapter
+import me.mauricee.pontoon.common.BaseListAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-class SubscriptionAdapter @Inject constructor() : BaseAdapter<UserRepository.Creator, VideoContract.Action, SubscriptionAdapter.ViewHolder>(UserRepository.CreatorItemCallback) {
+class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoContract.Action, UserRepository.Creator, SubscriptionAdapter.ViewHolder>(UserRepository.Creator.ItemCallback) {
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount - 1) R.layout.item_end_user_bubble else R.layout.item_user_bubble
+        return if (position == itemCount) R.layout.item_end_user_bubble else R.layout.item_user_bubble
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =

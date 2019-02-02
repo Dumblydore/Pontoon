@@ -10,14 +10,13 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_color_list.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
-import me.mauricee.pontoon.common.ModelAdapter
 import me.mauricee.pontoon.common.theme.BaseTheme
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.preferences.CircleHelper
 import javax.inject.Inject
 
 class BaseThemeAdapter @Inject constructor(private val circleHelper: CircleHelper, private val themeManager: ThemeManager)
-    : ModelAdapter<BaseTheme, BaseThemeAdapter.ViewHolder>(BaseTheme.ItemCallback) {
+    : BaseAdapter<BaseTheme, BaseThemeAdapter.ViewHolder>() {
 
     private val themes = BaseTheme.values()
     private var newSelectedTheme: BaseTheme? = null

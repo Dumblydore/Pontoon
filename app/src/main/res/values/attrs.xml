@@ -5,7 +5,6 @@
         <attr name="loading_layout" format="reference" />
         <attr name="lazy_duration" format="integer" />
         <attr name="display_retry" format="boolean" />
-
         <attr name="lazy_state" format="enum">
             <enum name="error" value="-1" />
             <enum name="loading" value="0" />

@@ -17,14 +17,13 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_comment.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.BaseAdapter
+import me.mauricee.pontoon.common.BaseListAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.details.video.DetailsContract
 import me.mauricee.pontoon.model.comment.Comment
 import javax.inject.Inject
 
-class CommentAdapter @Inject constructor(context: Context)
-    : BaseAdapter<Comment, DetailsContract.Action, CommentAdapter.ViewHolder>(Comment.ItemCallback) {
+class CommentAdapter @Inject constructor(context: Context) : BaseListAdapter<DetailsContract.Action, Comment, CommentAdapter.ViewHolder>(Comment.ItemCallback) {
     private val primaryColor = ContextCompat.getColor(context, R.color.md_grey_600)
     private val positiveColor = ContextCompat.getColor(context, R.color.colorPositive)
     private val negativeColor = ContextCompat.getColor(context, R.color.colorNegative)
@@ -35,9 +34,9 @@ class CommentAdapter @Inject constructor(context: Context)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position))
 
-    fun updateComment(comment: Comment) {
-        submitList(mutableListOf(comment))
-    }
+    fun indexOf(commentId: String) = Math.min(0, IntRange(0, itemCount).map(this::getItem).map { it.id }.indexOf(commentId))
+
+    fun updateComment(comment: Comment) = submitList(mutableListOf(comment))
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {

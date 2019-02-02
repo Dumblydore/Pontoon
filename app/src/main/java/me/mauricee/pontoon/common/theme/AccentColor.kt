@@ -3,7 +3,6 @@ package me.mauricee.pontoon.common.theme
 import android.content.Context
 import android.content.res.Resources
 import androidx.annotation.StyleRes
-import androidx.recyclerview.widget.DiffUtil
 import me.mauricee.pontoon.R
 
 enum class AccentColor(@StyleRes val style: Int) {
@@ -49,11 +48,6 @@ enum class AccentColor(@StyleRes val style: Int) {
     }
 
     companion object {
-        val ItemCallback = object : DiffUtil.ItemCallback<AccentColor>() {
-            override fun areItemsTheSame(oldItem: AccentColor, newItem: AccentColor): Boolean = oldItem.ordinal == newItem.ordinal
-
-            override fun areContentsTheSame(oldItem: AccentColor, newItem: AccentColor): Boolean = newItem == oldItem
-        }
 
         fun valueOf(key: String): AccentColor = when (key) {
             "Default" -> Default

@@ -37,8 +37,8 @@ class CreatorListFragment : BaseFragment<CreatorListPresenter>(), CreatorListCon
                 creatorList_container_lazy.state = LazyLayout.SUCCESS
             }
             is CreatorListContract.State.Error -> {
-                when(state.type) {
-                    CreatorListContract.State.Error.Type.Unsubscribed -> Snackbar.make(view!!,getString(R.string.creator_list_unsubscribed), Snackbar.LENGTH_SHORT).show()
+                when (state.type) {
+                    CreatorListContract.State.Error.Type.Unsubscribed -> Snackbar.make(view!!, getString(R.string.creator_list_unsubscribed), Snackbar.LENGTH_SHORT).show()
                     CreatorListContract.State.Error.Type.Network,
                     CreatorListContract.State.Error.Type.Unknown -> {
                         creatorList_container_lazy.state = LazyLayout.ERROR

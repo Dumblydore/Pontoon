@@ -36,9 +36,9 @@ class CreatorPresenter @Inject constructor(private val videoRepository: VideoRep
             .onErrorReturnItem(CreatorContract.State.Error())
 
     private fun processState(state: StateBoundaryCallback.State): CreatorContract.State = when (state) {
-        StateBoundaryCallback.State.LOADING -> CreatorContract.State.Loading
-        StateBoundaryCallback.State.ERROR -> CreatorContract.State.Error()
-        StateBoundaryCallback.State.FINISHED -> CreatorContract.State.Error(CreatorContract.State.Error.Type.NoVideos)
-        StateBoundaryCallback.State.FETCHED -> CreatorContract.State.Loading
+        StateBoundaryCallback.State.Loading -> CreatorContract.State.Loading
+        StateBoundaryCallback.State.Error -> CreatorContract.State.Error()
+        StateBoundaryCallback.State.Finished -> CreatorContract.State.Error(CreatorContract.State.Error.Type.NoVideos)
+        StateBoundaryCallback.State.Fetched -> CreatorContract.State.Loading
     }
 }

@@ -41,6 +41,9 @@ captures/
 .idea/dictionaries
 .idea/libraries
 .idea/libraries
+.idea/markdown-navigator/
+.idea/markdown-exported-files.xml
+.idea/markdown-navigator.xml
 .idea/assetWizardSettings.xml
 
 # External native build folder generated in Android Studio 2.2 and later

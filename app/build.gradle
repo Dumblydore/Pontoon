@@ -3,8 +3,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-
 apply plugin: 'io.fabric'
+apply plugin: 'com.google.firebase.firebase-perf'
 
 def major = 0
 def minor = 9
@@ -85,6 +85,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-crash:16.2.1'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
+    implementation 'com.google.firebase:firebase-perf:16.2.3'
 
     //  UI
     implementation "com.ncapdevi:frag-nav:2.4.0"

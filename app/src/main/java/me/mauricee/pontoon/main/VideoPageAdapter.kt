@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.jakewharton.rxbinding2.view.clicks
@@ -20,7 +19,7 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
-open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, VideoPageAdapter.ViewHolder>(DiffCallback), Disposable{
+open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, VideoPageAdapter.ViewHolder>(Video.ItemCallback), Disposable{
 
     internal val subscriptions = CompositeDisposable()
 
@@ -64,14 +63,6 @@ open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, Vide
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .into(itemView.item_icon_small)
             }
-        }
-    }
-
-    companion object {
-        val DiffCallback = object : DiffUtil.ItemCallback<Video>() {
-            override fun areItemsTheSame(oldItem: Video, newItem: Video): Boolean = oldItem.id == newItem.id
-
-            override fun areContentsTheSame(oldItem: Video, newItem: Video): Boolean = newItem == oldItem
         }
     }
 }

@@ -96,11 +96,10 @@ class LazyLayout : FrameLayout {
 
         loadingLayout = a.getResourceId(R.styleable.LazyLayout_loading_layout, loadingLayout)
         errorLayout = a.getResourceId(R.styleable.LazyLayout_error_layout, errorLayout)
-        displayRetryButton = a.getBoolean(R.styleable.LazyLayout_display_retry, false)
 
         loadingView = LayoutInflater.from(context).inflate(loadingLayout, this, false)
         errorView = LayoutInflater.from(context).inflate(errorLayout, this, false)
-        //Lol
+        displayRetryButton = a.getBoolean(R.styleable.LazyLayout_display_retry, false)
 
         state = a.getInt(R.styleable.LazyLayout_lazy_state, LOADING)
         a.recycle()
@@ -118,7 +117,10 @@ class LazyLayout : FrameLayout {
 
         successView?.visibility = View.GONE
 
-        lazy_error_retry?.setOnClickListener { retryListener?.onRetry() }
+        lazy_error_retry?.setOnClickListener {
+            state = LOADING
+            retryListener?.onRetry()
+        }
         updateViewState()
     }
 

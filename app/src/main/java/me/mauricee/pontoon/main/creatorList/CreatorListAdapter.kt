@@ -9,12 +9,13 @@ import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.BaseAdapter
+import me.mauricee.pontoon.common.BaseListAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-class CreatorListAdapter @Inject constructor() : BaseAdapter<UserRepository.Creator, CreatorListContract.Action, CreatorListAdapter.ViewHolder>(UserRepository.CreatorItemCallback) {
+class CreatorListAdapter @Inject constructor() :
+        BaseListAdapter<CreatorListContract.Action, UserRepository.Creator, CreatorListAdapter.ViewHolder>(UserRepository.Creator.ItemCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_creator_card, parent, false).let(this::ViewHolder)

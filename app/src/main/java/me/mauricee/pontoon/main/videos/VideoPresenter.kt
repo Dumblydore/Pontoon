@@ -52,9 +52,9 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
     }.let(VideoContract.State::Error)
 
     private fun processPaginationState(state: StateBoundaryCallback.State, retry: () -> Unit): VideoContract.State = when (state) {
-        StateBoundaryCallback.State.LOADING -> VideoContract.State.Loading(false)
-        StateBoundaryCallback.State.ERROR -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.Network, retry)
-        StateBoundaryCallback.State.FETCHED -> VideoContract.State.FinishPageFetch
-        StateBoundaryCallback.State.FINISHED -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.NoVideos, retry)
+        StateBoundaryCallback.State.Loading -> VideoContract.State.Loading(false)
+        StateBoundaryCallback.State.Error -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.Network, retry)
+        StateBoundaryCallback.State.Fetched -> VideoContract.State.FinishPageFetch
+        StateBoundaryCallback.State.Finished -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.NoVideos, retry)
     }
 }

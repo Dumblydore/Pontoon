@@ -12,21 +12,26 @@ import kotlinx.android.synthetic.main.fragment_login.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toast
 import me.mauricee.pontoon.login.login.LoginContract.State.Error.Type.*
 
 class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
 
     private val activation: String
-        get() = arguments!!.getString(ActivationKey)
+        get() = arguments?.getString(ActivationKey) ?: ""
     private val username: String
-        get() = arguments!!.getString(UsernameKey)
+        get() = arguments?.getString(UsernameKey) ?: ""
+
+    private val loginAction: LoginContract.Action
+        get() = if (login_token.isVisible) LoginContract.Action.Authenticate(login_token_edit.text.toString()) else
+            LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString())
 
     override val actions: Observable<LoginContract.Action>
         get() = Observable.merge(login_lttForum.clicks().map { LoginContract.Action.LttLogin },
                 login_discord.clicks().map { LoginContract.Action.DiscordLogin },
                 login_signUp.clicks().map { LoginContract.Action.SignUp },
-                login_login.clicks().map { LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString()) })
+                login_login.clicks().map { loginAction })
                 .compose(emitActivationArgs())
 
     override fun getLayoutId(): Int = R.layout.fragment_login
@@ -43,6 +48,17 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         when (state) {
             is LoginContract.State.Error -> handleError(state)
             is LoginContract.State.Loading -> displayLoadingState()
+            is LoginContract.State.NetworkError -> handleNetworkError(state)
+            LoginContract.State.Request2FaCode -> {
+                resetLoginButton()
+                login_token.isVisible = true
+                login_username.isVisible = false
+                login_password.isVisible = false
+            }
+            LoginContract.State.InvalidAuthCode -> {
+                resetLoginButton()
+                login_error.apply { isVisible = true; text = getText(R.string.login_error_invalid_authCode) }
+            }
         }
     }
 
@@ -53,19 +69,23 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         login_progress.isVisible = true
     }
 
+    private fun handleNetworkError(error: LoginContract.State.NetworkError) {
+        resetLoginButton()
+        login_error.apply {
+            isVisible = true
+            text = getString(error.type.msg, error.code)
+        }
+    }
+
     private fun handleError(error: LoginContract.State.Error) {
         val msg = getString(error.type.msg)
-        login_login.isEnabled = true
-        login_progress.isVisible = false
-        login_login.text = getString(R.string.login_login)
+        resetLoginButton()
         when (error.type) {
             MissingUsername -> login_username_edit.error = msg
             MissingPassword -> login_password_edit.error = msg
-            Credentials -> login_error.apply { isVisible = true; text = msg }
             Network -> login_error.apply { isVisible = true; text = msg }
-            Service -> login_error.apply { isVisible = true; text = msg }
             General -> login_error.apply { isVisible = true; text = msg }
-            LoginContract.State.Error.Type.Activation -> toast(msg)
+            Activation -> toast(msg)
         }
     }
 
@@ -76,9 +96,15 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
             it
     }
 
+    private fun resetLoginButton() = login_login.just {
+        isEnabled = true
+        text = getString(R.string.login_login)
+        login_progress.isVisible = false
+    }
+
     companion object {
         private const val ActivationKey = "activation"
-        private const val UsernameKey = "userName"
+        private const val UsernameKey = "username"
 
         fun newInstance(key: String, username: String): Fragment = LoginFragment().apply {
             arguments = bundleOf(ActivationKey to key, UsernameKey to username)

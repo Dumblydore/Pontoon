@@ -2,7 +2,6 @@ package me.mauricee.pontoon.preferences.primaryColor
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.os.bundleOf
@@ -30,13 +29,14 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
         set(value) {
             if (value != field) {
                 persistString(value.name)
+                field = value
             }
         }
 
     override fun getDialogLayoutResource(): Int = R.layout.preference_base_theme
 
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
-        return a.getString(index)
+        return a.getString(index) ?: PrimaryColor.Default.name
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {

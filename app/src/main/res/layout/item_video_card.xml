@@ -23,6 +23,9 @@
             android:layout_height="wrap_content"
             android:minHeight="128dp"
             android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             tools:src="@drawable/ic_launcher_background" />
 
         <ImageView

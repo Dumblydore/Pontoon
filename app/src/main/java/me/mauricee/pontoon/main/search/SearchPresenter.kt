@@ -34,9 +34,9 @@ class SearchPresenter @Inject constructor(private val navigator: MainContract.Na
             }
 
     private fun handleResultState(state: StateBoundaryCallback.State, retry: () -> Unit): SearchContract.State = when (state) {
-        StateBoundaryCallback.State.LOADING -> SearchContract.State.FetchingPage
-        StateBoundaryCallback.State.ERROR -> SearchContract.State.FetchError(SearchContract.State.Type.Network, retry)
-        StateBoundaryCallback.State.FETCHED -> SearchContract.State.FinishFetching
-        StateBoundaryCallback.State.FINISHED -> SearchContract.State.FetchError(SearchContract.State.Type.NoResults, retry)
+        StateBoundaryCallback.State.Loading -> SearchContract.State.FetchingPage
+        StateBoundaryCallback.State.Error -> SearchContract.State.FetchError(SearchContract.State.Type.Network, retry)
+        StateBoundaryCallback.State.Fetched -> SearchContract.State.FinishFetching
+        StateBoundaryCallback.State.Finished -> SearchContract.State.FetchError(SearchContract.State.Type.NoResults, retry)
     }
 }

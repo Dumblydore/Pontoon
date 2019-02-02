@@ -34,8 +34,6 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
                 .build()
     }
 
-    private fun isActivationRoute() = intent.hasExtra(ActivationKey) && intent.hasExtra(UsernameKey)
-
     override fun onBackPressed() {
         if (controller.isRootFragment)
             super.onBackPressed()

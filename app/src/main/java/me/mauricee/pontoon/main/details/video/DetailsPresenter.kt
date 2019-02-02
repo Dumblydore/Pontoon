@@ -6,7 +6,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
@@ -51,7 +50,7 @@ class DetailsPresenter @Inject constructor(private val player: Player,
     private fun loadVideoDetails(action: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> =
             videoRepository.getVideo(action.id).doOnSuccess(videoRepository::addToWatchHistory).flatMapObservable { video ->
                 videoRepository.getQualityOfVideo(action.id)
-                        .flatMap {it -> Completable.fromAction { player.currentlyPlaying = Playback(video, it) }.subscribeOn(AndroidSchedulers.mainThread()).andThen(Observable.just(it )) }
+                        .flatMap { it -> Completable.fromAction { player.currentlyPlaying = Playback(video, it) }.subscribeOn(AndroidSchedulers.mainThread()).andThen(Observable.just(it)) }
                         .map { DetailsContract.State.VideoInfo(video) }
             }
 
@@ -61,9 +60,9 @@ class DetailsPresenter @Inject constructor(private val player: Player,
 
     private fun loadComments(video: String): Observable<DetailsContract.State> =
             commentRepository.getComments(video)
-                    .flatMapSingle { it -> it.toObservable().filter { it.video == it.parent }.toList() }
+                    .flatMapSingle { video -> video.toObservable().filter { it.video == it.parent }.toList() }
                     .onErrorReturnItem(emptyList())
-                    .map(DetailsContract.State::Comments)
+                    .map { if (it.isEmpty()) DetailsContract.State.Error(DetailsContract.ErrorType.NoComments) else DetailsContract.State.Comments(it) }
 
     override fun onViewDetached() {
         super.onViewDetached()

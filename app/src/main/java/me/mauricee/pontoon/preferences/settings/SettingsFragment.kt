@@ -8,25 +8,34 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
+import com.jakewharton.rxrelay2.PublishRelay
+import com.jakewharton.rxrelay2.Relay
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
+import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.hasNotch
 import me.mauricee.pontoon.ext.logd
+import me.mauricee.pontoon.ext.toast
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.preferences.PreferencesNavigator
 import me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
 import me.mauricee.pontoon.preferences.baseTheme.BaseThemePreference
 import me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
+import java.lang.RuntimeException
 import javax.inject.Inject
 
-class SettingsFragment : PreferenceFragmentCompat() {
-    @Inject
-    lateinit var navigator: PreferencesNavigator
-    @Inject
-    lateinit var edgeRepository: EdgeRepository
+class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
 
+    override val actions: Observable<SettingsContract.Action>
+        get() = actionRelay
+    @Inject
+    lateinit var presenter: SettingsPresenter
+
+    private val actionRelay: Relay<SettingsContract.Action> = PublishRelay.create()
     private val subscriptions = CompositeDisposable()
 
     override fun onAttach(context: Context) {
@@ -36,38 +45,50 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings)
-        findPreference("settings_about").setOnPreferenceClickListener { navigator.toAbout(); true }
-        findPreference("settings_refresh_edges").setOnPreferenceClickListener {
-            subscriptions += edgeRepository.refresh().andThen(Observable.just("Refreshed!"))
-                    .startWith("Refreshing...")
-                    .onErrorReturnItem("Error refreshing edges")
-                    .subscribe { text -> Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show() };
-            true
-        }
-        if (!hasNotch()) {
+
+        findPreference("settings_about").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedAbout) }
+        findPreference("settings_refresh_edges").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedRefreshEdges) }
+        if (!requireActivity().hasNotch()) {
             logd("device does not have notch")
             (findPreference("settings_general") as PreferenceCategory).removePreference(findPreference("settings_notch"))
         }
+        if (!BuildConfig.DEBUG) {
+            (findPreference("settings_general") as PreferenceCategory).removePreference(findPreference("settings_test_crash"))
+        } else {
+            findPreference("settings_test_crash").setOnPreferenceClickListener { throw RuntimeException("Planned Crash!") }
+        }
+
+        presenter.attachView(this)
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
         when (preference) {
-            is BaseThemePreference -> bindFragment(BaseThemePreference.Fragment.newInstance(preference.key))
-            is AccentColorPreference -> bindFragment(AccentColorPreference.Fragment.newInstance(preference.key))
-            is PrimaryColorPreference -> bindFragment(PrimaryColorPreference.Fragment.newInstance(preference.key))
+            is BaseThemePreference -> push(SettingsContract.Action.OpenBaseThemePreference(preference.key))
+            is AccentColorPreference -> push(SettingsContract.Action.OpenAccentColorPreference(preference.key))
+            is PrimaryColorPreference -> push(SettingsContract.Action.OpenPrimaryColorPreference(preference.key))
             else -> super.onDisplayPreferenceDialog(preference)
         }
     }
 
+    override fun updateState(state: SettingsContract.State) = when (state) {
+        SettingsContract.State.RefreshingEdges -> toast("Refreshing...")
+        SettingsContract.State.RefreshedEdges -> toast("Edges Refreshed!")
+        SettingsContract.State.ErrorRefreshingEdges -> toast("Error Refreshing Edges!")
+        is SettingsContract.State.DisplayBaseThemePreference -> bindFragment(BaseThemePreference.Fragment.newInstance(state.key))
+        is SettingsContract.State.DisplayAccentColorPreference -> bindFragment(AccentColorPreference.Fragment.newInstance(state.key))
+        is SettingsContract.State.DisplayPrimaryColorPreference -> bindFragment(PrimaryColorPreference.Fragment.newInstance(state.key))
+    }
+
     private fun bindFragment(fragment: PreferenceDialogFragmentCompat) = fragment
             .also { it.setTargetFragment(this, 0) }
-            .show(fragmentManager, "$DialogPrefix.BaseThemePreference")
-
-    private fun hasNotch() =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-            requireActivity().window.decorView.rootWindowInsets?.displayCutout != null
+            .show(fragmentManager, "$DialogPrefix.ThemePreference")
 
     companion object {
         const val DialogPrefix = "androidx.preference.PreferenceCategory"
+    }
+
+    private fun push(action: SettingsContract.Action): Boolean {
+        actionRelay.accept(action)
+        return true
     }
 }

@@ -74,11 +74,11 @@ class Comment(val id: String, val parent: String, val video: String, val text: S
         Like,
         Dislike
     }
-    
+
     companion object {
         val ItemCallback = object : DiffUtil.ItemCallback<Comment>() {
                     override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean = oldItem.id == newItem.id
-        
+
                     override fun areContentsTheSame(oldItem: Comment, newItem: Comment): Boolean = newItem == oldItem
                 }
     }

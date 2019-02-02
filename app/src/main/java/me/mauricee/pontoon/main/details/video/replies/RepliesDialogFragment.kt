@@ -20,7 +20,6 @@ import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.main.details.CommentAdapter
 import me.mauricee.pontoon.main.details.video.DetailsContract
 import me.mauricee.pontoon.model.comment.Comment
-import java.lang.RuntimeException
 import javax.inject.Inject
 
 class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View {
@@ -59,15 +58,15 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View 
             replies_lazy.state = LazyLayout.SUCCESS
         }
         is RepliesContract.State.Liked -> {
-            adapter.updateComment(state.comment)
+            adapter.submitList(listOf(state.comment))
             Snackbar.make(view!!, getString(R.string.details_commentLiked), Snackbar.LENGTH_LONG).show()
         }
         is RepliesContract.State.Disliked -> {
-            adapter.updateComment(state.comment)
+            adapter.submitList(listOf(state.comment))
             Snackbar.make(view!!, getString(R.string.details_commentDisliked), Snackbar.LENGTH_LONG).show()
         }
         is RepliesContract.State.Cleared -> {
-            adapter.updateComment(state.comment)
+            adapter.submitList(listOf(state.comment))
         }
         is RepliesContract.State.CurrentUser -> {
         }

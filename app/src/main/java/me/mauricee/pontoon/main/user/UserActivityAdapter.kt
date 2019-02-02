@@ -8,12 +8,11 @@ import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_activity_comment.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.BaseAdapter
-import me.mauricee.pontoon.common.ModelAdapter
+import me.mauricee.pontoon.common.BaseListAdapter
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-class UserActivityAdapter @Inject constructor() : BaseAdapter<UserRepository.Activity, UserContract.Action, UserActivityAdapter.ViewHolder>(UserRepository.ActivityItemCallback) {
+class UserActivityAdapter @Inject constructor() : BaseListAdapter<UserContract.Action, UserRepository.Activity, UserActivityAdapter.ViewHolder>(UserRepository.Activity.ItemCallback) {
 
     override fun getItemViewType(position: Int): Int = R.layout.item_activity_comment
 

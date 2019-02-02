@@ -79,6 +79,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
     }
 
+    override fun onStop() {
+        super.onStop()
+        player.controlsVisible = false
+    }
+
     override fun updateState(state: PlayerContract.State) {
         when (state) {
             is PlayerContract.State.Bind -> {
@@ -123,7 +128,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_duration.text = state.formattedDuration
                 player_controls_progress.duration = state.duration
             }
-            is PlayerContract.State.ShareUrl -> startActivity(Intent.createChooser(createShareIntent(state.video),getString(R.string.player_share)))
+            is PlayerContract.State.ShareUrl -> startActivity(Intent.createChooser(createShareIntent(state.video), getString(R.string.player_share)))
         }
     }
 
