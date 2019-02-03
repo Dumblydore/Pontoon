@@ -80,19 +80,19 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
             }
             is DetailsContract.State.Error -> handleError(state.type)
             is DetailsContract.State.Comments -> {
-                commentsAdapter.comments = state.comments.toMutableList()
+                commentsAdapter.submitList(state.comments.toMutableList())
                 scrollToSelectedComment()
             }
             is DetailsContract.State.RelatedVideos -> {
-                relatedVideosAdapter.videos = state.relatedVideos
+                relatedVideosAdapter.submitList(state.relatedVideos)
                 player_relatedVideos_divider.isVisible = true
             }
             is DetailsContract.State.Like -> {
-                commentsAdapter.updateComment(state.comment)
+                commentsAdapter.submitList(listOf(state.comment))
                 snack(getString(R.string.details_commentLiked, state.comment.user.username))
             }
             is DetailsContract.State.Dislike -> {
-                commentsAdapter.updateComment(state.comment)
+                commentsAdapter.submitList(listOf(state.comment))
                 snack(getString(R.string.details_commentDisliked, state.comment.user.username))
             }
             is DetailsContract.State.CurrentUser -> {
@@ -119,7 +119,7 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
     private fun scrollToSelectedComment() {
         arguments?.getString(CommentKey, "")?.apply {
             if (isNotBlank()) {
-                val commentIndex = commentsAdapter.comments.indexOfFirst { it.id == this }
+                val commentIndex = commentsAdapter.indexOf(this)
                         .let { player_comments.getChildAt(it).y.toInt() }
                 player_details.smoothScrollTo(0, commentIndex)
             }

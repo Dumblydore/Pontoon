@@ -14,6 +14,7 @@ interface LoginContract {
     sealed class Action : EventTracker.Action {
         data class Login(val username: String, val password: String) : Action()
         data class Activate(val code: String, val username: String) : Action()
+        data class Authenticate(val authCode: String) : Action()
         object LttLogin : Action()
         object DiscordLogin : Action()
         object SignUp : Action()
@@ -21,6 +22,8 @@ interface LoginContract {
 
     sealed class State : EventTracker.State {
         object Loading : State()
+        object Request2FaCode: State()
+        object InvalidAuthCode : State()
         data class NetworkError(val type: Type, val code: Int) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"

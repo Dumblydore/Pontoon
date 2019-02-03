@@ -2,6 +2,7 @@
     <!-- Login -->
     <string name="login_username">Username</string>
     <string name="login_password">Password</string>
+    <string name="login_token">Token</string>
     <string name="login_login">Login</string>
     <string name="login_signup">Not a member?</string>
     <string name="login_error_missingUsername">Enter Username.</string>
@@ -10,8 +11,9 @@
     <string name="login_error_network_connection">Check your connection.</string>
 
     <string name="login_error_network_unknown">@string/error_network_general</string>
-    <string name="login_error_network_service">There\'s an issue with the service, try again later (%i).</string>
-    <string name="login_error_network_credentials">Invalid login, check your Username/Password (%i).</string>
+    <string name="login_error_network_service">There\'s an issue with the service, try again later (%s).</string>
+    <string name="login_error_network_credentials">Invalid login, check your credentials (%s).</string>
+    <string name="login_error_invalid_authCode">Invalid token.</string>
     <string name="login_error_network_activation">There was an issue activating your account.</string>
 
     <string name="login_error_general">@string/error_general</string>
@@ -209,7 +211,7 @@
 
     <!-- Misc -->
     <string name="error_general">Something happened, Not sure what it was.</string>
-    <string name="error_network_general">Something happened, not sure what it was (%i).</string>
+    <string name="error_network_general">Something happened, not sure what it was (%s).</string>
     <string name="lazy_error_retry">@string/retry</string>
     <string name="retry">Try Again</string>
     <string name="filter_view_http_floatplane">Floatplane Web Filter</string>

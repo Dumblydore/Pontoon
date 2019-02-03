@@ -4,15 +4,10 @@ import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
-import me.mauricee.pontoon.domain.floatplane.ConfirmationRequest
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.domain.floatplane.LoginRequest
-import me.mauricee.pontoon.domain.floatplane.User
+import me.mauricee.pontoon.domain.floatplane.*
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.login.LoginNavigator
 import retrofit2.HttpException
-import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
-import java.net.HttpURLConnection.HTTP_UNAVAILABLE
 import javax.inject.Inject
 
 class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
@@ -20,6 +15,8 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                                          private val navigator: LoginNavigator,
                                          eventTracker: EventTracker) :
         LoginContract.Presenter, BasePresenter<LoginContract.State, LoginContract.View>(eventTracker) {
+
+    private val codeRegex = Regex("[0-9]+")
 
     override fun onViewAttached(view: LoginContract.View): Observable<LoginContract.State> =
             view.actions.doOnNext { eventTracker.trackAction(it, view) }
@@ -29,10 +26,18 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
     private fun handleActions(action: LoginContract.Action): Observable<LoginContract.State> = when (action) {
         is LoginContract.Action.Login -> attemptLogin(action.username, action.password)
         is LoginContract.Action.Activate -> attemptActivation(action.code, action.username)
+        is LoginContract.Action.Authenticate -> attemptAuthentication(action.authCode)
         LoginContract.Action.LttLogin -> stateless(navigator::toLttLogin)
         LoginContract.Action.DiscordLogin -> stateless(navigator::toDiscordLogin)
         LoginContract.Action.SignUp -> stateless(navigator::toSignUp)
     }
+
+    private fun attemptAuthentication(code: String): Observable<LoginContract.State> = if (code.matches(codeRegex)) {
+        floatPlaneApi.login(LoginAuthToken(code)).map(User.Container::user)
+                .flatMap(this::navigateToMain)
+                .startWith(LoginContract.State.Loading)
+                .onErrorReturn(::processError)
+    } else LoginContract.State.InvalidAuthCode.toObservable()
 
     private fun attemptActivation(code: String, username: String): Observable<LoginContract.State> =
             floatPlaneApi.confirmEmail(ConfirmationRequest(code, username)).andThen(floatPlaneApi.self)
@@ -47,10 +52,11 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
     }
 
     private fun login(request: LoginRequest): Observable<LoginContract.State> = floatPlaneApi.login(request)
-            .map(User.Container::user)
-            .flatMap(this::navigateToMain)
-            .startWith(LoginContract.State.Loading)
-            .onErrorReturn(::processError)
+            .flatMap<LoginContract.State> {
+                if (it.needs2Fa) LoginContract.State.Request2FaCode.toObservable() else
+                    it.user.toObservable()
+                            .flatMap(this::navigateToMain)
+            }.startWith(LoginContract.State.Loading).onErrorReturn(::processError)
 
     private fun navigateToMain(user: User) = stateless {
         manager.account = user

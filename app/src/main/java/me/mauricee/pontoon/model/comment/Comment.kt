@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.model.comment
 
 import androidx.annotation.Keep
+import androidx.recyclerview.widget.DiffUtil
 import androidx.room.*
 import io.reactivex.Single
 import me.mauricee.pontoon.model.user.UserRepository
@@ -72,5 +73,12 @@ class Comment(val id: String, val parent: String, val video: String, val text: S
     enum class Interaction {
         Like,
         Dislike
+    }
+    companion object {
+        val ItemCallback = object : DiffUtil.ItemCallback<Comment>() {
+            override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean = oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: Comment, newItem: Comment): Boolean = newItem == oldItem
+        }
     }
 }

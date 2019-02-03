@@ -17,53 +17,40 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_comment.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.BaseAdapter
+import me.mauricee.pontoon.common.BaseListAdapter
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.comment.Comment
 import javax.inject.Inject
 
 //TODO Implement DiffUtil
 class CommentAdapter @Inject constructor(context: Context)
-    : BaseAdapter<DetailsContract.Action, CommentAdapter.ViewHolder>() {
+    : BaseListAdapter<DetailsContract.Action, Comment, CommentAdapter.ViewHolder>(Comment.ItemCallback) {
     private val primaryColor = ContextCompat.getColor(context, R.color.md_grey_600)
     private val positiveColor = ContextCompat.getColor(context, R.color.colorPositive)
     private val negativeColor = ContextCompat.getColor(context, R.color.colorNegative)
-    var comments: MutableList<Comment> = mutableListOf()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             LayoutInflater.from(parent.context).inflate(R.layout.item_comment, parent, false).let(this::ViewHolder)
 
-    override fun getItemCount(): Int = comments.size
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position))
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(comments[position])
-
-    fun updateComment(comment: Comment) {
-        val index = comments.indexOf(comment)
-        if (index >= 0) {
-            comments[index] = comment
-            notifyItemChanged(index)
-        }
-    }
+    fun indexOf(commentId: String) = Math.min(0, IntRange(0, itemCount).map(this::getItem).map { it.id }.indexOf(commentId))
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
             subscriptions += Observable.merge(view.item_icon_small.clicks(), view.item_title.clicks())
-                    .map { comments[layoutPosition].user }
+                    .map { getItem(layoutPosition).user }
                     .map(DetailsContract.Action::ViewUser)
                     .subscribe(relay::accept)
 
-            subscriptions += Observable.merge(view.item_thumb_up.clicks().map { comments[layoutPosition] }.map(DetailsContract.Action::Like),
-                    view.item_thumb_down.clicks().map { comments[layoutPosition] }.map(DetailsContract.Action::Dislike))
+            subscriptions += Observable.merge(view.item_thumb_up.clicks().map { getItem(layoutPosition) }.map(DetailsContract.Action::Like),
+                    view.item_thumb_down.clicks().map { getItem(layoutPosition) }.map(DetailsContract.Action::Dislike))
                     .subscribe(relay::accept)
 
-            subscriptions += view.item_comment.clicks().map { comments[layoutPosition] }
+            subscriptions += view.item_comment.clicks().map { getItem(layoutPosition) }
                     .map(DetailsContract.Action::Reply).subscribe(relay::accept)
 
-            subscriptions += view.item_viewReplies.clicks().map { comments[layoutPosition] }
+            subscriptions += view.item_viewReplies.clicks().map { getItem(layoutPosition) }
                     .map(DetailsContract.Action::ViewReplies).subscribe(relay::accept)
         }
 
@@ -76,7 +63,7 @@ class CommentAdapter @Inject constructor(context: Context)
                 it.item_thumb_text.isVisible = commentScore != 0
                 it.item_thumb_text.text = "${if (commentScore > 0) "+" else ""} $commentScore"
                 it.item_viewReplies.isVisible = comment.replies.isNotEmpty()
-                it.item_viewReplies.text = itemView.context.resources.getQuantityString(R.plurals.details_comment_replies, comment.replies.size,  comment.replies.size)
+                it.item_viewReplies.text = itemView.context.resources.getQuantityString(R.plurals.details_comment_replies, comment.replies.size, comment.replies.size)
 
                 val likeTint = if (comment.userInteraction.contains(Comment.Interaction.Like))
                     positiveColor
