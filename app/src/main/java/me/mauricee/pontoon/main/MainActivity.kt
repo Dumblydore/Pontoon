@@ -17,7 +17,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
-import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.transition.ChangeBounds
 import androidx.transition.Fade
@@ -404,7 +403,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }
-        main_fullscreenbg.isVisible = isEnabled
     }
 
     private fun displayUser(user: UserRepository.User, subCount: Int) {

@@ -22,8 +22,8 @@
         android:padding="8dp"
         android:text="@string/details_comment_header"
         android:textColor="?android:attr/textColorPrimary"
-        tools:textColor="@color/white"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        tools:textColor="@color/white" />
 
     <FrameLayout
         android:id="@+id/player.addComment"
@@ -55,11 +55,18 @@
 
         <ImageButton
             android:id="@+id/comment.submit"
+            style="?attr/buttonStyle"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_gravity="end|center_vertical"
+            android:background="@drawable/ic_color"
+            android:backgroundTint="?android:attr/colorAccent"
+            android:elevation="0dp"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_send"
             android:visibility="gone"
-            tools:src="@drawable/ic_history"
+            tools:backgroundTint="@color/colorAccent"
             tools:visibility="visible" />
 
     </FrameLayout>

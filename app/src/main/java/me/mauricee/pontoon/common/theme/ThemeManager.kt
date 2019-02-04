@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.common.theme
 
 import android.content.SharedPreferences
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
@@ -11,6 +12,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import dagger.Reusable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
+import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.model.preferences.Preferences
 import javax.inject.Inject
@@ -81,6 +83,8 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     fun toggleNightMode() {
         mode = if (mode == AppCompatDelegate.MODE_NIGHT_YES) AppCompatDelegate.MODE_NIGHT_NO else AppCompatDelegate.MODE_NIGHT_YES
         activity.delegate.setLocalNightMode(mode)
+        if (BuildConfig.DEBUG)
+            Toast.makeText(activity,"Switching to mode: $mode",Toast.LENGTH_LONG).show()
     }
 
     fun setDayNightBehavior(behavior: DayNightBehavior) = when (behavior) {

@@ -1,7 +1,9 @@
 <resources>
 
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar"/>
     <style name="AppTheme.Amoled" parent="AppTheme">
         <item name="android:windowBackground">@color/md_black_1000</item>
+        <item name="android:colorBackground">@color/md_black_1000</item>
         <item name="android:textColorPrimary">@color/textDarkPrimary</item>
         <item name="android:textColor">@color/textDarkPrimary</item>
         <item name="android:textColorSecondary">@color/textDarkSecondary</item>
