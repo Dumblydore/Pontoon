@@ -78,7 +78,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
 
     fun search(query: String, vararg filteredSubs: UserRepository.Creator): VideoResult {
         val callback = searchCallbackFactory.newInstance(query, *filteredSubs)
-        return RxPagedListBuilder(videoDao.search(query, *filteredSubs.map { it.id }.toTypedArray())
+        return RxPagedListBuilder(videoDao.search("%$query%", *filteredSubs.map { it.id }.toTypedArray())
                 .map { vid -> Video(vid, filteredSubs.first { it.id == vid.creator }) }, pageListConfig)
                 .setFetchScheduler(Schedulers.io())
                 .setNotifyScheduler(AndroidSchedulers.mainThread())
