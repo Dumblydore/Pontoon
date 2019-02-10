@@ -53,6 +53,10 @@
     <androidx.preference.PreferenceCategory
         android:key="settings_misc"
         android:title="@string/settings_misc">
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="settings_analytics"
+            android:title="@string/settings_analytics" />
         <Preference
             android:key="settings_refresh_edges"
             android:title="@string/settings_refresh_edges"

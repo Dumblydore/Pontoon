@@ -19,8 +19,11 @@ This behavior is implemented [here](https://github.com/Dumblydore/Pontoon/blob/m
 The app sends stack traces and generic device.
 
 Behavior for Crashlytics is implemented [here](https://github.com/Dumblydore/Pontoon/blob/master/app/src/main/java/me/mauricee/pontoon/BaseActivity.kt).
+[Crashlytics Privacy Policy](https://try.crashlytics.com/terms/privacy-policy.pdf)
 
 ### Performance Monitoring
 The app sends unidentifiable **request size**, **request url**, request method**, **response code** & **response size**
 
 Behavior for Performance Monitoring [here](https://github.com/Dumblydore/Pontoon/blob/master/app/src/main/java/me/mauricee/pontoon/analytics/FirebaseNetworkInterceptor.kt).
+
+[Firebase Privacy Policy](https://firebase.google.com/support/privacy/)

@@ -8,6 +8,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
+import com.crashlytics.android.Crashlytics
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import dagger.android.support.AndroidSupportInjection
@@ -55,7 +56,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
         if (!BuildConfig.DEBUG) {
             (findPreference("settings_general") as PreferenceCategory).removePreference(findPreference("settings_test_crash"))
         } else {
-            findPreference("settings_test_crash").setOnPreferenceClickListener { throw RuntimeException("Planned Crash!") }
+            findPreference("settings_test_crash").setOnPreferenceClickListener { Crashlytics.getInstance().crash(); true }
         }
 
         presenter.attachView(this)
