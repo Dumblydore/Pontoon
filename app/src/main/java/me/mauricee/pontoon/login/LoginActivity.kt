@@ -61,6 +61,8 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
 
     override fun toSignUp() = startActivity(Intent(Intent.ACTION_VIEW, SignupUrl.toUri()))
 
+    override fun toPrivacyPolicy()  = startActivity(Intent(Intent.ACTION_VIEW, PrivacyManager.privacyPolicyUri))
+
     override fun onSuccessfulLogin() {
         MainActivity.navigateTo(this)
         finish()

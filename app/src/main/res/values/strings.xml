@@ -5,6 +5,7 @@
     <string name="login_token">Token</string>
     <string name="login_login">Login</string>
     <string name="login_signup">Not a member?</string>
+    <string name="login_privacy">@string/settings_privacy_policy</string>
     <string name="login_error_missingUsername">Enter Username.</string>
     <string name="login_error_missingPassword">Enter Password.</string>
 
