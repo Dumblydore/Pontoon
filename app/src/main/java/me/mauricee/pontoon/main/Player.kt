@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.jakewharton.rxrelay2.BehaviorRelay
+import dagger.Lazy
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -39,7 +40,7 @@ import javax.inject.Inject
 
 @AppScope
 class Player @Inject constructor(preferences: Preferences,
-                                 private val exoPlayer: SimpleExoPlayer,
+                                 private val exoplayerProvider: Lazy<SimpleExoPlayer>,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
                                  private val focusManager: AudioFocusManager, private val context: Context,
                                  private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
@@ -56,6 +57,8 @@ class Player @Inject constructor(preferences: Preferences,
                         .build().also(mediaSession::setPlaybackState)
             }
         }
+
+    private val exoPlayer by lazy { exoplayerProvider.get() }
 
     private val subs = CompositeDisposable()
 
