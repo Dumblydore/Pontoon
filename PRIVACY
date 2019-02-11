@@ -1,6 +1,6 @@
 # Privacy Policy
 
-If you do not log in to Floatplane, then it will not store any information about you.
+If you do not log in to Pontoon, then it will not store any information about you.
 
 If you choose to log in using your Floatplane account, [LinusTechTips Forums](https://linustechtips.com/), or [Discord](https://discordapp.com/) then the following information will be stored **locally** on your device:
 - **cfuid** & **sid** identifying your Floatplane account. You can revoke this by logging out.
@@ -27,3 +27,5 @@ The app sends unidentifiable **request size**, **request url**, request method**
 Behavior for Performance Monitoring [here](https://github.com/Dumblydore/Pontoon/blob/master/app/src/main/java/me/mauricee/pontoon/analytics/FirebaseNetworkInterceptor.kt).
 
 [Firebase Privacy Policy](https://firebase.google.com/support/privacy/)
+
+[Floatplane Privacy Policy](https://www.floatplane.com/privacy)
