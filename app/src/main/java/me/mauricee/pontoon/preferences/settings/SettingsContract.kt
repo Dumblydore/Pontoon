@@ -18,6 +18,7 @@ interface SettingsContract {
     }
     sealed class Action : EventTracker.Action {
         object SelectedAbout : Action()
+        object SelectedPrivacyPolicy : Action()
         object SelectedRefreshEdges : Action()
         class OpenBaseThemePreference(val key: String) : Action()
         class OpenAccentColorPreference(val key: String) : Action()
