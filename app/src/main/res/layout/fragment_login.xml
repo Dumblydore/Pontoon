@@ -30,9 +30,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_username"
-                android:indeterminateTint="?android:attr/editTextColor"
                 android:maxLines="1"
-                tools:text="@string/default_user" />
+                android:textColor="?android:textColorPrimaryInverse"
+                tools:text="@string/default_user"
+                tools:textColor="@color/md_white_1000" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -52,10 +53,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_password"
-                android:indeterminateTint="?android:attr/editTextColor"
                 android:inputType="textPassword"
                 android:maxLines="1"
-                tools:text="@string/default_pass" />
+                android:textColor="?android:textColorPrimaryInverse"
+                tools:text="@string/default_pass"
+                tools:textColor="@color/md_white_1000" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,9 +80,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_token"
-                android:indeterminateTint="?android:attr/editTextColor"
                 android:inputType="number"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textColor="?android:textColorPrimaryInverse"
+                tools:textColor="@color/md_white_1000" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
