@@ -129,12 +129,13 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/login.signUp"
-            style="?android:attr/borderlessButtonStyle"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:padding="8dp"
             android:layout_marginEnd="36dp"
+            android:textAllCaps="false"
             android:text="@string/login_signup"
             android:textColor="?android:attr/colorAccent"
             tools:textColor="@color/colorAccent" />
@@ -186,11 +187,11 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/login.privacy"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:padding="16dp"
+        android:padding="8dp"
         android:text="@string/login_privacy"
         android:textColor="?android:attr/colorAccent"
         tools:textColor="@color/colorAccent" />

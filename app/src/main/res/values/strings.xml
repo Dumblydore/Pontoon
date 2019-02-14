@@ -96,6 +96,7 @@
     <string name="action_profile">My Profile</string>
     <string name="action_prefs">Preferences</string>
     <string name="action_logout">Logout</string>
+    <string name="action_nightMode">Night Mode</string>
 
     <!-- Main Bottom Nav-->
     <string name="nav_videos">Videos</string>

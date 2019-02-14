@@ -118,7 +118,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         } else {
             hide()
         }
-
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
@@ -282,6 +281,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
     }
 
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun goIntoPip() {
         expandPlayerTo(true, Player.ViewMode.FullScreen)
@@ -293,6 +293,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         enableFullScreen(isInPictureInPictureMode)
     }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.with(controller::onSaveInstanceState)
+    }
+
 
     private fun switchTab(item: MenuItem) {
         val newTab = when (item.itemId) {

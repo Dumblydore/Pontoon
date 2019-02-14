@@ -2,6 +2,7 @@
 
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="borderlessButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
     </style>
 
     <style name="AppTheme.Amoled" parent="AppTheme" />
