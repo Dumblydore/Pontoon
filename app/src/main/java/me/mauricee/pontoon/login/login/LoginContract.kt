@@ -18,11 +18,12 @@ interface LoginContract {
         object LttLogin : Action()
         object DiscordLogin : Action()
         object SignUp : Action()
+        object PrivacyPolicy : Action()
     }
 
     sealed class State : EventTracker.State {
         object Loading : State()
-        object Request2FaCode: State()
+        object Request2FaCode : State()
         object InvalidAuthCode : State()
         data class NetworkError(val type: Type, val code: Int) : State() {
             override val tag: String

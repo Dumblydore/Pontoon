@@ -17,7 +17,7 @@ import javax.inject.Inject
 class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoContract.Action, UserRepository.Creator, SubscriptionAdapter.ViewHolder>(UserRepository.Creator.ItemCallback) {
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount) R.layout.item_end_user_bubble else R.layout.item_user_bubble
+        return if (position == itemCount - 1) R.layout.item_end_user_bubble else R.layout.item_user_bubble
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =

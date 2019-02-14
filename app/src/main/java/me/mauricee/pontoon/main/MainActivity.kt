@@ -35,6 +35,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.PrivacyManager
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.ext.*
@@ -71,6 +72,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     lateinit var wiseFy: WiseFy
     @Inject
     lateinit var preferences: Preferences
+    @Inject
+    lateinit var privacyManager: PrivacyManager
 
     private var stayingInsideApp = false
     private val miscActions = PublishRelay.create<MainContract.Action>()
@@ -128,6 +131,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         mainPresenter.attachView(this)
         stayingInsideApp = false
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
+        privacyManager.displayPromptIfUserHasNotBeenPrompted(this)
     }
 
     override fun onStop() {
@@ -135,6 +139,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         mainPresenter.detachView()
         if (!stayingInsideApp)
             player.onPause()
+        privacyManager.hidePromptIfOpen()
     }
 
     override fun onDestroy() {

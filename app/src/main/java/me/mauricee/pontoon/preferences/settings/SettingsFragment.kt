@@ -6,6 +6,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
+import com.crashlytics.android.Crashlytics
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import dagger.android.support.AndroidSupportInjection
@@ -28,7 +29,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
     lateinit var presenter: SettingsPresenter
 
     private val actionRelay: Relay<SettingsContract.Action> = PublishRelay.create()
-    private val subscriptions = CompositeDisposable()
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -39,6 +39,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
         addPreferencesFromResource(R.xml.settings)
 
         findPreference("settings_about").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedAbout) }
+        findPreference("settings_privacy_policy").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedPrivacyPolicy) }
         findPreference("settings_refresh_edges").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedRefreshEdges) }
         if (!requireActivity().hasNotch()) {
             logd("device does not have notch")
@@ -47,7 +48,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
         if (!BuildConfig.DEBUG) {
             (findPreference("settings_general") as PreferenceCategory).removePreference(findPreference("settings_test_crash"))
         } else {
-            findPreference("settings_test_crash").setOnPreferenceClickListener { throw RuntimeException("Planned Crash!") }
+            findPreference("settings_test_crash").setOnPreferenceClickListener { Crashlytics.getInstance().crash(); true }
         }
 
         presenter.attachView(this)

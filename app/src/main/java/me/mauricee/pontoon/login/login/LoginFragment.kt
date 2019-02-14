@@ -28,10 +28,11 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
             LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString())
 
     override val actions: Observable<LoginContract.Action>
-        get() = Observable.merge(login_lttForum.clicks().map { LoginContract.Action.LttLogin },
+        get() = Observable.merge(listOf(login_lttForum.clicks().map { LoginContract.Action.LttLogin },
                 login_discord.clicks().map { LoginContract.Action.DiscordLogin },
                 login_signUp.clicks().map { LoginContract.Action.SignUp },
-                login_login.clicks().map { loginAction })
+                login_login.clicks().map { loginAction },
+                login_privacy.clicks().map { LoginContract.Action.PrivacyPolicy }))
                 .compose(emitActivationArgs())
 
     override fun getLayoutId(): Int = R.layout.fragment_login
