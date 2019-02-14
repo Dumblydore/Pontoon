@@ -146,14 +146,14 @@
 
     <string name="settings_night_mode_behavior">Night Mode Behavior</string>
     <string-array name="settings_night_mode_behavior_options">
-        <item>Always Day</item>
-        <item>Always Night</item>
+        <item>User Controlled</item>
         <item>Automatic</item>
+        <item>System Controlled</item>
     </string-array>
     <string-array name="settings_night_mode_behavior_values">
-        <item>AlwaysDay</item>
-        <item>AlwaysNight</item>
+        <item>User</item>
         <item>Automatic</item>
+        <item>System</item>
     </string-array>
 
     <string name="settings_night_mode_amoled">Use AMOLED Night Mode</string>

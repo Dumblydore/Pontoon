@@ -1,12 +1,16 @@
 package me.mauricee.pontoon.me.mauricee.pontoon.main
 
 import com.jakewharton.rxrelay2.PublishRelay
-import io.mockk.*
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyOrder
 import io.reactivex.Completable
 import io.reactivex.Observable
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
+import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
@@ -53,13 +57,14 @@ class MainPresenterTests {
     lateinit var view: MainContract.View
     @MockK
     lateinit var eventTracker: EventTracker
-
+    @MockK
+    lateinit var themeManager: ThemeManager
 
     private lateinit var presenter: MainPresenter
 
     @Before
     fun setUp() {
-        presenter = MainPresenter(accountManagerHelper, animationTouchListener, userRepository, videoRepository, player, floatPlaneApi, pontoonDatabase, authInterceptor, navigator, eventTracker)
+        presenter = MainPresenter(accountManagerHelper, animationTouchListener, userRepository, videoRepository, player, floatPlaneApi, pontoonDatabase, authInterceptor, themeManager, navigator, eventTracker)
     }
 
     @Test

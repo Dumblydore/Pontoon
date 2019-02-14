@@ -14,7 +14,7 @@ import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
@@ -26,6 +26,7 @@ import androidx.transition.TransitionSet
 import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
+import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxrelay2.PublishRelay
 import com.ncapdevi.fragnav.FragNavController
 import io.reactivex.Observable
@@ -78,7 +79,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         get() = R.id.main_container
 
     override val actions: Observable<MainContract.Action>
-        get() = Observable.merge(miscActions, RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
+        get() = Observable.merge(miscActions,
+                dayNightSwitch.clicks().map { MainContract.Action.NightMode },
+                RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
                 .compose(checkForVideoToPlay())
 
     /*
@@ -92,6 +95,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     private val constraintSet = ConstraintSet()
 
 
+    private val dayNightSwitch by lazy { SwitchCompat(this) }
     private lateinit var controller: FragNavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +119,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
+
+        main_drawer.menu.findItem(R.id.action_dayNight).actionView = dayNightSwitch
     }
 
     override fun onStart() {
@@ -154,7 +160,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             replace(R.id.main_details, DetailsFragment.newInstance(video.id, commentId))
         }
         main.doOnPreDraw {
-            animationTouchListener.isExpanded = true
+            animationTouchListener.isExpanded = player.viewMode == Player.ViewMode.Expanded
         }
     }
 
@@ -238,7 +244,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                     .setPositiveButton(android.R.string.ok) { _, _ -> miscActions.accept(MainContract.Action.Expired) }
                     .setCancelable(false)
                     .create().show()
+
         }
+        is MainContract.State.NightMode -> dayNightSwitch.isChecked = state.isInNightMode
     }
 
     override fun onBackPressed() {

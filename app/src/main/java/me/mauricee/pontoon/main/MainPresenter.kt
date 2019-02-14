@@ -30,6 +30,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
 
     override fun onViewAttached(view: MainContract.View): Observable<MainContract.State> =
             Observable.merge(subscriptions(), actions(view), authInterceptor.sessionExpired.map { MainContract.State.SessionExpired })
+                    .startWith(MainContract.State.NightMode(themeManager.isInNightMode))
 
     private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
         when (it) {

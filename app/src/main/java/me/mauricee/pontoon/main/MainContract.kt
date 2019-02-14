@@ -12,11 +12,13 @@ interface MainContract {
         override val name: String
             get() = "Main"
     }
+
     interface Presenter : BaseContract.Presenter<MainContract.View>
 
     sealed class State : EventTracker.State {
         object Logout : State()
         object SessionExpired : State()
+        data class NightMode(val isInNightMode: Boolean) : State()
         data class CurrentUser(val user: UserRepository.User, val subCount: Int) : State()
     }
 
@@ -27,7 +29,7 @@ interface MainContract {
         object Profile : Action()
         object NightMode : Action()
         object PlayerClicked : Action()
-        data class PlayVideo(val videoId :String) : Action()
+        data class PlayVideo(val videoId: String) : Action()
 
 
         companion object {

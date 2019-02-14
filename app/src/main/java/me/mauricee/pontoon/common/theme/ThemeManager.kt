@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.common.theme
 
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -21,10 +22,12 @@ import javax.inject.Inject
 class ThemeManager @Inject constructor(private val prefs: Preferences,
                                        private val preferences: SharedPreferences,
                                        private val activity: AppCompatActivity) : LifecycleObserver {
-
     private val subs = CompositeDisposable()
-
     private val relay = PublishRelay.create<Style>()
+
+    val isInNightMode: Boolean
+        get() = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
     var baseTheme: BaseTheme
         set(value) {
             style = when (value) {
@@ -66,7 +69,12 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
             }
         }
 
-    private var mode = AppCompatDelegate.getDefaultNightMode()
+    private var mode
+        get() = preferences.getInt(DayNightModeKey, AppCompatDelegate.MODE_NIGHT_NO)
+        set(value) {
+            preferences.edit(true) { putInt(DayNightModeKey, value) }
+            activity.delegate.setLocalNightMode(value)
+        }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun onCreate() {
@@ -77,28 +85,26 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
             activity.recreate()
         }
         subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
-        activity.delegate.setLocalNightMode(mode)
+
     }
 
 
     fun toggleNightMode() {
-        mode = if (mode == AppCompatDelegate.MODE_NIGHT_YES) AppCompatDelegate.MODE_NIGHT_NO else AppCompatDelegate.MODE_NIGHT_YES
-        activity.delegate.setLocalNightMode(mode)
+        mode = if (isInNightMode) AppCompatDelegate.MODE_NIGHT_NO
+        else AppCompatDelegate.MODE_NIGHT_YES
         if (BuildConfig.DEBUG)
-            Toast.makeText(activity,"Switching to mode: $mode",Toast.LENGTH_LONG).show()
+            Toast.makeText(activity, "Switching to mode: $mode", Toast.LENGTH_LONG).show()
     }
 
-    fun setDayNightBehavior(behavior: DayNightBehavior) = when (behavior) {
-        DayNightBehavior.AlwaysDay -> AppCompatDelegate.MODE_NIGHT_NO
-        DayNightBehavior.AlwaysNight -> AppCompatDelegate.MODE_NIGHT_YES
+    private fun setDayNightBehavior(behavior: DayNightBehavior) = when (behavior) {
+        DayNightBehavior.User -> mode
+        DayNightBehavior.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         DayNightBehavior.Automatic -> AppCompatDelegate.MODE_NIGHT_AUTO
     }.with {
-        AppCompatDelegate.setDefaultNightMode(it)
         mode = it
-        activity.delegate.applyDayNight()
     }
 
-    fun setAmoledMode(isAmoledMode: Boolean) {
+    private fun setAmoledMode(isAmoledMode: Boolean) {
         baseTheme = if (isAmoledMode) BaseTheme.Black else BaseTheme.Light
         commit()
     }
@@ -125,8 +131,8 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     }
 
     enum class DayNightBehavior {
-        AlwaysDay,
-        AlwaysNight,
+        User,
+        System,
         Automatic
     }
 }
