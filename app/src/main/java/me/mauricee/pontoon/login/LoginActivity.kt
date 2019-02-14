@@ -2,18 +2,22 @@ package me.mauricee.pontoon.login
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.core.net.toUri
 import com.ncapdevi.fragnav.FragNavController
 import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.analytics.PrivacyManager
 import me.mauricee.pontoon.login.login.LoginFragment
 import me.mauricee.pontoon.login.webLogin.WebLoginFragment
 import me.mauricee.pontoon.main.MainActivity
+import javax.inject.Inject
 
 class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
+
+    @Inject
+    lateinit var privacyManager: PrivacyManager
 
     override val name: String
         get() = "Login"
@@ -41,11 +45,23 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
             controller.popFragment()
     }
 
+    override fun onStart() {
+        super.onStart()
+        privacyManager.displayPromptIfUserHasNotBeenPrompted(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        privacyManager.hidePromptIfOpen()
+    }
+
     override fun toLttLogin() = controller.pushFragment(WebLoginFragment.loginWithLttForum())
 
     override fun toDiscordLogin() = controller.pushFragment(WebLoginFragment.loginWithDiscord())
 
     override fun toSignUp() = startActivity(Intent(Intent.ACTION_VIEW, SignupUrl.toUri()))
+
+    override fun toPrivacyPolicy()  = startActivity(Intent(Intent.ACTION_VIEW, PrivacyManager.privacyPolicyUri))
 
     override fun onSuccessfulLogin() {
         MainActivity.navigateTo(this)

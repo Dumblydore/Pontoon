@@ -5,4 +5,5 @@ interface LoginNavigator {
     fun toDiscordLogin()
     fun toLttLogin()
     fun toSignUp()
+    fun toPrivacyPolicy()
 }

@@ -87,11 +87,21 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <TextView
+            android:id="@+id/login.error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="@color/colorError"
+            android:visibility="gone"
+            tools:text="@string/login_error_network_credentials"
+            tools:visibility="visible" />
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="36dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="36dp">
 
             <Button
@@ -116,16 +126,18 @@
                 tools:visibility="visible" />
         </FrameLayout>
 
-        <TextView
-            android:id="@+id/login.error"
-            android:layout_width="match_parent"
+
+        <Button
+            android:id="@+id/login.signUp"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:textAlignment="center"
-            android:textColor="@color/colorError"
-            android:visibility="gone"
-            tools:text="@string/login_error_network_credentials"
-            tools:visibility="visible" />
+            android:layout_gravity="end|bottom"
+            android:padding="8dp"
+            android:layout_marginEnd="36dp"
+            android:text="@string/login_signup"
+            android:textColor="?android:attr/colorAccent"
+            tools:textColor="@color/colorAccent" />
     </LinearLayout>
 
     <LinearLayout
@@ -172,13 +184,13 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/login.signUp"
+        android:id="@+id/login.privacy"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:padding="16dp"
-        android:text="@string/login_signup"
+        android:text="@string/login_privacy"
         android:textColor="?android:attr/colorAccent"
         tools:textColor="@color/colorAccent" />
 

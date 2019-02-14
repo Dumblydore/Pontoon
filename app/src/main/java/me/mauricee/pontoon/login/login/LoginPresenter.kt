@@ -30,6 +30,7 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
         LoginContract.Action.LttLogin -> stateless(navigator::toLttLogin)
         LoginContract.Action.DiscordLogin -> stateless(navigator::toDiscordLogin)
         LoginContract.Action.SignUp -> stateless(navigator::toSignUp)
+        LoginContract.Action.PrivacyPolicy -> stateless(navigator::toPrivacyPolicy)
     }
 
     private fun attemptAuthentication(code: String): Observable<LoginContract.State> = if (code.matches(codeRegex)) {
