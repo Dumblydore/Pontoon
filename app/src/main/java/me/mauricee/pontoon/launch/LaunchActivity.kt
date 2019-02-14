@@ -22,7 +22,6 @@ class LaunchActivity : AppCompatActivity() {
     @AddTrace(name = "SplashScreen")
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
-        setTheme(R.style.AppTheme_Launcher)
         super.onCreate(savedInstanceState)
         Fabric.with(this, Crashlytics())
         PreferenceManager.setDefaultValues(this, R.xml.settings, false)

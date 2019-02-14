@@ -77,6 +77,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
             activity.recreate()
         }
         subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
+        activity.delegate.setLocalNightMode(mode)
     }
 
 
@@ -120,6 +121,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
         const val ThemeKey = "settings_base"
         const val PrimaryColorKey = "settings_primary"
         const val AccentColorKey = "settings_accent"
+        const val DayNightModeKey = "DayNightMode"
     }
 
     enum class DayNightBehavior {

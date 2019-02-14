@@ -7,6 +7,10 @@
     <style name="AppTheme.Amoled" parent="AppTheme" />
 
     <style name="AppTheme.Launcher">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
@@ -23,11 +27,6 @@
     <style name="TransparentText" parent="@android:style/TextAppearance">
         <item name="android:textColor">#00666666</item>
     </style>
-
-
-    <!--<style name="AppAlertDialogContent" parent="Theme.AppCompat.DayNight">-->
-    <!--<item name="colorAccent">?attr/colorAccent</item>-->
-    <!--</style>-->
 
     <style name="PrimaryDefault">
         <item name="android:colorPrimary">@color/colorPrimary</item>
