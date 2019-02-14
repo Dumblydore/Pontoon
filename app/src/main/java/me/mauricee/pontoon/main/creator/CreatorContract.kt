@@ -21,6 +21,8 @@ interface CreatorContract {
 
     sealed class State : EventTracker.State {
         object Loading : State()
+        object Fetching : State()
+        object Fetched : State()
         class DisplayCreator(val creator: UserRepository.Creator) : State()
         class DisplayVideos(val videos: PagedList<Video>) : State()
         class Error(val type: Type = Type.Unknown) : State() {

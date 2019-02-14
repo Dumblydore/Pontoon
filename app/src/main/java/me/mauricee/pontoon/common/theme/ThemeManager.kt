@@ -9,13 +9,15 @@ import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.jakewharton.rxrelay2.PublishRelay
 import dagger.Reusable
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Function3
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.model.preferences.Preferences
+import me.mauricee.pontoon.rx.preferences.watchString
 import javax.inject.Inject
 
 @Reusable
@@ -23,7 +25,6 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
                                        private val preferences: SharedPreferences,
                                        private val activity: AppCompatActivity) : LifecycleObserver {
     private val subs = CompositeDisposable()
-    private val relay = PublishRelay.create<Style>()
 
     val isInNightMode: Boolean
         get() = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
@@ -55,19 +56,17 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
         }
         get() = style.primary
 
-    var style: Style
-        get() = convertToStyle(
-                BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Light.toString())!!),
-                PrimaryColor.valueOf(preferences.getString(PrimaryColorKey, PrimaryColor.Default.toString())!!),
-                AccentColor.valueOf(preferences.getString(AccentColorKey, AccentColor.Default.toString())!!)
-        )
-        set(value) {
-            preferences.edit {
-                putString(ThemeKey, value.theme.toString())
-                putString(PrimaryColorKey, value.primary.toString())
-                putString(AccentColorKey, value.accent.toString())
-            }
-        }
+    var style: Style = convertToStyle(
+            BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Light.toString())!!),
+            PrimaryColor.valueOf(preferences.getString(PrimaryColorKey, PrimaryColor.Default.toString())!!),
+            AccentColor.valueOf(preferences.getString(AccentColorKey, AccentColor.Default.toString())!!))
+
+    private val sylePreference
+        get() = Observable.combineLatest<BaseTheme, PrimaryColor, AccentColor, Style>(
+                preferences.watchString(ThemeKey, true).map(BaseTheme::valueOf),
+                preferences.watchString(PrimaryColorKey, true).map(PrimaryColor::valueOf),
+                preferences.watchString(AccentColorKey, true).map(AccentColor::valueOf),
+                Function3(this@ThemeManager::convertToStyle)).skip(1)
 
     private var mode
         get() = preferences.getInt(DayNightModeKey, AppCompatDelegate.MODE_NIGHT_NO)
@@ -80,9 +79,10 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     fun onCreate() {
         subs += prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
         activity.setStyle(style)
-        subs += relay.subscribe {
+        subs += sylePreference.subscribe {
             activity.setStyle(it)
             activity.recreate()
+            style = it
         }
         subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
 
@@ -110,7 +110,11 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     }
 
     fun commit() {
-        relay.accept(style)
+        preferences.edit(true){
+            putString(ThemeKey, style.theme.toString())
+            putString(PrimaryColorKey, style.primary.toString())
+            putString(AccentColorKey, style.accent.toString())
+        }
     }
 
     private fun convertToStyle(base: BaseTheme, primary: PrimaryColor, accent: AccentColor): Style = when (base) {

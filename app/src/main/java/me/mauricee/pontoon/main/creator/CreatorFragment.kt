@@ -6,6 +6,7 @@ import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -61,10 +62,12 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
     }
 
     override fun updateState(state: CreatorContract.State) = when (state) {
-        is CreatorContract.State.Loading -> creator_container.isRefreshing = true
+        is CreatorContract.State.Loading -> creator_container_lazy.state = LazyLayout.LOADING
         is CreatorContract.State.DisplayCreator -> displayCreator(state.creator)
         is CreatorContract.State.DisplayVideos -> displayVideos(state.videos)
         is CreatorContract.State.Error -> processError(state)
+        CreatorContract.State.Fetching -> creator_list_progress.isVisible = true
+        CreatorContract.State.Fetched -> creator_list_progress.isVisible = false
     }
 
     private fun displayCreator(creator: UserRepository.Creator) {
