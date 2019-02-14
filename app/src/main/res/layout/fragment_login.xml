@@ -104,7 +104,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="36dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/login.login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -114,6 +114,7 @@
                 android:text="@string/login_login"
                 android:textAlignment="center"
                 android:textColor="?android:attr/textColorPrimaryInverse"
+                style="?attr/buttonStyle"
                 app:cornerRadius="24dp" />
 
             <ProgressBar
@@ -126,18 +127,19 @@
                 tools:visibility="visible" />
         </FrameLayout>
 
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/login.signUp"
-            style="?android:attr/borderlessButtonStyle"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:padding="8dp"
             android:layout_marginEnd="36dp"
+            android:textAllCaps="false"
             android:text="@string/login_signup"
             android:textColor="?android:attr/colorAccent"
             tools:textColor="@color/colorAccent" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -183,13 +185,13 @@
 
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/login.privacy"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:padding="16dp"
+        android:padding="8dp"
         android:text="@string/login_privacy"
         android:textColor="?android:attr/colorAccent"
         tools:textColor="@color/colorAccent" />

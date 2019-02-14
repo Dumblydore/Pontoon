@@ -14,10 +14,10 @@ import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
-import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.transition.ChangeBounds
 import androidx.transition.Fade
@@ -26,6 +26,7 @@ import androidx.transition.TransitionSet
 import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
+import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxrelay2.PublishRelay
 import com.ncapdevi.fragnav.FragNavController
 import io.reactivex.Observable
@@ -74,14 +75,16 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     @Inject
     lateinit var privacyManager: PrivacyManager
 
-    private var goingIntoFullscreen = false
+    private var stayingInsideApp = false
     private val miscActions = PublishRelay.create<MainContract.Action>()
     private var currentPlayerRatio: String = "16:9"
     private val fragmentContainer: Int
         get() = R.id.main_container
 
     override val actions: Observable<MainContract.Action>
-        get() = Observable.merge(miscActions, RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
+        get() = Observable.merge(miscActions,
+                dayNightSwitch.clicks().map { MainContract.Action.NightMode },
+                RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
                 .compose(checkForVideoToPlay())
 
     /*
@@ -95,6 +98,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     private val constraintSet = ConstraintSet()
 
 
+    private val dayNightSwitch by lazy { SwitchCompat(this) }
     private lateinit var controller: FragNavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,17 +111,24 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         paramsGlMarginEnd = guidelineMarginEnd.layoutParams as ConstraintLayout.LayoutParams
 
         main_player.setOnTouchListener(animationTouchListener)
-        hide()
-
+        if (player.isActive()) {
+            player.currentlyPlaying?.video?.let {
+                playVideo(it)
+            }
+        } else {
+            hide()
+        }
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
+
+        main_drawer.menu.findItem(R.id.action_dayNight).actionView = dayNightSwitch
     }
 
     override fun onStart() {
         super.onStart()
         mainPresenter.attachView(this)
-        goingIntoFullscreen = false
+        stayingInsideApp = false
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
         privacyManager.displayPromptIfUserHasNotBeenPrompted(this)
     }
@@ -125,7 +136,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onStop() {
         super.onStop()
         mainPresenter.detachView()
-        if (!goingIntoFullscreen)
+        if (!stayingInsideApp)
             player.onPause()
         privacyManager.hidePromptIfOpen()
     }
@@ -153,8 +164,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             replace(R.id.main_details, DetailsFragment.newInstance(video.id, commentId))
         }
         main.doOnPreDraw {
-            animationTouchListener.isExpanded = true
-            setPlayerExpanded(true)
+            animationTouchListener.isExpanded = player.viewMode == Player.ViewMode.Expanded
         }
     }
 
@@ -199,7 +209,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun toggleFullscreen() {
-        goingIntoFullscreen = true
+        stayingInsideApp = true
         startActivity(Intent(this, PlayerActivity::class.java))
     }
 
@@ -228,8 +238,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         is MainContract.State.Logout -> {
             if (player.isActive()) player.onStop()
             LoginActivity.navigateTo(this)
-            finish()
+            finishAffinity()
         }
+
         MainContract.State.SessionExpired -> {
             AlertDialog.Builder(this)
                     .setTitle(R.string.main_session_expired_title)
@@ -237,8 +248,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                     .setPositiveButton(android.R.string.ok) { _, _ -> miscActions.accept(MainContract.Action.Expired) }
                     .setCancelable(false)
                     .create().show()
+
         }
-    }.also { root.closeDrawer(main_drawer, true) }
+        is MainContract.State.NightMode -> dayNightSwitch.isChecked = state.isInNightMode
+    }
 
     override fun onBackPressed() {
         if (orientationManager.isFullscreen) {
@@ -258,7 +271,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !goingIntoFullscreen) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !stayingInsideApp) {
             val pip = preferences.pictureInPicture
             when {
                 pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()
@@ -267,6 +280,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
         }
     }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun goIntoPip() {
@@ -279,6 +293,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         enableFullScreen(isInPictureInPictureMode)
     }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.with(controller::onSaveInstanceState)
+    }
+
 
     private fun switchTab(item: MenuItem) {
         val newTab = when (item.itemId) {
@@ -403,7 +423,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }
-        main_fullscreenbg.isVisible = isEnabled
     }
 
     private fun displayUser(user: UserRepository.User, subCount: Int) {

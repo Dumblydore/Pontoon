@@ -20,6 +20,7 @@
         <activity
             android:name=".launch.LaunchActivity"
             android:clearTaskOnLaunch="true"
+            android:theme="@style/AppTheme.Launcher"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -65,7 +66,10 @@
         <activity android:name=".login.LoginActivity" />
         <activity
             android:name=".main.MainActivity"
+            android:allowTaskReparenting="true"
+            android:autoRemoveFromRecents="true"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:screenOrientation="portrait"

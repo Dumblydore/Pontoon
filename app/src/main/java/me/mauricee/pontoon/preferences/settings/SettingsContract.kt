@@ -12,16 +12,14 @@ interface SettingsContract {
         object RefreshingEdges : State()
         object RefreshedEdges : State()
         object ErrorRefreshingEdges : State()
-        class DisplayBaseThemePreference(val key: String): State()
-        class DisplayAccentColorPreference(val key: String): State()
-        class DisplayPrimaryColorPreference(val key: String): State()
+        data class DisplayAccentColorPreference(val key: String): State()
+        data class DisplayPrimaryColorPreference(val key: String): State()
     }
     sealed class Action : EventTracker.Action {
         object SelectedAbout : Action()
         object SelectedPrivacyPolicy : Action()
         object SelectedRefreshEdges : Action()
-        class OpenBaseThemePreference(val key: String) : Action()
-        class OpenAccentColorPreference(val key: String) : Action()
-        class OpenPrimaryColorPreference(val key: String) : Action()
+        data class OpenAccentColorPreference(val key: String) : Action()
+        data class OpenPrimaryColorPreference(val key: String) : Action()
     }
 }

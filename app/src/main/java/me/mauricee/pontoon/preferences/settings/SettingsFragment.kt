@@ -11,13 +11,13 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.hasNotch
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toast
 import me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
-import me.mauricee.pontoon.preferences.baseTheme.BaseThemePreference
 import me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
 import javax.inject.Inject
 
@@ -56,7 +56,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
         when (preference) {
-            is BaseThemePreference -> push(SettingsContract.Action.OpenBaseThemePreference(preference.key))
             is AccentColorPreference -> push(SettingsContract.Action.OpenAccentColorPreference(preference.key))
             is PrimaryColorPreference -> push(SettingsContract.Action.OpenPrimaryColorPreference(preference.key))
             else -> super.onDisplayPreferenceDialog(preference)
@@ -67,7 +66,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
         SettingsContract.State.RefreshingEdges -> toast("Refreshing...")
         SettingsContract.State.RefreshedEdges -> toast("Edges Refreshed!")
         SettingsContract.State.ErrorRefreshingEdges -> toast("Error Refreshing Edges!")
-        is SettingsContract.State.DisplayBaseThemePreference -> bindFragment(BaseThemePreference.Fragment.newInstance(state.key))
         is SettingsContract.State.DisplayAccentColorPreference -> bindFragment(AccentColorPreference.Fragment.newInstance(state.key))
         is SettingsContract.State.DisplayPrimaryColorPreference -> bindFragment(PrimaryColorPreference.Fragment.newInstance(state.key))
     }

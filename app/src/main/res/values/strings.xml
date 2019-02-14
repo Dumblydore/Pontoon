@@ -96,6 +96,7 @@
     <string name="action_profile">My Profile</string>
     <string name="action_prefs">Preferences</string>
     <string name="action_logout">Logout</string>
+    <string name="action_nightMode">Night Mode</string>
 
     <!-- Main Bottom Nav-->
     <string name="nav_videos">Videos</string>
@@ -149,6 +150,22 @@
         <item>Never</item>
     </string-array>
 
+    <string name="settings_night_mode_behavior">Night Mode Behavior</string>
+    <string-array name="settings_night_mode_behavior_options">
+        <item>User Controlled</item>
+        <item>Automatic</item>
+        <item>System Controlled</item>
+    </string-array>
+    <string-array name="settings_night_mode_behavior_values">
+        <item>User</item>
+        <item>Automatic</item>
+        <item>System</item>
+    </string-array>
+
+    <string name="settings_night_mode_amoled">Use AMOLED Night Mode</string>
+    <string name="settings_night_mode_amoled_summary">Special night mode optimized for AMOLED devices</string>
+
+    <string name="settings_night_mode_power">Enable Night Mode during Battery Saver Mode</string>
     <!-- About -->
     <string name="aboutLibraries_description_showIcon">true</string>
     <string name="aboutLibraries_description_showVersion">true</string>

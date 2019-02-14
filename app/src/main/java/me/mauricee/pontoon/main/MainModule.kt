@@ -1,6 +1,6 @@
 package me.mauricee.pontoon.main
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import dagger.Binds
 import dagger.Module
@@ -12,11 +12,11 @@ import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.details.DetailsModule
 import me.mauricee.pontoon.main.history.HistoryFragment
-import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.player.player.PlayerContract
+import me.mauricee.pontoon.player.player.PlayerFragment
 
 @Module
 abstract class MainModule {
@@ -37,7 +37,7 @@ abstract class MainModule {
     abstract fun bindLifecycleOwner(mainActivity: MainActivity): LifecycleOwner
 
     @Binds
-    abstract fun bindActivity(mainActivity: MainActivity): Activity
+    abstract fun bindActivity(mainActivity: MainActivity): AppCompatActivity
 
     @ContributesAndroidInjector
     abstract fun contributeVideoFragment(): VideoFragment

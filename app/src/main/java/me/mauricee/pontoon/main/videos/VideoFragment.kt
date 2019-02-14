@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.paging.PagedList
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
@@ -45,7 +46,7 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
         super.onViewCreated(view, savedInstanceState)
         videos_list.layoutManager = LayoutManager(requireContext())
         videos_list.adapter = videoAdapter
-
+        videos_list.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         videos_container_lazy.setupWithSwipeRefreshLayout(videos_container)
     }
 

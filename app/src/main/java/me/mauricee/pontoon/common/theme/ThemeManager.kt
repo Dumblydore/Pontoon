@@ -1,22 +1,39 @@
 package me.mauricee.pontoon.common.theme
 
-import android.app.Activity
 import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
-import com.jakewharton.rxrelay2.PublishRelay
-import io.reactivex.disposables.Disposable
-import me.mauricee.pontoon.di.AppScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import dagger.Reusable
+import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Function3
+import io.reactivex.rxkotlin.plusAssign
+import me.mauricee.pontoon.BuildConfig
+import me.mauricee.pontoon.ext.with
+import me.mauricee.pontoon.model.preferences.Preferences
+import me.mauricee.pontoon.rx.preferences.watchString
 import javax.inject.Inject
 
-@AppScope
-class ThemeManager @Inject constructor(private val preferences: SharedPreferences) {
-    private val relay = PublishRelay.create<Style>()
+@Reusable
+class ThemeManager @Inject constructor(private val prefs: Preferences,
+                                       private val preferences: SharedPreferences,
+                                       private val activity: AppCompatActivity) : LifecycleObserver {
+    private val subs = CompositeDisposable()
+
+    val isInNightMode: Boolean
+        get() = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
     var baseTheme: BaseTheme
         set(value) {
             style = when (value) {
                 BaseTheme.Light -> Style.Light(style.primary, style.accent)
-                BaseTheme.Dark -> Style.Dark(style.primary, style.accent)
-                BaseTheme.Black -> Style.Black(style.accent)
+                BaseTheme.Black -> Style.Black(style.primary, style.accent)
             }
         }
         get() = style.theme
@@ -25,8 +42,7 @@ class ThemeManager @Inject constructor(private val preferences: SharedPreference
         set(value) {
             style = when (style.theme) {
                 BaseTheme.Light -> Style.Light(style.primary, value)
-                BaseTheme.Dark -> Style.Dark(style.primary, value)
-                BaseTheme.Black -> Style.Black(style.accent)
+                BaseTheme.Black -> Style.Black(style.primary, value)
             }
         }
         get() = style.accent
@@ -35,48 +51,92 @@ class ThemeManager @Inject constructor(private val preferences: SharedPreference
         set(value) {
             style = when (style.theme) {
                 BaseTheme.Light -> Style.Light(value, style.accent)
-                BaseTheme.Dark -> Style.Dark(value, style.accent)
-                BaseTheme.Black -> Style.Dark(value, style.accent)
+                BaseTheme.Black -> Style.Black(value, style.accent)
             }
         }
         get() = style.primary
 
-    var style: Style
-        get() = convertToStyle(
-                BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Light.toString())),
-                PrimaryColor.valueOf(preferences.getString(PrimaryColorKey, PrimaryColor.Default.toString())),
-                AccentColor.valueOf(preferences.getString(AccentColorKey, AccentColor.Default.toString()))
-        )
+    var style: Style = convertToStyle(
+            BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Light.toString())!!),
+            PrimaryColor.valueOf(preferences.getString(PrimaryColorKey, PrimaryColor.Default.toString())!!),
+            AccentColor.valueOf(preferences.getString(AccentColorKey, AccentColor.Default.toString())!!))
+
+    private val sylePreference
+        get() = Observable.combineLatest<BaseTheme, PrimaryColor, AccentColor, Style>(
+                preferences.watchString(ThemeKey, true).map(BaseTheme::valueOf),
+                preferences.watchString(PrimaryColorKey, true).map(PrimaryColor::valueOf),
+                preferences.watchString(AccentColorKey, true).map(AccentColor::valueOf),
+                Function3(this@ThemeManager::convertToStyle)).skip(1)
+
+    private var mode
+        get() = preferences.getInt(DayNightModeKey, AppCompatDelegate.MODE_NIGHT_NO)
         set(value) {
-            preferences.edit {
-                putString(ThemeKey, value.theme.toString())
-                putString(PrimaryColorKey, value.primary.toString())
-                putString(AccentColorKey, value.accent.toString())
-            }
+            preferences.edit(true) { putInt(DayNightModeKey, value) }
+            activity.delegate.setLocalNightMode(value)
         }
 
-    fun attach(activity: Activity): Disposable {
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    fun onCreate() {
+        subs += prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
         activity.setStyle(style)
-        return relay.subscribe {
+        subs += sylePreference.subscribe {
             activity.setStyle(it)
             activity.recreate()
+            style = it
         }
+        subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
+
+    }
+
+
+    fun toggleNightMode() {
+        mode = if (isInNightMode) AppCompatDelegate.MODE_NIGHT_NO
+        else AppCompatDelegate.MODE_NIGHT_YES
+        if (BuildConfig.DEBUG)
+            Toast.makeText(activity, "Switching to mode: $mode", Toast.LENGTH_LONG).show()
+    }
+
+    private fun setDayNightBehavior(behavior: DayNightBehavior) = when (behavior) {
+        DayNightBehavior.User -> mode
+        DayNightBehavior.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        DayNightBehavior.Automatic -> AppCompatDelegate.MODE_NIGHT_AUTO
+    }.with {
+        mode = it
+    }
+
+    private fun setAmoledMode(isAmoledMode: Boolean) {
+        baseTheme = if (isAmoledMode) BaseTheme.Black else BaseTheme.Light
+        commit()
     }
 
     fun commit() {
-        relay.accept(style)
+        preferences.edit(true){
+            putString(ThemeKey, style.theme.toString())
+            putString(PrimaryColorKey, style.primary.toString())
+            putString(AccentColorKey, style.accent.toString())
+        }
     }
 
     private fun convertToStyle(base: BaseTheme, primary: PrimaryColor, accent: AccentColor): Style = when (base) {
         BaseTheme.Light -> Style.Light(primary, accent)
-        BaseTheme.Dark -> Style.Dark(primary, accent)
-        BaseTheme.Black -> Style.Black(accent)
+        BaseTheme.Black -> Style.Black(primary, accent)
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun clear() {
+        subs.clear()
     }
 
     companion object {
         const val ThemeKey = "settings_base"
         const val PrimaryColorKey = "settings_primary"
         const val AccentColorKey = "settings_accent"
+        const val DayNightModeKey = "DayNightMode"
+    }
 
+    enum class DayNightBehavior {
+        User,
+        System,
+        Automatic
     }
 }
