@@ -7,6 +7,7 @@ data class LiveStreamMetadata(@SerializedName("id") val id: String,
                               @SerializedName("offline") val offline: Offline,
                               @SerializedName("owner") val owner: String,
                               @SerializedName("streamPath") val streamPath: String,
+                              @SerializedName("thumbnail") val thumbnail: Image,
                               @SerializedName("title") val title: String) {
 
     data class Offline(@SerializedName("title") val title: String,

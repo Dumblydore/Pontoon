@@ -36,6 +36,7 @@ import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
+import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
 import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.login.LoginActivity
@@ -143,9 +144,19 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         animationTouchListener.show()
         loadFragment {
             replace(R.id.main_player, PlayerFragment.newInstance(video.thumbnail))
-        }
-        loadFragment {
             replace(R.id.main_details, DetailsFragment.newInstance(video.id, commentId))
+        }
+        main.doOnPreDraw {
+            animationTouchListener.isExpanded = true
+            setPlayerExpanded(true)
+        }
+    }
+
+    override fun playLiveStream(liveStream: LiveStreamMetadata) {
+        animationTouchListener.show()
+        loadFragment {
+            replace(R.id.main_player, PlayerFragment.newInstance(liveStream.thumbnail.path))
+//            replace(R.id.main_details, LiveStrea.newInstance(video.id, commentId))
         }
         main.doOnPreDraw {
             animationTouchListener.isExpanded = true
