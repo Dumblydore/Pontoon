@@ -30,6 +30,7 @@ import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.FirebaseNetworkInterceptor
+import me.mauricee.pontoon.common.DownloaderClient
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.launch.LaunchActivity
@@ -188,13 +189,16 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun provideDownloadManager(context: Context) = DownloadManagerBuilder.newInstance(context, Handler(), R.drawable.ic_download)
-                .build()
+        fun provideDownloadManager(downloaderClient: DownloaderClient, context: Context) =
+                DownloadManagerBuilder.newInstance(context, Handler(), R.drawable.ic_download)
+                        .withCustomHttpClient(downloaderClient)
+                        .build()
 
         @AppScope
         @Provides
         @JvmStatic
-        fun provideStorage(context: Context): StorageRoot = StorageRootFactory.createPrimaryStorageDownloadsDirectoryRoot(context)
+        fun provideStorage(context: Context): StorageRoot = StorageRootFactory
+                .createPrimaryStorageDownloadsDirectoryRoot(context)
 
         @Provides
         @AppScope

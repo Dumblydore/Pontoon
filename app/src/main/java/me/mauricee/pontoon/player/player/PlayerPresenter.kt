@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.player.player
 
+import android.os.Environment
 import android.support.v4.media.session.PlaybackStateCompat
 import com.novoda.downloadmanager.Batch
 import com.novoda.downloadmanager.DownloadBatchIdCreator
@@ -71,7 +72,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     private fun downloadVideo(qualityLevel: Player.QualityLevel) = player.currentlyPlaying!!.video.let { video ->
         videoRepository.getDownloadLink(video.id, qualityLevel).map {
             Batch.with(storageRoot, DownloadBatchIdCreator.createSanitizedFrom(video.id), video.title)
-                    .downloadFrom(it).apply()
+                    .downloadFrom(it).saveTo(Environment.DIRECTORY_DOWNLOADS,"test.mp4").apply()
         }.flatMapObservable {
             Observable.fromCallable<PlayerContract.State> {
                 downloadManager.download(it.build())
