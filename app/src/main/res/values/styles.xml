@@ -1,12 +1,10 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="borderlessButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
-        <item name="android:borderlessButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
-    </style>
-
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar" />
     <style name="AppTheme.Amoled" parent="AppTheme" />
-
+    <style name="PlayerToolbar" parent="Widget.AppCompat.ActionBar">
+        <item name="android:textColorSecondary">@android:color/white</item>
+    </style>
     <style name="AppTheme.Launcher">
         <item name="android:colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimary">@color/colorPrimary</item>

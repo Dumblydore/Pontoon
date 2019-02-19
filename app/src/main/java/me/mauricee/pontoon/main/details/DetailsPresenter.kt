@@ -63,10 +63,4 @@ class DetailsPresenter @Inject constructor(private val player: Player,
                     .flatMapSingle { video -> video.toObservable().filter { it.video == it.parent }.toList() }
                     .onErrorReturnItem(emptyList())
                     .map { if (it.isEmpty()) DetailsContract.State.Error(DetailsContract.ErrorType.NoComments) else DetailsContract.State.Comments(it) }
-
-    override fun onViewDetached() {
-        super.onViewDetached()
-        player.onPause()
-    }
-
 }

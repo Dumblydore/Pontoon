@@ -101,7 +101,7 @@ class Player @Inject constructor(preferences: Preferences,
         set(value) {
             if (field != value) {
                 field = value
-                controlsVisible = false
+                controlsVisible = value == ViewMode.Expanded
             }
         }
 
@@ -109,7 +109,6 @@ class Player @Inject constructor(preferences: Preferences,
         set(value) {
             field = value
             controller?.apply {
-                onControlsVisibilityChanged(field)
                 notifyController(field, viewMode)
             }
         }
@@ -304,6 +303,7 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     private fun notifyController(isVisible: Boolean, viewMode: ViewMode) = controller?.just {
+        onControlsVisibilityChanged(isVisible)
         when (viewMode) {
             ViewMode.FullScreen -> {
                 onProgressVisibilityChanged(isVisible)
@@ -313,7 +313,10 @@ class Player @Inject constructor(preferences: Preferences,
                 onAcceptUserInputChanged(isVisible)
                 displayFullscreenIcon(false)
             }
-            else -> displayFullscreenIcon(false)
+            ViewMode.Expanded -> {
+                onProgressVisibilityChanged(true)
+                displayFullscreenIcon(false)
+            }
         }
     }
 

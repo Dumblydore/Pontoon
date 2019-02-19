@@ -1,13 +1,18 @@
 package me.mauricee.pontoon.login.webLogin
 
 import io.reactivex.Observable
+import io.reactivex.functions.Function
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.User
+import me.mauricee.pontoon.ext.logd
+import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.login.LoginNavigator
+import retrofit2.HttpException
 import java.net.URLDecoder
 import javax.inject.Inject
 
@@ -31,8 +36,13 @@ class WebLoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlan
         val cfuIdKey = cookies.keys.first { it.contains(AuthInterceptor.CfDuid) }
         val sailsKey = cookies.keys.first { it.contains(AuthInterceptor.SailsSid) }
 
-        accountManagerHelper.login(cookies[cfuIdKey]!!, URLDecoder.decode(cookies[sailsKey], "UTF-8")!!)
-        return floatPlaneApi.self.flatMap(::onSuccessfulLogin)
+        accountManagerHelper.login(cookies[cfuIdKey]
+                ?: "", URLDecoder.decode(cookies[sailsKey], "UTF-8")!!)
+
+        return floatPlaneApi.self.flatMap(::onSuccessfulLogin).onErrorResumeNext(Function {
+            if ((it as? HttpException)?.code() in 400..499) stateless { navigator.promptFor2FA() }
+            else WebLoginContract.State.Error.toObservable()
+        })
     }
 
     private fun onSuccessfulLogin(user: User) = stateless {

@@ -104,7 +104,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="36dp">
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/login.login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -127,9 +127,9 @@
                 tools:visibility="visible" />
         </FrameLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/login.signUp"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
@@ -185,9 +185,9 @@
 
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/login.privacy"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"

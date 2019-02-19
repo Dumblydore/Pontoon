@@ -16,9 +16,9 @@
         android:paddingBottom="8dp"
         tools:src="@mipmap/ic_launcher_round" />
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/item.icon.viewAll"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="?android:attr/borderlessButtonStyle"
         android:textColor="?android:attr/colorAccent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

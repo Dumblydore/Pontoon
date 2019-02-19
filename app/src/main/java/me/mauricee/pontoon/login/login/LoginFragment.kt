@@ -107,7 +107,7 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         private const val ActivationKey = "activation"
         private const val UsernameKey = "username"
 
-        fun newInstance(key: String, username: String): Fragment = LoginFragment().apply {
+        fun newInstance(key: String, username: String): LoginFragment = LoginFragment().apply {
             arguments = bundleOf(ActivationKey to key, UsernameKey to username)
         }
     }
