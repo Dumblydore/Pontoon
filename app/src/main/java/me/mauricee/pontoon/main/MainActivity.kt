@@ -85,6 +85,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         get() = Observable.merge(miscActions,
                 dayNightSwitch.clicks().map { MainContract.Action.NightMode },
                 RxNavigationView.itemSelections(main_drawer).map { MainContract.Action.fromNavDrawer(it.itemId) })
+                .doOnNext { if (it is MainContract.Action.NightMode) stayingInsideApp = true }
                 .compose(checkForVideoToPlay())
 
     /*
@@ -112,9 +113,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
         main_player.setOnTouchListener(animationTouchListener)
         if (player.isActive()) {
-            player.currentlyPlaying?.video?.let {
-                playVideo(it)
-            }
+            onExpand(player.viewMode == Player.ViewMode.Expanded)
         } else {
             hide()
         }
@@ -159,12 +158,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         animationTouchListener.show()
         loadFragment {
             replace(R.id.main_player, PlayerFragment.newInstance(video.thumbnail))
-        }
-        loadFragment {
             replace(R.id.main_details, DetailsFragment.newInstance(video.id, commentId))
         }
         main.doOnPreDraw {
-            animationTouchListener.isExpanded = player.viewMode == Player.ViewMode.Expanded
+            animationTouchListener.isExpanded = true
         }
     }
 

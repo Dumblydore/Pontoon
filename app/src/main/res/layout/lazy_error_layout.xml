@@ -16,9 +16,9 @@
         tools:text="An Error has occured" />
 
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/lazy_error_retry"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
