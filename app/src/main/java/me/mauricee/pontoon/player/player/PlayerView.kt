@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.video.VideoListener
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
@@ -18,6 +19,9 @@ import kotlinx.android.synthetic.main.layout_player.view.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.asFraction
+import me.mauricee.pontoon.ext.getActivity
+import me.mauricee.pontoon.ext.getDeviceHeight
+import me.mauricee.pontoon.ext.getDeviceWidth
 import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {
@@ -51,6 +55,17 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             field = value
             player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen).let { resources.getDrawable(it, null) })
         }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        getActivity()?.apply {
+            player_content.resizeMode  = if (getDeviceWidth() > getDeviceHeight()) {
+                AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
+            } else {
+                AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
+            }
+        }
+    }
 
     fun scaleVideo(scaleTo: Float) {
         currentScale = scaleTo

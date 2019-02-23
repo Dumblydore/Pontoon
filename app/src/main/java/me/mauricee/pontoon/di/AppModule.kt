@@ -212,7 +212,7 @@ abstract class AppModule {
         @JvmStatic
         fun providesExoPlayer(context: Context) = ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
                 .apply {
-                    videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+                    videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
                 }
 
     }

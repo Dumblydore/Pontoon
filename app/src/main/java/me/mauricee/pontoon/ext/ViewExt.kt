@@ -1,6 +1,8 @@
 package me.mauricee.pontoon.ext
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.util.DisplayMetrics
@@ -97,3 +99,6 @@ inline fun ConstraintLayout.updateParams(constraintSet: ConstraintSet = Constrai
     constraintSet.updates()
     constraintSet.applyTo(this)
 }
+
+fun View.getActivity(c: Context = context): Activity? = (c as? Activity)
+        ?: (c as? ContextWrapper)?.baseContext?.let { getActivity(it) }
