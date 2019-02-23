@@ -35,10 +35,8 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         PlayerContract.Action.SkipForward -> stateless { }
         PlayerContract.Action.SkipBackward -> stateless { }
         PlayerContract.Action.MinimizePlayer -> stateless {
-            if (player.viewMode != Player.ViewMode.FullScreen) {
-                player.controlsVisible = false
-                controls.setPlayerExpanded(false)
-            }
+            player.controlsVisible = false
+            controls.setPlayerExpanded(false)
         }
         PlayerContract.Action.ToggleFullscreen -> stateless { controls.toggleFullscreen() }
         is PlayerContract.Action.PlayPause -> stateless { player.playPause() }

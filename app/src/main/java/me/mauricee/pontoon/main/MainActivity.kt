@@ -112,11 +112,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         paramsGlMarginEnd = guidelineMarginEnd.layoutParams as ConstraintLayout.LayoutParams
 
         main_player.setOnTouchListener(animationTouchListener)
-        if (player.isActive()) {
-            onExpand(player.viewMode == Player.ViewMode.Expanded)
-        } else {
-            hide()
-        }
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, fragmentContainer)
                 .rootFragments(listOf(VideoFragment(), SearchFragment(), HistoryFragment()))
                 .build()
@@ -126,6 +121,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun onStart() {
         super.onStart()
+        if (player.isActive()) {
+            onExpand(player.viewMode == Player.ViewMode.Expanded)
+        } else {
+            hide()
+        }
         mainPresenter.attachView(this)
         stayingInsideApp = false
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
