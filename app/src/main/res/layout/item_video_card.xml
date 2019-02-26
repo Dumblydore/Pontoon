@@ -29,6 +29,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item.icon.big" />
 
+    <ImageButton
+        android:id="@+id/item.menu"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_overflow"
+        android:tint="?android:attr/textColorSecondary"
+        app:layout_constraintBottom_toBottomOf="@id/item.description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/item.title" />
+
     <TextView
         android:id="@+id/item.title"
         style="?attr/titleTextAppearance"
@@ -38,7 +50,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:maxLines="2"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/item.menu"
         app:layout_constraintStart_toEndOf="@+id/item.icon.small"
         app:layout_constraintTop_toBottomOf="@+id/item.icon.big"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas in consequat nisi, vitae bibendum neque." />
@@ -55,7 +67,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/item.menu"
         app:layout_constraintStart_toEndOf="@+id/item.icon.small"
         app:layout_constraintTop_toBottomOf="@+id/item.title"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vitae consectetur enim, vulputate fermentum odio. Morbi vitae tristique elit, sit amet fermentum purus. Curabitur luctus porta massa. Cras nisl mi, condimentum nec rutrum et, iaculis nec urna. Nullam id molestie sem. Fusce lobortis justo est, ut vehicula augue fringilla sit amet. Donec feugiat nunc dolor, ac rutrum nulla sollicitudin eu. Donec diam magna, luctus et ultricies in, aliquam a justo." />

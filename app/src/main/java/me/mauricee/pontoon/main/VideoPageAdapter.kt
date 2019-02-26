@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.main
 
+import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,11 +16,12 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.R.id.item_icon_viewAll
+import me.mauricee.pontoon.ext.getActivity
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
-open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, VideoPageAdapter.ViewHolder>(Video.ItemCallback), Disposable{
+open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, VideoPageAdapter.ViewHolder>(Video.ItemCallback), Disposable {
 
     internal val subscriptions = CompositeDisposable()
 
@@ -41,12 +43,18 @@ open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, Vide
     open val actions: Observable<Video>
         get() = relay
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnCreateContextMenuListener {
+
         init {
             subscriptions += view.item.clicks().subscribe { getItem(layoutPosition)?.let(relay::accept) }
             view.findViewById<View>(item_icon_viewAll)?.let {
                 subscriptions += it.clicks().subscribe { getItem(layoutPosition)?.let(relay::accept) }
             }
+//            view.item_menu.setOnCreateContextMenuListener(this)
+        }
+
+        override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo) {
+            v.getActivity()?.menuInflater?.inflate(R.menu.player_toolbar, menu)
         }
 
         fun bind(video: Video) {
