@@ -2,9 +2,14 @@
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar" />
     <style name="AppTheme.Amoled" parent="AppTheme" />
-    <style name="PlayerToolbar" parent="Widget.AppCompat.ActionBar">
-        <item name="android:textColorSecondary">@android:color/white</item>
+    <style name="PlayerToolbar" parent="AppTheme">
+        <item name="android:actionOverflowButtonStyle">@style/ActionButton.Overflow.Icon</item>
     </style>
+    <style name="ActionButton.Overflow.Icon" parent="@style/Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">@color/white</item>
+    </style>
+
+
     <style name="AppTheme.Launcher">
         <item name="android:colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimary">@color/colorPrimary</item>

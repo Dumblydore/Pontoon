@@ -13,7 +13,7 @@ enum class BaseTheme(@StyleRes val style: Int) {
             .apply { applyStyle(style, true) }
 
     companion object {
-        fun valueOf(value: String) = when {
+        fun fromString(value: String) = when {
             value.equals("light", true) -> Light
             value.equals("dark", true) -> Black
             value.equals("black", true) -> Black

@@ -13,9 +13,9 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
+import kotlinx.android.synthetic.main.item_end_user_bubble.view.item_icon_viewAll
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.R.id.item_icon_viewAll
 import me.mauricee.pontoon.ext.getActivity
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.video.Video
@@ -47,13 +47,16 @@ open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, Vide
 
         init {
             subscriptions += view.item.clicks().subscribe { getItem(layoutPosition)?.let(relay::accept) }
-            view.findViewById<View>(item_icon_viewAll)?.let {
+            view.item_menu?.apply {
+                subscriptions += clicks().subscribe { view.getActivity()?.openContextMenu(this) }
+            }
+            view.item_icon_viewAll?.let {
                 subscriptions += it.clicks().subscribe { getItem(layoutPosition)?.let(relay::accept) }
             }
-//            view.item_menu.setOnCreateContextMenuListener(this)
+            view.item_menu.setOnCreateContextMenuListener(this)
         }
 
-        override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo) {
+        override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
             v.getActivity()?.menuInflater?.inflate(R.menu.player_toolbar, menu)
         }
 
