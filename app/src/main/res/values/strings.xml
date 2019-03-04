@@ -43,7 +43,7 @@
     <string name="player_error_default">Video could not be played.</string>
 
     <!-- Details -->
-    <string name="details_postDate">Posted on %s.</string>
+    <string name="details_postDate">Posted %s.</string>
     <string name="details_commentLiked">You liked %s\'s comment.</string>
     <string name="details_commentDisliked">You disliked %s\'s comment.</string>
     <string name="details_error_commentPost">Error posting comment.</string>

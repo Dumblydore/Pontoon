@@ -1,7 +1,5 @@
 package me.mauricee.pontoon.player.player
 
-import android.content.Intent
-import android.content.Intent.ACTION_SEND
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -25,7 +23,6 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.Player
-import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.rx.glide.toSingle
 import javax.inject.Inject
 
@@ -128,7 +125,6 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_duration.text = state.formattedDuration
                 player_controls_progress.duration = state.duration
             }
-            is PlayerContract.State.ShareUrl -> startActivity(Intent.createChooser(createShareIntent(state.video), getString(R.string.player_share)))
         }
     }
 
@@ -183,12 +179,6 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     private fun Drawable.startAsAnimatable() {
         (this as? Animatable)?.start()
-    }
-
-    private fun createShareIntent(video: Video) = Intent(ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_SUBJECT, video.title)
-        putExtra(Intent.EXTRA_TEXT, video.toBrowsableUrl())
     }
 
     companion object {

@@ -25,6 +25,9 @@ open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, Vide
 
     internal val subscriptions = CompositeDisposable()
 
+    var contextVideo: Video? = null
+        private set
+
     override fun getItemViewType(position: Int): Int = R.layout.item_video_card
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = LayoutInflater.from(parent.context)
@@ -48,7 +51,10 @@ open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, Vide
         init {
             subscriptions += view.item.clicks().subscribe { getItem(layoutPosition)?.let(relay::accept) }
             view.item_menu?.apply {
-                subscriptions += clicks().subscribe { view.getActivity()?.openContextMenu(this) }
+                subscriptions += clicks().subscribe {
+                    view.getActivity()?.openContextMenu(this)
+                    contextVideo = getItem(layoutPosition)
+                }
             }
             view.item_icon_viewAll?.let {
                 subscriptions += it.clicks().subscribe { getItem(layoutPosition)?.let(relay::accept) }
@@ -57,7 +63,7 @@ open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, Vide
         }
 
         override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
-            v.getActivity()?.menuInflater?.inflate(R.menu.player_toolbar, menu)
+            v.getActivity()?.menuInflater?.inflate(R.menu.menu_video, menu)
         }
 
         fun bind(video: Video) {

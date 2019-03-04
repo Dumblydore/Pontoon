@@ -5,6 +5,7 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.common.ShareManager
 import me.mauricee.pontoon.common.download.DownloadHelper
 import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.ext.toObservable
@@ -13,6 +14,7 @@ import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
                                           private val downloadHelper: DownloadHelper,
+                                          private val shareManager: ShareManager,
                                           private val controls: PlayerContract.Controls,
                                           eventTracker: EventTracker) :
         BasePresenter<PlayerContract.State, PlayerContract.View>(eventTracker), PlayerContract.Presenter {
@@ -36,7 +38,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         is PlayerContract.Action.Download -> downloadVideo(action.quality)
         is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.qualityLevel; PlayerContract.State.Quality(action.qualityLevel) }
         is PlayerContract.Action.SeekProgress -> stateless { player.onSeekTo((action.progress * 1000).toLong()) }
-        PlayerContract.Action.RequestShare -> PlayerContract.State.ShareUrl(player.currentlyPlaying!!.video).toObservable()
+        PlayerContract.Action.RequestShare -> stateless { shareManager.shareVideo(player.currentlyPlaying!!.video) }
     }
 
     private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(it, it.toDuration()) }
