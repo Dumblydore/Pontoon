@@ -2,7 +2,6 @@ package me.mauricee.pontoon.preferences.accentColor
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.os.bundleOf
@@ -40,7 +39,7 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        theme = (defaultValue as? String)?.let { AccentColor.valueOf(it) } ?: AccentColor.Default
+        theme = (defaultValue as? String)?.let { AccentColor.fromString(it) } ?: AccentColor.Default
     }
 
     class Fragment : PreferenceDialogFragmentCompat() {

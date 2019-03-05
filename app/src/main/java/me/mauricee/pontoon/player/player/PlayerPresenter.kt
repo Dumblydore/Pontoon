@@ -1,25 +1,20 @@
 package me.mauricee.pontoon.player.player
 
 import android.support.v4.media.session.PlaybackStateCompat
-import com.novoda.downloadmanager.Batch
-import com.novoda.downloadmanager.DownloadBatchIdCreator
-import com.novoda.downloadmanager.DownloadManager
-import com.novoda.downloadmanager.StorageRoot
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.common.ShareManager
+import me.mauricee.pontoon.common.download.DownloadHelper
 import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.Player
-import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
-                                          private val videoRepository: VideoRepository,
-                                          private val downloadManager: DownloadManager,
-                                          private val storageRoot: StorageRoot,
+                                          private val downloadHelper: DownloadHelper,
+                                          private val shareManager: ShareManager,
                                           private val controls: PlayerContract.Controls,
                                           eventTracker: EventTracker) :
         BasePresenter<PlayerContract.State, PlayerContract.View>(eventTracker), PlayerContract.Presenter {
@@ -43,7 +38,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         is PlayerContract.Action.Download -> downloadVideo(action.quality)
         is PlayerContract.Action.Quality -> Observable.fromCallable { player.quality = action.qualityLevel; PlayerContract.State.Quality(action.qualityLevel) }
         is PlayerContract.Action.SeekProgress -> stateless { player.onSeekTo((action.progress * 1000).toLong()) }
-        PlayerContract.Action.RequestShare -> PlayerContract.State.ShareUrl(player.currentlyPlaying!!.video).toObservable()
+        PlayerContract.Action.RequestShare -> stateless { shareManager.shareVideo(player.currentlyPlaying!!.video) }
     }
 
     private fun watchDuration() = player.duration.map { PlayerContract.State.Duration(it, it.toDuration()) }
@@ -67,17 +62,9 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     private fun watchTimeline() = player.thumbnailTimeline.map(PlayerContract.State::PreviewThumbnail)
 
     private fun downloadVideo(qualityLevel: Player.QualityLevel) = player.currentlyPlaying!!.video.let { video ->
-        videoRepository.getDownloadLink(video.id, qualityLevel).map {
-            Batch.with(storageRoot, DownloadBatchIdCreator.createSanitizedFrom(video.id), video.title)
-                    .downloadFrom(it).apply()
-        }.flatMapObservable {
-            Observable.fromCallable<PlayerContract.State> {
-                downloadManager.download(it.build())
-                PlayerContract.State.DownloadStart
-            }
-        }.doOnError { loge("Error downloading.", it) }
-                .onErrorReturnItem(PlayerContract.State.DownloadFailed)
+        downloadHelper.download(video, qualityLevel)
+    }.map { if (it) PlayerContract.State.DownloadStart else PlayerContract.State.DownloadFailed }
+            .onErrorReturnItem(PlayerContract.State.DownloadFailed).toObservable()
 
-    }
 
 }

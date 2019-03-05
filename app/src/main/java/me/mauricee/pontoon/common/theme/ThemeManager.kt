@@ -57,15 +57,15 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
         get() = style.primary
 
     var style: Style = convertToStyle(
-            BaseTheme.valueOf(preferences.getString(ThemeKey, BaseTheme.Light.toString())!!),
-            PrimaryColor.valueOf(preferences.getString(PrimaryColorKey, PrimaryColor.Default.toString())!!),
-            AccentColor.valueOf(preferences.getString(AccentColorKey, AccentColor.Default.toString())!!))
+            BaseTheme.fromString(preferences.getString(ThemeKey, BaseTheme.Light.toString())!!),
+            PrimaryColor.fromString(preferences.getString(PrimaryColorKey, PrimaryColor.Default.toString())!!),
+            AccentColor.fromString(preferences.getString(AccentColorKey, AccentColor.Default.toString())!!))
 
     private val sylePreference
         get() = Observable.combineLatest<BaseTheme, PrimaryColor, AccentColor, Style>(
-                preferences.watchString(ThemeKey, true).map(BaseTheme::valueOf),
-                preferences.watchString(PrimaryColorKey, true).map(PrimaryColor::valueOf),
-                preferences.watchString(AccentColorKey, true).map(AccentColor::valueOf),
+                preferences.watchString(ThemeKey, true).map(BaseTheme.Companion::fromString),
+                preferences.watchString(PrimaryColorKey, true).map(PrimaryColor.Companion::fromString),
+                preferences.watchString(AccentColorKey, true).map(AccentColor.Companion::fromString),
                 Function3(this@ThemeManager::convertToStyle)).skip(1)
 
     private var mode

@@ -1,9 +1,11 @@
 package me.mauricee.pontoon.main
 
+import android.view.MenuInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.GestureEvents
@@ -62,5 +64,13 @@ abstract class MainModule {
 
     @ContributesAndroidInjector
     abstract fun contributeVideoPlayerFragment(): PlayerFragment
+
+    @Module
+    companion object {
+        @MainScope
+        @Provides
+        @JvmStatic
+        fun providesSharedPreferences(activity: MainActivity): MenuInflater = activity.menuInflater
+    }
 
 }

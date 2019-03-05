@@ -2,7 +2,6 @@ package me.mauricee.pontoon.preferences.primaryColor
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.os.bundleOf
@@ -40,7 +39,7 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        theme = (defaultValue as? String)?.let { PrimaryColor.valueOf(it) } ?: PrimaryColor.Default
+        theme = (defaultValue as? String)?.let { PrimaryColor.fromString(it) } ?: PrimaryColor.Default
     }
 
     class Fragment : PreferenceDialogFragmentCompat() {

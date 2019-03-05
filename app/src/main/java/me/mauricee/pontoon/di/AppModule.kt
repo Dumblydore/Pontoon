@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioManager
 import android.net.wifi.WifiManager
-import android.os.Handler
 import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.paging.PagedList
@@ -20,15 +19,13 @@ import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.isupatches.wisefy.WiseFy
-import com.novoda.downloadmanager.DownloadManagerBuilder
-import com.novoda.downloadmanager.StorageRoot
-import com.novoda.downloadmanager.StorageRootFactory
+import com.vanniktech.rxpermission.RealRxPermission
+import com.vanniktech.rxpermission.RxPermission
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.BuildConfig
-import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.FirebaseNetworkInterceptor
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
@@ -185,17 +182,6 @@ abstract class AppModule {
                 .setPrefetchDistance(5)
                 .build()
 
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun provideDownloadManager(context: Context) = DownloadManagerBuilder.newInstance(context, Handler(), R.drawable.ic_download)
-                .build()
-
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun provideStorage(context: Context): StorageRoot = StorageRootFactory.createPrimaryStorageDownloadsDirectoryRoot(context)
-
         @Provides
         @AppScope
         @JvmStatic
@@ -206,6 +192,11 @@ abstract class AppModule {
         @AppScope
         @JvmStatic
         fun providesWiseFy(context: Context): WiseFy = WiseFy.Brains(context).getSmarts()
+
+        @Provides
+        @AppScope
+        @JvmStatic
+        fun providesRxPermission(context: Context): RxPermission = RealRxPermission.getInstance(context)
 
         @Provides
         @AppScope

@@ -2,8 +2,10 @@ package me.mauricee.pontoon.main.videos
 
 import android.content.Context
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -17,6 +19,7 @@ import kotlinx.android.synthetic.main.fragment_videos.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
+import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.rx.lazylayout.retries
 import javax.inject.Inject
@@ -61,6 +64,8 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
                     videos_page_progress.isVisible = true
                 }
             }
+            is VideoContract.State.DownloadStart -> Toast.makeText(requireContext(), R.string.download_start, Toast.LENGTH_LONG).show()
+            is VideoContract.State.DownloadFailed -> Toast.makeText(requireContext(), R.string.download_error, Toast.LENGTH_LONG).show()
             is VideoContract.State.DisplayVideos -> displayVideos(state.videos)
             is VideoContract.State.Error -> processError(state)
             is VideoContract.State.DisplaySubscriptions -> videoAdapter.subscriptionAdapter.submitList(state.subscriptions)
@@ -71,6 +76,20 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
 
     override fun reset() {
         videos_list.smoothScrollToPosition(0)
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        videoAdapter.contextVideo?.let { video ->
+            when (item.itemId) {
+                R.id.action_share -> VideoContract.Action.Share(video)
+                R.id.action_download_p1080 -> VideoContract.Action.Download(video, Player.QualityLevel.p1080)
+                R.id.action_download_p720 -> VideoContract.Action.Download(video, Player.QualityLevel.p720)
+                R.id.action_download_p480 -> VideoContract.Action.Download(video, Player.QualityLevel.p480)
+                R.id.action_download_p360 -> VideoContract.Action.Download(video, Player.QualityLevel.p360)
+                else -> null
+            }?.let(miscActions::accept)
+        }
+        return true
     }
 
     private fun displayVideos(videos: PagedList<Video>) {

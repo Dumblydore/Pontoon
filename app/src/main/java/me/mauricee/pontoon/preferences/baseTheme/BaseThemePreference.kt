@@ -2,7 +2,6 @@ package me.mauricee.pontoon.preferences.baseTheme
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.os.bundleOf
@@ -40,7 +39,7 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        theme = (defaultValue as? String)?.let { BaseTheme.valueOf(it) } ?: BaseTheme.Light
+        theme = (defaultValue as? String)?.let { BaseTheme.fromString(it) } ?: BaseTheme.Light
     }
 
     class Fragment : PreferenceDialogFragmentCompat() {
