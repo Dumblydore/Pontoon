@@ -70,11 +70,11 @@ abstract class AppModule {
     abstract fun contributeLoginActivity(): LoginActivity
 
     @MainScope
-    @ContributesAndroidInjector(modules = [MainModule::class])
+    @ContributesAndroidInjector(modules = [MainModule::class, PlayerModule::class])
     abstract fun contributeMainActivity(): MainActivity
 
     @PlayerScope
-    @ContributesAndroidInjector(modules = [PlayerModule::class])
+    @ContributesAndroidInjector(modules = [PlayerModule::class, PlayerModule::class])
     abstract fun contributePlayerActivity(): PlayerActivity
 
     @PreferencesScope
@@ -204,12 +204,11 @@ abstract class AppModule {
         @Provides
         @AppScope
         @JvmStatic
-        fun providesExoPlayer(audioAttributes: AudioAttributes, context: Context) =
+        fun providesLocalExoPlayer(audioAttributes: AudioAttributes, context: Context) =
                 ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
                         .apply {
                             videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
                             setAudioAttributes(audioAttributes, true)
                         }
-
     }
 }

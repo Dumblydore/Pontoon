@@ -18,10 +18,7 @@ import io.reactivex.Observable
 import kotlinx.android.synthetic.main.layout_player.view.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.ext.asFraction
-import me.mauricee.pontoon.ext.getActivity
-import me.mauricee.pontoon.ext.getDeviceHeight
-import me.mauricee.pontoon.ext.getDeviceWidth
+import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {
@@ -41,7 +38,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     val ratio: Observable<String>
         get() = behavioRelay.hide()
 
-    var player: SimpleExoPlayer? = null
+    var player: Player? = null
         set(value) {
             if (field != value) {
                 field?.apply(::unregisterPlayer)
@@ -59,7 +56,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         getActivity()?.apply {
-            player_content.resizeMode  = if (getDeviceWidth() > getDeviceHeight()) {
+            player_content.resizeMode = if (getDeviceWidth() > getDeviceHeight()) {
                 AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
             } else {
                 AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
@@ -74,16 +71,20 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         player_content.scaleY = newScale
     }
 
-    private fun unregisterPlayer(player: SimpleExoPlayer) {
-        player.removeVideoListener(this)
-        player.setVideoSurfaceView(null)
+    private fun unregisterPlayer(player: Player) {
+        (player as? SimpleExoPlayer)?.with {
+            it.removeVideoListener(this)
+            it.setVideoSurfaceView(null)
+        }
         player.removeListener(this)
     }
 
-    private fun registerPlayer(player: SimpleExoPlayer) {
+    private fun registerPlayer(player: Player) {
         player.addListener(this)
-        player.addVideoListener(this)
-        player.setVideoTextureView(player_content_surface)
+        (player as? SimpleExoPlayer)?.with {
+            player.addVideoListener(this)
+            player.setVideoTextureView(player_content_surface)
+        }
         updateBuffering(false)
         updateErrorMsg(false)
         updateForCurrentTrackSelections(true)
