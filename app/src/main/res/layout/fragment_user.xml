@@ -18,11 +18,56 @@
             android:layout_height="match_parent"
             tools:lazy_state="success">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/user.container.activity"
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:listitem="@layout/item_activity_comment" />
+                android:layout_height="wrap_content">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/user.container.header"
+                        android:layout_width="match_parent"
+                        android:layout_height="128dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:background="@color/colorPrimaryDark" />
+
+                    <ImageView
+                        android:id="@+id/user.container.userIcon"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginStart="8dp"
+                        app:layout_constraintBottom_toBottomOf="@id/user.container.header"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/user.container.header"
+                        tools:src="@drawable/ic_color"
+                        tools:tint="@color/colorAccent" />
+
+                    <TextView
+                        android:id="@+id/user.container.subtitle"
+                        style="?android:attr/textAppearanceLarge"
+                        android:layout_width="0dp"
+                        android:layout_height="64dp"
+                        android:gravity="center"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/user.container.header"
+                        android:text="Activity" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/user.container.activity"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/user.container.subtitle"
+                        tools:listitem="@layout/item_activity_comment" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.core.widget.NestedScrollView>
 
         </me.mauricee.pontoon.common.LazyLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -31,54 +76,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/user.toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+            android:layout_height="?android:attr/actionBarSize"
+            android:transitionName="toolbar"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:titleTextColor="@color/white"
+            tools:background="@color/colorPrimary" />
 
-            <ImageView
-                android:id="@+id/user.container.header"
-                android:layout_width="match_parent"
-                android:layout_height="128dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:background="@color/colorPrimaryDark" />
-
-
-            <TextView
-                android:id="@+id/user.container.subtitle"
-                style="?android:attr/textAppearanceLarge"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:gravity="center"
-                android:text="Activity"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/user.container.header" />
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/user.toolbar"
-        app:layout_anchor="@id/user.container.header"
-        android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:transitionName="toolbar"
-        app:layout_scrollFlags="scroll|enterAlways"
-        app:titleTextColor="@color/white"
-        tools:background="@color/colorPrimary" />
-
-    <ImageView
-        android:id="@+id/user.container.userIcon"
-        android:layout_width="@dimen/image_size"
-        android:layout_height="@dimen/image_size"
-        android:layout_marginStart="8dp"
-        app:layout_behavior="me.mauricee.pontoon.common.ImageBehavior"
-        app:layout_constraintBottom_toBottomOf="@id/user.container.header"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/user.container.header"
-        tools:src="@drawable/ic_color"
-        tools:tint="@color/colorAccent" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
