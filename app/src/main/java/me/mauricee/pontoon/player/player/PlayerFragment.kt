@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -17,6 +18,7 @@ import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_player.*
+import kotlinx.android.synthetic.main.fragment_user.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
@@ -67,6 +69,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         super.onViewCreated(view, savedInstanceState)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
         player_display.setThumbnail(previewArt)
+        (requireActivity() as AppCompatActivity).apply {
+            setSupportActionBar(user_toolbar)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setDisplayShowHomeEnabled(true)
+        }
     }
 
     override fun onStart() {

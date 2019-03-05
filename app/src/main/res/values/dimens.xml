@@ -3,4 +3,6 @@
     <dimen name="grid_spacing">4dp</dimen>
     <dimen name="alert_def_padding">18dp</dimen>
     <dimen name="selection_stroke">4dp</dimen>
+    <dimen name="image_size">64dp</dimen>
+    <dimen name="image_size_small">32dp</dimen>
 </resources>

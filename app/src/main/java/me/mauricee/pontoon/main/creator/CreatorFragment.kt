@@ -21,6 +21,7 @@ import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.common.theme.primaryDarkColor
+import me.mauricee.pontoon.ext.setStatusBarColor
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.VideoPageAdapter
 import me.mauricee.pontoon.model.user.UserRepository
@@ -73,7 +74,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
     private fun displayCreator(creator: UserRepository.Creator) {
         subscriptions += GlideApp.with(this).asBitmap().load(creator.user.profileImage)
                 .error(R.drawable.ic_default_thumbnail)
-                .toPalette().map { it.getVibrantColor(primaryColor) }
+                .toPalette().map { it.palette }.map { it.getVibrantColor(primaryColor) }
                 .flatMapObservable { ValueAnimator.ofArgb(primaryColor, it).apply { startDelay = 250 }.updates() }
                 .map { it.animatedValue as Int }
                 .subscribe { it ->
@@ -96,7 +97,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        requireActivity().window.statusBarColor = requireActivity().primaryDarkColor
+         setStatusBarColor(requireActivity().primaryDarkColor).start()
     }
 
     companion object {

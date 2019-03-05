@@ -11,6 +11,7 @@ import android.util.Rational
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -32,6 +33,7 @@ import com.ncapdevi.fragnav.FragNavController
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.layout_navigation_header.view.*
 import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
@@ -55,6 +57,7 @@ import me.mauricee.pontoon.player.PlayerActivity
 import me.mauricee.pontoon.player.player.PlayerContract
 import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.preferences.PreferencesActivity
+import me.mauricee.pontoon.rx.glide.toPalette
 import javax.inject.Inject
 
 class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, MainContract.View,
@@ -424,13 +427,18 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     private fun displayUser(user: UserRepository.User, subCount: Int) {
         main_drawer.getHeaderView(0).apply {
-            user.let {
-                findViewById<TextView>(R.id.header_title).text = it.username
+            user.with { user ->
+                findViewById<TextView>(R.id.header_title).text = user.username
                 findViewById<TextView>(R.id.header_subtitle).text = getString(R.string.home_subtitle_suffix, subCount)
-                GlideApp.with(this).load(it.profileImage)
-                        .placeholder(R.drawable.ic_default_thumbnail)
-                        .error(R.drawable.ic_default_thumbnail)
-                        .into(findViewById(R.id.header_icon))
+                subscriptions += GlideApp.with(this).asBitmap().load(user.profileImage)
+                        .toPalette().subscribe { palette ->
+                            findViewById<ImageView>(R.id.header_icon).setImageBitmap(palette.bitmap)
+                            themeManager.getVibrantSwatch(palette.palette).apply {
+                                findViewById<ImageView>(R.id.header).setBackgroundColor(rgb)
+                                header_title.setTextColor(titleTextColor)
+                                header_subtitle.setTextColor(bodyTextColor)
+                            }
+                        }
             }
         }
     }

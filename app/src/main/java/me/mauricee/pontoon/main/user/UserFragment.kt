@@ -1,23 +1,34 @@
 package me.mauricee.pontoon.main.user
 
+import android.animation.AnimatorSet
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_user.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
 import me.mauricee.pontoon.common.SpaceItemDecoration
+import me.mauricee.pontoon.common.theme.ThemeManager
+import me.mauricee.pontoon.common.theme.primaryDarkColor
+import me.mauricee.pontoon.ext.setStatusBarColor
+import me.mauricee.pontoon.preferences.darken
+import me.mauricee.pontoon.rx.glide.toPalette
 import javax.inject.Inject
 
 class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
 
     @Inject
     lateinit var adapter: UserActivityAdapter
+    @Inject
+    lateinit var themeManager: ThemeManager
 
     override val actions: Observable<UserContract.Action>
         get() = Observable.merge(adapter.actions,
@@ -36,13 +47,33 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
     }
 
     override fun updateState(state: UserContract.State) = when (state) {
-        is UserContract.State.User -> user_toolbar.title = state.user.username
+        is UserContract.State.User -> {
+            user_toolbar.title = state.user.username
+            subscriptions += Glide.with(this).asBitmap().load(state.user.profileImage).toPalette().subscribe { paletteEvent ->
+                themeManager.getVibrantSwatch(paletteEvent.palette).apply {
+                    AnimatorSet().apply {
+                        playTogether(
+                                setStatusBarColor(rgb.darken(.7f)),
+                                ValueAnimator.ofArgb(rgb).apply { addUpdateListener { user_toolbar.setBackgroundColor(it.animatedValue as Int) } },
+                                ValueAnimator.ofArgb(rgb.darken(.5f)).apply { addUpdateListener { user_container_header.setBackgroundColor(it.animatedValue as Int) } },
+                                ValueAnimator.ofArgb(titleTextColor).apply { addUpdateListener { user_toolbar.setTitleTextColor(it.animatedValue as Int) } }
+                        )
+                    }.start()
+                }
+                Glide.with(user_container_userIcon).load(paletteEvent.bitmap).into(user_container_userIcon)
+            }
+        }
         UserContract.State.Loading -> user_container_lazy.state = LazyLayout.LOADING
         is UserContract.State.Activity -> {
             adapter.submitList(state.activity)
             user_container_lazy.state = LazyLayout.SUCCESS
         }
         is UserContract.State.Error -> user_container_lazy.state = LazyLayout.ERROR
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        setStatusBarColor(requireActivity().primaryDarkColor).start()
     }
 
     companion object {

@@ -9,6 +9,7 @@ import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import androidx.palette.graphics.Palette
 import dagger.Reusable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -88,6 +89,11 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
 
     }
 
+    fun getVibrantSwatch(palette: Palette) = (if (isInNightMode) palette.darkVibrantSwatch else palette.lightVibrantSwatch)
+            ?: Palette.Swatch(activity.primaryColor, 1)
+
+    fun getMutedSwatch(palette: Palette) = (if (isInNightMode) palette.darkMutedSwatch else palette.lightMutedSwatch)
+            ?: Palette.Swatch(activity.primaryColor, 1)
 
     fun toggleNightMode() {
         mode = if (isInNightMode) AppCompatDelegate.MODE_NIGHT_NO
@@ -110,7 +116,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     }
 
     fun commit() {
-        preferences.edit(true){
+        preferences.edit(true) {
             putString(ThemeKey, style.theme.toString())
             putString(PrimaryColorKey, style.primary.toString())
             putString(AccentColorKey, style.accent.toString())
