@@ -47,7 +47,7 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View 
         replies_list.adapter = adapter
         replies_list.layoutManager = LinearLayoutManager(requireContext())
         subscriptions += RxToolbar.navigationClicks(replies_header).subscribe { dismiss() }
-        presenter.attachView(this)
+        subscriptions += presenter.attachView(this)
     }
 
     override fun updateState(state: RepliesContract.State) = when (state) {
@@ -86,7 +86,6 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View 
     override fun onDestroyView() {
         super.onDestroyView()
         subscriptions.dispose()
-        presenter.detachView()
     }
 
     private fun translateAdapterActions() = adapter.actions.map {

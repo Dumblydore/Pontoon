@@ -1,6 +1,7 @@
 package me.mauricee.pontoon
 
 import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import me.mauricee.pontoon.analytics.EventTracker
 
 interface BaseContract {
@@ -13,8 +14,6 @@ interface BaseContract {
     }
 
     interface Presenter<in V> {
-        fun attachView(view: V)
-
-        fun detachView()
+        fun attachView(view: V) : Disposable
     }
 }

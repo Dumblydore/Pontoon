@@ -81,6 +81,8 @@ abstract class AppModule {
     @ContributesAndroidInjector(modules = [PreferenceModule::class])
     abstract fun contributePreferenceActivity(): PreferencesActivity
 
+
+
     @Module
     companion object {
 

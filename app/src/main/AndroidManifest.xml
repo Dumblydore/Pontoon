@@ -86,6 +86,11 @@
             android:screenOrientation="sensorLandscape" />
 
         <activity android:name=".preferences.PreferencesActivity" />
+
+        <provider
+            android:name=".slice.SlicesProvider"
+            android:authorities="me.mauricee.pontoon"
+            android:exported="true" />
     </application>
 
 </manifest>
