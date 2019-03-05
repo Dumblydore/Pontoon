@@ -8,14 +8,18 @@ import me.mauricee.pontoon.analytics.EventTracker
 abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S, *>>(internal val eventTracker: EventTracker)
     : BaseContract.Presenter<V> {
 
-    final override fun attachView(view: V): Disposable = onViewAttached(view).observeOn(AndroidSchedulers.mainThread())
-            .doOnNext { eventTracker.trackState(it, view) }
-            .doOnSubscribe { eventTracker.trackStart(view) }
-            .doOnDispose { detachView(view) }
-            .subscribe(view::updateState)
+    lateinit var viewDisposable: Disposable
 
-    private fun detachView(view: V) {
-        eventTracker.trackStop(view)
+    final override fun attachView(view: V) {
+        viewDisposable = onViewAttached(view).observeOn(AndroidSchedulers.mainThread())
+                .doOnNext { eventTracker.trackState(it, view) }
+                .doOnSubscribe { eventTracker.trackStart(view) }
+                .doOnDispose { eventTracker.trackStop(view) }
+                .subscribe(view::updateState)
+    }
+
+    final override fun detachView() {
+        viewDisposable.dispose()
         onViewDetached()
     }
 
