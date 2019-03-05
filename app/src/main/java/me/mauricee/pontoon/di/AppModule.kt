@@ -4,7 +4,6 @@ import android.accounts.AccountManager
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
@@ -12,6 +11,7 @@ import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -82,7 +82,6 @@ abstract class AppModule {
     abstract fun contributePreferenceActivity(): PreferencesActivity
 
 
-
     @Module
     companion object {
 
@@ -108,12 +107,6 @@ abstract class AppModule {
         @JvmStatic
         fun providesPowerManager(context: Context): PowerManager =
                 context.getSystemService(Context.POWER_SERVICE) as PowerManager
-
-        @Provides
-        @AppScope
-        @JvmStatic
-        fun providesAudioManager(context: Context): AudioManager =
-                context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         @Provides
         @AppScope
@@ -167,7 +160,7 @@ abstract class AppModule {
         @Provides
         @JvmStatic
         fun providesHlsFactory(okHttpClient: OkHttpClient, agent: String) =
-                HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null))
+                HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent))
 
         @AppScope
         @Provides
@@ -203,10 +196,20 @@ abstract class AppModule {
         @Provides
         @AppScope
         @JvmStatic
-        fun providesExoPlayer(context: Context) = ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
-                .apply {
-                    videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
-                }
+        fun providesAudioAttributes() = AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.CONTENT_TYPE_MOVIE)
+                .build()
+
+        @Provides
+        @AppScope
+        @JvmStatic
+        fun providesExoPlayer(audioAttributes: AudioAttributes, context: Context) =
+                ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
+                        .apply {
+                            videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+                            setAudioAttributes(audioAttributes, true)
+                        }
 
     }
 }
