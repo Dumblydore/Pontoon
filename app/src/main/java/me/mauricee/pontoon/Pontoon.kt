@@ -9,6 +9,7 @@ import me.mauricee.pontoon.analytics.DebugTracker
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.analytics.FirebaseTracker
 import me.mauricee.pontoon.analytics.PrivacyManager
+import me.mauricee.pontoon.di.AppComponent
 import me.mauricee.pontoon.di.DaggerAppComponent
 import okhttp3.OkHttpClient
 import javax.inject.Inject
@@ -22,6 +23,7 @@ class Pontoon : DaggerApplication() {
     lateinit var debugTracker: DebugTracker
     @Inject
     lateinit var privacyManager: PrivacyManager
+    lateinit var appComponent: AppComponent
 
     lateinit var sub: Disposable
     override fun onCreate() {
@@ -40,5 +42,8 @@ class Pontoon : DaggerApplication() {
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
             DaggerAppComponent.builder().application(this).build()
-                    .also { it.inject(this) }
+                    .also {
+                        it.inject(this)
+                        appComponent = it
+                    }
 }

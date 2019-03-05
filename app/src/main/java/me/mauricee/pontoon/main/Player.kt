@@ -26,8 +26,6 @@ import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.model.audio.AudioFocusManager
-import me.mauricee.pontoon.model.audio.FocusState
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
@@ -41,7 +39,7 @@ import javax.inject.Inject
 class Player @Inject constructor(preferences: Preferences,
                                  private val exoPlayer: SimpleExoPlayer,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
-                                 private val focusManager: AudioFocusManager, private val context: Context,
+                                 private val context: Context,
                                  private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener, LifecycleObserver {
 
@@ -187,21 +185,18 @@ class Player @Inject constructor(preferences: Preferences,
     override fun onPlay() {
         exoPlayer.playWhenReady = true
         state = PlaybackStateCompat.STATE_PLAYING
-        focusManager.gain()
     }
 
     override fun onPause() {
         if (isActive()) {
             exoPlayer.playWhenReady = false
             state = PlaybackStateCompat.STATE_PAUSED
-            focusManager.drop()
         }
     }
 
     override fun onStop() {
         currentlyPlaying = null
         state = PlaybackStateCompat.STATE_STOPPED
-        focusManager.drop()
     }
 
     override fun onSeekTo(pos: Long) {
@@ -223,7 +218,6 @@ class Player @Inject constructor(preferences: Preferences,
 
     fun release() {
         exoPlayer.release()
-        focusManager.drop()
         mediaSession.release()
     }
 
@@ -251,14 +245,6 @@ class Player @Inject constructor(preferences: Preferences,
     fun bind() {
         mediaSession.setCallback(this)
         exoPlayer.addListener(this)
-        subs += focusManager.focus.subscribe { it ->
-            when (it) {
-                FocusState.Gained -> exoPlayer.playWhenReady = state != PlaybackStateCompat.STATE_PAUSED
-                FocusState.Duck -> exoPlayer.playWhenReady = false
-                FocusState.Transient -> exoPlayer.playWhenReady = false
-                FocusState.Loss -> exoPlayer.playWhenReady = false
-            }
-        }
         subs += context.registerReceiver(IntentFilter(Intent.ACTION_HEADSET_PLUG))
                 .map(BroadcastEvent::intent).subscribe(this::handleHeadsetChanges)
         mediaSession.isActive = true
@@ -299,7 +285,6 @@ class Player @Inject constructor(preferences: Preferences,
     private fun load(uri: Uri) {
         exoPlayer.prepare(networkSourceFactory.createMediaSource(uri))
         exoPlayer.playWhenReady = true
-        focusManager.gain()
     }
 
     private fun notifyController(isVisible: Boolean, viewMode: ViewMode) = controller?.just {

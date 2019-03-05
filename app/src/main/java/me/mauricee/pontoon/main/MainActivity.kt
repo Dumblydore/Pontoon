@@ -129,7 +129,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         } else {
             hide()
         }
-        mainPresenter.attachView(this)
+        subscriptions += mainPresenter.attachView(this)
         stayingInsideApp = false
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
         privacyManager.displayPromptIfUserHasNotBeenPrompted(this)
@@ -137,7 +137,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun onStop() {
         super.onStop()
-        mainPresenter.detachView()
         if (!stayingInsideApp)
             player.onPause()
         privacyManager.hidePromptIfOpen()
