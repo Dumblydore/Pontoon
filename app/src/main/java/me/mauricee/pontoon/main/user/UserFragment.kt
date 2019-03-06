@@ -7,7 +7,6 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
@@ -19,6 +18,7 @@ import me.mauricee.pontoon.common.SpaceItemDecoration
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.common.theme.primaryDarkColor
 import me.mauricee.pontoon.ext.setStatusBarColor
+import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.preferences.darken
 import me.mauricee.pontoon.rx.glide.toPalette
 import javax.inject.Inject
@@ -49,7 +49,7 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
     override fun updateState(state: UserContract.State) = when (state) {
         is UserContract.State.User -> {
             user_toolbar.title = state.user.username
-            subscriptions += Glide.with(this).asBitmap().load(state.user.profileImage).toPalette().subscribe { paletteEvent ->
+            subscriptions += GlideApp.with(this).asBitmap().load(state.user.profileImage).toPalette().subscribe { paletteEvent ->
                 themeManager.getVibrantSwatch(paletteEvent.palette).apply {
                     AnimatorSet().apply {
                         playTogether(
@@ -60,7 +60,9 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
                         )
                     }.start()
                 }
-                Glide.with(user_container_userIcon).load(paletteEvent.bitmap).into(user_container_userIcon)
+                GlideApp.with(user_container_userIcon)
+                        .load(paletteEvent.bitmap)
+                        .circleCrop().into(user_container_userIcon)
             }
         }
         UserContract.State.Loading -> user_container_lazy.state = LazyLayout.LOADING

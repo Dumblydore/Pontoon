@@ -30,13 +30,14 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
     @SuppressWarnings("UNCHECKED_CALL")
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        subscriptions.add(presenter.attachView(this));
+        presenter.attachView(this);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         subscriptions.dispose();
+        presenter.detachView();
     }
 
     /**
