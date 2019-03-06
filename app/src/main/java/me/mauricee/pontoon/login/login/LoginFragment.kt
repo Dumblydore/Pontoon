@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding2.widget.editorActionEvents
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -32,6 +32,8 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
                 login_discord.clicks().map { LoginContract.Action.DiscordLogin },
                 login_signUp.clicks().map { LoginContract.Action.SignUp },
                 login_login.clicks().map { loginAction },
+                login_password_edit.editorActionEvents().map { loginAction },
+                login_token_edit.editorActionEvents().map { loginAction },
                 login_privacy.clicks().map { LoginContract.Action.PrivacyPolicy }))
                 .compose(emitActivationArgs())
 
@@ -55,6 +57,7 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
                 login_token.isVisible = true
                 login_username.isVisible = false
                 login_password.isVisible = false
+                login_token.requestFocus()
             }
             LoginContract.State.InvalidAuthCode -> {
                 resetLoginButton()
