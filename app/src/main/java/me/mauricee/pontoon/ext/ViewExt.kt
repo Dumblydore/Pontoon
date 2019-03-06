@@ -1,5 +1,7 @@
 package me.mauricee.pontoon.ext
 
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -10,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -34,6 +37,13 @@ inline fun AppCompatActivity.loadFragment(isAddToBackStack: Boolean = false,
 }
 
 fun Activity.isPortrait() = requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+fun Activity.setStatusBarColor(@ColorInt color: Int): Animator =
+        ValueAnimator.ofArgb(window.statusBarColor, color).apply {
+            addUpdateListener { window.statusBarColor = it.animatedValue as Int }
+        }
+
+fun Fragment.setStatusBarColor(@ColorInt color: Int): Animator = requireActivity().setStatusBarColor(color)
 
 fun Activity.getDeviceWidth() = with(this) {
     val displayMetrics = DisplayMetrics()

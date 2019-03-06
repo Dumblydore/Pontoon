@@ -9,17 +9,18 @@ import me.mauricee.pontoon.R
 import javax.inject.Inject
 
 class CircleHelper @Inject constructor(private val context: Context) {
-     fun buildCircle(@ColorInt color: Int): GradientDrawable = GradientDrawable().apply {
+    fun buildCircle(@ColorInt color: Int): GradientDrawable = GradientDrawable().apply {
         shape = GradientDrawable.OVAL
         this.color = ColorStateList.valueOf(color)
     }
 
-     fun buildSelectedCircle(@ColorInt color: Int, @ColorInt borderColor: Int): GradientDrawable =
+    fun buildSelectedCircle(@ColorInt color: Int, @ColorInt borderColor: Int): GradientDrawable =
             buildCircle(color).apply {
                 setStroke(context.resources.getDimensionPixelSize(R.dimen.selection_stroke), borderColor)
             }
 }
 
+fun Int.lighten(factor: Float) = darken(1 + factor)
 fun Int.darken(factor: Float): Int {
     val a = Color.alpha(this)
     val r = Math.round(Color.red(this) * factor)

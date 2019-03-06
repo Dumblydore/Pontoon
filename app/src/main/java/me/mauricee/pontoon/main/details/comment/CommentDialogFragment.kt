@@ -54,7 +54,7 @@ class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View 
             isVisible = replyName != NoReply
             text = getString(R.string.reply_subhead, replyName)
         }
-        subscriptions += presenter.attachView(this)
+        presenter.attachView(this)
     }
 
     override fun updateState(state: CommentContract.State) {
@@ -76,6 +76,7 @@ class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View 
     override fun onDestroyView() {
         super.onDestroyView()
         subscriptions.clear()
+        presenter.detachView()
     }
 
     companion object {
