@@ -62,7 +62,6 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        retainInstance = true
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
     }
 

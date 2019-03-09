@@ -2,6 +2,7 @@ package me.mauricee.pontoon.main.creatorList
 
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.Observable
@@ -21,6 +22,8 @@ class CreatorListFragment : BaseFragment<CreatorListPresenter>(), CreatorListCon
         get() = adapter.actions
 
     override fun getLayoutId(): Int = R.layout.fragment_creator_list
+
+    override fun getToolbar(): Toolbar? = creatorList_toolbar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

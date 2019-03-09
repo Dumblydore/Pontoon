@@ -16,6 +16,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
@@ -122,6 +123,18 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         main_drawer.menu.findItem(R.id.action_dayNight).actionView = dayNightSwitch
     }
 
+    override fun setSupportActionBar(toolbar: Toolbar?) {
+        super.setSupportActionBar(toolbar)
+        toolbar?.just {
+            if (controller.isRootFragment){
+                setNavigationIcon(R.drawable.ic_menu)
+            } else {
+                setNavigationIcon(R.drawable.ic_back)
+                setNavigationOnClickListener { onBackPressed() }
+            }
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         if (player.isActive()) {
@@ -174,7 +187,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun toCreator(creator: UserRepository.Creator) {
-        controller.pushFragment(CreatorFragment.newInstance(creator.id))
+        controller.pushFragment(CreatorFragment.newInstance(creator.id, creator.name))
         if (player.isActive()) {
             animationTouchListener.isExpanded = false
             setPlayerExpanded(false)

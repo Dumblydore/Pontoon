@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -44,6 +45,8 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
                 videoAdapter.subscriptionAdapter.actions)
                 .startWith(VideoContract.Action.Refresh(false))
                 .mergeWith(RxToolbar.navigationClicks(videos_toolbar).map { VideoContract.Action.NavMenu })
+
+    override fun getToolbar(): Toolbar? = videos_toolbar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

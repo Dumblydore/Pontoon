@@ -89,10 +89,10 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
 
     }
 
-    fun getVibrantSwatch(palette: Palette) = (if (isInNightMode) palette.darkVibrantSwatch else palette.lightVibrantSwatch)
+    fun getVibrantSwatch(palette: Palette) = (if (isInNightMode) palette.darkVibrantSwatch else palette.vibrantSwatch)
             ?: Palette.Swatch(activity.primaryColor, 1)
 
-    fun getMutedSwatch(palette: Palette) = (if (isInNightMode) palette.darkMutedSwatch else palette.lightMutedSwatch)
+    fun getMutedSwatch(palette: Palette) = (if (isInNightMode) palette.darkMutedSwatch else palette.mutedSwatch)
             ?: Palette.Swatch(activity.primaryColor, 1)
 
     fun toggleNightMode() {

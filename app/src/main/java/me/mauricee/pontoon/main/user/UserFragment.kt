@@ -19,6 +19,7 @@ import me.mauricee.pontoon.common.SpaceItemDecoration
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.common.theme.primaryDarkColor
 import me.mauricee.pontoon.ext.setStatusBarColor
+import me.mauricee.pontoon.ext.supportActionBar
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.preferences.darken
 import me.mauricee.pontoon.rx.glide.toPalette
@@ -48,11 +49,12 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
         user_container_activity.layoutManager = LinearLayoutManager(requireContext())
         user_container_activity.adapter = adapter
         user_container_activity.addItemDecoration(SpaceItemDecoration(resources.getDimensionPixelSize(R.dimen.grid_spacing)))
+
     }
 
     override fun updateState(state: UserContract.State) = when (state) {
         is UserContract.State.User -> {
-            user_toolbar.title = state.user.username
+            supportActionBar?.title = state.user.username
             subscriptions += GlideApp.with(this).asBitmap().load(state.user.profileImage).toPalette().subscribe { paletteEvent ->
                 themeManager.getVibrantSwatch(paletteEvent.palette).apply {
                     AnimatorSet().apply {
@@ -60,7 +62,13 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
                                 setStatusBarColor(rgb.darken(.7f)),
                                 ValueAnimator.ofArgb(rgb).apply { addUpdateListener { user_toolbar.setBackgroundColor(it.animatedValue as Int) } },
                                 ValueAnimator.ofArgb(rgb.darken(.5f)).apply { addUpdateListener { user_container_header.setBackgroundColor(it.animatedValue as Int) } },
-                                ValueAnimator.ofArgb(titleTextColor).apply { addUpdateListener { user_toolbar.setTitleTextColor(it.animatedValue as Int) } }
+                                ValueAnimator.ofArgb(titleTextColor).apply {
+                                    addUpdateListener {
+                                        val value = it.animatedValue as Int
+                                        user_toolbar.setTitleTextColor(value)
+                                        user_toolbar.navigationIcon?.mutate()?.setTint(value)
+                                    }
+                                }
                         )
                     }.start()
                 }
