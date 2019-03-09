@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -112,3 +113,6 @@ inline fun ConstraintLayout.updateParams(constraintSet: ConstraintSet = Constrai
 
 fun View.getActivity(c: Context = context): Activity? = (c as? Activity)
         ?: (c as? ContextWrapper)?.baseContext?.let { getActivity(it) }
+
+val Fragment.supportActionBar: ActionBar?
+    get() = (activity as? AppCompatActivity)?.supportActionBar

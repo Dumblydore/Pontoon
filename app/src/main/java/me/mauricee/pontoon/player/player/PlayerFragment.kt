@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -18,18 +17,20 @@ import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_player.*
-import kotlinx.android.synthetic.main.fragment_user.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ext.just
+import me.mauricee.pontoon.ext.supportActionBar
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
+import me.mauricee.pontoon.main.ControlEvent
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.rx.glide.toSingle
 import javax.inject.Inject
 
 class PlayerFragment : BaseFragment<PlayerPresenter>(),
-        PlayerContract.View, Player.ControlView {
+        PlayerContract.View {
 
     @Inject
     lateinit var player: Player
@@ -69,17 +70,16 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         super.onViewCreated(view, savedInstanceState)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
         player_display.setThumbnail(previewArt)
-        (requireActivity() as AppCompatActivity).apply {
-            setSupportActionBar(user_toolbar)
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.just {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
         }
+        subscriptions += player.controllerEvent.subscribe(this::handleControllerEvents)
     }
 
     override fun onStart() {
         super.onStart()
         player.bindToView(player_display)
-        player.controller = this
         subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
     }
 
@@ -135,6 +135,13 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         }
     }
 
+    private fun handleControllerEvents(event: ControlEvent) = when (event) {
+        is ControlEvent.ControlsVisibilityChanged -> onControlsVisibilityChanged(event.isVisible)
+        is ControlEvent.ProgressVisibilityChanged -> onProgressVisibilityChanged(event.isVisible)
+        is ControlEvent.AcceptUserInputChanged -> onAcceptUserInputChanged(event.canAccept)
+        is ControlEvent.DisplayFullscreenIcon -> displayFullscreenIcon(event.isFullscreen)
+    }
+
     private fun isPlaying(isPlaying: Boolean) {
         val isVisible = player_controls_playPause.isVisible
         val currentIcon = when {
@@ -147,7 +154,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         player_controls_playPause.drawable.startAsAnimatable()
     }
 
-    override fun onControlsVisibilityChanged(isVisible: Boolean) {
+    private fun onControlsVisibilityChanged(isVisible: Boolean) {
         if (isVisible)
             player_display.showController()
         else
@@ -155,15 +162,15 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         player_controls_progress.thumbVisibility = isVisible && !isSeeking
     }
 
-    override fun onProgressVisibilityChanged(isVisible: Boolean) {
+    private fun onProgressVisibilityChanged(isVisible: Boolean) {
         player_controls_progress.isVisible = isVisible
     }
 
-    override fun onAcceptUserInputChanged(canAccept: Boolean) {
+    private fun onAcceptUserInputChanged(canAccept: Boolean) {
         player_controls_progress.acceptTapsFromUser = canAccept
     }
 
-    override fun displayFullscreenIcon(isFullscreen: Boolean) {
+    private fun displayFullscreenIcon(isFullscreen: Boolean) {
         player_display.isInFullscreen = isFullscreen
     }
 

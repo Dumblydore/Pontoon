@@ -4,6 +4,7 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,7 +37,10 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
                 .startWith(refresh)
 
     private val refresh by lazy { UserContract.Action.Refresh(arguments!!.getString(UserKey)) }
+
     override fun getLayoutId(): Int = R.layout.fragment_user
+
+    override fun getToolbar(): Toolbar? = user_toolbar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

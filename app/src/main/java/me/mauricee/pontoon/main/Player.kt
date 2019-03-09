@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -24,7 +25,6 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
@@ -71,6 +71,9 @@ class Player @Inject constructor(preferences: Preferences,
     private val timelineSubject = BehaviorRelay.create<String>()
     val thumbnailTimeline: Observable<String>
         get() = timelineSubject
+    private var controllerTimeout: Disposable? = null
+    private val controllerSubject = PublishRelay.create<ControlEvent>()
+    val controllerEvent: Observable<ControlEvent> = controllerSubject.hide().startWith(ControlEvent.ControlsVisibilityChanged(false))
 
     var currentlyPlaying: Playback? = null
         set(value) {
@@ -93,8 +96,6 @@ class Player @Inject constructor(preferences: Preferences,
             field = value
         }
 
-    private var controllerTimeout: Disposable? = null
-
     var viewMode: ViewMode = ViewMode.Expanded
         set(value) {
             if (field != value) {
@@ -106,15 +107,7 @@ class Player @Inject constructor(preferences: Preferences,
     var controlsVisible: Boolean = false
         set(value) {
             field = value
-            controller?.apply {
-                notifyController(field, viewMode)
-            }
-        }
-
-    var controller: ControlView? = null
-        set(value) {
-            field = value
-            controlsVisible = false
+            notifyController(field, viewMode)
         }
 
     var quality: QualityLevel = preferences.defaultQualityLevel
@@ -287,29 +280,22 @@ class Player @Inject constructor(preferences: Preferences,
         exoPlayer.playWhenReady = true
     }
 
-    private fun notifyController(isVisible: Boolean, viewMode: ViewMode) = controller?.just {
-        onControlsVisibilityChanged(isVisible)
+    private fun notifyController(isVisible: Boolean, viewMode: ViewMode) {
+        controllerSubject.accept(ControlEvent.ControlsVisibilityChanged(isVisible))
         when (viewMode) {
             ViewMode.FullScreen -> {
-                onProgressVisibilityChanged(isVisible)
-                displayFullscreenIcon(true)
+                controllerSubject.accept(ControlEvent.ProgressVisibilityChanged(isVisible))
+                controllerSubject.accept(ControlEvent.DisplayFullscreenIcon(true))
             }
             ViewMode.PictureInPicture -> {
-                onAcceptUserInputChanged(isVisible)
-                displayFullscreenIcon(false)
+                controllerSubject.accept(ControlEvent.AcceptUserInputChanged(isVisible))
+                controllerSubject.accept(ControlEvent.DisplayFullscreenIcon(false))
             }
             ViewMode.Expanded -> {
-                onProgressVisibilityChanged(true)
-                displayFullscreenIcon(false)
+                controllerSubject.accept(ControlEvent.ProgressVisibilityChanged(true))
+                controllerSubject.accept(ControlEvent.DisplayFullscreenIcon(false))
             }
         }
-    }
-
-    interface ControlView {
-        fun onControlsVisibilityChanged(isVisible: Boolean)
-        fun onProgressVisibilityChanged(isVisible: Boolean)
-        fun onAcceptUserInputChanged(canAccept: Boolean)
-        fun displayFullscreenIcon(isFullscreen: Boolean)
     }
 
     enum class QualityLevel {
@@ -324,4 +310,11 @@ class Player @Inject constructor(preferences: Preferences,
         FullScreen,
         Expanded
     }
+}
+
+sealed class ControlEvent {
+    data class ControlsVisibilityChanged(val isVisible: Boolean) : ControlEvent()
+    data class ProgressVisibilityChanged(val isVisible: Boolean) : ControlEvent()
+    data class AcceptUserInputChanged(val canAccept: Boolean) : ControlEvent()
+    data class DisplayFullscreenIcon(val isFullscreen: Boolean) : ControlEvent()
 }
