@@ -219,7 +219,8 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .map { exoPlayer.currentPosition }.startWith(exoPlayer.currentPosition)
+            .flatMap{ Observable.fromCallable { exoPlayer.currentPosition }.subscribeOn(AndroidSchedulers.mainThread()) }
+            .startWith(exoPlayer.currentPosition)
 
     fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
             .map { exoPlayer.bufferedPosition }.startWith(exoPlayer.bufferedPosition)

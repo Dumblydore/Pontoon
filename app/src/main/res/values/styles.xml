@@ -1,14 +1,24 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar" />
-    <style name="AppTheme.Amoled" parent="AppTheme" />
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="bottomSheetDialogTheme">@style/AppThemeOverlay</item>
+    </style>
+
+    <style name="AppTheme.Amoled" parent="AppTheme">
+        <item name="bottomSheetDialogTheme">@style/AppThemeOverlay.Amoled</item>
+    </style>
+
     <style name="PlayerToolbar" parent="AppTheme">
         <item name="android:actionOverflowButtonStyle">@style/ActionButton.Overflow.Icon</item>
     </style>
+
     <style name="ActionButton.Overflow.Icon" parent="@style/Widget.AppCompat.ActionButton.Overflow">
         <item name="android:tint">@color/white</item>
     </style>
 
+    <style name="AppThemeOverlay" parent="ThemeOverlay.MaterialComponents.Light.BottomSheetDialog" />
+
+    <style name="AppThemeOverlay.Amoled" parent="ThemeOverlay.MaterialComponents.Light.BottomSheetDialog" />
 
     <style name="AppTheme.Launcher">
         <item name="android:colorPrimary">@color/colorPrimary</item>

@@ -307,7 +307,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         enableFullScreen(isInPictureInPictureMode)
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState?.with(controller::onSaveInstanceState)
     }
@@ -321,7 +321,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             else -> throw RuntimeException("Invalid tab selection")
         }
         if (newTab == controller.currentStackIndex)
-            (controller.currentFrag as? BaseFragment<*>)?.reset()
+            if (controller.isRootFragment) (controller.currentFrag as? BaseFragment<*>)?.reset()
+            else controller.clearStack()
         else
             controller.switchTab(newTab)
     }

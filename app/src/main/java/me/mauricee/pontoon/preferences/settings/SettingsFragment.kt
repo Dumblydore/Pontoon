@@ -76,7 +76,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
 
     private fun bindFragment(fragment: PreferenceDialogFragmentCompat) = fragment
             .also { it.setTargetFragment(this, 0) }
-            .show(fragmentManager, "$DialogPrefix.ThemePreference")
+            .show(requireFragmentManager(), "$DialogPrefix.ThemePreference")
 
     companion object {
         const val DialogPrefix = "androidx.preference.PreferenceCategory"
