@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.main.details.video
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.text.util.Linkify
 import android.view.View
 import androidx.core.os.bundleOf
@@ -133,7 +134,7 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
             player_title.text = title
             player_subtitle.text = creator.name
             player_description.text = description
-            player_releaseDate.text = getString(R.string.details_postDate, formatter.format(releaseDate))
+            player_releaseDate.text = getString(R.string.details_postDate, DateUtils.getRelativeTimeSpanString(releaseDate.toEpochMilli()))
             Linkify.addLinks(player_description, Linkify.WEB_URLS)
         }
         GlideApp.with(this).load(info.creator.user.profileImage).circleCrop()

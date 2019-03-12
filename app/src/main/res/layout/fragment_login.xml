@@ -23,6 +23,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -30,9 +31,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_username"
-                android:indeterminateTint="?android:attr/editTextColor"
                 android:maxLines="1"
-                tools:text="@string/default_user" />
+                android:inputType="textEmailAddress"
+                android:imeOptions="actionNext"
+                android:imeActionLabel=""
+                android:nextFocusDown="@id/login.password.edit"
+                android:textColor="?android:textColorPrimaryInverse"
+                tools:text="@string/default_user"
+                tools:textColor="@color/md_white_1000" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -41,6 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
+            android:imeOptions="actionGo"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -52,10 +59,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_password"
-                android:indeterminateTint="?android:attr/editTextColor"
                 android:inputType="textPassword"
                 android:maxLines="1"
-                tools:text="@string/default_pass" />
+                android:textColor="?android:textColorPrimaryInverse"
+                android:nextFocusDown="@id/login.password.edit"
+                tools:text="@string/default_pass"
+                tools:textColor="@color/md_white_1000" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,17 +87,29 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_token"
-                android:indeterminateTint="?android:attr/editTextColor"
                 android:inputType="number"
-                android:maxLines="1" />
+                android:imeOptions="actionGo"
+                android:maxLines="1"
+                android:textColor="?android:textColorPrimaryInverse"
+                tools:textColor="@color/md_white_1000" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/login.error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="@color/colorError"
+            android:visibility="gone"
+            tools:text="@string/login_error_network_credentials"
+            tools:visibility="visible" />
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="36dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="36dp">
 
             <Button
@@ -101,6 +122,7 @@
                 android:text="@string/login_login"
                 android:textAlignment="center"
                 android:textColor="?android:attr/textColorPrimaryInverse"
+                style="?attr/buttonStyle"
                 app:cornerRadius="24dp" />
 
             <ProgressBar
@@ -113,16 +135,19 @@
                 tools:visibility="visible" />
         </FrameLayout>
 
-        <TextView
-            android:id="@+id/login.error"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/login.signUp"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:textAlignment="center"
-            android:textColor="@color/colorError"
-            android:visibility="gone"
-            tools:text="@string/login_error_network_credentials"
-            tools:visibility="visible" />
+            android:layout_gravity="end|bottom"
+            android:padding="8dp"
+            android:layout_marginEnd="36dp"
+            android:textAllCaps="false"
+            android:text="@string/login_signup"
+            android:textColor="?android:attr/colorAccent"
+            tools:textColor="@color/colorAccent" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -169,13 +194,13 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/login.signUp"
+        android:id="@+id/login.privacy"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:padding="16dp"
-        android:text="@string/login_signup"
+        android:padding="8dp"
+        android:text="@string/login_privacy"
         android:textColor="?android:attr/colorAccent"
         tools:textColor="@color/colorAccent" />
 

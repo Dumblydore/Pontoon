@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding2.widget.editorActionEvents
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -28,10 +28,13 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
             LoginContract.Action.Login(login_username_edit.text.toString(), login_password_edit.text.toString())
 
     override val actions: Observable<LoginContract.Action>
-        get() = Observable.merge(login_lttForum.clicks().map { LoginContract.Action.LttLogin },
+        get() = Observable.merge(listOf(login_lttForum.clicks().map { LoginContract.Action.LttLogin },
                 login_discord.clicks().map { LoginContract.Action.DiscordLogin },
                 login_signUp.clicks().map { LoginContract.Action.SignUp },
-                login_login.clicks().map { loginAction })
+                login_login.clicks().map { loginAction },
+                login_password_edit.editorActionEvents().map { loginAction },
+                login_token_edit.editorActionEvents().map { loginAction },
+                login_privacy.clicks().map { LoginContract.Action.PrivacyPolicy }))
                 .compose(emitActivationArgs())
 
     override fun getLayoutId(): Int = R.layout.fragment_login
@@ -54,6 +57,7 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
                 login_token.isVisible = true
                 login_username.isVisible = false
                 login_password.isVisible = false
+                login_token.requestFocus()
             }
             LoginContract.State.InvalidAuthCode -> {
                 resetLoginButton()
@@ -106,7 +110,7 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         private const val ActivationKey = "activation"
         private const val UsernameKey = "username"
 
-        fun newInstance(key: String, username: String): Fragment = LoginFragment().apply {
+        fun newInstance(key: String, username: String): LoginFragment = LoginFragment().apply {
             arguments = bundleOf(ActivationKey to key, UsernameKey to username)
         }
     }

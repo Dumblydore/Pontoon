@@ -4,7 +4,6 @@ import android.accounts.AccountManager
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
@@ -12,6 +11,7 @@ import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -19,6 +19,8 @@ import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.isupatches.wisefy.WiseFy
+import com.vanniktech.rxpermission.RealRxPermission
+import com.vanniktech.rxpermission.RxPermission
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -79,6 +81,7 @@ abstract class AppModule {
     @ContributesAndroidInjector(modules = [PreferenceModule::class])
     abstract fun contributePreferenceActivity(): PreferencesActivity
 
+
     @Module
     companion object {
 
@@ -104,12 +107,6 @@ abstract class AppModule {
         @JvmStatic
         fun providesPowerManager(context: Context): PowerManager =
                 context.getSystemService(Context.POWER_SERVICE) as PowerManager
-
-        @Provides
-        @AppScope
-        @JvmStatic
-        fun providesAudioManager(context: Context): AudioManager =
-                context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         @Provides
         @AppScope
@@ -194,10 +191,25 @@ abstract class AppModule {
         @Provides
         @AppScope
         @JvmStatic
-        fun providesExoPlayer(context: Context) = ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
-                .apply {
-                    videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
-                }
+        fun providesRxPermission(context: Context): RxPermission = RealRxPermission.getInstance(context)
+
+        @Provides
+        @AppScope
+        @JvmStatic
+        fun providesAudioAttributes() = AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.CONTENT_TYPE_MOVIE)
+                .build()
+
+        @Provides
+        @AppScope
+        @JvmStatic
+        fun providesExoPlayer(audioAttributes: AudioAttributes, context: Context) =
+                ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
+                        .apply {
+                            videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+                            setAudioAttributes(audioAttributes, true)
+                        }
 
     }
 }

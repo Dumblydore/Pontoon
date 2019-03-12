@@ -18,13 +18,14 @@ class SettingsPresenter @Inject constructor(private val navigator: PreferencesNa
             .onErrorResumeNext(Observable.empty())
 
     private fun handleActions(action: SettingsContract.Action): Observable<SettingsContract.State> = when (action) {
-        is SettingsContract.Action.OpenBaseThemePreference -> SettingsContract.State.DisplayBaseThemePreference(action.key).toObservable()
         is SettingsContract.Action.OpenAccentColorPreference -> SettingsContract.State.DisplayAccentColorPreference(action.key).toObservable()
         is SettingsContract.Action.OpenPrimaryColorPreference -> SettingsContract.State.DisplayPrimaryColorPreference(action.key).toObservable()
         SettingsContract.Action.SelectedAbout -> stateless { navigator.toAbout() }
+        SettingsContract.Action.SelectedPrivacyPolicy -> stateless { navigator.toPrivacyPolicy() }
         SettingsContract.Action.SelectedRefreshEdges -> edgeRepository.refresh()
                 .andThen(Observable.just<SettingsContract.State>(SettingsContract.State.RefreshedEdges))
                 .onErrorReturnItem(SettingsContract.State.ErrorRefreshingEdges)
                 .startWith(SettingsContract.State.RefreshingEdges)
     }
+
 }

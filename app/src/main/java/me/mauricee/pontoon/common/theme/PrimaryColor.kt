@@ -56,8 +56,7 @@ enum class PrimaryColor(@StyleRes val style: Int) {
     }
 
     companion object {
-
-        fun valueOf(key: String): PrimaryColor = when (key) {
+        fun fromString(key: String?): PrimaryColor = when (key) {
             "Default" -> Default
             "Red" -> Red
             "Pink" -> Pink

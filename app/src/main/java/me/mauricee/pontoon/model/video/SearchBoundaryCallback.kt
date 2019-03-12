@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.model.video
 
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
@@ -8,8 +9,10 @@ import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
+import kotlin.math.log
 
 class SearchBoundaryCallback(private val query: String,
                              private val api: FloatPlaneApi,
@@ -25,8 +28,7 @@ class SearchBoundaryCallback(private val query: String,
         if (isLoading) return
         isLoading = true
         stateRelay.accept(State.Loading)
-        disposable += creators.toObservable().flatMap { api.getVideos(it.id).flatMapIterable { it } }
-                .filter { it.title.contains(query, true) }
+        disposable += pullUntilHit().flatMapIterable { it }
                 .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
@@ -37,14 +39,20 @@ class SearchBoundaryCallback(private val query: String,
         if (isLoading) return
         isLoading = true
         stateRelay.accept(State.Loading)
-        disposable += creators.toObservable().flatMap {
-            api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id))
-        }.flatMapIterable { it }
-                .filter { it.title.contains(query, true) }
+        disposable += pullUntilHit().flatMapIterable { it }
                 .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
     }
+
+
+    private fun pullUntilHit(startAt: Int = 0): Observable<List<me.mauricee.pontoon.domain.floatplane.Video>> = creators.toObservable()
+            .flatMap { api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id)) }
+            .flatMapIterable { it }
+            .toList().flatMapObservable { videos ->
+                if (videos.any { it.title.contains(query, ignoreCase = true) }) Observable.just(videos)
+                else pullUntilHit(videos.size + startAt)
+            }.flatMapIterable { it }.toList().toObservable()
 
     private fun cacheVideos(it: MutableList<VideoEntity>) {
         when {

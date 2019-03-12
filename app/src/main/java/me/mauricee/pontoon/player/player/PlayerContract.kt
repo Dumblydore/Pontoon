@@ -3,7 +3,6 @@ package me.mauricee.pontoon.player.player
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.main.Player
-import me.mauricee.pontoon.model.video.Video
 
 interface PlayerContract {
 
@@ -21,7 +20,6 @@ interface PlayerContract {
         object DownloadStart : State()
         object DownloadFailed : State()
         object Error : State()
-        class ShareUrl(val video: Video) : State()
         class Bind(val displayPipIcon: Boolean) : State()
         class Preview(val path: String) : State()
         class PreviewThumbnail(val path: String) : State()

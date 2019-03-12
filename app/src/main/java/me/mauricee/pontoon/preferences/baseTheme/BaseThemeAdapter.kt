@@ -39,7 +39,6 @@ class BaseThemeAdapter @Inject constructor(private val circleHelper: CircleHelpe
         val context = holder.itemView.context
         val color = when (themes[position]) {
             BaseTheme.Light -> R.color.white
-            BaseTheme.Dark -> R.color.md_grey_850
             BaseTheme.Black -> R.color.md_black_1000
         }.let { ContextCompat.getColor(context, it) }
 

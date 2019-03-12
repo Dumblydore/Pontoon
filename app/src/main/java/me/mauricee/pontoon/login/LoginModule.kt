@@ -1,5 +1,7 @@
 package me.mauricee.pontoon.login
 
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -14,6 +16,14 @@ abstract class LoginModule {
     @Binds
     @LoginScope
     abstract fun bindLoginNavigator(activity: LoginActivity): LoginNavigator
+
+    @Binds
+    @LoginScope
+    abstract fun bindLifecycleOwner(mainActivity: LoginActivity): LifecycleOwner
+
+    @Binds
+    @LoginScope
+    abstract fun bindActivity(mainActivity: LoginActivity): AppCompatActivity
 
     @Binds
     @LoginScope

@@ -1,5 +1,7 @@
 package me.mauricee.pontoon.preferences
 
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -15,6 +17,14 @@ abstract class PreferenceModule {
     @Binds
     @PreferencesScope
     abstract fun bindPreferenceNavigator(preferencesActivity: PreferencesActivity): PreferencesNavigator
+
+    @Binds
+    @PreferencesScope
+    abstract fun bindActivity(playerActivity: PreferencesActivity): AppCompatActivity
+
+    @Binds
+    @PreferencesScope
+    abstract fun bindLifecycleOwner(mainActivity: PreferencesActivity): LifecycleOwner
 
     @Binds
     @PreferencesScope

@@ -40,7 +40,7 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        theme = (defaultValue as? String)?.let { PrimaryColor.valueOf(it) } ?: PrimaryColor.Default
+        theme = (defaultValue as? String)?.let { PrimaryColor.fromString(it) } ?: PrimaryColor.Default
     }
 
     class Fragment : PreferenceDialogFragmentCompat() {

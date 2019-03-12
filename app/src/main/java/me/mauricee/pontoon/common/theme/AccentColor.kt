@@ -48,8 +48,8 @@ enum class AccentColor(@StyleRes val style: Int) {
     }
 
     companion object {
-
-        fun valueOf(key: String): AccentColor = when (key) {
+        @JvmStatic
+        fun fromString(key: String?): AccentColor = when (key) {
             "Default" -> Default
             "Red" -> Red
             "Pink" -> Pink

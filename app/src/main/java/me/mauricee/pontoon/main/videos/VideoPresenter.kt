@@ -4,11 +4,15 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.common.ShareManager
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.ext.logd
+import me.mauricee.pontoon.common.download.DownloadHelper
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.livestream.LiveStreamRepository
+import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.preferences.Preferences
+import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -17,6 +21,8 @@ class VideoPresenter @Inject constructor(private val videoRepository: VideoRepos
                                          private val liveStreamRepository: LiveStreamRepository,
                                          private val mainNavigator: MainContract.Navigator,
                                          private val preferences: Preferences,
+                                         private val sharedManager: ShareManager,
+                                         private val downloadHelper: DownloadHelper,
                                          eventTracker: EventTracker) :
 
         BasePresenter<VideoContract.State, VideoContract.View>(eventTracker), VideoContract.Presenter {
@@ -35,9 +41,15 @@ private lateinit var sub: Disposable
         is VideoContract.Action.Refresh -> getVideos(action.clean).startWith(VideoContract.State.Loading())
         is VideoContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video) }
         is VideoContract.Action.Subscription -> stateless { mainNavigator.toCreator(action.creator) }
+        is VideoContract.Action.Share -> stateless { sharedManager.shareVideo(action.video) }
+        is VideoContract.Action.Download -> downloadVideo(action.video, action.quality)
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
         VideoContract.Action.NavMenu -> stateless { mainNavigator.setMenuExpanded(true) }
     }
+
+    private fun downloadVideo(video: Video, qualityLevel: Player.QualityLevel) = downloadHelper.download(video, qualityLevel)
+            .map { if (it) VideoContract.State.DownloadStart else VideoContract.State.DownloadFailed }
+            .onErrorReturnItem(VideoContract.State.DownloadFailed).toObservable()
 
     private fun getVideos(clean: Boolean) = preferences.displayUnwatchedVideos
             .flatMap { videoRepository.getSubscriptionFeed(it, clean) }

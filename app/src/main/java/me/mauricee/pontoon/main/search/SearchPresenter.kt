@@ -18,14 +18,14 @@ class SearchPresenter @Inject constructor(private val navigator: MainContract.Na
             Observable.combineLatest<List<UserRepository.Creator>, SearchContract.Action, Pair<List<UserRepository.Creator>, SearchContract.Action>>(
                     videoRepository.subscriptions, view.actions.doOnNext { eventTracker.trackAction(it, view) },
                     BiFunction { t1, t2 -> Pair(t1, t2) })
-                    .flatMap { handleActions(it.first, it.second) }
+                    .switchMap { handleActions(it.first, it.second) }
                     .onErrorReturnItem(SearchContract.State.Error())
 
     private fun handleActions(creators: List<UserRepository.Creator>, action: SearchContract.Action): Observable<SearchContract.State> =
             when (action) {
                 is SearchContract.Action.Query -> {
                     if (action.query.isEmpty()) Observable.just<SearchContract.State>(SearchContract.State.Error(SearchContract.State.Type.NoText))
-                    else videoRepository.search("%${action.query}%", *creators.toTypedArray()).let { result ->
+                    else videoRepository.search(action.query, *creators.toTypedArray()).let { result ->
                         Observable.merge(result.videos.map(SearchContract.State::Results), result.state.map { handleResultState(it, result.retry) })
                                 .onErrorReturnItem(SearchContract.State.Error())
                     }

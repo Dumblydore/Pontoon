@@ -5,6 +5,7 @@
     <string name="login_token">Token</string>
     <string name="login_login">Login</string>
     <string name="login_signup">Not a member?</string>
+    <string name="login_privacy">@string/settings_privacy_policy</string>
     <string name="login_error_missingUsername">Enter Username.</string>
     <string name="login_error_missingPassword">Enter Password.</string>
 
@@ -42,7 +43,7 @@
     <string name="player_error_default">Video could not be played.</string>
 
     <!-- Details -->
-    <string name="details_postDate">Posted on %s.</string>
+    <string name="details_postDate">Posted %s.</string>
     <string name="details_commentLiked">You liked %s\'s comment.</string>
     <string name="details_commentDisliked">You disliked %s\'s comment.</string>
     <string name="details_error_commentPost">Error posting comment.</string>
@@ -95,6 +96,7 @@
     <string name="action_profile">My Profile</string>
     <string name="action_prefs">Preferences</string>
     <string name="action_logout">Logout</string>
+    <string name="action_nightMode">Night Mode</string>
 
     <!-- Main Bottom Nav-->
     <string name="nav_videos">Videos</string>
@@ -125,6 +127,8 @@
     <string name="settings_hide">Hide Watched Videos From Subscription Feed"</string>
     <string name="settings_refresh_edges">Refresh edges</string>
     <string name="settings_refresh_edges_description">Try this if videos aren\'t loading.</string>
+    <string name="settings_privacy">Privacy</string>
+    <string name="settings_privacy_policy">Privacy Policy</string>
 
     <string name="settings_quality_cell">Quality over Cellular</string>
     <string name="settings_quality_wifi">Quality over Wifi"</string>
@@ -132,7 +136,9 @@
     <string name="settings_about">About"</string>
 
     <string name="settings_notch">Use notch area</string>
-    <string name="settings_pip">Picture-in-Picture"</string>
+    <string name="settings_pip">Picture-in-Picture</string>
+    <string name="settings_analytics">Enable Analytics</string>
+
     <string-array name="settings_pip_options">
         <item>Always</item>
         <item>Only When Playing</item>
@@ -144,6 +150,22 @@
         <item>Never</item>
     </string-array>
 
+    <string name="settings_night_mode_behavior">Night Mode Behavior</string>
+    <string-array name="settings_night_mode_behavior_options">
+        <item>User Controlled</item>
+        <item>Automatic</item>
+        <item>System Controlled</item>
+    </string-array>
+    <string-array name="settings_night_mode_behavior_values">
+        <item>User</item>
+        <item>Automatic</item>
+        <item>System</item>
+    </string-array>
+
+    <string name="settings_night_mode_amoled">Use AMOLED Night Mode</string>
+    <string name="settings_night_mode_amoled_summary">Special night mode optimized for AMOLED devices</string>
+
+    <string name="settings_night_mode_power">Enable Night Mode during Battery Saver Mode</string>
     <!-- About -->
     <string name="aboutLibraries_description_showIcon">true</string>
     <string name="aboutLibraries_description_showVersion">true</string>
@@ -192,6 +214,12 @@
     <string name="play_icon_top_path_name">upper</string>
     <string name="play_icon_bottom_path_name">bottom</string>
 
+    <!-- Analytics prompt-->
+    <string name="analytics_prompt_title">Allow Analytics</string>
+    <string name="analytics_prompt_message">This app tracks Non Personally Identifiable Information to better understand how our app is behaving features are being used. You can always change tracking in the settings.</string>
+    <string name="analytics_prompt_positive">Allow</string>
+    <string name="analytics_prompt_negative">Deny</string>
+    <string name="analytics_prompt_neutral">Learn More</string>
 
     <!-- Misc -->
     <string name="error_general">Something happened, Not sure what it was.</string>
@@ -202,5 +230,7 @@
     <string name="main_session_expired_body">Your session expired. You need to re-login.</string>
     <string name="main_session_expired_title">Session Expired</string>
     <string name="player_share">Share Video</string>
+    <string name="download_notification">Downloading %s</string>
+    <string name="user_container_subtitle">Activity</string>
 
 </resources>

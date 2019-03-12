@@ -1,9 +1,11 @@
 package me.mauricee.pontoon.main
 
-import android.app.Activity
+import android.view.MenuInflater
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.GestureEvents
@@ -12,11 +14,11 @@ import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.video.DetailsFragment
 import me.mauricee.pontoon.main.details.video.DetailsModule
 import me.mauricee.pontoon.main.history.HistoryFragment
-import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.player.player.PlayerContract
+import me.mauricee.pontoon.player.player.PlayerFragment
 
 @Module
 abstract class MainModule {
@@ -37,7 +39,7 @@ abstract class MainModule {
     abstract fun bindLifecycleOwner(mainActivity: MainActivity): LifecycleOwner
 
     @Binds
-    abstract fun bindActivity(mainActivity: MainActivity): Activity
+    abstract fun bindActivity(mainActivity: MainActivity): AppCompatActivity
 
     @ContributesAndroidInjector
     abstract fun contributeVideoFragment(): VideoFragment
@@ -62,5 +64,13 @@ abstract class MainModule {
 
     @ContributesAndroidInjector
     abstract fun contributeVideoPlayerFragment(): PlayerFragment
+
+    @Module
+    companion object {
+        @MainScope
+        @Provides
+        @JvmStatic
+        fun providesSharedPreferences(activity: MainActivity): MenuInflater = activity.menuInflater
+    }
 
 }

@@ -9,9 +9,11 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/player.controls.toolbar"
+        android:theme="@style/PlayerToolbar"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
+        tools:menu="@menu/player_toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

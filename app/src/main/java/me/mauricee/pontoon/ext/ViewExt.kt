@@ -1,6 +1,10 @@
 package me.mauricee.pontoon.ext
 
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.util.DisplayMetrics
@@ -8,7 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -32,6 +38,13 @@ inline fun AppCompatActivity.loadFragment(isAddToBackStack: Boolean = false,
 }
 
 fun Activity.isPortrait() = requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+fun Activity.setStatusBarColor(@ColorInt color: Int): Animator =
+        ValueAnimator.ofArgb(window.statusBarColor, color).apply {
+            addUpdateListener { window.statusBarColor = it.animatedValue as Int }
+        }
+
+fun Fragment.setStatusBarColor(@ColorInt color: Int): Animator = requireActivity().setStatusBarColor(color)
 
 fun Activity.getDeviceWidth() = with(this) {
     val displayMetrics = DisplayMetrics()
@@ -97,3 +110,9 @@ inline fun ConstraintLayout.updateParams(constraintSet: ConstraintSet = Constrai
     constraintSet.updates()
     constraintSet.applyTo(this)
 }
+
+fun View.getActivity(c: Context = context): Activity? = (c as? Activity)
+        ?: (c as? ContextWrapper)?.baseContext?.let { getActivity(it) }
+
+val Fragment.supportActionBar: ActionBar?
+    get() = (activity as? AppCompatActivity)?.supportActionBar

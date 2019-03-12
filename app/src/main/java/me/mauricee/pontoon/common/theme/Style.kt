@@ -9,8 +9,7 @@ import me.mauricee.pontoon.R
 
 sealed class Style(val theme: BaseTheme, val primary: PrimaryColor, val accent: AccentColor) {
     class Light(primary: PrimaryColor, accent: AccentColor) : Style(BaseTheme.Light, primary, accent)
-    class Dark(primary: PrimaryColor, accent: AccentColor) : Style(BaseTheme.Dark, primary, accent)
-    class Black(accent: AccentColor) : Style(BaseTheme.Black, PrimaryColor.Black, accent)
+    class Black(primary: PrimaryColor, accent: AccentColor) : Style(BaseTheme.Black, primary, accent)
 }
 
 val Resources.Theme.primaryColor: Int

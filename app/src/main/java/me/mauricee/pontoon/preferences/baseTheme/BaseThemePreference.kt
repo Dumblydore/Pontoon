@@ -40,7 +40,7 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        theme = (defaultValue as? String)?.let { BaseTheme.valueOf(it) } ?: BaseTheme.Light
+        theme = (defaultValue as? String)?.let { BaseTheme.fromString(it) } ?: BaseTheme.Light
     }
 
     class Fragment : PreferenceDialogFragmentCompat() {

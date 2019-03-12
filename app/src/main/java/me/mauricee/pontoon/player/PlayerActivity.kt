@@ -70,6 +70,7 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
     }
 
     override fun setPlayerExpanded(isExpanded: Boolean) {
+        player.viewMode = Player.ViewMode.PictureInPicture
         onBackPressed()
     }
 
@@ -83,7 +84,6 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
 
     override fun onScale(percentage: Float) {
         player_display.scaleVideo(percentage)
-        logd("scale factor: $percentage")
 
     }
 
@@ -96,7 +96,9 @@ class PlayerActivity : BaseActivity(), PlayerContract.Controls, GestureEvents {
     }
 
     override fun onBackPressed() {
-        player.viewMode = Player.ViewMode.Expanded
+        if (player.viewMode == Player.ViewMode.FullScreen) {
+            player.viewMode = Player.ViewMode.Expanded
+        }
         super.onBackPressed()
     }
 }

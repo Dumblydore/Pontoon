@@ -3,17 +3,24 @@
     <androidx.preference.PreferenceCategory
         android:key="settings_appearance"
         android:title="@string/settings_appearance">
-        <me.mauricee.pontoon.preferences.baseTheme.BaseThemePreference
-            android:key="settings_base"
-            android:defaultValue="Light"
-            android:title="@string/settings_screen" />
+        <androidx.preference.ListPreference
+            android:defaultValue="System"
+            android:entries="@array/settings_night_mode_behavior_options"
+            android:entryValues="@array/settings_night_mode_behavior_values"
+            android:key="settings_night_mode_behavior"
+            android:title="@string/settings_night_mode_behavior" />
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="settings_amoled_night_mode"
+            android:summary="@string/settings_night_mode_amoled_summary"
+            android:title="@string/settings_night_mode_amoled" />
         <me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
-            android:key="settings_primary"
             android:defaultValue="Default"
+            android:key="settings_primary"
             android:title="@string/settings_theme" />
         <me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
-            android:key="settings_accent"
             android:defaultValue="Default"
+            android:key="settings_accent"
             android:title="@string/settings_accent_color" />
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
@@ -45,18 +52,30 @@
             android:entryValues="@array/settings_quality_values"
             android:key="settings_quality_wifi"
             android:title="@string/settings_quality_wifi" />
-        <Preference
+        <androidx.preference.Preference
             android:key="settings_test_crash"
-            android:title="Crash app"
-            android:summary="This will crash the app. You should not see this in a production build!"/>
+            android:summary="This will crash the app. You should not see this in a production build!"
+            android:title="Crash app" />
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:key="settings_privacy"
+        android:title="@string/settings_privacy">
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="settings_analytics"
+            android:title="@string/settings_analytics" />
+        <androidx.preference.Preference
+            android:key="settings_privacy_policy"
+            android:title="@string/settings_privacy_policy" />
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:key="settings_misc"
         android:title="@string/settings_misc">
         <Preference
             android:key="settings_refresh_edges"
-            android:title="@string/settings_refresh_edges"
-            android:summary="@string/settings_refresh_edges_description"/>
+            android:summary="@string/settings_refresh_edges_description"
+            android:title="@string/settings_refresh_edges" />
         <Preference
             android:key="settings_about"
             android:title="@string/settings_about" />

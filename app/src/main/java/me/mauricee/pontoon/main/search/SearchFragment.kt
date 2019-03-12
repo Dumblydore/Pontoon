@@ -2,6 +2,7 @@ package me.mauricee.pontoon.main.search
 
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -31,6 +32,8 @@ class SearchFragment : BaseFragment<SearchPresenter>(), SearchContract.View {
         ).startWith(SearchContract.Action.Query(search_view.query.toString()))
 
     override fun getLayoutId(): Int = R.layout.fragment_search
+
+    override fun getToolbar(): Toolbar? = search_toolbar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

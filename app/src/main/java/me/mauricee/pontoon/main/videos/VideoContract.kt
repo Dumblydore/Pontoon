@@ -5,6 +5,7 @@ import androidx.paging.PagedList
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 
@@ -18,6 +19,8 @@ interface VideoContract {
         class Refresh(val clean: Boolean) : Action()
         class Subscription(val creator: UserRepository.Creator) : Action()
         class PlayVideo(val video: Video) : Action()
+        class Share(val video: Video): Action()
+        class Download(val video: Video, val quality: Player.QualityLevel): Action()
         object Creators : Action()
         object NavMenu : Action()
     }
@@ -27,7 +30,8 @@ interface VideoContract {
             override val tag: String
                 get() = "${super.tag}_${if (clean) "clean" else "paginate"}"
         }
-
+        object DownloadStart : State()
+        object DownloadFailed : State()
         class DisplaySubscriptions(val subscriptions: List<UserRepository.Creator>) : State()
         class DisplayVideos(val videos: PagedList<Video>) : State()
         object FinishPageFetch : State()

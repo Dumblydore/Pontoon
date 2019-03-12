@@ -23,18 +23,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:background="@color/colorPrimary" />
 
-        <View
-            android:id="@+id/main.fullscreenbg"
-            android:visibility="gone"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/md_black_1000"
-            android:elevation="2dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <FrameLayout
             android:id="@+id/main.player"
             android:layout_width="0dp"
@@ -75,16 +63,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.425" />
-
-        <View
-            android:id="@+id/bottomBackground"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/guidelineBottom" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/main.bottomNav"

@@ -40,7 +40,7 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        theme = (defaultValue as? String)?.let { AccentColor.valueOf(it) } ?: AccentColor.Default
+        theme = (defaultValue as? String)?.let { AccentColor.fromString(it) } ?: AccentColor.Default
     }
 
     class Fragment : PreferenceDialogFragmentCompat() {
