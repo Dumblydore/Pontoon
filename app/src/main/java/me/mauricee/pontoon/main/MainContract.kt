@@ -31,6 +31,7 @@ interface MainContract {
         object NightMode : Action()
         object PlayerClicked : Action()
         data class PlayVideo(val videoId: String) : Action()
+        data class PlayLivestream(val creatorId: String) : Action()
 
 
         companion object {
@@ -47,6 +48,8 @@ interface MainContract {
     interface Navigator {
 
 //        val optionsBottomSheet: OptionsBottomSheetView
+
+        fun showMessage(content: String, action: Pair<String, () -> Unit>)
 
         fun toPreferences()
 

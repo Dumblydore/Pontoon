@@ -3,8 +3,10 @@ package me.mauricee.pontoon.domain.account
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.google.gson.Gson
+import io.reactivex.Observable
 import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.domain.floatplane.User
+import me.mauricee.pontoon.rx.preferences.watchString
 import java.util.*
 import javax.inject.Inject
 
@@ -20,6 +22,9 @@ open class AccountManagerHelper @Inject constructor(private val sharedPreference
 
     val isLoggedIn: Boolean
         get() = sharedPreferences.contains(UserData)
+
+    val watchForLogin: Observable<Boolean>
+        get() = sharedPreferences.watchString(UserData, true).map { it.isNotEmpty() }
 
     internal var cfduid = sharedPreferences.getString(CfDuid, UUID.randomUUID().toString())
             .also { sharedPreferences.edit { putString(CfDuid, it) } }

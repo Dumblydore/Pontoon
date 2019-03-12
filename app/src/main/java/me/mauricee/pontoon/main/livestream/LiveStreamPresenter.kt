@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.details.livestream
+package me.mauricee.pontoon.main.livestream
 
 import io.reactivex.Observable
 import me.mauricee.pontoon.BasePresenter

@@ -2,6 +2,7 @@ package me.mauricee.pontoon.di
 
 import android.accounts.AccountManager
 import android.app.Application
+import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.wifi.WifiManager
@@ -210,6 +211,11 @@ abstract class AppModule {
                             videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
                             setAudioAttributes(audioAttributes, true)
                         }
+
+        @Provides
+        @AppScope
+        @JvmStatic
+        fun providesNotificationManager(context: Context) : NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     }
 }

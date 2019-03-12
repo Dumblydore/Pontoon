@@ -1,6 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground">
 
-</LinearLayout>
+    <me.mauricee.pontoon.common.LazyLayout
+        android:id="@+id/livestream"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:lazy_state="success">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/livestream.info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:id="@+id/livestream.small.icon"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:src="@mipmap/ic_launcher"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/livestream.title"
+                    style="?attr/titleTextAppearance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/livestream.small.icon"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Lorem ipsum dolor sit amet." />
+
+                <TextView
+                    android:id="@+id/livestream.subtitle"
+                    style="?attr/subtitleTextAppearance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/livestream.small.icon"
+                    app:layout_constraintTop_toBottomOf="@+id/livestream.title"
+                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vitae consectetur enim, vulputate fermentum odio. Morbi vitae tristique elit, sit amet fermentum purus. Curabitur luctus porta massa. Cras nisl mi, condimentum nec rutrum et, iaculis nec urna. Nullam id molestie sem. Fusce lobortis justo est, ut vehicula augue fringilla sit amet. Donec feugiat nunc dolor, ac rutrum nulla sollicitudin eu. Donec diam magna, luctus et ultricies in, aliquam a justo." />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+    </me.mauricee.pontoon.common.LazyLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_lttforum" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

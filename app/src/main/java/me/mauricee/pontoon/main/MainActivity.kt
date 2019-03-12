@@ -25,6 +25,8 @@ import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
@@ -41,13 +43,15 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.PrivacyManager
 import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
+import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
 import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.login.LoginActivity
 import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
-import me.mauricee.pontoon.main.details.DetailsFragment
+import me.mauricee.pontoon.main.details.video.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
+import me.mauricee.pontoon.main.livestream.LiveStreamFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
@@ -126,7 +130,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun setSupportActionBar(toolbar: Toolbar?) {
         super.setSupportActionBar(toolbar)
         toolbar?.just {
-            if (controller.isRootFragment){
+            if (controller.isRootFragment) {
                 setNavigationIcon(R.drawable.ic_menu)
             } else {
                 setNavigationIcon(R.drawable.ic_back)
@@ -169,6 +173,17 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         else
             root.closeDrawer(main_drawer, true)
     }
+
+    override fun playLiveStream(liveStream: LiveStreamMetadata) {
+        loadFragment {
+            replace(R.id.main_player, PlayerFragment.newInstance(liveStream.thumbnail.path))
+            replace(R.id.main_details, LiveStreamFragment.newInstance(liveStream.owner))
+        }
+        main.doOnPreDraw {
+            animationTouchListener.isExpanded = true
+        }
+    }
+
 
     override fun playVideo(video: Video, commentId: String) {
         animationTouchListener.show()
@@ -389,6 +404,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
      */
     override fun setPlayerExpanded(isExpanded: Boolean) = expandPlayerTo(isExpanded, Player.ViewMode.Expanded)
 
+    override fun showMessage(content: String, action: Pair<String, () -> Unit>) {
+        Snackbar.make(main_container, content, Snackbar.LENGTH_INDEFINITE)
+                .apply { setAction(action.first) { action.second() } }
+                .addCallback(snackbarCallback)
+                .show()
+    }
+
     private fun expandPlayerTo(isExpanded: Boolean, expandedState: Player.ViewMode) {
         main_player.alpha = 1f
         main.updateParams(constraintSet) {
@@ -463,13 +485,28 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                 val id = intent.getStringExtra(VideoToPlayKey)
                 intent.removeExtra(VideoToPlayKey)
                 it.startWith(MainContract.Action.PlayVideo(id))
+            } else if (intent.hasExtra(LivestreamToPlayKey)) {
+                val id = intent.getStringExtra(LivestreamToPlayKey)
+                intent.removeExtra(VideoToPlayKey)
+                it.startWith(MainContract.Action.PlayLivestream(id))
             } else
                 it
         }
     }
 
+    private val snackbarCallback = object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+        override fun onShown(transientBottomBar: Snackbar) {
+            super.onShown(transientBottomBar)
+        }
+
+        override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
+            super.onDismissed(transientBottomBar, event)
+        }
+    }
+
     companion object {
         private const val VideoToPlayKey = "VideoToPlay"
+        private const val LivestreamToPlayKey = "LivestreamToPlay"
 
         fun navigateTo(context: Context) {
             context.startActivity(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
@@ -477,5 +514,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
         fun playVideo(context: Context, videoId: String) = context.startActivity(Intent(context, MainActivity::class.java)
                 .putExtra(VideoToPlayKey, videoId).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+
+        fun buildIntentForLivestream(context: Context, liveStream: LiveStreamMetadata): Intent =
+                Intent(context, MainActivity::class.java).putExtra(LivestreamToPlayKey, liveStream.id)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     }
 }

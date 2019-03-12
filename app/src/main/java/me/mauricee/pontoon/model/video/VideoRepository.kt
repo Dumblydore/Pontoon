@@ -14,7 +14,6 @@ import io.reactivex.functions.Function4
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
 import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
@@ -22,7 +21,6 @@ import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.model.livestream.ChatSession
-import me.mauricee.pontoon.model.livestream.LiveStreamResult
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
 import me.mauricee.pontoon.model.user.UserRepository
@@ -78,14 +76,6 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 }
                 .let { VideoResult(it, callback.state, callback::retry) }
     }
-
-
-    fun getLivestream(creator: UserRepository.Creator): Single<LiveStreamResult> =
-            Observable.combineLatest<LiveStreamMetadata, String, LiveStreamResult>(floatPlaneApi.getCreator(creator.id).map { it.first().liveStream!! },
-                    edgeRepo.streamingHost.toObservable(), BiFunction { metadata, host ->
-                LiveStreamResult("$host${metadata.streamPath}", chatSessionBuilder.startSession(metadata))
-            }).singleOrError()
-
 
     fun search(query: String, vararg filteredSubs: UserRepository.Creator): VideoResult {
         val callback = searchCallbackFactory.newInstance(query, *filteredSubs)

@@ -1,17 +1,23 @@
 package me.mauricee.pontoon
 
-import com.facebook.stetho.Stetho
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
-import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.analytics.DebugTracker
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.analytics.FirebaseTracker
 import me.mauricee.pontoon.analytics.PrivacyManager
 import me.mauricee.pontoon.di.AppComponent
 import me.mauricee.pontoon.di.DaggerAppComponent
+import me.mauricee.pontoon.domain.account.AccountManagerHelper
+import me.mauricee.pontoon.worker.LiveStreamWorker
 import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class Pontoon : DaggerApplication() {
@@ -23,20 +29,32 @@ class Pontoon : DaggerApplication() {
     lateinit var debugTracker: DebugTracker
     @Inject
     lateinit var privacyManager: PrivacyManager
+    @Inject
+    lateinit var accountManagerHelper: AccountManagerHelper
+
     lateinit var appComponent: AppComponent
 
-    lateinit var sub: Disposable
+    private val subs: CompositeDisposable = CompositeDisposable()
+
     override fun onCreate() {
         super.onCreate()
         AndroidThreeTen.init(this)
-        sub = privacyManager.isAnalyticsEnabled.subscribe {
+        subs += privacyManager.isAnalyticsEnabled.subscribe {
             if (it) {
                 EventTracker.trackers += fireBaseTracker
             } else EventTracker.trackers -= fireBaseTracker
         }
+        subs += accountManagerHelper.watchForLogin.subscribe {
+            WorkManager.getInstance()
+                    .enqueue(PeriodicWorkRequestBuilder<LiveStreamWorker>(5, TimeUnit.MINUTES).build())
+            if (BuildConfig.DEBUG) {
+                WorkManager.getInstance()
+                        .enqueue(OneTimeWorkRequestBuilder<LiveStreamWorker>().build())
+
+            }
+        }
         if (BuildConfig.DEBUG) {
             EventTracker.trackers += debugTracker
-            Stetho.initializeWithDefaults(this);
         }
     }
 

@@ -14,6 +14,8 @@ import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.video.DetailsFragment
 import me.mauricee.pontoon.main.details.video.DetailsModule
 import me.mauricee.pontoon.main.history.HistoryFragment
+import me.mauricee.pontoon.main.livestream.LiveStreamFragment
+import me.mauricee.pontoon.main.livestream.LiveStreamModule
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
@@ -60,7 +62,10 @@ abstract class MainModule {
     abstract fun contributeHistoryFragment(): HistoryFragment
 
     @ContributesAndroidInjector(modules = [DetailsModule::class])
-    abstract fun contributePlayerFragment(): DetailsFragment
+    abstract fun contributeVideoDetailsFragment(): DetailsFragment
+
+    @ContributesAndroidInjector(modules = [LiveStreamModule::class])
+    abstract fun contributeLiveStreamFragment(): LiveStreamFragment
 
     @ContributesAndroidInjector
     abstract fun contributeVideoPlayerFragment(): PlayerFragment

@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.details.livestream
+package me.mauricee.pontoon.main.livestream
 
 import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract

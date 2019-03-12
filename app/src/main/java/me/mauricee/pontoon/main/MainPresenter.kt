@@ -11,6 +11,7 @@ import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.model.PontoonDatabase
+import me.mauricee.pontoon.model.livestream.LiveStreamRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
@@ -19,6 +20,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
                                         private val animationTouchListener: VideoTouchHandler,
                                         private val userRepository: UserRepository,
                                         private val videoRepository: VideoRepository,
+                                        private val liveStreamRepository: LiveStreamRepository,
                                         private val player: Player,
                                         private val floatPlaneApi: FloatPlaneApi,
                                         private val pontoonDatabase: PontoonDatabase,
@@ -39,6 +41,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
             is MainContract.Action.Preferences -> stateless { navigator.toPreferences() }
             is MainContract.Action.PlayerClicked -> toggleControls()
             is MainContract.Action.PlayVideo -> playVideo(it)
+            is MainContract.Action.PlayLivestream -> playLiveStream(it)
             MainContract.Action.Expired -> logout()
             MainContract.Action.NightMode -> stateless {
                 navigator.setMenuExpanded(false)
@@ -53,6 +56,9 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
             else player.toggleControls()
         }
     }
+
+    private fun playLiveStream(action: MainContract.Action.PlayLivestream): Observable<MainContract.State> =
+            liveStreamRepository.getLiveStreamOf(action.creatorId).flatMapObservable { stateless { navigator.playLiveStream(it) } }
 
     private fun playVideo(it: MainContract.Action.PlayVideo) =
             videoRepository.getVideo(it.videoId).flatMapObservable { stateless { navigator.playVideo(it) } }

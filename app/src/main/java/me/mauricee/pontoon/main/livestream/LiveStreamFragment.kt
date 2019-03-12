@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.main.details.livestream
+package me.mauricee.pontoon.main.livestream
 
 import androidx.core.os.bundleOf
 import io.reactivex.Observable

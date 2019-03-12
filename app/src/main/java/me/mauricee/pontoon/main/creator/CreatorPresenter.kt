@@ -1,16 +1,19 @@
 package me.mauricee.pontoon.main.creator
 
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.main.MainContract
+import me.mauricee.pontoon.model.livestream.LiveStreamRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
 
 class CreatorPresenter @Inject constructor(private val videoRepository: VideoRepository,
                                            private val userRepository: UserRepository,
+                                           private val liveStreamRepository: LiveStreamRepository,
                                            private val mainNavigator: MainContract.Navigator,
                                            eventTracker: EventTracker) :
         BasePresenter<CreatorContract.State, CreatorContract.View>(eventTracker), CreatorContract.Presenter {
@@ -31,6 +34,7 @@ class CreatorPresenter @Inject constructor(private val videoRepository: VideoRep
                         .map<CreatorContract.State>(CreatorContract.State::DisplayVideos),
                         result.state.map(::processState))
                         .startWith(CreatorContract.State.DisplayCreator(it))
+                        .mergeWith(checkForLivestream(it))
             }
             .startWith(CreatorContract.State.Loading)
             .onErrorReturnItem(CreatorContract.State.Error())
@@ -41,4 +45,9 @@ class CreatorPresenter @Inject constructor(private val videoRepository: VideoRep
         StateBoundaryCallback.State.Finished -> CreatorContract.State.Error(CreatorContract.State.Error.Type.NoVideos)
         StateBoundaryCallback.State.Fetched -> CreatorContract.State.Fetched
     }
+
+    private fun checkForLivestream(creator: UserRepository.Creator): Observable<CreatorContract.State> =
+            liveStreamRepository.activeLiveStreams.flatMapObservable { it.toObservable() }
+                    .filter { it.owner == creator.id }
+                    .flatMap { stateless { mainNavigator.showMessage("${creator.name} is live.", Pair("Go to stream", { mainNavigator.playLiveStream(it) })) } }
 }

@@ -6,11 +6,11 @@ import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.ShareManager
 import me.mauricee.pontoon.common.StateBoundaryCallback
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.common.download.DownloadHelper
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.MainContract
-import me.mauricee.pontoon.model.livestream.LiveStreamRepository
 import me.mauricee.pontoon.main.Player
+import me.mauricee.pontoon.model.livestream.LiveStreamRepository
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
