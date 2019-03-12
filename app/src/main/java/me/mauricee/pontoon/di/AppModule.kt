@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioManager
 import android.net.wifi.WifiManager
-import android.os.Handler
 import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.paging.PagedList
@@ -20,15 +19,11 @@ import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.isupatches.wisefy.WiseFy
-import com.novoda.downloadmanager.DownloadManagerBuilder
-import com.novoda.downloadmanager.StorageRoot
-import com.novoda.downloadmanager.StorageRootFactory
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.BuildConfig
-import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.FirebaseNetworkInterceptor
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
@@ -168,7 +163,7 @@ abstract class AppModule {
         @Provides
         @JvmStatic
         fun providesHlsFactory(okHttpClient: OkHttpClient, agent: String) =
-                HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent, null))
+                HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent))
 
         @AppScope
         @Provides
@@ -184,17 +179,6 @@ abstract class AppModule {
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(5)
                 .build()
-
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun provideDownloadManager(context: Context) = DownloadManagerBuilder.newInstance(context, Handler(), R.drawable.ic_download)
-                .build()
-
-        @AppScope
-        @Provides
-        @JvmStatic
-        fun provideStorage(context: Context): StorageRoot = StorageRootFactory.createPrimaryStorageDownloadsDirectoryRoot(context)
 
         @Provides
         @AppScope

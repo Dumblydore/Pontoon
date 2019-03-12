@@ -11,4 +11,4 @@ data class Creator(@SerializedName("about") val about: String,
                    @SerializedName("owner") val owner: String,
                    @SerializedName("title") val title: String,
                    @SerializedName("urlname") val urlname: String,
-                   @SerializedName("liveStream") val liveStream: LiveStreamMetadata?)
+                   @SerializedName("liveStream") val liveStream: LiveStreamMetadata)

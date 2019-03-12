@@ -1,27 +1,30 @@
 package me.mauricee.pontoon.main.videos
 
 import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainContract
+import me.mauricee.pontoon.model.livestream.LiveStreamRepository
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.VideoRepository
 import retrofit2.HttpException
 import javax.inject.Inject
 
 class VideoPresenter @Inject constructor(private val videoRepository: VideoRepository,
+                                         private val liveStreamRepository: LiveStreamRepository,
                                          private val mainNavigator: MainContract.Navigator,
                                          private val preferences: Preferences,
                                          eventTracker: EventTracker) :
 
         BasePresenter<VideoContract.State, VideoContract.View>(eventTracker), VideoContract.Presenter {
-
+private lateinit var sub: Disposable
     override fun onViewAttached(view: VideoContract.View): Observable<VideoContract.State> {
-        videoRepository.subscriptions.map { it.first() }.switchMapSingle { videoRepository.getLivestream(it) }
-                .flatMap { result -> result.chat.flatMapSingle { it.usersInStream } }.subscribe({ logd("message: $it") }, { loge("error!", it) })
+        sub = liveStreamRepository.activeLiveStreams.subscribe { it ->
+            logd("List of active streams: ${it.size}")
+        }
         return view.actions
                 .doOnNext { eventTracker.trackAction(it, view) }
                 .flatMap(this::handleActions)
