@@ -58,7 +58,6 @@ import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.player.PlayerActivity
 import me.mauricee.pontoon.player.player.PlayerContract
 import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.preferences.PreferencesActivity
@@ -142,7 +141,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onStart() {
         super.onStart()
         if (player.isActive()) {
-            onExpand(player.viewMode == Player.ViewMode.Expanded)
+            if (!isPortrait()) {
+                logd("config change")
+                setPlayerExpanded(true)
+                enableFullScreen(true)
+            } else {
+                onExpand(player.viewMode == Player.ViewMode.Expanded)
+            }
         } else {
             hide()
         }
@@ -237,8 +242,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun toggleFullscreen() {
-        stayingInsideApp = true
-        startActivity(Intent(this, PlayerActivity::class.java))
+//        stayingInsideApp = true
+//        startActivity(Intent(this, PlayerActivity::class.java))
+        orientationManager.isFullscreen = true
     }
 
     override fun onClick(view: View) {
@@ -327,6 +333,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         outState?.with(controller::onSaveInstanceState)
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+    }
 
     private fun switchTab(item: MenuItem) {
         val newTab = when (item.itemId) {
@@ -481,16 +491,19 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     private fun checkForVideoToPlay(): (Observable<MainContract.Action>) -> Observable<MainContract.Action> {
         return {
-            if (intent.hasExtra(VideoToPlayKey)) {
-                val id = intent.getStringExtra(VideoToPlayKey)
-                intent.removeExtra(VideoToPlayKey)
-                it.startWith(MainContract.Action.PlayVideo(id))
-            } else if (intent.hasExtra(LivestreamToPlayKey)) {
-                val id = intent.getStringExtra(LivestreamToPlayKey)
-                intent.removeExtra(VideoToPlayKey)
-                it.startWith(MainContract.Action.PlayLivestream(id))
-            } else
-                it
+            when {
+                intent.hasExtra(VideoToPlayKey) -> {
+                    val id = intent.getStringExtra(VideoToPlayKey)
+                    intent.removeExtra(VideoToPlayKey)
+                    it.startWith(MainContract.Action.PlayVideo(id))
+                }
+                intent.hasExtra(LivestreamToPlayKey) -> {
+                    val id = intent.getStringExtra(LivestreamToPlayKey)
+                    intent.removeExtra(VideoToPlayKey)
+                    it.startWith(MainContract.Action.PlayLivestream(id))
+                }
+                else -> it
+            }
         }
     }
 

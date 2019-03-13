@@ -1,6 +1,6 @@
 package me.mauricee.pontoon
 
-import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -45,13 +45,9 @@ class Pontoon : DaggerApplication() {
             } else EventTracker.trackers -= fireBaseTracker
         }
         subs += accountManagerHelper.watchForLogin.subscribe {
-            WorkManager.getInstance()
-                    .enqueue(PeriodicWorkRequestBuilder<LiveStreamWorker>(5, TimeUnit.MINUTES).build())
-            if (BuildConfig.DEBUG) {
-                WorkManager.getInstance()
-                        .enqueue(OneTimeWorkRequestBuilder<LiveStreamWorker>().build())
-
-            }
+            WorkManager.getInstance().apply { pruneWork() }
+                    .enqueueUniquePeriodicWork("LiveStream", ExistingPeriodicWorkPolicy.REPLACE,
+                            PeriodicWorkRequestBuilder<LiveStreamWorker>(5, TimeUnit.MINUTES).build())
         }
         if (BuildConfig.DEBUG) {
             EventTracker.trackers += debugTracker

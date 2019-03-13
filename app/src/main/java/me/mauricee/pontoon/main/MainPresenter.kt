@@ -59,6 +59,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
 
     private fun playLiveStream(action: MainContract.Action.PlayLivestream): Observable<MainContract.State> =
             liveStreamRepository.getLiveStreamOf(action.creatorId).flatMapObservable { stateless { navigator.playLiveStream(it) } }
+                    .onErrorResumeNext(stateless { })
 
     private fun playVideo(it: MainContract.Action.PlayVideo) =
             videoRepository.getVideo(it.videoId).flatMapObservable { stateless { navigator.playVideo(it) } }
