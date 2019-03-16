@@ -134,11 +134,11 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         }
     }
 
-    private fun handleControllerEvents(event: ControlEvent) = when (event) {
-        is ControlEvent.ControlsVisibilityChanged -> onControlsVisibilityChanged(event.isVisible)
-        is ControlEvent.ProgressVisibilityChanged -> onProgressVisibilityChanged(event.isVisible)
-        is ControlEvent.AcceptUserInputChanged -> onAcceptUserInputChanged(event.canAccept)
-        is ControlEvent.DisplayFullscreenIcon -> displayFullscreenIcon(event.isFullscreen)
+    private fun handleControllerEvents(event: ControlEvent) {
+        onControlsVisibilityChanged(event.isControlsVisible)
+        onProgressVisibilityChanged(event.isProgressVisible)
+        onAcceptUserInputChanged(event.acceptUserInput)
+        displayFullscreenIcon(event.displayFullscreenIcon)
     }
 
     private fun isPlaying(isPlaying: Boolean) {

@@ -21,6 +21,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.transaction
 import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
@@ -34,6 +35,7 @@ import com.ncapdevi.fragnav.FragNavController
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_player.*
 import kotlinx.android.synthetic.main.layout_navigation_header.view.*
 import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.BaseFragment
@@ -54,7 +56,6 @@ import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.player.PlayerActivity
 import me.mauricee.pontoon.player.player.PlayerContract
 import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.preferences.PreferencesActivity
@@ -123,10 +124,18 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         main_drawer.menu.findItem(R.id.action_dayNight).actionView = dayNightSwitch
     }
 
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && !isPortrait()) {
+            enableFullScreen(true)
+        }
+    }
+
     override fun setSupportActionBar(toolbar: Toolbar?) {
         super.setSupportActionBar(toolbar)
         toolbar?.just {
-            if (controller.isRootFragment){
+            if (controller.isRootFragment) {
                 setNavigationIcon(R.drawable.ic_menu)
             } else {
                 setNavigationIcon(R.drawable.ic_back)
@@ -138,7 +147,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     override fun onStart() {
         super.onStart()
         if (player.isActive()) {
-            onExpand(player.viewMode == Player.ViewMode.Expanded)
+            onExpand(player.viewMode != Player.ViewMode.PictureInPicture)
+            if (!isPortrait()) {
+                enableFullScreen(true)
+            }
         } else {
             hide()
         }
@@ -223,7 +235,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun toggleFullscreen() {
         stayingInsideApp = true
-        startActivity(Intent(this, PlayerActivity::class.java))
+        orientationManager.isFullscreen = true
     }
 
     override fun onClick(view: View) {
@@ -235,7 +247,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onScale(percentage: Float) {
-        scaleVideo(percentage)
+        if (isPortrait())
+            scaleVideo(percentage)
+        else {
+            logd("scaling video")
+            player_display?.scaleVideo(percentage)
+        }
     }
 
     override fun onSwipe(percentage: Float) {
@@ -284,7 +301,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !stayingInsideApp) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val pip = preferences.pictureInPicture
             when {
                 pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()
@@ -294,6 +311,16 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        enableFullScreen(!isPortrait())
+        supportFragmentManager.findFragmentById(R.id.main_player)?.with {
+            supportFragmentManager.transaction {
+                detach(it)
+                attach(it)
+            }
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun goIntoPip() {
@@ -432,11 +459,27 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             player.viewMode = Player.ViewMode.FullScreen
+            main.updateParams(constraintSet) {
+                connect(main_player.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(main_player.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(main_player.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(main_player.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                setDimensionRatio(main_player.id, "")
+            }
         } else {
             player.viewMode = Player.ViewMode.Expanded
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            main.updateParams(constraintSet) {
+                connect(main_player.id, ConstraintSet.START, guidelineVertical.id, ConstraintSet.START)
+                connect(main_player.id, ConstraintSet.END, guidelineMarginEnd.id, ConstraintSet.END)
+                connect(main_player.id, ConstraintSet.TOP, guidelineHorizontal.id, ConstraintSet.BOTTOM)
+                clear(main_player.id, ConstraintSet.BOTTOM)
+                setDimensionRatio(main_player.id, currentPlayerRatio)
+            }
         }
+        animationTouchListener.pinchToZoomEnabled = isEnabled
+        player.viewMode = if (isEnabled) Player.ViewMode.FullScreen else Player.ViewMode.Expanded
     }
 
     private fun displayUser(user: UserRepository.User, subCount: Int) {

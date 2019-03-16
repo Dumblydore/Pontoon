@@ -17,7 +17,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -25,6 +24,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.di.AppScope
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
@@ -72,8 +72,7 @@ class Player @Inject constructor(preferences: Preferences,
     val thumbnailTimeline: Observable<String>
         get() = timelineSubject
     private var controllerTimeout: Disposable? = null
-    private val controllerSubject = PublishRelay.create<ControlEvent>()
-    val controllerEvent: Observable<ControlEvent> = controllerSubject.hide().startWith(ControlEvent.ControlsVisibilityChanged(false))
+    private val controllerSubject = BehaviorRelay.create<ControlEvent>()
 
     var currentlyPlaying: Playback? = null
         set(value) {
@@ -103,7 +102,7 @@ class Player @Inject constructor(preferences: Preferences,
                 controlsVisible = value == ViewMode.Expanded
             }
         }
-
+    val controllerEvent: Observable<ControlEvent> = controllerSubject.hide()
     var controlsVisible: Boolean = false
         set(value) {
             field = value
@@ -219,7 +218,7 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .flatMap{ Observable.fromCallable { exoPlayer.currentPosition }.subscribeOn(AndroidSchedulers.mainThread()) }
+            .flatMap { Observable.fromCallable { exoPlayer.currentPosition }.subscribeOn(AndroidSchedulers.mainThread()) }
             .startWith(exoPlayer.currentPosition)
 
     fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
@@ -282,21 +281,13 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     private fun notifyController(isVisible: Boolean, viewMode: ViewMode) {
-        controllerSubject.accept(ControlEvent.ControlsVisibilityChanged(isVisible))
-        when (viewMode) {
-            ViewMode.FullScreen -> {
-                controllerSubject.accept(ControlEvent.ProgressVisibilityChanged(isVisible))
-                controllerSubject.accept(ControlEvent.DisplayFullscreenIcon(true))
-            }
-            ViewMode.PictureInPicture -> {
-                controllerSubject.accept(ControlEvent.AcceptUserInputChanged(isVisible))
-                controllerSubject.accept(ControlEvent.DisplayFullscreenIcon(false))
-            }
-            ViewMode.Expanded -> {
-                controllerSubject.accept(ControlEvent.ProgressVisibilityChanged(true))
-                controllerSubject.accept(ControlEvent.DisplayFullscreenIcon(false))
-            }
+        logd("new view mode: $viewMode")
+        val event = when (viewMode) {
+            ViewMode.FullScreen -> ControlEvent(isVisible, isVisible, true, true)
+            ViewMode.PictureInPicture -> ControlEvent(isVisible, isVisible, false, false)
+            ViewMode.Expanded -> ControlEvent(isVisible, true, true, false)
         }
+        controllerSubject.accept(event)
     }
 
     enum class QualityLevel {
@@ -313,9 +304,4 @@ class Player @Inject constructor(preferences: Preferences,
     }
 }
 
-sealed class ControlEvent {
-    data class ControlsVisibilityChanged(val isVisible: Boolean) : ControlEvent()
-    data class ProgressVisibilityChanged(val isVisible: Boolean) : ControlEvent()
-    data class AcceptUserInputChanged(val canAccept: Boolean) : ControlEvent()
-    data class DisplayFullscreenIcon(val isFullscreen: Boolean) : ControlEvent()
-}
+data class ControlEvent(val isControlsVisible: Boolean, val isProgressVisible: Boolean, val acceptUserInput: Boolean, val displayFullscreenIcon: Boolean)
