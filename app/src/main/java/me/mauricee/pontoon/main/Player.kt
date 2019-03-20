@@ -25,6 +25,8 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.di.AppScope
+import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
@@ -74,7 +76,26 @@ class Player @Inject constructor(preferences: Preferences,
     private var controllerTimeout: Disposable? = null
     private val controllerSubject = PublishRelay.create<ControlEvent>()
     val controllerEvent: Observable<ControlEvent> = controllerSubject.hide().startWith(ControlEvent.ControlsVisibilityChanged(false))
-
+    var currentLiveStream: LiveStreamMetadata? = null
+        set(value) {
+            if (value?.id != field?.id && value != null) {
+                load("https://cdn1.floatplane.com${value.streamPath}/playlist.m3u8".toUri())
+                MediaMetadataCompat.Builder()
+                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, value.title)
+                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, value.description)
+//                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, value.creator.name)
+//                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value.video.thumbnail)
+//                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, value.video.title)
+//                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
+                        .build().apply(mediaSession::setMetadata)
+            } else if (value != null) {
+                exoPlayer.playWhenReady = true
+            } else {
+                exoPlayer.stop()
+                mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
+            }
+            field = value
+        }
     var currentlyPlaying: Playback? = null
         set(value) {
             if (value?.video?.id != field?.video?.id && value != null) {
@@ -281,6 +302,7 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     private fun load(uri: Uri) {
+        logd("loading $uri")
         exoPlayer.prepare(networkSourceFactory.createMediaSource(uri))
         exoPlayer.playWhenReady = true
     }

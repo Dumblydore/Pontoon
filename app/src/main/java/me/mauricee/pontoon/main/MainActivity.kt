@@ -187,6 +187,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         main.doOnPreDraw {
             animationTouchListener.isExpanded = true
         }
+        player.currentLiveStream = liveStream
     }
 
 

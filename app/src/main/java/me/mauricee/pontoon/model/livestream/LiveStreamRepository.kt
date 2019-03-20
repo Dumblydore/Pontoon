@@ -2,8 +2,11 @@ package me.mauricee.pontoon.model.livestream
 
 import androidx.core.text.trimmedLength
 import io.reactivex.Maybe
+import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BuildConfig
+import me.mauricee.pontoon.domain.floatplane.Creator
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
 import me.mauricee.pontoon.ext.logd
@@ -27,8 +30,10 @@ class LiveStreamRepository @Inject constructor(private val client: OkHttpClient,
                 .flatMapMaybe(this::getValidLiveStream)
                 .toList()
 
-    fun getLiveStreamOf(creatorId: String): Single<LiveStreamMetadata> = floatPlaneApi.getCreator(creatorId)
-            .flatMapIterable { it }.firstOrError().map { it.liveStream }
+    fun getLiveStreamOf(creatorId: String): Single<LiveStreamMetadata> = Observable.zip(floatPlaneApi.getCreator(creatorId),
+            creatorRepository.getCreators(creatorId).map { it.first() }, BiFunction { t1, t2 ->  })
+    floatPlaneApi.getCreator(creatorId)
+    .flatMapIterable { it }.firstOrError().map { it.liveStream }
 
     fun getChatSession(creator: UserRepository.Creator): Single<LiveStreamResult> =
             floatPlaneApi.subscriptions.flatMapIterable { it }
@@ -54,3 +59,5 @@ class LiveStreamRepository @Inject constructor(private val client: OkHttpClient,
 
 
 }
+
+data class LiveStreamInfo(val creator: Creator, val streamUri: String, val isOnline: Boolean)
