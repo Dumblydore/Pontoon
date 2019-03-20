@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <me.mauricee.pontoon.player.player.PlayerView
+    <me.mauricee.pontoon.main.player.PlayerView
         android:id="@+id/player.display"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

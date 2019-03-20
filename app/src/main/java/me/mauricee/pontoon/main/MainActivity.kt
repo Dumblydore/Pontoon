@@ -41,7 +41,7 @@ import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.PrivacyManager
-import me.mauricee.pontoon.common.gestures.GestureEvents
+import me.mauricee.pontoon.common.gestures.GestureEvent
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
@@ -50,19 +50,19 @@ import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
+import me.mauricee.pontoon.main.player.PlayerContract
+import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.player.player.PlayerContract
-import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import me.mauricee.pontoon.rx.glide.toPalette
 import javax.inject.Inject
 
-class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, MainContract.View,
+class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
         PlayerContract.Controls {
 
     @Inject
@@ -122,6 +122,15 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                 .build()
 
         main_drawer.menu.findItem(R.id.action_dayNight).actionView = dayNightSwitch
+        subscriptions += animationTouchListener.events.subscribe {
+            when (it) {
+                is GestureEvent.Click -> onClick(it.view)
+                is GestureEvent.Dismiss -> onDismiss(it.view)
+                is GestureEvent.Scale -> onScale(it.percentage)
+                is GestureEvent.Swipe -> onSwipe(it.percentage)
+                is GestureEvent.Expand -> onExpand(it.isExpanded)
+            }
+        }
     }
 
 
@@ -238,28 +247,29 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         orientationManager.isFullscreen = true
     }
 
-    override fun onClick(view: View) {
+    private fun onClick(view: View) {
         miscActions.accept(MainContract.Action.PlayerClicked)
     }
 
-    override fun onDismiss(view: View) {
+    private fun onDismiss(view: View) {
         dismiss()
     }
 
-    override fun onScale(percentage: Float) {
+    private fun onScale(percentage: Float) {
+        logd("scaling video: $percentage")
         if (isPortrait())
             scaleVideo(percentage)
         else {
-            logd("scaling video")
             player_display?.scaleVideo(percentage)
         }
     }
 
-    override fun onSwipe(percentage: Float) {
+    private fun onSwipe(percentage: Float) {
         swipeVideo(percentage)
     }
 
-    override fun onExpand(isExpanded: Boolean) {
+    private fun onExpand(isExpanded: Boolean) {
+        logd("expand: $isExpanded")
         setPlayerExpanded(isExpanded)
     }
 

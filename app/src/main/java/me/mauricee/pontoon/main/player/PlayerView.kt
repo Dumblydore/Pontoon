@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.player.player
+package me.mauricee.pontoon.main.player
 
 import android.content.Context
 import android.graphics.Color
@@ -18,17 +18,10 @@ import io.reactivex.Observable
 import kotlinx.android.synthetic.main.layout_player.view.*
 import kotlinx.android.synthetic.main.layout_player_controls.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.ext.asFraction
-import me.mauricee.pontoon.ext.getActivity
-import me.mauricee.pontoon.ext.getDeviceHeight
-import me.mauricee.pontoon.ext.getDeviceWidth
+import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {
-
-    private val behavioRelay: Relay<String> = BehaviorRelay.create()
-    private var maxScale = 0f
-    private var currentScale = 1f
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -38,8 +31,14 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         View.inflate(context, R.layout.layout_player, this)
     }
 
+    private val controlsRunnable: Runnable = Runnable { controlsVisible = !controlsVisible }
+    private val ratioRelay: Relay<String> = BehaviorRelay.create()
+
+    private var maxScale = 0f
+    private var currentScale = 1f
+
     val ratio: Observable<String>
-        get() = behavioRelay.hide()
+        get() = ratioRelay.hide()
 
     var player: SimpleExoPlayer? = null
         set(value) {
@@ -56,15 +55,30 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen).let { resources.getDrawable(it, null) })
         }
 
+    var controlsVisible: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                if (value) showController() else hideController()
+                logd("controlsVisible=$field")
+            }
+        }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         getActivity()?.apply {
-            player_content.resizeMode  = if (getDeviceWidth() > getDeviceHeight()) {
+            player_content.resizeMode = if (getDeviceWidth() > getDeviceHeight()) {
                 AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
             } else {
                 AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
             }
         }
+        player_controls.isVisible = false
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        handler.removeCallbacks(controlsRunnable)
     }
 
     fun scaleVideo(scaleTo: Float) {
@@ -96,7 +110,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         val ratio = (realWidth.toLong() to height.toLong()).asFraction(":")
         player_content.setAspectRatio(videoAspectRatio)
         maxScale = Math.round((1 + (1 - (videoAspectRatio / viewRatio))) * 100f) / 100f
-        behavioRelay.accept(ratio)
+        ratioRelay.accept(ratio)
     }
 
     override fun onRenderedFirstFrame() {
@@ -160,29 +174,24 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
                 .into(player_content_preview)
     }
 
-    fun showController(animate: Boolean = true) {
-        if (animate) {
-            player_controls.isVisible = true
-            player_controls.animate()
-                    .setDuration(250)
-                    .alpha(1f)
-                    .start()
-        } else {
-            player_controls.isVisible = true
-        }
+    private fun showController() {
+        handler.removeCallbacks(controlsRunnable)
+        player_controls.isVisible = true
+        player_controls.animate()
+                .setDuration(250)
+                .alpha(1f)
+                .start()
+        handler.postDelayed(controlsRunnable, 5250)
     }
 
-    fun hideController(animate: Boolean = true) {
-        if (animate) {
-            player_controls.animate()
-                    .setDuration(250)
-                    .alpha(0f)
-                    .withStartAction { player_controls.alpha = 1f }
-                    .withEndAction { player_controls.isVisible = false }
-                    .start()
-        } else {
-            player_controls.isVisible = false
-        }
+    private fun hideController() {
+        handler.removeCallbacks(controlsRunnable)
+        player_controls.animate()
+                .setDuration(250)
+                .alpha(0f)
+                .withStartAction { player_controls.alpha = 1f }
+                .withEndAction { player_controls.isVisible = false }
+                .start()
     }
 
     private fun updateForCurrentTrackSelections(isNewPlayer: Boolean = false) {

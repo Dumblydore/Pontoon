@@ -80,11 +80,6 @@
             android:screenOrientation="portrait"
             android:supportsPictureInPicture="true" />
 
-        <activity
-            android:name=".player.PlayerActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="sensorLandscape" />
-
         <activity android:name=".preferences.PreferencesActivity" />
     </application>
 

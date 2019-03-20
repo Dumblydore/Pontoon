@@ -14,7 +14,7 @@
 
     <fragment
         android:id="@+id/player.player"
-        android:name="me.mauricee.pontoon.player.player.PlayerFragment"
+        android:name="me.mauricee.pontoon.main.player.PlayerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
