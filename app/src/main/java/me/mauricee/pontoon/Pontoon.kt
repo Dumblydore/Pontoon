@@ -1,5 +1,6 @@
 package me.mauricee.pontoon
 
+import androidx.appcompat.app.AppCompatDelegate
 import com.facebook.stetho.Stetho
 import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.android.AndroidInjector
@@ -36,8 +37,9 @@ class Pontoon : DaggerApplication() {
         }
         if (BuildConfig.DEBUG) {
             EventTracker.trackers += debugTracker
-            Stetho.initializeWithDefaults(this);
+            Stetho.initializeWithDefaults(this)
         }
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =

@@ -11,7 +11,6 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.hasNotch
@@ -27,7 +26,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
         get() = actionRelay
     @Inject
     lateinit var presenter: SettingsPresenter
-    lateinit var presenterDisposable: Disposable
 
     private val actionRelay: Relay<SettingsContract.Action> = PublishRelay.create()
 
@@ -52,7 +50,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
             findPreference("settings_test_crash").setOnPreferenceClickListener { Crashlytics.getInstance().crash(); true }
         }
 
-        presenterDisposable = presenter.attachView(this)
+        presenter.attachView(this)
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
@@ -73,12 +71,12 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        presenterDisposable.dispose()
+        presenter.detachView()
     }
 
     private fun bindFragment(fragment: PreferenceDialogFragmentCompat) = fragment
             .also { it.setTargetFragment(this, 0) }
-            .show(fragmentManager, "$DialogPrefix.ThemePreference")
+            .show(requireFragmentManager(), "$DialogPrefix.ThemePreference")
 
     companion object {
         const val DialogPrefix = "androidx.preference.PreferenceCategory"

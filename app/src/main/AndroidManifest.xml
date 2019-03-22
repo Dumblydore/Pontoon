@@ -73,17 +73,12 @@
             android:name=".main.MainActivity"
             android:allowTaskReparenting="true"
             android:autoRemoveFromRecents="true"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|uiMode"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:screenOrientation="portrait"
             android:supportsPictureInPicture="true" />
-
-        <activity
-            android:name=".player.PlayerActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="sensorLandscape" />
 
         <activity android:name=".preferences.PreferencesActivity" />
         <meta-data

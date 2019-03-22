@@ -8,17 +8,16 @@ import dagger.Module
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.common.gestures.GestureEvents
 import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.details.DetailsModule
 import me.mauricee.pontoon.main.history.HistoryFragment
+import me.mauricee.pontoon.main.player.PlayerContract
+import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
-import me.mauricee.pontoon.player.player.PlayerContract
-import me.mauricee.pontoon.player.player.PlayerFragment
 
 @Module
 abstract class MainModule {
@@ -28,9 +27,6 @@ abstract class MainModule {
 
     @Binds
     abstract fun bindFullscreenCallback(mainActivity: MainActivity): PlayerContract.Controls
-
-    @Binds
-    abstract fun bindGestureEvents(mainActivity: MainActivity): GestureEvents
 
     @Binds
     abstract fun bindPage(mainActivity: MainActivity): EventTracker.Page

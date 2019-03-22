@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.player.player
+package me.mauricee.pontoon.main.player
 
 import android.content.Context
 import android.graphics.Color
@@ -13,6 +13,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.video.VideoListener
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.layout_player.view.*
@@ -23,10 +24,6 @@ import me.mauricee.pontoon.glide.GlideApp
 
 class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
-    private val behavioRelay: Relay<String> = BehaviorRelay.create()
-    private var maxScale = 0f
-    private var currentScale = 1f
-
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
@@ -35,8 +32,18 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         View.inflate(context, R.layout.layout_player, this)
     }
 
+    private val controlsRunnable: Runnable = Runnable { controlsVisible = !controlsVisible }
+    private val borderRunnable: Runnable = Runnable { hideBorder() }
+    private val controlsVisibleRelay: Relay<Boolean> = PublishRelay.create()
+    private val ratioRelay: Relay<String> = BehaviorRelay.create()
+
+    private var maxScale = 0f
+    private var currentScale = 1f
+
     val ratio: Observable<String>
-        get() = behavioRelay.hide()
+        get() = ratioRelay.hide()
+    val controlsVisibilityChanged: Observable<Boolean>
+        get() = controlsVisibleRelay.hide()
 
     var player: Player? = null
         set(value) {
@@ -53,6 +60,15 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             player_controls_fullscreen.setImageDrawable((if (field) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen).let { resources.getDrawable(it, null) })
         }
 
+    var controlsVisible: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                if (value) showController() else hideController()
+                controlsVisibleRelay.accept(field)
+            }
+        }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         getActivity()?.apply {
@@ -62,6 +78,13 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
                 AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
             }
         }
+        player_controls.isVisible = false
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        handler.removeCallbacks(controlsRunnable)
+        handler.removeCallbacks(borderRunnable)
     }
 
     fun scaleVideo(scaleTo: Float) {
@@ -69,6 +92,8 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         val newScale = Math.max(1f, Math.min(maxScale, currentScale))
         player_content.scaleX = newScale
         player_content.scaleY = newScale
+        if (newScale != maxScale && (newScale / maxScale) * 100f >= 90)
+            showBorder()
     }
 
     private fun unregisterPlayer(player: Player) {
@@ -90,6 +115,15 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         updateForCurrentTrackSelections(true)
     }
 
+    private fun showBorder() {
+        handler.removeCallbacks(borderRunnable)
+        player_border.show { handler.postDelayed(borderRunnable, 1000) }
+    }
+
+    private fun hideBorder() {
+        player_border.hide()
+    }
+
     override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
         val viewRatio = measuredWidth.toFloat() / measuredHeight.toFloat()
         val realWidth = width * pixelWidthHeightRatio
@@ -97,7 +131,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         val ratio = (realWidth.toLong() to height.toLong()).asFraction(":")
         player_content.setAspectRatio(videoAspectRatio)
         maxScale = Math.round((1 + (1 - (videoAspectRatio / viewRatio))) * 100f) / 100f
-        behavioRelay.accept(ratio)
+        ratioRelay.accept(ratio)
     }
 
     override fun onRenderedFirstFrame() {
@@ -161,29 +195,14 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
                 .into(player_content_preview)
     }
 
-    fun showController(animate: Boolean = true) {
-        if (animate) {
-            player_controls.isVisible = true
-            player_controls.animate()
-                    .setDuration(250)
-                    .alpha(1f)
-                    .start()
-        } else {
-            player_controls.isVisible = true
-        }
+    private fun showController() {
+        handler.removeCallbacks(controlsRunnable)
+        player_controls.show { handler.postDelayed(controlsRunnable, 5000) }
     }
 
-    fun hideController(animate: Boolean = true) {
-        if (animate) {
-            player_controls.animate()
-                    .setDuration(250)
-                    .alpha(0f)
-                    .withStartAction { player_controls.alpha = 1f }
-                    .withEndAction { player_controls.isVisible = false }
-                    .start()
-        } else {
-            player_controls.isVisible = false
-        }
+    private fun hideController() {
+        handler.removeCallbacks(controlsRunnable)
+        player_controls.hide()
     }
 
     private fun updateForCurrentTrackSelections(isNewPlayer: Boolean = false) {

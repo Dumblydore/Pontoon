@@ -1,5 +1,7 @@
 package me.mauricee.pontoon.ext
 
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -10,11 +12,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.transition.Transition
@@ -34,6 +39,13 @@ inline fun AppCompatActivity.loadFragment(isAddToBackStack: Boolean = false,
 }
 
 fun Activity.isPortrait() = requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+fun Activity.setStatusBarColor(@ColorInt color: Int): Animator =
+        ValueAnimator.ofArgb(window.statusBarColor, color).apply {
+            addUpdateListener { window.statusBarColor = it.animatedValue as Int }
+        }
+
+fun Fragment.setStatusBarColor(@ColorInt color: Int): Animator = requireActivity().setStatusBarColor(color)
 
 fun Activity.getDeviceWidth() = with(this) {
     val displayMetrics = DisplayMetrics()
@@ -102,3 +114,30 @@ inline fun ConstraintLayout.updateParams(constraintSet: ConstraintSet = Constrai
 
 fun View.getActivity(c: Context = context): Activity? = (c as? Activity)
         ?: (c as? ContextWrapper)?.baseContext?.let { getActivity(it) }
+
+fun View.hide(doAfter: () -> Unit = {}) {
+    animate()
+            .setDuration(250)
+            .alpha(0f)
+            .withStartAction { alpha = 1f }
+            .withEndAction {
+                isVisible = false
+                doAfter()
+            }
+            .start()
+}
+
+fun View.show(doAfter: () -> Unit = {}) {
+    isVisible = true
+    animate()
+            .setDuration(250)
+            .alpha(1f)
+            .withStartAction {
+                alpha = 0f
+            }
+            .withEndAction { doAfter() }
+            .start()
+}
+
+val Fragment.supportActionBar: ActionBar?
+    get() = (activity as? AppCompatActivity)?.supportActionBar

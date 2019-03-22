@@ -21,7 +21,7 @@ class Preferences @Inject constructor(private val sharedPreferences: SharedPrefe
     val fullscreenOverNotch: Observable<Boolean>
         get() = sharedPreferences.watchBoolean(FullscreenOverNotchKey, false)
     val dayNightMode: Observable<String>
-        get() = sharedPreferences.watchString(DayNightMode)
+        get() = sharedPreferences.watchString(DayNightMode, true)
     val amoledNightMode: Observable<Boolean>
         get() = sharedPreferences.watchBoolean(AmoledNightMode, emitIfExists = false)
 

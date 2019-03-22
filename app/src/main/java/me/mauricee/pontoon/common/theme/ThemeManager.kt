@@ -9,6 +9,7 @@ import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import androidx.palette.graphics.Palette
 import dagger.Reusable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -19,6 +20,7 @@ import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.rx.preferences.watchString
 import javax.inject.Inject
+
 
 @Reusable
 class ThemeManager @Inject constructor(private val prefs: Preferences,
@@ -71,8 +73,13 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     private var mode
         get() = preferences.getInt(DayNightModeKey, AppCompatDelegate.MODE_NIGHT_NO)
         set(value) {
-            preferences.edit(true) { putInt(DayNightModeKey, value) }
+            val isDifferent = mode != value
             activity.delegate.setLocalNightMode(value)
+            AppCompatDelegate.setDefaultNightMode(value)
+            preferences.edit(true) { putInt(DayNightModeKey, value) }
+            if (isDifferent) {
+                activity.recreate()
+            }
         }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -88,6 +95,11 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
 
     }
 
+    fun getVibrantSwatch(palette: Palette) = (if (isInNightMode) palette.darkVibrantSwatch else palette.vibrantSwatch)
+            ?: Palette.Swatch(activity.primaryColor, 1)
+
+    fun getMutedSwatch(palette: Palette) = (if (isInNightMode) palette.darkMutedSwatch else palette.mutedSwatch)
+            ?: Palette.Swatch(activity.primaryColor, 1)
 
     fun toggleNightMode() {
         mode = if (isInNightMode) AppCompatDelegate.MODE_NIGHT_NO
@@ -110,7 +122,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     }
 
     fun commit() {
-        preferences.edit(true){
+        preferences.edit(true) {
             putString(ThemeKey, style.theme.toString())
             putString(PrimaryColorKey, style.primary.toString())
             putString(AccentColorKey, style.accent.toString())

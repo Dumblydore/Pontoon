@@ -49,4 +49,11 @@
 
     <include layout="@layout/layout_player_controls" />
 
+    <View
+        android:id="@+id/player.border"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_scale_outline"
+        android:visibility="gone"
+        tools:visibility="visible" />
 </FrameLayout>

@@ -11,14 +11,18 @@ import android.util.Rational
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.doOnLayout
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.transaction
 import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
@@ -32,11 +36,13 @@ import com.ncapdevi.fragnav.FragNavController
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_player.*
+import kotlinx.android.synthetic.main.layout_navigation_header.view.*
 import me.mauricee.pontoon.BaseActivity
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.PrivacyManager
-import me.mauricee.pontoon.common.gestures.GestureEvents
+import me.mauricee.pontoon.common.gestures.GestureEvent
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
@@ -45,19 +51,19 @@ import me.mauricee.pontoon.main.creator.CreatorFragment
 import me.mauricee.pontoon.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.main.details.DetailsFragment
 import me.mauricee.pontoon.main.history.HistoryFragment
+import me.mauricee.pontoon.main.player.PlayerContract
+import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.player.PlayerActivity
-import me.mauricee.pontoon.player.player.PlayerContract
-import me.mauricee.pontoon.player.player.PlayerFragment
 import me.mauricee.pontoon.preferences.PreferencesActivity
+import me.mauricee.pontoon.rx.glide.toPalette
 import javax.inject.Inject
 
-class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, MainContract.View,
+class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
         PlayerContract.Controls {
 
     @Inject
@@ -104,6 +110,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        stayingInsideApp = false
         setContentView(R.layout.activity_main)
 
         paramsGlHorizontal = guidelineHorizontal.layoutParams as ConstraintLayout.LayoutParams
@@ -117,25 +124,64 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
                 .build()
 
         main_drawer.menu.findItem(R.id.action_dayNight).actionView = dayNightSwitch
+        subscriptions += animationTouchListener.events.subscribe {
+            when (it) {
+                is GestureEvent.Click -> onClick(it.view)
+                is GestureEvent.Dismiss -> onDismiss(it.view)
+                is GestureEvent.Scale -> onScale(it.percentage)
+                is GestureEvent.Swipe -> onSwipe(it.percentage)
+                is GestureEvent.Expand -> onExpand(it.isExpanded)
+            }
+        }
+        root.doOnLayout {
+            if (player.isActive()) {
+                onExpand(player.viewMode != Player.ViewMode.PictureInPicture)
+                val isPortrait = isPortrait()
+                if (!isPortrait) {
+                    enableFullScreen(true)
+                }
+            } else {
+                hide()
+            }
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && !isPortrait()) {
+            enableFullScreen(true)
+        }
+    }
+
+    override fun setSupportActionBar(toolbar: Toolbar?) {
+        super.setSupportActionBar(toolbar)
+        toolbar?.just {
+            if (controller.isRootFragment) {
+                setNavigationIcon(R.drawable.ic_menu)
+            } else {
+                setNavigationIcon(R.drawable.ic_back)
+                setNavigationOnClickListener { onBackPressed() }
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        if (player.isActive()) {
-            onExpand(player.viewMode == Player.ViewMode.Expanded)
-        } else {
-            hide()
-        }
-        subscriptions += mainPresenter.attachView(this)
         stayingInsideApp = false
+        mainPresenter.attachView(this)
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
         privacyManager.displayPromptIfUserHasNotBeenPrompted(this)
+        player.onActive()
     }
 
     override fun onStop() {
         super.onStop()
-        if (!stayingInsideApp)
+        mainPresenter.detachView()
+        if (!stayingInsideApp) {
             player.onPause()
+            player.onInactive()
+            player.viewMode = Player.ViewMode.Expanded
+        }
         privacyManager.hidePromptIfOpen()
     }
 
@@ -170,7 +216,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun toCreator(creator: UserRepository.Creator) {
-        controller.pushFragment(CreatorFragment.newInstance(creator.id))
+        controller.pushFragment(CreatorFragment.newInstance(creator.id, creator.name))
         if (player.isActive()) {
             animationTouchListener.isExpanded = false
             setPlayerExpanded(false)
@@ -205,27 +251,31 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun toggleFullscreen() {
-        stayingInsideApp = true
-        startActivity(Intent(this, PlayerActivity::class.java))
+        orientationManager.isFullscreen = !orientationManager.isFullscreen
     }
 
-    override fun onClick(view: View) {
+    private fun onClick(view: View) {
         miscActions.accept(MainContract.Action.PlayerClicked)
     }
 
-    override fun onDismiss(view: View) {
+    private fun onDismiss(view: View) {
         dismiss()
     }
 
-    override fun onScale(percentage: Float) {
-        scaleVideo(percentage)
+    private fun onScale(percentage: Float) {
+        if (isPortrait())
+            scaleVideo(percentage)
+        else {
+            player_display?.scaleVideo(percentage)
+        }
     }
 
-    override fun onSwipe(percentage: Float) {
+    private fun onSwipe(percentage: Float) {
         swipeVideo(percentage)
     }
 
-    override fun onExpand(isExpanded: Boolean) {
+    private fun onExpand(isExpanded: Boolean) {
+        logd("expand: $isExpanded")
         setPlayerExpanded(isExpanded)
     }
 
@@ -267,7 +317,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !stayingInsideApp) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val pip = preferences.pictureInPicture
             when {
                 pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()
@@ -277,22 +327,37 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val isNotInPip = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isInPictureInPictureMode
+        if (isNotInPip) {
+            enableFullScreen(!isPortrait())
+            supportFragmentManager.findFragmentById(R.id.main_player)?.with {
+                supportFragmentManager.transaction {
+                    detach(it)
+                    attach(it)
+                }
+            }
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun goIntoPip() {
+        orientationManager.isFullscreen = false
         expandPlayerTo(true, Player.ViewMode.FullScreen)
         enterPictureInPictureMode(PictureInPictureParams.Builder()
                 .setAspectRatio(Rational.parseRational(currentPlayerRatio))
                 .build())
+        player.viewMode = Player.ViewMode.PictureInPicture
     }
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         enableFullScreen(isInPictureInPictureMode)
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState?.with(controller::onSaveInstanceState)
+        outState.with(controller::onSaveInstanceState)
     }
 
 
@@ -304,7 +369,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
             else -> throw RuntimeException("Invalid tab selection")
         }
         if (newTab == controller.currentStackIndex)
-            (controller.currentFrag as? BaseFragment<*>)?.reset()
+            if (controller.isRootFragment) (controller.currentFrag as? BaseFragment<*>)?.reset()
+            else controller.clearStack()
         else
             controller.switchTab(newTab)
     }
@@ -409,27 +475,49 @@ class MainActivity : BaseActivity(), MainContract.Navigator, GestureEvents, Main
 
     private fun enableFullScreen(isEnabled: Boolean) {
         if (isEnabled) {
+            root.doOnPreDraw {
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            }
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            main.updateParams(constraintSet) {
+                connect(main_player.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(main_player.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(main_player.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(main_player.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                setDimensionRatio(main_player.id, "")
+            }
             player.viewMode = Player.ViewMode.FullScreen
         } else {
-            player.viewMode = Player.ViewMode.Expanded
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            main.updateParams(constraintSet) {
+                connect(main_player.id, ConstraintSet.START, guidelineVertical.id, ConstraintSet.START)
+                connect(main_player.id, ConstraintSet.END, guidelineMarginEnd.id, ConstraintSet.END)
+                connect(main_player.id, ConstraintSet.TOP, guidelineHorizontal.id, ConstraintSet.BOTTOM)
+                clear(main_player.id, ConstraintSet.BOTTOM)
+                setDimensionRatio(main_player.id, currentPlayerRatio)
+            }
+            player.viewMode = Player.ViewMode.Expanded
         }
+        animationTouchListener.pinchToZoomEnabled = isEnabled
     }
 
     private fun displayUser(user: UserRepository.User, subCount: Int) {
         main_drawer.getHeaderView(0).apply {
-            user.let {
-                findViewById<TextView>(R.id.header_title).text = it.username
+            user.with { user ->
+                findViewById<TextView>(R.id.header_title).text = user.username
                 findViewById<TextView>(R.id.header_subtitle).text = getString(R.string.home_subtitle_suffix, subCount)
-                GlideApp.with(this).load(it.profileImage)
-                        .placeholder(R.drawable.ic_default_thumbnail)
-                        .error(R.drawable.ic_default_thumbnail)
-                        .into(findViewById(R.id.header_icon))
+                subscriptions += GlideApp.with(this).asBitmap().load(user.profileImage)
+                        .toPalette().subscribe { palette ->
+                            findViewById<ImageView>(R.id.header_icon).setImageBitmap(palette.bitmap)
+                            themeManager.getVibrantSwatch(palette.palette).apply {
+                                findViewById<ImageView>(R.id.header).setBackgroundColor(rgb)
+                                header_title.setTextColor(titleTextColor)
+                                header_subtitle.setTextColor(bodyTextColor)
+                            }
+                        }
             }
         }
     }

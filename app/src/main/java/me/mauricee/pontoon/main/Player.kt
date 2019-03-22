@@ -8,9 +8,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.net.toUri
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.cast.CastPlayer
@@ -23,24 +21,24 @@ import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.common.images.WebImage
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.common.playback.PlayerFactory
 import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.ext.just
-import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.ext.logd
+import me.mauricee.pontoon.main.player.PlayerView
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.player.player.PlayerView
 import me.mauricee.pontoon.rx.context.BroadcastEvent
 import me.mauricee.pontoon.rx.context.registerReceiver
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+
 @AppScope
 class Player @Inject constructor(preferences: Preferences,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
@@ -48,7 +46,6 @@ class Player @Inject constructor(preferences: Preferences,
                                  private val playerFactory: PlayerFactory,
                                  private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener, LifecycleObserver {
-
     @PlaybackStateCompat.State
     private var state: Int = PlaybackStateCompat.STATE_NONE
         set(value) {
@@ -77,6 +74,7 @@ class Player @Inject constructor(preferences: Preferences,
     private val timelineSubject = BehaviorRelay.create<String>()
     val thumbnailTimeline: Observable<String>
         get() = timelineSubject
+    private val viewModeRelay: Relay<ViewMode> = BehaviorRelay.create<ViewMode>()
 
 
     lateinit var player: Player
@@ -101,29 +99,15 @@ class Player @Inject constructor(preferences: Preferences,
             field = value
         }
 
-    private var controllerTimeout: Disposable? = null
-
     var viewMode: ViewMode = ViewMode.Expanded
         set(value) {
             if (field != value) {
                 field = value
-                controlsVisible = value == ViewMode.Expanded
+                viewModeRelay.accept(field)
             }
         }
-
-    var controlsVisible: Boolean = false
-        set(value) {
-            field = value
-            controller?.apply {
-                notifyController(field, viewMode)
-            }
-        }
-
-    var controller: ControlView? = null
-        set(value) {
-            field = value
-            controlsVisible = false
-        }
+    val viewModes: Observable<ViewMode>
+        get() = viewModeRelay.hide()
 
     var quality: QualityLevel = preferences.defaultQualityLevel
         set(value) {
@@ -239,31 +223,30 @@ class Player @Inject constructor(preferences: Preferences,
         if (player.playWhenReady) onPause() else onPlay()
     }
 
-    fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .map { player.currentPosition }.startWith(player.currentPosition)
+    fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS,AndroidSchedulers.from(exoPlayer.applicationLooper))
+            .map { player.currentPosition }
+            .subscribeOn(AndroidSchedulers.from(player.applicationLooper))
+            .startWith(player.currentPosition)
 
-    fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .map { player.bufferedPosition }.startWith(player.bufferedPosition)
+    fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS,AndroidSchedulers.from(exoPlayer.applicationLooper))
+            .map { player.bufferedPosition }
+            .subscribeOn(AndroidSchedulers.from(player.applicationLooper))
+            .startWith(player.currentPosition)
 
-    fun toggleControls() {
-        if (viewMode == ViewMode.PictureInPicture) return
-        controllerTimeout?.dispose()
-        controllerTimeout = (if (controlsVisible) false.toObservable()
-        else Observable.timer(3, TimeUnit.SECONDS, Schedulers.computation()).map { false }
-                .startWith(true))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { controlsVisible = it }.also { subs += it }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun bind() {
         mediaSession.setCallback(this)
         subs += context.registerReceiver(IntentFilter(Intent.ACTION_HEADSET_PLUG))
                 .map(BroadcastEvent::intent).subscribe(this::handleHeadsetChanges)
+    }
+
+    fun onActive() {
         mediaSession.isActive = true
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onInactive() {
+        mediaSession.isActive = false
+    }
+
     fun clear() {
         subs.clear()
         mediaSession.setCallback(null)
@@ -321,30 +304,6 @@ class Player @Inject constructor(preferences: Preferences,
         player.playWhenReady = true
     }
 
-    private fun notifyController(isVisible: Boolean, viewMode: ViewMode) = controller?.just {
-        onControlsVisibilityChanged(isVisible)
-        when (viewMode) {
-            ViewMode.FullScreen -> {
-                onProgressVisibilityChanged(isVisible)
-                displayFullscreenIcon(true)
-            }
-            ViewMode.PictureInPicture -> {
-                onAcceptUserInputChanged(isVisible)
-                displayFullscreenIcon(false)
-            }
-            ViewMode.Expanded -> {
-                onProgressVisibilityChanged(true)
-                displayFullscreenIcon(false)
-            }
-        }
-    }
-
-    interface ControlView {
-        fun onControlsVisibilityChanged(isVisible: Boolean)
-        fun onProgressVisibilityChanged(isVisible: Boolean)
-        fun onAcceptUserInputChanged(canAccept: Boolean)
-        fun displayFullscreenIcon(isFullscreen: Boolean)
-    }
 
     enum class QualityLevel {
         p1080,

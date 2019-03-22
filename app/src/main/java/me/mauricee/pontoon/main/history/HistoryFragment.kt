@@ -2,6 +2,7 @@ package me.mauricee.pontoon.main.history
 
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_history.*
@@ -21,6 +22,8 @@ class HistoryFragment : BaseFragment<HistoryPresenter>(), HistoryContract.View {
         get() = videoAdapter.actions.map(HistoryContract.Action::PlayVideo)
 
     override fun getLayoutId(): Int = R.layout.fragment_history
+
+    override fun getToolbar(): Toolbar? = history_toolbar
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
