@@ -5,13 +5,22 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
-import dagger.Reusable
 import io.reactivex.Observable
+import me.mauricee.pontoon.di.AppScope
 import javax.inject.Inject
 
-@Reusable
-class PlayerFactory @Inject constructor(private val localPlayer: SimpleExoPlayer, private val castPlayer: CastPlayer) : CastPlayer.SessionAvailabilityListener {
-    private val currentlyPlayingRelay: Relay<Player> = BehaviorRelay.createDefault<Player>(if (castPlayer.isCastSessionAvailable) castPlayer else localPlayer)
+@AppScope
+class PlayerFactory @Inject constructor(private val localPlayer: SimpleExoPlayer) : CastPlayer.SessionAvailabilityListener {
+    private val currentlyPlayingRelay: Relay<Player> = BehaviorRelay.create()
+    var castPlayer: CastPlayer? = null
+    set(value) {
+        if (value != field) {
+            field?.setSessionAvailabilityListener(null)
+            currentlyPlayingRelay.accept(if (value?.isCastSessionAvailable == true) castPlayer else localPlayer)
+            value?.setSessionAvailabilityListener(this)
+        }
+        field = value
+    }
 
     val playback: Observable<Player>
         get() = currentlyPlayingRelay.hide()
@@ -26,10 +35,7 @@ class PlayerFactory @Inject constructor(private val localPlayer: SimpleExoPlayer
 
     fun release() {
         localPlayer.release()
-        castPlayer.release()
+        castPlayer?.release()
     }
 
-    init {
-        castPlayer.setSessionAvailabilityListener(this)
-    }
 }

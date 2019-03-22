@@ -3,6 +3,7 @@ package me.mauricee.pontoon.main.player
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
@@ -10,6 +11,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
+import com.google.android.gms.cast.framework.CastButtonFactory
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
@@ -20,6 +22,7 @@ import kotlinx.android.synthetic.main.fragment_player.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.playback.PlayerFactory
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.supportActionBar
 import me.mauricee.pontoon.ext.toObservable
@@ -35,6 +38,8 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     lateinit var player: Player
     @Inject
     lateinit var playerControls: PlayerContract.Controls
+    @Inject
+    lateinit var playerFactory: PlayerFactory
 
     private val playIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_play_to_pause) }
     private val playIcon by lazy { getDrawable(requireContext(), R.drawable.ic_play) }
@@ -44,6 +49,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     private val previewArt by lazy { arguments?.getString(PreviewArtKey) ?: "" }
     private val qualityMenu by lazy { player_controls_toolbar.menu.findItem(R.id.action_quality) }
     private var isSeeking: Boolean = false
+    private lateinit var mediaRouteMenuItem: MenuItem
 
     override val actions: Observable<PlayerContract.Action>
         get() = listOf(player_controls_fullscreen.clicks().map { PlayerContract.Action.ToggleFullscreen },
@@ -67,11 +73,13 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
+        mediaRouteMenuItem = CastButtonFactory.setUpMediaRouteButton(requireContext().applicationContext, player_controls_toolbar.menu, R.id.media_route_menu_item)
         player_display.setThumbnail(previewArt)
         supportActionBar?.just {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
+        subscriptions += playerFactory.playback.subscribe { player_display.player = it }
         subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
         subscriptions += player_display.controlsVisibilityChanged.subscribe {
             if (!it && !isSeeking) {
@@ -79,11 +87,6 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_progress.isVisible = player.viewMode == Player.ViewMode.Expanded
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        player.bindToView(player_display)
     }
 
     override fun updateState(state: PlayerContract.State) {

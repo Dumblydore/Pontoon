@@ -28,4 +28,8 @@
   public <methods>;
 }
 
+-keep class android.support.v7.app.MediaRouteActionProvider {
+  *;
+}
+
 -dontwarn android.security.NetworkSecurityPolicy

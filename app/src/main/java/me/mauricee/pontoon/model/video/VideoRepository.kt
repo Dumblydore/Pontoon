@@ -18,7 +18,6 @@ import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.ioStream
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
@@ -111,7 +110,6 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
             BiFunction { t1, t2 ->
                 getUrlFromResponse(t2, t1).replace("/chunk.m3u8", "")
             })
-            .doOnNext { logd("download url: $it") }
             .singleOrError()
 
     fun getQualityOfVideo(videoId: String): Observable<Quality> = edgeRepo.streamingHost.flatMapObservable<Quality> { host ->

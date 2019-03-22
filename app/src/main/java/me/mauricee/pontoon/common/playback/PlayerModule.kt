@@ -6,18 +6,12 @@ import com.google.android.gms.cast.framework.CastContext
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
+import me.mauricee.pontoon.main.MainActivity
+import me.mauricee.pontoon.main.MainScope
 
 @Module
 object PlayerModule {
 
 
-    @Provides
-    @Reusable
-    @JvmStatic
-    fun provideCastContext(appCompatActivity: AppCompatActivity) = CastContext.getSharedInstance(appCompatActivity)
 
-    @Provides
-    @Reusable
-    @JvmStatic
-    fun providesCastExoPlayer(castContext: CastContext): CastPlayer = CastPlayer(castContext)
 }

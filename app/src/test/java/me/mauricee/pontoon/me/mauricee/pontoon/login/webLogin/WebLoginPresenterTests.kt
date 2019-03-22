@@ -1,8 +1,9 @@
 package me.mauricee.pontoon.me.mauricee.pontoon.login.webLogin
 
-import io.mockk.*
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
+import io.mockk.verify
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
@@ -14,7 +15,6 @@ import me.mauricee.pontoon.login.webLogin.WebLoginContract
 import me.mauricee.pontoon.login.webLogin.WebLoginPresenter
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.MockkRule
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.SchedulerRule
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

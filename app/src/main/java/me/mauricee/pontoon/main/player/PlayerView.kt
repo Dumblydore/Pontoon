@@ -109,6 +109,8 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         (player as? SimpleExoPlayer)?.with {
             player.addVideoListener(this)
             player.setVideoTextureView(player_content_surface)
+            onRenderedFirstFrame()
+
         }
         updateBuffering(false)
         updateErrorMsg(false)

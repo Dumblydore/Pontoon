@@ -27,6 +27,7 @@ import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
+import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
@@ -44,6 +45,7 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.PrivacyManager
 import me.mauricee.pontoon.common.gestures.GestureEvent
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
+import me.mauricee.pontoon.common.playback.PlayerFactory
 import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.login.LoginActivity
@@ -80,6 +82,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     lateinit var preferences: Preferences
     @Inject
     lateinit var privacyManager: PrivacyManager
+    @Inject
+    lateinit var playerFactory: PlayerFactory
+    @Inject
+    lateinit var castPlayer: CastPlayer
 
     private var stayingInsideApp = false
     private val miscActions = PublishRelay.create<MainContract.Action>()
@@ -134,7 +140,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
             }
         }
         root.doOnLayout {
-            if (player.isActive()) {
+            if (player.isActive) {
                 onExpand(player.viewMode != Player.ViewMode.PictureInPicture)
                 val isPortrait = isPortrait()
                 if (!isPortrait) {
@@ -144,6 +150,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
                 hide()
             }
         }
+        playerFactory.castPlayer = castPlayer
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -211,13 +218,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     }
 
     override fun toPreferences() {
-        if (player.isPlaying()) player.onPause()
+        if (player.isPlaying) player.onPause()
         PreferencesActivity.navigateTo(this)
     }
 
     override fun toCreator(creator: UserRepository.Creator) {
         controller.pushFragment(CreatorFragment.newInstance(creator.id, creator.name))
-        if (player.isActive()) {
+        if (player.isActive) {
             animationTouchListener.isExpanded = false
             setPlayerExpanded(false)
         }
@@ -225,7 +232,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
 
     override fun toCreatorsList() {
         controller.pushFragment(CreatorListFragment.newInstance())
-        if (player.isActive()) {
+        if (player.isActive) {
             animationTouchListener.isExpanded = false
             setPlayerExpanded(false)
         }
@@ -233,7 +240,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
 
     override fun toUser(user: UserRepository.User) {
         controller.pushFragment(UserFragment.newInstance(user.id))
-        if (player.isActive()) {
+        if (player.isActive) {
             animationTouchListener.isExpanded = false
             setPlayerExpanded(false)
         }
@@ -275,14 +282,13 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     }
 
     private fun onExpand(isExpanded: Boolean) {
-        logd("expand: $isExpanded")
         setPlayerExpanded(isExpanded)
     }
 
     override fun updateState(state: MainContract.State) = when (state) {
         is MainContract.State.CurrentUser -> displayUser(state.user, state.subCount)
         is MainContract.State.Logout -> {
-            if (player.isActive()) player.onStop()
+            if (player.isActive) player.onStop()
             LoginActivity.navigateTo(this)
             finishAffinity()
         }
@@ -304,7 +310,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
             orientationManager.isFullscreen = false
         } else if (root.isDrawerOpen(main_drawer)) {
             root.closeDrawer(main_drawer, true)
-        } else if (animationTouchListener.isExpanded && player.isActive()) {
+        } else if (animationTouchListener.isExpanded && player.isActive) {
             animationTouchListener.isExpanded = false
             if (!isPortrait()) {
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -317,11 +323,11 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && player.isPlayingLocally) {
             val pip = preferences.pictureInPicture
             when {
-                pip == Preferences.PictureInPicture.Always && player.isActive() -> goIntoPip()
-                pip == Preferences.PictureInPicture.OnlyWhenPlaying && player.isPlaying() -> goIntoPip()
+                pip == Preferences.PictureInPicture.Always && player.isActive -> goIntoPip()
+                pip == Preferences.PictureInPicture.OnlyWhenPlaying && player.isPlaying -> goIntoPip()
             }
 
         }

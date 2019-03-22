@@ -4,7 +4,6 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.model.user.UserRepository
@@ -39,6 +38,5 @@ class CreatorListPresenter @Inject constructor(private val userRepository: UserR
 
     private fun getCreators() = userRepository.getAllCreators()
             .map<CreatorListContract.State>(CreatorListContract.State::DisplayCreators)
-            .doOnError { logd("Error!", it) }
             .onErrorReturnItem(CreatorListContract.State.Error())
 }

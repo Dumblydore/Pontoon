@@ -16,7 +16,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.gms.cast.MediaInfo
-import com.google.android.gms.cast.MediaLoadOptions
 import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.common.images.WebImage
@@ -26,11 +25,9 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.common.playback.PlayerFactory
 import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.main.player.PlayerView
+import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
@@ -53,7 +50,7 @@ class Player @Inject constructor(preferences: Preferences,
                 field = value
                 stateSubject.accept(value)
                 PlaybackStateCompat.Builder(mediaSession.controller.playbackState)
-                        .setState(value, player.currentPosition, 1f)
+                        .setState(value, player?.currentPosition ?: 0, 1f)
                         .build().also(mediaSession::setPlaybackState)
             }
         }
@@ -76,8 +73,7 @@ class Player @Inject constructor(preferences: Preferences,
         get() = timelineSubject
     private val viewModeRelay: Relay<ViewMode> = BehaviorRelay.create<ViewMode>()
 
-
-    lateinit var player: Player
+    private var player: Player? = null
     var currentlyPlaying: Playback? = null
         set(value) {
             if (value?.video?.id != field?.video?.id && value != null) {
@@ -91,9 +87,9 @@ class Player @Inject constructor(preferences: Preferences,
                         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
                         .build().apply(mediaSession::setMetadata)
             } else if (value != null) {
-                player.playWhenReady = true
+                player?.playWhenReady = true
             } else {
-                player.stop()
+                player?.stop()
                 mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
             }
             field = value
@@ -113,18 +109,27 @@ class Player @Inject constructor(preferences: Preferences,
         set(value) {
             if (value != field) {
                 currentlyPlaying?.apply {
-                    val progress = player.currentPosition
+                    val progress = player?.currentPosition ?: 0
                     when (value) {
                         QualityLevel.p1080 -> this.quality.p1080
                         QualityLevel.p720 -> this.quality.p720
                         QualityLevel.p480 -> this.quality.p480
                         QualityLevel.p360 -> this.quality.p360
                     }.let(String::toUri).also { load(it, video) }
-                    player.seekTo(progress)
+                    player?.seekTo(progress)
                 }
             }
             field = value
         }
+
+    val isPlaying: Boolean
+        get() = state == PlaybackStateCompat.STATE_PLAYING
+
+    val isActive: Boolean
+        get() = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
+
+    val isPlayingLocally: Boolean
+        get() = player is SimpleExoPlayer
 
     init {
         mediaSession.setPlaybackState(PlaybackStateCompat.Builder().setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
@@ -134,20 +139,15 @@ class Player @Inject constructor(preferences: Preferences,
                 .build())
         bind()
         subs += playerFactory.playback.subscribe {
-            player.removeListener(this)
+            player?.playWhenReady = false
+            player?.removeListener(this)
             it.addListener(this)
             val oldPlayer = player
             player = it
-            currentlyPlaying?.apply { load(this.quality.p1080.toUri(), video, oldPlayer.currentPosition) }
+            currentlyPlaying?.apply {
+                load(this.quality.p1080.toUri(), video, oldPlayer?.currentPosition ?: 0, mediaSession.isActive)
+            }
         }
-    }
-
-    fun isPlaying() = state == PlaybackStateCompat.STATE_PLAYING
-
-    fun isActive(): Boolean = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
-
-    fun bindToView(view: PlayerView) {
-        view.player = player
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
@@ -163,7 +163,7 @@ class Player @Inject constructor(preferences: Preferences,
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         state = when (playbackState) {
             Player.STATE_READY -> {
-                durationRelay.accept(player.duration)
+                durationRelay.accept(player?.duration ?: 0)
                 if (playWhenReady) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
             }
             Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
@@ -181,13 +181,13 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onPlay() {
-        player.playWhenReady = true
+        player?.playWhenReady = true
         state = PlaybackStateCompat.STATE_PLAYING
     }
 
     override fun onPause() {
-        if (isActive()) {
-            player.playWhenReady = false
+        if (isActive) {
+            player?.playWhenReady = false
             state = PlaybackStateCompat.STATE_PAUSED
         }
     }
@@ -198,7 +198,7 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onSeekTo(pos: Long) {
-        player.seekTo(pos)
+        player?.seekTo(pos)
         onPlay()
     }
 
@@ -220,18 +220,22 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     fun playPause() {
-        if (player.playWhenReady) onPause() else onPlay()
+        if (player?.playWhenReady == true) onPause() else onPlay()
     }
 
-    fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS,AndroidSchedulers.from(exoPlayer.applicationLooper))
-            .map { player.currentPosition }
-            .subscribeOn(AndroidSchedulers.from(player.applicationLooper))
-            .startWith(player.currentPosition)
+    fun progress(): Observable<Long> = playerFactory.playback.switchMap { currentPlayer ->
+        Observable.interval(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.from(currentPlayer.applicationLooper))
+                .map { currentPlayer.currentPosition }
+                .subscribeOn(AndroidSchedulers.from(currentPlayer.applicationLooper))
+                .startWith(currentPlayer.currentPosition)
+    }
 
-    fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS,AndroidSchedulers.from(exoPlayer.applicationLooper))
-            .map { player.bufferedPosition }
-            .subscribeOn(AndroidSchedulers.from(player.applicationLooper))
-            .startWith(player.currentPosition)
+    fun bufferedProgress(): Observable<Long> = playerFactory.playback.switchMap { currentPlayer ->
+        Observable.interval(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.from(currentPlayer.applicationLooper))
+                .map { currentPlayer.bufferedPosition }
+                .subscribeOn(AndroidSchedulers.from(currentPlayer.applicationLooper))
+                .startWith(currentPlayer.bufferedPosition)
+    }
 
     fun bind() {
         mediaSession.setCallback(this)
@@ -250,7 +254,7 @@ class Player @Inject constructor(preferences: Preferences,
     fun clear() {
         subs.clear()
         mediaSession.setCallback(null)
-        player.removeListener(this)
+        player?.removeListener(this)
         mediaSession.release()
     }
 
@@ -278,7 +282,7 @@ class Player @Inject constructor(preferences: Preferences,
         previewImageRelay.accept(playback.video.thumbnail)
     }
 
-    private fun load(uri: Uri, video: Video, startAt: Long = 0) {
+    private fun load(uri: Uri, video: Video, startAt: Long = 0, autoPlay: Boolean = true) {
         (player as? ExoPlayer)?.just {
             prepare(networkSourceFactory.createMediaSource(uri))
         }
@@ -294,14 +298,10 @@ class Player @Inject constructor(preferences: Preferences,
                     .setContentType("application/x-mpegurl")
                     .setMetadata(metaData)
                     .build()
-            val options = MediaLoadOptions.Builder()
-                    .setAutoplay(true)
-                    .setPlayPosition(0)
-                    .build()
             loadItem(MediaQueueItem.Builder(info).setAutoplay(true).build(), startAt)
         }
 
-        player.playWhenReady = true
+        player?.playWhenReady = autoPlay
     }
 
 
