@@ -21,6 +21,7 @@ import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.rx.preferences.watchString
 import javax.inject.Inject
 
+
 @Reusable
 class ThemeManager @Inject constructor(private val prefs: Preferences,
                                        private val preferences: SharedPreferences,
@@ -72,8 +73,13 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     private var mode
         get() = preferences.getInt(DayNightModeKey, AppCompatDelegate.MODE_NIGHT_NO)
         set(value) {
-            preferences.edit(true) { putInt(DayNightModeKey, value) }
+            val isDifferent = mode != value
             activity.delegate.setLocalNightMode(value)
+            AppCompatDelegate.setDefaultNightMode(value)
+            preferences.edit(true) { putInt(DayNightModeKey, value) }
+            if (isDifferent) {
+                activity.recreate()
+            }
         }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)

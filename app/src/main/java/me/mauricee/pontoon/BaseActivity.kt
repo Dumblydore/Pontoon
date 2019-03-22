@@ -26,13 +26,9 @@ abstract class BaseActivity : DaggerAppCompatActivity(), EventTracker.Page {
         themeManager.onCreate()
     }
 
-    override fun onStop() {
-        super.onStop()
-        subscriptions.clear()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         themeManager.clear()
+        subscriptions.clear()
     }
 }

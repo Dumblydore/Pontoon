@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.player.player
+package me.mauricee.pontoon.main.player
 
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
@@ -24,7 +24,6 @@ import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.supportActionBar
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
-import me.mauricee.pontoon.main.ControlEvent
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.rx.glide.toSingle
 import javax.inject.Inject
@@ -73,18 +72,18 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
-        subscriptions += player.controllerEvent.subscribe(this::handleControllerEvents)
+        subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
+        subscriptions += player_display.controlsVisibilityChanged.subscribe {
+            if (!it && !isSeeking) {
+                player_controls_progress.thumbVisibility = false
+                player_controls_progress.isVisible = player.viewMode == Player.ViewMode.Expanded
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
         player.bindToView(player_display)
-        subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        player.controlsVisible = false
     }
 
     override fun updateState(state: PlayerContract.State) {
@@ -131,14 +130,18 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_duration.text = state.formattedDuration
                 player_controls_progress.duration = state.duration
             }
+            is PlayerContract.State.ToggleControls -> {
+                player_display.controlsVisible = !player_display.controlsVisible
+                player_controls_progress.isVisible = player_display.controlsVisible || state.showProgress
+                player_controls_progress.thumbVisibility = player_display.controlsVisible && !isSeeking
+            }
+            is PlayerContract.State.ControlBehavior -> {
+                player_display.controlsVisible = false
+                player_controls_progress.isVisible = state.isExpanded
+                player_controls_progress.acceptTapsFromUser = state.areControlsAccepted
+                player_display.isInFullscreen = state.isFullscreen
+            }
         }
-    }
-
-    private fun handleControllerEvents(event: ControlEvent) = when (event) {
-        is ControlEvent.ControlsVisibilityChanged -> onControlsVisibilityChanged(event.isVisible)
-        is ControlEvent.ProgressVisibilityChanged -> onProgressVisibilityChanged(event.isVisible)
-        is ControlEvent.AcceptUserInputChanged -> onAcceptUserInputChanged(event.canAccept)
-        is ControlEvent.DisplayFullscreenIcon -> displayFullscreenIcon(event.isFullscreen)
     }
 
     private fun isPlaying(isPlaying: Boolean) {
@@ -151,26 +154,6 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         }
         player_controls_playPause.setImageDrawable(currentIcon)
         player_controls_playPause.drawable.startAsAnimatable()
-    }
-
-    private fun onControlsVisibilityChanged(isVisible: Boolean) {
-        if (isVisible)
-            player_display.showController()
-        else
-            player_display.hideController()
-        player_controls_progress.thumbVisibility = isVisible && !isSeeking
-    }
-
-    private fun onProgressVisibilityChanged(isVisible: Boolean) {
-        player_controls_progress.isVisible = isVisible
-    }
-
-    private fun onAcceptUserInputChanged(canAccept: Boolean) {
-        player_controls_progress.acceptTapsFromUser = canAccept
-    }
-
-    private fun displayFullscreenIcon(isFullscreen: Boolean) {
-        player_display.isInFullscreen = isFullscreen
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {

@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.player.player
+package me.mauricee.pontoon.main.player
 
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.analytics.EventTracker
@@ -20,20 +20,26 @@ interface PlayerContract {
         object DownloadStart : State()
         object DownloadFailed : State()
         object Error : State()
-        class Bind(val displayPipIcon: Boolean) : State()
-        class Preview(val path: String) : State()
-        class PreviewThumbnail(val path: String) : State()
-        class Duration(val duration: Long, val formattedDuration: String) : State() {
+        object HideControls : State() {
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.DEBUG
+        }
+        data class ToggleControls(val showProgress: Boolean) : State()
+        data class ControlBehavior(val areControlsAccepted: Boolean, val isFullscreen: Boolean, val isExpanded: Boolean): State()
+        data class Bind(val displayPipIcon: Boolean) : State()
+        data class Preview(val path: String) : State()
+        data class PreviewThumbnail(val path: String) : State()
+        data class Duration(val duration: Long, val formattedDuration: String) : State() {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }
 
-        class Progress(val progress: Long, val bufferedProgress: Long, val formattedProgress: String) : State() {
+        data class Progress(val progress: Long, val bufferedProgress: Long, val formattedProgress: String) : State() {
             override val level: EventTracker.Level
                 get() = EventTracker.Level.DEBUG
         }
 
-        class Quality(val qualityLevel: Player.QualityLevel) : State()
+        data class Quality(val qualityLevel: Player.QualityLevel) : State()
     }
 
     sealed class Action : EventTracker.Action {
@@ -42,7 +48,7 @@ interface PlayerContract {
         object SkipBackward : Action()
         object ToggleFullscreen : Action()
         object MinimizePlayer : Action()
-        object RequestShare: Action()
+        object RequestShare : Action()
         class SeekProgress(val progress: Int) : Action()
         class Download(val quality: Player.QualityLevel) : Action()
         class Quality(val qualityLevel: Player.QualityLevel) : Action()

@@ -50,7 +50,6 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     private fun toggleControls(): Observable<MainContract.State> {
         return stateless {
             if (!animationTouchListener.isExpanded) animationTouchListener.isExpanded = true
-            else player.toggleControls()
         }
     }
 
