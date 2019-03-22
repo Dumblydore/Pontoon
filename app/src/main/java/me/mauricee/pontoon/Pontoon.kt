@@ -1,5 +1,6 @@
 package me.mauricee.pontoon
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -52,6 +53,7 @@ class Pontoon : DaggerApplication() {
         if (BuildConfig.DEBUG) {
             EventTracker.trackers += debugTracker
         }
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =

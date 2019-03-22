@@ -38,9 +38,6 @@ import me.mauricee.pontoon.login.LoginScope
 import me.mauricee.pontoon.main.MainActivity
 import me.mauricee.pontoon.main.MainModule
 import me.mauricee.pontoon.main.MainScope
-import me.mauricee.pontoon.player.PlayerActivity
-import me.mauricee.pontoon.player.PlayerModule
-import me.mauricee.pontoon.player.PlayerScope
 import me.mauricee.pontoon.preferences.PreferenceModule
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import me.mauricee.pontoon.preferences.PreferencesScope
@@ -73,10 +70,6 @@ abstract class AppModule {
     @MainScope
     @ContributesAndroidInjector(modules = [MainModule::class])
     abstract fun contributeMainActivity(): MainActivity
-
-    @PlayerScope
-    @ContributesAndroidInjector(modules = [PlayerModule::class])
-    abstract fun contributePlayerActivity(): PlayerActivity
 
     @PreferencesScope
     @ContributesAndroidInjector(modules = [PreferenceModule::class])
@@ -205,7 +198,7 @@ abstract class AppModule {
         @Provides
         @AppScope
         @JvmStatic
-        fun providesExoPlayer(audioAttributes: AudioAttributes, context: Context) =
+        fun providesLocalExoPlayer(audioAttributes: AudioAttributes, context: Context) =
                 ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
                         .apply {
                             videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT

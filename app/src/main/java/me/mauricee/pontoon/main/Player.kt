@@ -8,30 +8,30 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.net.toUri
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.gms.cast.MediaInfo
+import com.google.android.gms.cast.MediaMetadata
+import com.google.android.gms.cast.MediaQueueItem
+import com.google.android.gms.common.images.WebImage
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.jakewharton.rxrelay2.PublishRelay
+import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
+import me.mauricee.pontoon.common.playback.PlayerFactory
 import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.player.player.PlayerView
 import me.mauricee.pontoon.rx.context.BroadcastEvent
 import me.mauricee.pontoon.rx.context.registerReceiver
 import java.util.concurrent.TimeUnit
@@ -39,12 +39,11 @@ import javax.inject.Inject
 
 @AppScope
 class Player @Inject constructor(preferences: Preferences,
-                                 private val exoPlayer: SimpleExoPlayer,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
                                  private val context: Context,
+                                 private val playerFactory: PlayerFactory,
                                  private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
         Player.EventListener, LifecycleObserver {
-
     @PlaybackStateCompat.State
     private var state: Int = PlaybackStateCompat.STATE_NONE
         set(value) {
@@ -52,7 +51,7 @@ class Player @Inject constructor(preferences: Preferences,
                 field = value
                 stateSubject.accept(value)
                 PlaybackStateCompat.Builder(mediaSession.controller.playbackState)
-                        .setState(value, exoPlayer.currentPosition, 1f)
+                        .setState(value, player?.currentPosition ?: 0, 1f)
                         .build().also(mediaSession::setPlaybackState)
             }
         }
@@ -73,9 +72,9 @@ class Player @Inject constructor(preferences: Preferences,
     private val timelineSubject = BehaviorRelay.create<String>()
     val thumbnailTimeline: Observable<String>
         get() = timelineSubject
-    private var controllerTimeout: Disposable? = null
-    private val controllerSubject = PublishRelay.create<ControlEvent>()
-    val controllerEvent: Observable<ControlEvent> = controllerSubject.hide().startWith(ControlEvent.ControlsVisibilityChanged(false))
+    private val viewModeRelay: Relay<ViewMode> = BehaviorRelay.create<ViewMode>()
+
+    private var player: Player? = null
     var currentLiveStream: LiveStreamMetadata? = null
         set(value) {
             if (value?.id != field?.id && value != null) {
@@ -89,9 +88,9 @@ class Player @Inject constructor(preferences: Preferences,
 //                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
                         .build().apply(mediaSession::setMetadata)
             } else if (value != null) {
-                exoPlayer.playWhenReady = true
+                player?.playWhenReady = true
             } else {
-                exoPlayer.stop()
+                player?.stop()
                 mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
             }
             field = value
@@ -109,9 +108,9 @@ class Player @Inject constructor(preferences: Preferences,
                         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
                         .build().apply(mediaSession::setMetadata)
             } else if (value != null) {
-                exoPlayer.playWhenReady = true
+                player?.playWhenReady = true
             } else {
-                exoPlayer.stop()
+                player?.stop()
                 mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
             }
             field = value
@@ -121,32 +120,37 @@ class Player @Inject constructor(preferences: Preferences,
         set(value) {
             if (field != value) {
                 field = value
-                controlsVisible = value == ViewMode.Expanded
+                viewModeRelay.accept(field)
             }
         }
-
-    var controlsVisible: Boolean = false
-        set(value) {
-            field = value
-            notifyController(field, viewMode)
-        }
+    val viewModes: Observable<ViewMode>
+        get() = viewModeRelay.hide()
 
     var quality: QualityLevel = preferences.defaultQualityLevel
         set(value) {
             if (value != field) {
                 currentlyPlaying?.apply {
-                    val progress = exoPlayer.currentPosition
+                    val progress = player?.currentPosition ?: 0
                     when (value) {
                         QualityLevel.p1080 -> this.quality.p1080
                         QualityLevel.p720 -> this.quality.p720
                         QualityLevel.p480 -> this.quality.p480
                         QualityLevel.p360 -> this.quality.p360
-                    }.let(String::toUri).also { load(it) }
-                    exoPlayer.seekTo(progress)
+                    }.let(String::toUri).also { load(it, video) }
+                    player?.seekTo(progress)
                 }
             }
             field = value
         }
+
+    val isPlaying: Boolean
+        get() = state == PlaybackStateCompat.STATE_PLAYING
+
+    val isActive: Boolean
+        get() = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
+
+    val isPlayingLocally: Boolean
+        get() = player is SimpleExoPlayer
 
     init {
         mediaSession.setPlaybackState(PlaybackStateCompat.Builder().setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
@@ -155,15 +159,16 @@ class Player @Inject constructor(preferences: Preferences,
                         PlaybackStateCompat.ACTION_PLAY)
                 .build())
         bind()
-//        lifecycleOwner.lifecycle.addObserver(this)
-    }
-
-    fun isPlaying() = state == PlaybackStateCompat.STATE_PLAYING
-
-    fun isActive(): Boolean = state != PlaybackStateCompat.STATE_NONE && state != PlaybackStateCompat.STATE_STOPPED
-
-    fun bindToView(view: PlayerView) {
-        view.player = exoPlayer
+        subs += playerFactory.playback.subscribe {
+            player?.playWhenReady = false
+            player?.removeListener(this)
+            it.addListener(this)
+            val oldPlayer = player
+            player = it
+            currentlyPlaying?.apply {
+                load(this.quality.p1080.toUri(), video, oldPlayer?.currentPosition ?: 0, mediaSession.isActive)
+            }
+        }
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
@@ -179,7 +184,7 @@ class Player @Inject constructor(preferences: Preferences,
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         state = when (playbackState) {
             Player.STATE_READY -> {
-                durationRelay.accept(exoPlayer.duration)
+                durationRelay.accept(player?.duration ?: 0)
                 if (playWhenReady) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
             }
             Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
@@ -197,13 +202,13 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onPlay() {
-        exoPlayer.playWhenReady = true
+        player?.playWhenReady = true
         state = PlaybackStateCompat.STATE_PLAYING
     }
 
     override fun onPause() {
-        if (isActive()) {
-            exoPlayer.playWhenReady = false
+        if (isActive) {
+            player?.playWhenReady = false
             state = PlaybackStateCompat.STATE_PAUSED
         }
     }
@@ -214,7 +219,7 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     override fun onSeekTo(pos: Long) {
-        exoPlayer.seekTo(pos)
+        player?.seekTo(pos)
         onPlay()
     }
 
@@ -231,49 +236,46 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     fun release() {
-        exoPlayer.release()
+        playerFactory.release()
         mediaSession.release()
     }
 
     fun playPause() {
-        if (exoPlayer.playWhenReady) onPause() else onPlay()
+        if (player?.playWhenReady == true) onPause() else onPlay()
     }
 
-    fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .flatMap {
-                Observable.fromCallable { exoPlayer.currentPosition }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(AndroidSchedulers.mainThread())
-            }
-            .startWith(exoPlayer.currentPosition)
-
-    fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .map { exoPlayer.bufferedPosition }.startWith(exoPlayer.bufferedPosition)
-
-    fun toggleControls() {
-        if (viewMode == ViewMode.PictureInPicture) return
-        controllerTimeout?.dispose()
-        controllerTimeout = (if (controlsVisible) false.toObservable()
-        else Observable.timer(3, TimeUnit.SECONDS, Schedulers.computation()).map { false }
-                .startWith(true))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { controlsVisible = it }.also { subs += it }
+    fun progress(): Observable<Long> = playerFactory.playback.switchMap { currentPlayer ->
+        Observable.interval(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.from(currentPlayer.applicationLooper))
+                .map { currentPlayer.currentPosition }
+                .subscribeOn(AndroidSchedulers.from(currentPlayer.applicationLooper))
+                .startWith(currentPlayer.currentPosition)
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    fun bufferedProgress(): Observable<Long> = playerFactory.playback.switchMap { currentPlayer ->
+        Observable.interval(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.from(currentPlayer.applicationLooper))
+                .map { currentPlayer.bufferedPosition }
+                .subscribeOn(AndroidSchedulers.from(currentPlayer.applicationLooper))
+                .startWith(currentPlayer.bufferedPosition)
+    }
+
     fun bind() {
         mediaSession.setCallback(this)
-        exoPlayer.addListener(this)
         subs += context.registerReceiver(IntentFilter(Intent.ACTION_HEADSET_PLUG))
                 .map(BroadcastEvent::intent).subscribe(this::handleHeadsetChanges)
+    }
+
+    fun onActive() {
         mediaSession.isActive = true
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onInactive() {
+        mediaSession.isActive = false
+    }
+
     fun clear() {
         subs.clear()
         mediaSession.setCallback(null)
-        exoPlayer.removeListener(this)
+        player?.removeListener(this)
         mediaSession.release()
     }
 
@@ -295,35 +297,34 @@ class Player @Inject constructor(preferences: Preferences,
             QualityLevel.p720 -> playback.quality.p720
             QualityLevel.p480 -> playback.quality.p480
             QualityLevel.p360 -> playback.quality.p360
-        }.toUri().let(::load)
+        }.toUri().let { load(it, playback.video) }
 
         setMetadata(playback.video)
         previewImageRelay.accept(playback.video.thumbnail)
     }
 
-    private fun load(uri: Uri) {
-        logd("loading $uri")
-        exoPlayer.prepare(networkSourceFactory.createMediaSource(uri))
-        exoPlayer.playWhenReady = true
+    private fun load(uri: Uri, video: Video, startAt: Long = 0, autoPlay: Boolean = true) {
+        (player as? ExoPlayer)?.just {
+            prepare(networkSourceFactory.createMediaSource(uri))
+        }
+        (player as? CastPlayer)?.just {
+
+            val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE).apply {
+                putString(MediaMetadata.KEY_TITLE, video.title)
+                putString(MediaMetadata.KEY_SUBTITLE, video.creator.name)
+                addImage(WebImage(video.thumbnail.toUri()))
+            }
+            val info = MediaInfo.Builder(uri.toString())
+                    .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                    .setContentType("application/x-mpegurl")
+                    .setMetadata(metaData)
+                    .build()
+            loadItem(MediaQueueItem.Builder(info).setAutoplay(true).build(), startAt)
+        }
+
+        player?.playWhenReady = autoPlay
     }
 
-    private fun notifyController(isVisible: Boolean, viewMode: ViewMode) {
-        controllerSubject.accept(ControlEvent.ControlsVisibilityChanged(isVisible))
-        when (viewMode) {
-            ViewMode.FullScreen -> {
-                controllerSubject.accept(ControlEvent.ProgressVisibilityChanged(isVisible))
-                controllerSubject.accept(ControlEvent.DisplayFullscreenIcon(true))
-            }
-            ViewMode.PictureInPicture -> {
-                controllerSubject.accept(ControlEvent.AcceptUserInputChanged(isVisible))
-                controllerSubject.accept(ControlEvent.DisplayFullscreenIcon(false))
-            }
-            ViewMode.Expanded -> {
-                controllerSubject.accept(ControlEvent.ProgressVisibilityChanged(true))
-                controllerSubject.accept(ControlEvent.DisplayFullscreenIcon(false))
-            }
-        }
-    }
 
     enum class QualityLevel {
         p1080,
@@ -337,11 +338,4 @@ class Player @Inject constructor(preferences: Preferences,
         FullScreen,
         Expanded
     }
-}
-
-sealed class ControlEvent {
-    data class ControlsVisibilityChanged(val isVisible: Boolean) : ControlEvent()
-    data class ProgressVisibilityChanged(val isVisible: Boolean) : ControlEvent()
-    data class AcceptUserInputChanged(val canAccept: Boolean) : ControlEvent()
-    data class DisplayFullscreenIcon(val isFullscreen: Boolean) : ControlEvent()
 }

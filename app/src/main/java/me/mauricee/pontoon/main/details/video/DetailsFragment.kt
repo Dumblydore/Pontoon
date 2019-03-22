@@ -49,7 +49,6 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        retainInstance = true
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
         subscriptions += commentsAdapter
         subscriptions += relatedVideosAdapter

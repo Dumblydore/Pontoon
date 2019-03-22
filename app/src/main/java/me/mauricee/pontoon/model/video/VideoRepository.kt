@@ -112,7 +112,6 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
             BiFunction { t1, t2 ->
                 getUrlFromResponse(t2, t1).replace("/chunk.m3u8", "")
             })
-            .doOnNext { logd("download url: $it") }
             .singleOrError()
 
     fun getQualityOfVideo(videoId: String): Observable<Quality> = edgeRepo.streamingHost.flatMapObservable<Quality> { host ->

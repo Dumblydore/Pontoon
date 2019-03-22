@@ -1,8 +1,9 @@
-package me.mauricee.pontoon.player.player
+package me.mauricee.pontoon.main.player
 
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
@@ -10,6 +11,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
+import com.google.android.gms.cast.framework.CastButtonFactory
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
@@ -20,11 +22,11 @@ import kotlinx.android.synthetic.main.fragment_player.*
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.playback.PlayerFactory
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.supportActionBar
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
-import me.mauricee.pontoon.main.ControlEvent
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.rx.glide.toSingle
 import javax.inject.Inject
@@ -36,6 +38,8 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     lateinit var player: Player
     @Inject
     lateinit var playerControls: PlayerContract.Controls
+    @Inject
+    lateinit var playerFactory: PlayerFactory
 
     private val playIconAnimation by lazy { getDrawable(requireContext(), R.drawable.avc_play_to_pause) }
     private val playIcon by lazy { getDrawable(requireContext(), R.drawable.ic_play) }
@@ -45,6 +49,7 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     private val previewArt by lazy { arguments?.getString(PreviewArtKey) ?: "" }
     private val qualityMenu by lazy { player_controls_toolbar.menu.findItem(R.id.action_quality) }
     private var isSeeking: Boolean = false
+    private lateinit var mediaRouteMenuItem: MenuItem
 
     override val actions: Observable<PlayerContract.Action>
         get() = listOf(player_controls_fullscreen.clicks().map { PlayerContract.Action.ToggleFullscreen },
@@ -68,23 +73,20 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         player_controls_toolbar.inflateMenu(R.menu.player_toolbar)
+        mediaRouteMenuItem = CastButtonFactory.setUpMediaRouteButton(requireContext().applicationContext, player_controls_toolbar.menu, R.id.media_route_menu_item)
         player_display.setThumbnail(previewArt)
         supportActionBar?.just {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
-        subscriptions += player.controllerEvent.subscribe(this::handleControllerEvents)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        player.bindToView(player_display)
+        subscriptions += playerFactory.playback.subscribe { player_display.player = it }
         subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        player.controlsVisible = false
+        subscriptions += player_display.controlsVisibilityChanged.subscribe {
+            if (!it && !isSeeking) {
+                player_controls_progress.thumbVisibility = false
+                player_controls_progress.isVisible = player.viewMode == Player.ViewMode.Expanded
+            }
+        }
     }
 
     override fun updateState(state: PlayerContract.State) {
@@ -131,14 +133,18 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_duration.text = state.formattedDuration
                 player_controls_progress.duration = state.duration
             }
+            is PlayerContract.State.ToggleControls -> {
+                player_display.controlsVisible = !player_display.controlsVisible
+                player_controls_progress.isVisible = player_display.controlsVisible || state.showProgress
+                player_controls_progress.thumbVisibility = player_display.controlsVisible && !isSeeking
+            }
+            is PlayerContract.State.ControlBehavior -> {
+                player_display.controlsVisible = false
+                player_controls_progress.isVisible = state.isExpanded
+                player_controls_progress.acceptTapsFromUser = state.areControlsAccepted
+                player_display.isInFullscreen = state.isFullscreen
+            }
         }
-    }
-
-    private fun handleControllerEvents(event: ControlEvent) = when (event) {
-        is ControlEvent.ControlsVisibilityChanged -> onControlsVisibilityChanged(event.isVisible)
-        is ControlEvent.ProgressVisibilityChanged -> onProgressVisibilityChanged(event.isVisible)
-        is ControlEvent.AcceptUserInputChanged -> onAcceptUserInputChanged(event.canAccept)
-        is ControlEvent.DisplayFullscreenIcon -> displayFullscreenIcon(event.isFullscreen)
     }
 
     private fun isPlaying(isPlaying: Boolean) {
@@ -151,26 +157,6 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
         }
         player_controls_playPause.setImageDrawable(currentIcon)
         player_controls_playPause.drawable.startAsAnimatable()
-    }
-
-    private fun onControlsVisibilityChanged(isVisible: Boolean) {
-        if (isVisible)
-            player_display.showController()
-        else
-            player_display.hideController()
-        player_controls_progress.thumbVisibility = isVisible && !isSeeking
-    }
-
-    private fun onProgressVisibilityChanged(isVisible: Boolean) {
-        player_controls_progress.isVisible = isVisible
-    }
-
-    private fun onAcceptUserInputChanged(canAccept: Boolean) {
-        player_controls_progress.acceptTapsFromUser = canAccept
-    }
-
-    private fun displayFullscreenIcon(isFullscreen: Boolean) {
-        player_display.isInFullscreen = isFullscreen
     }
 
     private fun itemClicks(): Observable<PlayerContract.Action> {

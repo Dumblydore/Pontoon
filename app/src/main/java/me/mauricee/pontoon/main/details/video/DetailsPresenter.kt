@@ -6,7 +6,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.comment.CommentRepository
@@ -40,8 +39,7 @@ class DetailsPresenter @Inject constructor(private val player: Player,
                 .onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.Like))
         is DetailsContract.Action.Dislike -> commentRepository.dislike(it.comment).map<DetailsContract.State> { DetailsContract.State.Dislike(it) }
                 .onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.Dislike))
-    }.doOnError { logd("error", it) }
-            .onErrorReturnItem(DetailsContract.State.Error())
+    }.onErrorReturnItem(DetailsContract.State.Error())
 
     private fun loadVideo(video: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> = video.id.let { id ->
         Observable.merge(loadRelatedVideos(id), loadComments(id), loadVideoDetails(video))

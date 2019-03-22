@@ -7,9 +7,10 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.jakewharton.rxrelay2.PublishRelay
+import com.jakewharton.rxrelay2.Relay
 import dagger.Reusable
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.ext.loge
+import io.reactivex.Observable
 import javax.inject.Inject
 
 /**
@@ -21,31 +22,9 @@ import javax.inject.Inject
  */
 
 @Reusable
-class VideoTouchHandler @Inject constructor(activity: AppCompatActivity, private var gestureEventsListener: GestureEvents) : View.OnTouchListener {
-    init {
-        logd("creating video touch handler")
-    }
+class VideoTouchHandler @Inject constructor(activity: AppCompatActivity) : View.OnTouchListener {
 
-    companion object {
-        val TAG = VideoTouchHandler::class.java.simpleName
-        /**
-         * Video limit params set minimum size a video can scale from both vertical
-         * and horizontal directions
-         */
-        const val MIN_VERTICAL_LIMIT = 0.685F
-        const val MIN_HORIZONTAL_LIMIT = 0.425F
-        const val MIN_BOTTOM_LIMIT = 0.90F
-        const val MIN_MARGIN_END_LIMIT = 0.975F
-
-        /**
-         * Define a threshold value to which when view moves above that threshold when
-         * touch action is up than automatically scale to top else scale to the
-         * minimum size
-         */
-        const val SCALE_THRESHOLD = 0.35F
-        const val SWIPE_MIN_DISTANCE = 120
-
-    }
+    private val eventRelay: Relay<GestureEvent> = PublishRelay.create()
 
     private val deviceHeight = Resources.getSystem().displayMetrics.heightPixels//activity.getDeviceHeight()
     private val deviceWidth = Resources.getSystem().displayMetrics.widthPixels//activity.getDeviceWidth()
@@ -64,13 +43,15 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity, private
     private var percentVertical = 0F
     private var percentMarginMoved = MIN_MARGIN_END_LIMIT
 
+    val events: Observable<GestureEvent>
+        get() = eventRelay.hide()
     var isEnabled = true
     var pinchToZoomEnabled = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         if (gestureDetector.onTouchEvent(event)) {
-            gestureEventsListener.onClick(view)
+            eventRelay.accept(GestureEvent.Click(view))
             //return only when player is more than threshold value i.e is already expanded
             if (percentVertical > SCALE_THRESHOLD) return true
         }
@@ -78,7 +59,7 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity, private
         if (pinchToZoomEnabled) {
             scaleGestureDetector.onTouchEvent(event)
             if (scaleGestureDetector.isInProgress) {
-                gestureEventsListener.onScale(scaleGestureDetector.scaleFactor)
+                eventRelay.accept(GestureEvent.Scale(scaleGestureDetector.scaleFactor))
             }
             return true
         }
@@ -102,7 +83,7 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity, private
                 val percentHorizontal = (event.rawX + dX) / deviceWidth.toFloat()
 
                 when (getDirection(startX = startX, startY = startY, endX = event.rawX, endY = event.rawY)) {
-                    is Direction.LEFT, is Direction.RIGHT -> {
+                    is Direction.Left, is Direction.Right -> {
 
                         //Don't perform swipe if video frame is expanded or scrolling up/down
                         if (!(!isTopScroll && !isExpanded)) return false
@@ -112,20 +93,17 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity, private
                         //Prevent guidelines to go out of screen bound
                         val percentHorizontalMoved = Math.max(-0.25F, Math.min(MIN_HORIZONTAL_LIMIT, percentHorizontal))
                         percentMarginMoved = percentHorizontalMoved + (MIN_MARGIN_END_LIMIT - MIN_HORIZONTAL_LIMIT)
-
-                        loge("" + percentHorizontal)
-
-                        gestureEventsListener.onSwipe(percentHorizontal)
+                        eventRelay.accept(GestureEvent.Swipe(percentHorizontal))
                         //swipeVideo(percentHorizontal)
                     }
-                    is Direction.UP, is Direction.DOWN, is Direction.NONE -> {
+                    is Direction.Up, is Direction.Down, is Direction.None -> {
 
                         //Don't expand video when user is swiping the video when its not expanded
                         if (isSwipeScroll) return false
 
                         //set up/down flag to avoid swipe scroll
                         isTopScroll = true
-                        gestureEventsListener.onScale(percentVertical)
+                        eventRelay.accept(GestureEvent.Scale(percentVertical))
                         //scaleVideo(percentVertical)
                     }
                 }
@@ -136,7 +114,7 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity, private
                 isSwipeScroll = false
                 if (percentMarginMoved < 0.5) {
                     //dismiss the video player
-                    gestureEventsListener.onDismiss(view)
+                    eventRelay.accept(GestureEvent.Dismiss(view))
                     resetValues()
                 } else {
                     isExpanded = percentVertical < SCALE_THRESHOLD
@@ -147,11 +125,11 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity, private
     }
 
     //Setup direction types from Direction sealed class
-    private var left = Direction.LEFT()
-    private var right = Direction.RIGHT()
-    private var up = Direction.UP()
-    private var down = Direction.DOWN()
-    private var none = Direction.NONE()
+    private val left: Direction = Direction.Left
+    private val right: Direction = Direction.Right
+    private val up: Direction = Direction.Up
+    private val down: Direction = Direction.Down
+    private val none: Direction = Direction.None
 
 
     /**
@@ -180,7 +158,7 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity, private
     var isExpanded = true
         set(value) {
             field = value
-            gestureEventsListener.onExpand(field)
+            eventRelay.accept(GestureEvent.Expand(field))
         }
 
 
@@ -201,5 +179,27 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity, private
         dY = 0F
         percentVertical = 0F
         percentMarginMoved = MIN_MARGIN_END_LIMIT
+    }
+
+
+    companion object {
+        val TAG = VideoTouchHandler::class.java.simpleName
+        /**
+         * Video limit params set minimum size a video can scale from both vertical
+         * and horizontal directions
+         */
+        const val MIN_VERTICAL_LIMIT = 0.685F
+        const val MIN_HORIZONTAL_LIMIT = 0.425F
+        const val MIN_BOTTOM_LIMIT = 0.90F
+        const val MIN_MARGIN_END_LIMIT = 0.975F
+
+        /**
+         * Define a threshold value to which when view moves above that threshold when
+         * touch action is up than automatically scale to top else scale to the
+         * minimum size
+         */
+        const val SCALE_THRESHOLD = 0.35F
+        const val SWIPE_MIN_DISTANCE = 120
+
     }
 }

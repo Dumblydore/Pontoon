@@ -37,4 +37,3 @@ fun Completable.doOnIo() = this.compose(RxHelpers.applyCompletableSchedulers())
 
 
 fun <T> T.toObservable() = Observable.just(this)!!
-

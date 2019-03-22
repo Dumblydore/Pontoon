@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.player.player
+package me.mauricee.pontoon.main.player
 
 import android.support.v4.media.session.PlaybackStateCompat
 import io.reactivex.Observable
@@ -7,21 +7,25 @@ import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.ShareManager
 import me.mauricee.pontoon.common.download.DownloadHelper
+import me.mauricee.pontoon.common.gestures.GestureEvent
+import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.Player
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
                                           private val downloadHelper: DownloadHelper,
                                           private val shareManager: ShareManager,
+                                          private val videoTouchHandler: VideoTouchHandler,
                                           private val controls: PlayerContract.Controls,
                                           eventTracker: EventTracker) :
         BasePresenter<PlayerContract.State, PlayerContract.View>(eventTracker), PlayerContract.Presenter {
 
     override fun onViewAttached(view: PlayerContract.View): Observable<PlayerContract.State> =
             Observable.merge(listOf(view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(::handleActions),
-                    watchState(), watchProgress(), watchPreview(), watchTimeline(), watchDuration()))
+                    watchState(), watchProgress(), watchPreview(), watchTimeline(), watchDuration(), watchViewMode(), handleVideoTouchEvents()))
                     .startWith(mutableListOf(PlayerContract.State.Bind(player.viewMode != Player.ViewMode.FullScreen),
                             PlayerContract.State.Quality(player.quality)))
                     .onErrorReturnItem(PlayerContract.State.Error)
@@ -29,10 +33,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     private fun handleActions(action: PlayerContract.Action): Observable<PlayerContract.State> = when (action) {
         PlayerContract.Action.SkipForward -> stateless { }
         PlayerContract.Action.SkipBackward -> stateless { }
-        PlayerContract.Action.MinimizePlayer -> stateless {
-            player.controlsVisible = false
-            controls.setPlayerExpanded(false)
-        }
+        PlayerContract.Action.MinimizePlayer -> stateless { controls.setPlayerExpanded(false) }
         PlayerContract.Action.ToggleFullscreen -> stateless { controls.toggleFullscreen() }
         is PlayerContract.Action.PlayPause -> stateless { player.playPause() }
         is PlayerContract.Action.Download -> downloadVideo(action.quality)
@@ -59,7 +60,22 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         }
     }
 
+    private fun watchViewMode() = player.viewModes.map {
+        when (it) {
+            Player.ViewMode.PictureInPicture -> PlayerContract.State.ControlBehavior(areControlsAccepted = false, isFullscreen = false, isExpanded = false)
+            Player.ViewMode.FullScreen -> PlayerContract.State.ControlBehavior(true, true, false)
+            Player.ViewMode.Expanded -> PlayerContract.State.ControlBehavior(true, false, true)
+        }
+    }
+
     private fun watchTimeline() = player.thumbnailTimeline.map(PlayerContract.State::PreviewThumbnail)
+
+    private fun handleVideoTouchEvents() = Observable.merge(videoTouchHandler.events.filter { it is GestureEvent.Click }
+            .cast(GestureEvent.Click::class.java).map { PlayerContract.State.ToggleControls(player.viewMode == Player.ViewMode.Expanded) },
+            videoTouchHandler.events.filter { it is GestureEvent.Scale }
+                    .cast(GestureEvent.Scale::class.java).map { PlayerContract.State.HideControls }
+                    .throttleLatest(250, TimeUnit.SECONDS)
+    )
 
     private fun downloadVideo(qualityLevel: Player.QualityLevel) = player.currentlyPlaying!!.video.let { video ->
         downloadHelper.download(video, qualityLevel)

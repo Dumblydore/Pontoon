@@ -8,9 +8,9 @@ package me.mauricee.pontoon.common.gestures
  * Direction sealed class used as enum for defining directions
  */
 sealed class Direction {
-    class LEFT : Direction()
-    class RIGHT : Direction()
-    class UP : Direction()
-    class DOWN : Direction()
-    class NONE : Direction()
+    object Left : Direction()
+    object Right : Direction()
+    object Up : Direction()
+    object Down : Direction()
+    object None : Direction()
 }
