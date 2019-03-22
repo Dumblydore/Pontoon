@@ -12,6 +12,7 @@ import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.Player
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
@@ -70,9 +71,10 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     private fun watchTimeline() = player.thumbnailTimeline.map(PlayerContract.State::PreviewThumbnail)
 
     private fun handleVideoTouchEvents() = Observable.merge(videoTouchHandler.events.filter { it is GestureEvent.Click }
-            .cast(GestureEvent.Click::class.java).map { PlayerContract.State.ToggleControls },
+            .cast(GestureEvent.Click::class.java).map { PlayerContract.State.ToggleControls(player.viewMode == Player.ViewMode.Expanded) },
             videoTouchHandler.events.filter { it is GestureEvent.Scale }
                     .cast(GestureEvent.Scale::class.java).map { PlayerContract.State.HideControls }
+                    .throttleLatest(250, TimeUnit.SECONDS)
     )
 
     private fun downloadVideo(qualityLevel: Player.QualityLevel) = player.currentlyPlaying!!.video.let { video ->

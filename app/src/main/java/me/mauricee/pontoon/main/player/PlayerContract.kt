@@ -20,8 +20,11 @@ interface PlayerContract {
         object DownloadStart : State()
         object DownloadFailed : State()
         object Error : State()
-        object ToggleControls : State()
-        object HideControls : State()
+        object HideControls : State() {
+            override val level: EventTracker.Level
+                get() = EventTracker.Level.DEBUG
+        }
+        data class ToggleControls(val showProgress: Boolean) : State()
         data class ControlBehavior(val areControlsAccepted: Boolean, val isFullscreen: Boolean, val isExpanded: Boolean): State()
         data class Bind(val displayPipIcon: Boolean) : State()
         data class Preview(val path: String) : State()

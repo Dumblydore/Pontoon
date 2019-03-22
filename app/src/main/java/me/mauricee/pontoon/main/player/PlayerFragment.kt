@@ -21,7 +21,6 @@ import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.BaseFragment
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.just
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.supportActionBar
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.glide.GlideApp
@@ -63,7 +62,6 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
-        retainInstance = true
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,12 +73,12 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
             setDisplayShowHomeEnabled(true)
         }
         subscriptions += player_display.ratio.subscribe(playerControls::setVideoRatio)
-        logd("creating")
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        logd("destroying")
+        subscriptions += player_display.controlsVisibilityChanged.subscribe {
+            if (!it && !isSeeking) {
+                player_controls_progress.thumbVisibility = false
+                player_controls_progress.isVisible = player.viewMode == Player.ViewMode.Expanded
+            }
+        }
     }
 
     override fun onStart() {
@@ -132,9 +130,10 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_duration.text = state.formattedDuration
                 player_controls_progress.duration = state.duration
             }
-            PlayerContract.State.ToggleControls -> {
+            is PlayerContract.State.ToggleControls -> {
                 player_display.controlsVisible = !player_display.controlsVisible
-                player_controls_progress.isVisible = player_display.controlsVisible
+                player_controls_progress.isVisible = player_display.controlsVisible || state.showProgress
+                player_controls_progress.thumbVisibility = player_display.controlsVisible && !isSeeking
             }
             is PlayerContract.State.ControlBehavior -> {
                 player_display.controlsVisible = false

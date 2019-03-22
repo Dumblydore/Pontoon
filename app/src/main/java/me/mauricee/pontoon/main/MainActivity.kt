@@ -19,6 +19,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.doOnLayout
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.transaction
@@ -109,6 +110,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        stayingInsideApp = false
         setContentView(R.layout.activity_main)
 
         paramsGlHorizontal = guidelineHorizontal.layoutParams as ConstraintLayout.LayoutParams
@@ -131,8 +133,18 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
                 is GestureEvent.Expand -> onExpand(it.isExpanded)
             }
         }
+        root.doOnLayout {
+            if (player.isActive()) {
+                onExpand(player.viewMode != Player.ViewMode.PictureInPicture)
+                val isPortrait = isPortrait()
+                if (!isPortrait) {
+                    enableFullScreen(true)
+                }
+            } else {
+                hide()
+            }
+        }
     }
-
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
@@ -155,25 +167,21 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
 
     override fun onStart() {
         super.onStart()
-        if (player.isActive()) {
-            onExpand(player.viewMode != Player.ViewMode.PictureInPicture)
-            if (!isPortrait()) {
-                enableFullScreen(true)
-            }
-        } else {
-            hide()
-        }
-        mainPresenter.attachView(this)
         stayingInsideApp = false
+        mainPresenter.attachView(this)
         subscriptions += RxBottomNavigationView.itemSelections(main_bottomNav).subscribe(::switchTab)
         privacyManager.displayPromptIfUserHasNotBeenPrompted(this)
+        player.onActive()
     }
 
     override fun onStop() {
         super.onStop()
         mainPresenter.detachView()
-        if (!stayingInsideApp)
+        if (!stayingInsideApp) {
             player.onPause()
+            player.onInactive()
+            player.viewMode = Player.ViewMode.Expanded
+        }
         privacyManager.hidePromptIfOpen()
     }
 
@@ -243,8 +251,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     }
 
     override fun toggleFullscreen() {
-        stayingInsideApp = true
-        orientationManager.isFullscreen = true
+        orientationManager.isFullscreen = !orientationManager.isFullscreen
     }
 
     private fun onClick(view: View) {
@@ -256,7 +263,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     }
 
     private fun onScale(percentage: Float) {
-        logd("scaling video: $percentage")
         if (isPortrait())
             scaleVideo(percentage)
         else {
@@ -323,21 +329,26 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        enableFullScreen(!isPortrait())
-        supportFragmentManager.findFragmentById(R.id.main_player)?.with {
-            supportFragmentManager.transaction {
-                detach(it)
-                attach(it)
+        val isNotInPip = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isInPictureInPictureMode
+        if (isNotInPip) {
+            enableFullScreen(!isPortrait())
+            supportFragmentManager.findFragmentById(R.id.main_player)?.with {
+                supportFragmentManager.transaction {
+                    detach(it)
+                    attach(it)
+                }
             }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun goIntoPip() {
+        orientationManager.isFullscreen = false
         expandPlayerTo(true, Player.ViewMode.FullScreen)
         enterPictureInPictureMode(PictureInPictureParams.Builder()
                 .setAspectRatio(Rational.parseRational(currentPlayerRatio))
                 .build())
+        player.viewMode = Player.ViewMode.PictureInPicture
     }
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
@@ -346,7 +357,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState?.with(controller::onSaveInstanceState)
+        outState.with(controller::onSaveInstanceState)
     }
 
 
@@ -464,11 +475,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
 
     private fun enableFullScreen(isEnabled: Boolean) {
         if (isEnabled) {
+            root.doOnPreDraw {
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            }
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            player.viewMode = Player.ViewMode.FullScreen
             main.updateParams(constraintSet) {
                 connect(main_player.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(main_player.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
@@ -476,8 +488,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
                 connect(main_player.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
                 setDimensionRatio(main_player.id, "")
             }
+            player.viewMode = Player.ViewMode.FullScreen
         } else {
-            player.viewMode = Player.ViewMode.Expanded
             root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             main.updateParams(constraintSet) {
@@ -487,9 +499,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
                 clear(main_player.id, ConstraintSet.BOTTOM)
                 setDimensionRatio(main_player.id, currentPlayerRatio)
             }
+            player.viewMode = Player.ViewMode.Expanded
         }
         animationTouchListener.pinchToZoomEnabled = isEnabled
-        player.viewMode = if (isEnabled) Player.ViewMode.FullScreen else Player.ViewMode.Expanded
     }
 
     private fun displayUser(user: UserRepository.User, subCount: Int) {

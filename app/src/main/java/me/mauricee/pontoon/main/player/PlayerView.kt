@@ -13,6 +13,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.video.VideoListener
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.layout_player.view.*
@@ -32,6 +33,8 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     }
 
     private val controlsRunnable: Runnable = Runnable { controlsVisible = !controlsVisible }
+    private val borderRunnable: Runnable = Runnable { hideBorder() }
+    private val controlsVisibleRelay: Relay<Boolean> = PublishRelay.create()
     private val ratioRelay: Relay<String> = BehaviorRelay.create()
 
     private var maxScale = 0f
@@ -39,6 +42,8 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
     val ratio: Observable<String>
         get() = ratioRelay.hide()
+    val controlsVisibilityChanged: Observable<Boolean>
+        get() = controlsVisibleRelay.hide()
 
     var player: SimpleExoPlayer? = null
         set(value) {
@@ -60,7 +65,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             if (field != value) {
                 field = value
                 if (value) showController() else hideController()
-                logd("controlsVisible=$field")
+                controlsVisibleRelay.accept(field)
             }
         }
 
@@ -79,6 +84,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         handler.removeCallbacks(controlsRunnable)
+        handler.removeCallbacks(borderRunnable)
     }
 
     fun scaleVideo(scaleTo: Float) {
@@ -86,6 +92,8 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         val newScale = Math.max(1f, Math.min(maxScale, currentScale))
         player_content.scaleX = newScale
         player_content.scaleY = newScale
+        if (newScale != maxScale && (newScale / maxScale) * 100f >= 90)
+            showBorder()
     }
 
     private fun unregisterPlayer(player: SimpleExoPlayer) {
@@ -101,6 +109,15 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         updateBuffering(false)
         updateErrorMsg(false)
         updateForCurrentTrackSelections(true)
+    }
+
+    private fun showBorder() {
+        handler.removeCallbacks(borderRunnable)
+        player_border.show { handler.postDelayed(borderRunnable, 1000) }
+    }
+
+    private fun hideBorder() {
+        player_border.hide()
     }
 
     override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
@@ -176,22 +193,12 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
     private fun showController() {
         handler.removeCallbacks(controlsRunnable)
-        player_controls.isVisible = true
-        player_controls.animate()
-                .setDuration(250)
-                .alpha(1f)
-                .start()
-        handler.postDelayed(controlsRunnable, 5250)
+        player_controls.show { handler.postDelayed(controlsRunnable, 5000) }
     }
 
     private fun hideController() {
         handler.removeCallbacks(controlsRunnable)
-        player_controls.animate()
-                .setDuration(250)
-                .alpha(0f)
-                .withStartAction { player_controls.alpha = 1f }
-                .withEndAction { player_controls.isVisible = false }
-                .start()
+        player_controls.hide()
     }
 
     private fun updateForCurrentTrackSelections(isNewPlayer: Boolean = false) {

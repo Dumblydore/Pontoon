@@ -8,9 +8,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.net.toUri
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -22,6 +20,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
+import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.player.PlayerView
 import me.mauricee.pontoon.model.preferences.Preferences
@@ -32,7 +31,7 @@ import me.mauricee.pontoon.rx.context.registerReceiver
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-@MainScope
+@AppScope
 class Player @Inject constructor(preferences: Preferences,
                                  private val exoPlayer: SimpleExoPlayer,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
@@ -209,23 +208,31 @@ class Player @Inject constructor(preferences: Preferences,
         if (exoPlayer.playWhenReady) onPause() else onPlay()
     }
 
-    fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .flatMap { Observable.fromCallable { exoPlayer.currentPosition }.subscribeOn(AndroidSchedulers.mainThread()) }
+    fun progress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS,AndroidSchedulers.from(exoPlayer.applicationLooper))
+            .map { exoPlayer.currentPosition }
+            .subscribeOn(AndroidSchedulers.from(exoPlayer.applicationLooper))
             .startWith(exoPlayer.currentPosition)
 
-    fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS)
-            .map { exoPlayer.bufferedPosition }.startWith(exoPlayer.bufferedPosition)
+    fun bufferedProgress(): Observable<Long> = Observable.interval(1000, TimeUnit.MILLISECONDS,AndroidSchedulers.from(exoPlayer.applicationLooper))
+            .map { exoPlayer.bufferedPosition }
+            .subscribeOn(AndroidSchedulers.from(exoPlayer.applicationLooper))
+            .startWith(exoPlayer.currentPosition)
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun bind() {
         mediaSession.setCallback(this)
         exoPlayer.addListener(this)
         subs += context.registerReceiver(IntentFilter(Intent.ACTION_HEADSET_PLUG))
                 .map(BroadcastEvent::intent).subscribe(this::handleHeadsetChanges)
+    }
+
+    fun onActive() {
         mediaSession.isActive = true
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onInactive() {
+        mediaSession.isActive = false
+    }
+
     fun clear() {
         subs.clear()
         mediaSession.setCallback(null)
