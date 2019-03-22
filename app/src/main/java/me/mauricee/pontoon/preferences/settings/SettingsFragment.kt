@@ -14,7 +14,6 @@ import io.reactivex.Observable
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.hasNotch
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toast
 import me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
 import me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
@@ -41,7 +40,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
         findPreference("settings_privacy_policy").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedPrivacyPolicy) }
         findPreference("settings_refresh_edges").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedRefreshEdges) }
         if (!requireActivity().hasNotch()) {
-            logd("device does not have notch")
             (findPreference("settings_general") as PreferenceCategory).removePreference(findPreference("settings_notch"))
         }
         if (!BuildConfig.DEBUG) {

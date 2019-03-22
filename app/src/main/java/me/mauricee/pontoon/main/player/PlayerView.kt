@@ -45,7 +45,7 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     val controlsVisibilityChanged: Observable<Boolean>
         get() = controlsVisibleRelay.hide()
 
-    var player: SimpleExoPlayer? = null
+    var player: Player? = null
         set(value) {
             if (field != value) {
                 field?.apply(::unregisterPlayer)
@@ -96,16 +96,22 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
             showBorder()
     }
 
-    private fun unregisterPlayer(player: SimpleExoPlayer) {
-        player.removeVideoListener(this)
-        player.setVideoSurfaceView(null)
+    private fun unregisterPlayer(player: Player) {
+        (player as? SimpleExoPlayer)?.with {
+            it.removeVideoListener(this)
+            it.setVideoSurfaceView(null)
+        }
         player.removeListener(this)
     }
 
-    private fun registerPlayer(player: SimpleExoPlayer) {
+    private fun registerPlayer(player: Player) {
         player.addListener(this)
-        player.addVideoListener(this)
-        player.setVideoTextureView(player_content_surface)
+        (player as? SimpleExoPlayer)?.with {
+            player.addVideoListener(this)
+            player.setVideoTextureView(player_content_surface)
+            onRenderedFirstFrame()
+
+        }
         updateBuffering(false)
         updateErrorMsg(false)
         updateForCurrentTrackSelections(true)

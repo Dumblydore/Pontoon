@@ -33,6 +33,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username", "")}\""
         resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password", "")}\""
+        resValue 'string', 'cast_id', "\"${localProperties.getProperty("pontoon.castId", "")}\""
     }
     buildTypes {
         release {
@@ -78,7 +79,7 @@ dependencies {
     implementation "androidx.core:core:1.1.0-alpha-05"
     implementation "androidx.media:media:$google_support_version"
     implementation "androidx.palette:palette:$google_support_version"
-//    implementation "androidx.mediarouter:mediarouter:$google_support_version"
+    implementation "androidx.mediarouter:mediarouter:$google_support_version"
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation "com.google.android.material:material:$material_components_version"
 
@@ -87,6 +88,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crash:16.2.1'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
     implementation 'com.google.firebase:firebase-perf:16.2.3'
+    implementation'com.google.android.gms:play-services-cast-framework:16.1.2'
 
     //  UI
     implementation 'com.ncapdevi:frag-nav:2.4.0'
@@ -121,7 +123,7 @@ dependencies {
     implementation "com.google.android.exoplayer:exoplayer-core:$exo_player_version"
     implementation "com.google.android.exoplayer:exoplayer-ui:$exo_player_version"
     implementation "com.google.android.exoplayer:extension-okhttp:$exo_player_version"
-    implementation "com.google.android.exoplayer:extension-mediasession:$exo_player_version"
+    implementation "com.google.android.exoplayer:extension-cast:$exo_player_version"
     implementation "com.google.android.exoplayer:exoplayer-hls:$exo_player_version"
 
     //  Architecture Components

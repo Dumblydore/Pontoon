@@ -3,6 +3,8 @@ package me.mauricee.pontoon.main
 import android.view.MenuInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
+import com.google.android.exoplayer2.ext.cast.CastPlayer
+import com.google.android.gms.cast.framework.CastContext
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -67,6 +69,17 @@ abstract class MainModule {
         @Provides
         @JvmStatic
         fun providesSharedPreferences(activity: MainActivity): MenuInflater = activity.menuInflater
+
+
+        @Provides
+        @MainScope
+        @JvmStatic
+        fun provideCastContext(context: MainActivity) = CastContext.getSharedInstance(context)
+
+        @Provides
+        @MainScope
+        @JvmStatic
+        fun providesCastExoPlayer(castContext: CastContext): CastPlayer = CastPlayer(castContext)
     }
 
 }
