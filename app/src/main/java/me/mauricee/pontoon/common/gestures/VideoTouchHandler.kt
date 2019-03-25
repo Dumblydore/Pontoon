@@ -47,6 +47,9 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity) : View.
         get() = eventRelay.hide()
     var isEnabled = true
     var pinchToZoomEnabled = false
+    var isSnackbarShowing = false
+    val minVerticalLimit
+        get() = if (isSnackbarShowing) MIN_MESSAGE_VERTICAL_LIMIT else MIN_VERTICAL_LIMIT
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(view: View, event: MotionEvent): Boolean {
@@ -188,7 +191,8 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity) : View.
          * Video limit params set minimum size a video can scale from both vertical
          * and horizontal directions
          */
-        const val MIN_VERTICAL_LIMIT = 0.685F
+        private const val MIN_VERTICAL_LIMIT = 0.685F
+        private const val MIN_MESSAGE_VERTICAL_LIMIT = 0.6F
         const val MIN_HORIZONTAL_LIMIT = 0.425F
         const val MIN_BOTTOM_LIMIT = 0.90F
         const val MIN_MARGIN_END_LIMIT = 0.975F

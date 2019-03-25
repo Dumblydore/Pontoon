@@ -48,6 +48,6 @@ class CreatorPresenter @Inject constructor(private val videoRepository: VideoRep
 
     private fun checkForLivestream(creator: UserRepository.Creator): Observable<CreatorContract.State> =
             liveStreamRepository.activeLiveStreams.flatMapObservable { it.toObservable() }
-                    .filter { it.owner == creator.id }
+                    .filter { it.creator.id == creator.id }
                     .flatMap { stateless { mainNavigator.showMessage("${creator.name} is live.", Pair("Go to stream", { mainNavigator.playLiveStream(it) })) } }
 }

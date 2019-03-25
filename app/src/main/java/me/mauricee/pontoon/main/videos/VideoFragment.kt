@@ -97,6 +97,22 @@ class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
 
     private fun displayVideos(videos: PagedList<Video>) {
         videoAdapter.submitList(videos)
+        videos.addWeakCallback(null, object : PagedList.Callback() {
+            override fun onChanged(position: Int, count: Int) {
+
+            }
+
+            override fun onRemoved(position: Int, count: Int) {
+
+            }
+
+            override fun onInserted(position: Int, count: Int) {
+                if (position == 0) {
+                    reset()
+                    videos.removeWeakCallback(this)
+                }
+            }
+        })
         videos_container_lazy.state = LazyLayout.SUCCESS
     }
 

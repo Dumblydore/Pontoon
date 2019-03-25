@@ -27,8 +27,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.common.playback.PlayerFactory
 import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
 import me.mauricee.pontoon.ext.just
+import me.mauricee.pontoon.model.livestream.LiveStreamInfo
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Video
@@ -75,24 +75,24 @@ class Player @Inject constructor(preferences: Preferences,
     private val viewModeRelay: Relay<ViewMode> = BehaviorRelay.create<ViewMode>()
 
     private var player: Player? = null
-    var currentLiveStream: LiveStreamMetadata? = null
+    var currentLiveStream: LiveStreamInfo? = null
         set(value) {
-            if (value?.id != field?.id && value != null) {
-                load("https://cdn1.floatplane.com${value.streamPath}/playlist.m3u8".toUri())
+//            if (value?.id != field?.id && value != null) {
+//                load("https://cdn1.floatplane.com${value.streamPath}/playlist.m3u8")
                 MediaMetadataCompat.Builder()
-                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, value.title)
-                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, value.description)
+//                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, value.title)
+//                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, value.description)
 //                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, value.creator.name)
 //                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value.video.thumbnail)
 //                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, value.video.title)
 //                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
-                        .build().apply(mediaSession::setMetadata)
-            } else if (value != null) {
-                player?.playWhenReady = true
-            } else {
-                player?.stop()
-                mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
-            }
+//                        .build().apply(mediaSession::setMetadata)
+//            } else if (value != null) {
+//                player?.playWhenReady = true
+//            } else {
+//                player?.stop()
+//                mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
+//            }
             field = value
         }
     var currentlyPlaying: Playback? = null
@@ -236,8 +236,8 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     fun release() {
-        playerFactory.release()
-        mediaSession.release()
+//        playerFactory.release()
+//        mediaSession.release()
     }
 
     fun playPause() {
@@ -330,7 +330,7 @@ class Player @Inject constructor(preferences: Preferences,
         p1080,
         p720,
         p480,
-        p360
+        p360,
     }
 
     enum class ViewMode {
@@ -338,4 +338,8 @@ class Player @Inject constructor(preferences: Preferences,
         FullScreen,
         Expanded
     }
+
+//    open class Playback() {
+//
+//    }
 }

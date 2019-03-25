@@ -20,7 +20,7 @@ class LiveStreamPresenter @Inject constructor(private val liveStreamRepository: 
     //TODO watch for oncomplete of player to know if it's offline.
     private fun handleActions(action: LiveStreamContract.Action): Observable<out LiveStreamContract.State> = when (action) {
         is LiveStreamContract.Action.ViewLiveStream -> liveStreamRepository.getLiveStreamOf(action.creatorId)
-                .map<LiveStreamContract.State> { LiveStreamContract.State.IsOffline(it.offline) }.toObservable()
+                .map<LiveStreamContract.State> { LiveStreamContract.State.IsOffline(it.liveStreamMetadata.offline) }.toObservable()
                 .startWith(LiveStreamContract.State.Loading)
     }
 }

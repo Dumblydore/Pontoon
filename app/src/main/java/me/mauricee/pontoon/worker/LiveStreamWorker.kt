@@ -11,9 +11,10 @@ import io.reactivex.rxkotlin.toObservable
 import io.reactivex.rxkotlin.toSingle
 import me.mauricee.pontoon.Pontoon
 import me.mauricee.pontoon.common.NotificationHelper
-import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
+import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.loge
 import me.mauricee.pontoon.main.MainActivity
+import me.mauricee.pontoon.model.livestream.LiveStreamInfo
 import me.mauricee.pontoon.model.livestream.LiveStreamRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.rx.okhttp.asSingle
@@ -37,19 +38,21 @@ class LiveStreamWorker(context: Context, workerParameters: WorkerParameters) : R
 
     override fun createWork(): Single<Result> = liveStreamRepository.activeLiveStreams
             .flatMapObservable { it.toObservable() }
-            .flatMapCompletable { metadata ->
-                okHttpClient.newCall(Request.Builder().url(metadata.thumbnail.path).build())
+            .flatMapCompletable { stream ->
+                okHttpClient.newCall(Request.Builder().url(stream.liveStreamMetadata.thumbnail.path).build())
                         .asSingle().map { BitmapFactory.decodeStream(it.body()?.byteStream()) }
-                        .flatMapCompletable { buildNotification(metadata, it) }
+                        .flatMapCompletable { buildNotification(stream, it) }
+                        .doOnIo()
             }
             .andThen(Result.success().toSingle())
             .doOnError { loge("Error!", it) }
             .onErrorReturnItem(Result.retry())
 
-    private fun buildNotification(metaData: LiveStreamMetadata, thumbnail: Bitmap) = Completable.fromAction {
-        notificationHelper.importantNotification(MainActivity.buildIntentForLivestream(applicationContext, metaData), NotificationHelper.LiveStreamNotificationChannel) {
-            it.setContentTitle("${metaData.owner} just went live!")
-            it.setSubText(metaData.description)
+
+    private fun buildNotification(info: LiveStreamInfo, thumbnail: Bitmap) = Completable.fromAction {
+        notificationHelper.importantNotification(MainActivity.buildIntentForLivestream(applicationContext, info), NotificationHelper.LiveStreamNotificationChannel) {
+            it.setContentTitle("${info.creator.name} just went live!")
+            it.setSubText(info.liveStreamMetadata.description)
             it.setLargeIcon(thumbnail)
         }
     }

@@ -4,7 +4,7 @@ import androidx.annotation.IdRes
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
+import me.mauricee.pontoon.model.livestream.LiveStreamInfo
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 
@@ -61,7 +61,7 @@ interface MainContract {
 
         fun playVideo(video: Video, commentId: String = "")
 
-        fun playLiveStream(liveStream: LiveStreamMetadata)
+        fun playLiveStream(liveStream: LiveStreamInfo)
 
         fun setMenuExpanded(isExpanded: Boolean)
     }

@@ -48,7 +48,6 @@ import me.mauricee.pontoon.analytics.PrivacyManager
 import me.mauricee.pontoon.common.gestures.GestureEvent
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.common.playback.PlayerFactory
-import me.mauricee.pontoon.domain.floatplane.LiveStreamMetadata
 import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.login.LoginActivity
@@ -62,6 +61,7 @@ import me.mauricee.pontoon.main.player.PlayerFragment
 import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
+import me.mauricee.pontoon.model.livestream.LiveStreamInfo
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
@@ -210,10 +210,10 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
             root.closeDrawer(main_drawer, true)
     }
 
-    override fun playLiveStream(liveStream: LiveStreamMetadata) {
+    override fun playLiveStream(liveStream: LiveStreamInfo) {
         loadFragment {
-            replace(R.id.main_player, PlayerFragment.newInstance(liveStream.thumbnail.path))
-            replace(R.id.main_details, LiveStreamFragment.newInstance(liveStream.owner))
+            replace(R.id.main_player, PlayerFragment.newInstance(liveStream.liveStreamMetadata.thumbnail.path))
+            replace(R.id.main_details, LiveStreamFragment.newInstance(liveStream.creator.id))
         }
         main.doOnPreDraw {
             animationTouchListener.isExpanded = true
@@ -404,8 +404,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     private fun scaleVideo(percentScrollUp: Float) {
 
         //Prevent guidelines to go out of screen bound
-        val percentVerticalMoved = Math.max(0F, Math.min(VideoTouchHandler.MIN_VERTICAL_LIMIT, percentScrollUp))
-        val movedPercent = percentVerticalMoved / VideoTouchHandler.MIN_VERTICAL_LIMIT
+        val percentVerticalMoved = Math.max(0F, Math.min(animationTouchListener.minVerticalLimit, percentScrollUp))
+        val movedPercent = percentVerticalMoved / animationTouchListener.minVerticalLimit
         val percentHorizontalMoved = VideoTouchHandler.MIN_HORIZONTAL_LIMIT * movedPercent
         val percentBottomMoved = 1F - movedPercent * (1F - VideoTouchHandler.MIN_BOTTOM_LIMIT)
         val percentMarginMoved = 1F - movedPercent * (1F - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
@@ -460,6 +460,16 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     override fun setPlayerExpanded(isExpanded: Boolean) = expandPlayerTo(isExpanded, Player.ViewMode.Expanded)
 
     override fun showMessage(content: String, action: Pair<String, () -> Unit>) {
+        animationTouchListener.isSnackbarShowing = true
+        if (player.viewMode == Player.ViewMode.Expanded) {
+            main.updateParams(constraintSet) {
+                setGuidelinePercent(guidelineHorizontal.id, animationTouchListener.minVerticalLimit)
+                TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
+                    interpolator = android.view.animation.AnticipateOvershootInterpolator(1.0f)
+                    duration = 250
+                })
+            }
+        }
         Snackbar.make(main_container, content, Snackbar.LENGTH_INDEFINITE)
                 .apply { setAction(action.first) { action.second() } }
                 .addCallback(snackbarCallback)
@@ -469,7 +479,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     private fun expandPlayerTo(isExpanded: Boolean, expandedState: Player.ViewMode) {
         main_player.alpha = 1f
         main.updateParams(constraintSet) {
-            setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else VideoTouchHandler.MIN_VERTICAL_LIMIT)
+            setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else animationTouchListener.minVerticalLimit)
             setGuidelinePercent(guidelineVertical.id, if (isExpanded) 0F else VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
             setGuidelinePercent(guidelineBottom.id, if (isExpanded) 1F else VideoTouchHandler.MIN_BOTTOM_LIMIT)
             setGuidelinePercent(guidelineMarginEnd.id, if (isExpanded) 1F else VideoTouchHandler.MIN_MARGIN_END_LIMIT)
@@ -590,8 +600,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
         fun playVideo(context: Context, videoId: String) = context.startActivity(Intent(context, MainActivity::class.java)
                 .putExtra(VideoToPlayKey, videoId).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
 
-        fun buildIntentForLivestream(context: Context, liveStream: LiveStreamMetadata): Intent =
-                Intent(context, MainActivity::class.java).putExtra(LivestreamToPlayKey, liveStream.id)
+        fun buildIntentForLivestream(context: Context, liveStream: LiveStreamInfo): Intent =
+                Intent(context, MainActivity::class.java).putExtra(LivestreamToPlayKey, liveStream.liveStreamMetadata.id)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     }
 }
