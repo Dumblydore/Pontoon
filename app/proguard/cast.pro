@@ -31,5 +31,7 @@
 -keep class android.support.v7.app.MediaRouteActionProvider {
   *;
 }
-
+-keep class androidx.mediarouter.app.MediaRouteActionProvider{
+*;
+}
 -dontwarn android.security.NetworkSecurityPolicy
