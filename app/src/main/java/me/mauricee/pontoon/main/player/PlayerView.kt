@@ -83,8 +83,8 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        handler.removeCallbacks(controlsRunnable)
-        handler.removeCallbacks(borderRunnable)
+        handler?.removeCallbacks(controlsRunnable)
+        handler?.removeCallbacks(borderRunnable)
     }
 
     fun scaleVideo(scaleTo: Float) {
@@ -118,8 +118,8 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     }
 
     private fun showBorder() {
-        handler.removeCallbacks(borderRunnable)
-        player_border.show { handler.postDelayed(borderRunnable, 1000) }
+        handler?.removeCallbacks(borderRunnable)
+        player_border.show { handler?.postDelayed(borderRunnable, 1000) }
     }
 
     private fun hideBorder() {
@@ -198,12 +198,12 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
     }
 
     private fun showController() {
-        handler.removeCallbacks(controlsRunnable)
-        player_controls.show { handler.postDelayed(controlsRunnable, 5000) }
+        handler?.removeCallbacks(controlsRunnable)
+        player_controls.show { handler?.postDelayed(controlsRunnable, 5000) }
     }
 
     private fun hideController() {
-        handler.removeCallbacks(controlsRunnable)
+        handler?.removeCallbacks(controlsRunnable)
         player_controls.hide()
     }
 
