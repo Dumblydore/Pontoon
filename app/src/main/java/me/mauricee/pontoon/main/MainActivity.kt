@@ -150,7 +150,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
                 hide()
             }
         }
-        playerFactory.castPlayer = castPlayer
+        playerFactory.bind(this)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

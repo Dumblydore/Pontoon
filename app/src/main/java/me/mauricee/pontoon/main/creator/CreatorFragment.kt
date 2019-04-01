@@ -73,7 +73,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
         subscriptions += GlideApp.with(this).asBitmap().load(creator.user.profileImage)
                 .toPalette().subscribe { paletteEvent ->
                     themeManager.getVibrantSwatch(paletteEvent.palette).apply {
-                        AnimatorSet().apply {
+                        animations += AnimatorSet().apply {
                             playTogether(
                                     setStatusBarColor(rgb.darken(.7f)),
                                     ValueAnimator.ofArgb(rgb).apply { addUpdateListener { creator_toolbar.setBackgroundColor(it.animatedValue as Int) } },
@@ -85,7 +85,8 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
                                         }
                                     }
                             )
-                        }.start()
+                            this.start()
+                        }
                     }
                 }
     }
@@ -102,7 +103,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        setStatusBarColor(requireActivity().primaryDarkColor).start()
+        animations += setStatusBarColor(requireActivity().primaryDarkColor).apply { startDelay }
     }
 
     companion object {

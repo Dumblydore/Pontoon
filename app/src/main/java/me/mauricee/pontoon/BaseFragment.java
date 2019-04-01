@@ -1,9 +1,13 @@
 package me.mauricee.pontoon;
 
+import android.animation.Animator;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -21,6 +25,7 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
     protected P presenter;
 
     protected final CompositeDisposable subscriptions = new CompositeDisposable();
+    protected final List<Animator> animations = new ArrayList<>();
 
     @Nullable
     @Override
@@ -32,15 +37,18 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
     @SuppressWarnings("UNCHECKED_CALL")
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((AppCompatActivity)requireActivity()).setSupportActionBar(getToolbar());
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(getToolbar());
         presenter.attachView(this);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        subscriptions.dispose();
+        subscriptions.clear();
         presenter.detachView();
+        for (Animator animator : animations) {
+            animator.cancel();
+        }
     }
 
     /**
