@@ -76,13 +76,17 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
                         animations += AnimatorSet().apply {
                             playTogether(
                                     setStatusBarColor(rgb.darken(.7f)),
-                                    ValueAnimator.ofArgb(rgb).apply { addUpdateListener { creator_toolbar.setBackgroundColor(it.animatedValue as Int) } },
+                                    ValueAnimator.ofArgb(rgb).apply {
+                                        addUpdateListener { creator_toolbar.setBackgroundColor(it.animatedValue as Int) }
+                                        animations += this
+                                    },
                                     ValueAnimator.ofArgb(titleTextColor).apply {
                                         addUpdateListener {
                                             val value = it.animatedValue as Int
                                             creator_toolbar.setTitleTextColor(value)
                                             creator_toolbar.navigationIcon?.mutate()?.setTint(value)
                                         }
+                                        animations += this
                                     }
                             )
                             this.start()

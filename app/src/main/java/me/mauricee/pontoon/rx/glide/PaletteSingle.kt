@@ -34,7 +34,12 @@ class PaletteSingle(private val requestBuilder: RequestBuilder<Bitmap>) : Single
         }
 
         override fun onGenerated(palette: Palette?) {
-            if (palette == null) observer.onError(PaletteNotAvailable()) else observer.onSuccess(PaletteEvent(bitmap!!, palette))
+            if (!isDisposed) {
+                if (palette == null)
+                    observer.onError(PaletteNotAvailable())
+                else
+                    observer.onSuccess(PaletteEvent(bitmap!!, palette))
+            }
         }
     }
 
