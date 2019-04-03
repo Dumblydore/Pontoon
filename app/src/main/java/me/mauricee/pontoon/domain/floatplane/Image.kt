@@ -1,10 +1,10 @@
 package me.mauricee.pontoon.domain.floatplane
 
 import androidx.annotation.Keep
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 @Keep
-data class Image(@SerializedName("height") val height: Int,
-                 @SerializedName("path") val path: String,
-                 @SerializedName("width") val width: Int,
-                 @SerializedName("childImages") val childImages: List<Image>)
+data class Image(@Json(name = "height") val height: Int,
+                 @Json(name = "path") val path: String,
+                 @Json(name = "width") val width: Int,
+                 @Json(name = "childImages") val childImages: List<Image>)

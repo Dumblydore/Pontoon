@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
-apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.firebase.firebase-perf'
 
@@ -112,9 +112,6 @@ dependencies {
 
     //  Utils
     implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
-    implementation('org.aaronhe:threetenbp-gson-adapter:1.0.2') {
-        transitive = false
-    }
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation "com.google.dagger:dagger-android-support:$dagger_version"
     // ExoPlayer
@@ -130,13 +127,16 @@ dependencies {
     implementation "androidx.paging:paging-runtime:$arch_components_pagination_version"
     implementation "androidx.paging:paging-rxjava2:$arch_components_pagination_version"
 
+    // json
+    implementation "com.squareup.moshi:moshi:1.8.0"
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.8.0")
+
     //   Networking
     implementation "com.isupatches:wisefy:3.0.1"
-    implementation 'com.google.code.gson:gson:2.8.4'
     implementation 'com.vanniktech:rxpermission:0.7.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-scalars:$retrofitVersion"
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
 

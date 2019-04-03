@@ -1,20 +1,20 @@
 package me.mauricee.pontoon.domain.floatplane
 
-import androidx.annotation.Keep
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import me.mauricee.pontoon.model.video.VideoEntity
 import org.threeten.bp.Instant
 
-@Keep
-data class Video(@SerializedName("creator") val creator: String,
-                 @SerializedName("description") val description: String,
-                 @SerializedName("duration") val duration: Long,
-                 @SerializedName("guid") val guid: String,
-                 @SerializedName("private") val isPrivate: Boolean,
-                 @SerializedName("releaseDate") val releaseDate: Instant,
-                 @SerializedName("tags") val tags: List<String>,
-                 @SerializedName("thumbnail") val thumbnail: Image?,
-                 @SerializedName("title") val title: String) {
+@JsonClass(generateAdapter = true)
+data class Video(@Json(name = "creator") val creator: String,
+                 @Json(name = "description") val description: String,
+                 @Json(name = "duration") val duration: Long,
+                 @Json(name = "guid") val guid: String,
+                 @Json(name = "private") val isPrivate: Boolean,
+                 @Json(name = "releaseDate") val releaseDate: Instant,
+                 @Json(name = "tags") val tags: List<String>,
+                 @Json(name = "thumbnail") val thumbnail: Image?,
+                 @Json(name = "title") val title: String) {
     val defaultThumbnail: String
         get() = thumbnail?.path ?: ""
 

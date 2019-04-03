@@ -1,10 +1,13 @@
 package me.mauricee.pontoon.domain.floatplane
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-data class Edge(@SerializedName("allowStreaming") val allowStreaming: Boolean,
-                @SerializedName("allowDownload") val allowDownload: Boolean,
-                @SerializedName("hostname") val hostname: String) {
+@JsonClass(generateAdapter = true)
+data class Edge(@Json(name = "allowStreaming") val allowStreaming: Boolean,
+                @Json(name = "allowDownload") val allowDownload: Boolean,
+                @Json(name = "hostname") val hostname: String) {
 
-    data class Response(@SerializedName("edges") val edges: List<Edge>)
+    @JsonClass(generateAdapter = true)
+    data class Response(@Json(name = "edges") val edges: List<Edge>)
 }

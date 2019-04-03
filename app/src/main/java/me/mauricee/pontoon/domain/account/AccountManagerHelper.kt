@@ -2,7 +2,8 @@ package me.mauricee.pontoon.domain.account
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.google.gson.Gson
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
 import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.domain.floatplane.User
 import java.util.*
@@ -10,12 +11,14 @@ import javax.inject.Inject
 
 @AppScope
 open class AccountManagerHelper @Inject constructor(private val sharedPreferences: SharedPreferences,
-                                                    private val gson: Gson) {
+                                                    moshi: Moshi) {
+
+    private val userAdapter: JsonAdapter<User> = moshi.adapter(User::class.java)
 
     var account: User
-        get() = sharedPreferences.getString(UserData, "").let { gson.fromJson(it, User::class.java) }
+        get() = sharedPreferences.getString(UserData, "").let { userAdapter.fromJson(it!!)!! }
         set(value) {
-            sharedPreferences.edit(commit = true) { putString(UserData, gson.toJson(value)) }
+            sharedPreferences.edit(commit = true) { putString(UserData, userAdapter.toJson(value)) }
         }
 
     val isLoggedIn: Boolean

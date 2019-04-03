@@ -16,9 +16,8 @@ import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.util.Util
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.isupatches.wisefy.WiseFy
+import com.squareup.moshi.Moshi
 import com.vanniktech.rxpermission.RealRxPermission
 import com.vanniktech.rxpermission.RxPermission
 import dagger.Binds
@@ -27,6 +26,8 @@ import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.analytics.FirebaseNetworkInterceptor
+import me.mauricee.pontoon.common.moshi.Converters
+import me.mauricee.pontoon.common.moshi.ListJsonAdapter
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.launch.LaunchActivity
@@ -41,13 +42,12 @@ import me.mauricee.pontoon.preferences.PreferenceModule
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import me.mauricee.pontoon.preferences.PreferencesScope
 import okhttp3.OkHttpClient
-import org.aaronhe.threetengson.ThreeTenGsonAdapter
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -110,7 +110,10 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun providesGson(): Gson = ThreeTenGsonAdapter.registerAll(GsonBuilder().setLenient()).create()
+        fun providesMoshi(): Moshi = Moshi.Builder()
+                .add(Converters())
+                .add(ListJsonAdapter.Factory)
+                .build()
 
         @AppScope
         @Provides
@@ -121,8 +124,8 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun providesGsonConverterFactory(gson: Gson): GsonConverterFactory =
-                GsonConverterFactory.create(gson)
+        fun providesMoshiConverterFactory(moshi: Moshi): MoshiConverterFactory =
+                MoshiConverterFactory.create(moshi).asLenient()
 
         @AppScope
         @Provides
@@ -136,7 +139,7 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun providesFloatPlaneApi(converterFactory: GsonConverterFactory,
+        fun providesFloatPlaneApi(converterFactory: MoshiConverterFactory,
                                   authInterceptor: AuthInterceptor,
                                   firebaseNetworkInterceptor: FirebaseNetworkInterceptor,
                                   callFactory: RxJava2CallAdapterFactory, client: OkHttpClient):

@@ -1,20 +1,20 @@
 package me.mauricee.pontoon.domain.floatplane
 
-import androidx.annotation.Keep
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@Keep
+@JsonClass(generateAdapter = true)
 data class CreatorListItem(
-        @SerializedName("about") val about: String,
-        @SerializedName("cover") val cover: Image,
-        @SerializedName("description") val description: String,
-        @SerializedName("id") val id: String,
-        @SerializedName("title") val title: String,
-        @SerializedName("urlname") val urlname: String,
-        @SerializedName("owner") val owner: Owner,
-        @SerializedName("subscriptionPlans") val subscriptions: List<Any>) {
+        @Json(name = "about") val about: String,
+        @Json(name = "cover") val cover: Image,
+        @Json(name = "description") val description: String,
+        @Json(name = "id") val id: String,
+        @Json(name = "title") val title: String,
+        @Json(name = "urlname") val urlname: String,
+        @Json(name = "owner") val owner: Owner,
+        @Json(name = "subscriptionPlans") val subscriptions: List<Any>) {
 
 
-    @Keep
-    data class Owner(@SerializedName("id") val id: String, @SerializedName("username") val name: String)
+    @JsonClass(generateAdapter = true)
+    data class Owner(@Json(name = "id") val id: String, @Json(name = "username") val name: String)
 }

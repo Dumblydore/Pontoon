@@ -1,11 +1,11 @@
 package me.mauricee.pontoon.domain.floatplane
 
-import androidx.annotation.Keep
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.threeten.bp.Instant
 
-@Keep
-data class Subscription(@SerializedName("creator") val creatorId: String,
-                        @SerializedName("startDate") val startDate: Instant,
-                        @SerializedName("endDate") val endDate: Instant,
-                        @SerializedName("plan") val plan: Plan)
+@JsonClass(generateAdapter = true)
+data class Subscription(@Json(name = "creator") val creatorId: String,
+                        @Json(name = "startDate") val startDate: Instant,
+                        @Json(name = "endDate") val endDate: Instant,
+                        @Json(name = "plan") val plan: Plan)

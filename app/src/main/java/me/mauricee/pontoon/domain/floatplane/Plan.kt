@@ -1,14 +1,13 @@
 package me.mauricee.pontoon.domain.floatplane
 
-import androidx.annotation.Keep
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@Keep
-data class Plan(@SerializedName("currency") val currency: String,
-                @SerializedName("description") val description: String,
-                @SerializedName("id") val id: String,
-                @SerializedName("interval") val interval: String,
-                @SerializedName("intervalCount") val intervalCount: Int,
-                @SerializedName("owner") val owner: String,
-                @SerializedName("price") val price: String,
-                @SerializedName("title") val title: String)
+@JsonClass(generateAdapter = true)
+data class Plan(@Json(name = "currency") val currency: String,
+                @Json(name = "description") val description: String,
+                @Json(name = "id") val id: String,
+                @Json(name = "interval") val interval: String,
+                @Json(name = "intervalCount") val intervalCount: Int,
+                @Json(name = "price") val price: String,
+                @Json(name = "title") val title: String)
