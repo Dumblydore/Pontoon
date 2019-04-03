@@ -35,7 +35,7 @@ class VideoAdapter @Inject constructor() : BaseListAdapter<Video, Video, VideoAd
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            subscriptions += view.clicks().subscribe { videos[layoutPosition].let(relay::accept) }
+            subscriptions += view.clicks().subscribe { videos[adapterPosition].let(relay::accept) }
         }
 
         fun bind(video: Video) {

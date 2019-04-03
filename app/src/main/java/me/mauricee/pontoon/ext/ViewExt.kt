@@ -78,6 +78,13 @@ fun AppCompatActivity.removeFragment(fragment: Fragment?): Boolean = fragment?.l
 fun Activity.hasNotch() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
         window.decorView.rootWindowInsets?.displayCutout != null
 
+var Activity.isFullscreen: Boolean
+    get() = requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    set(value) {
+        requestedOrientation = if (value) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    }
+
 fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View =
         LayoutInflater.from(context).inflate(layoutId, this, attachToRoot)
 

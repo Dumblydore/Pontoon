@@ -49,14 +49,14 @@ class PrimaryColorAdapter @Inject constructor(private val circleHelper: CircleHe
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            subscriptions += itemView.clicks().map { colors[layoutPosition] }
+            subscriptions += itemView.clicks().map { colors[adapterPosition] }
                     .subscribe {
                         newSelectedColor?.let {
                             notifyItemChanged(colors.indexOf(it))
                         }
                         newSelectedColor = it
                         relay.accept(it)
-                        notifyItemChanged(layoutPosition)
+                        notifyItemChanged(adapterPosition)
                     }
         }
     }

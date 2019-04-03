@@ -49,15 +49,15 @@ open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, Vide
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnCreateContextMenuListener {
 
         init {
-            subscriptions += view.item.clicks().subscribe { getItem(layoutPosition)?.let(relay::accept) }
+            subscriptions += view.item.clicks().subscribe { getItem(adapterPosition)?.let(relay::accept) }
             view.item_menu?.apply {
                 subscriptions += clicks().subscribe {
                     view.getActivity()?.openContextMenu(this)
-                    contextVideo = getItem(layoutPosition)
+                    contextVideo = getItem(adapterPosition)
                 }
             }
             view.item_icon_viewAll?.let {
-                subscriptions += it.clicks().subscribe { getItem(layoutPosition)?.let(relay::accept) }
+                subscriptions += it.clicks().subscribe { getItem(adapterPosition)?.let(relay::accept) }
             }
             view.item_menu.setOnCreateContextMenuListener(this)
         }

@@ -10,6 +10,7 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseListAdapter
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
@@ -24,7 +25,10 @@ class RelatedVideoAdapter @Inject constructor() : BaseListAdapter<DetailsContrac
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            subscriptions += view.clicks().map { DetailsContract.Action.PlayVideo(getItem(layoutPosition).id) }
+            subscriptions += view.clicks().map {
+                logd("Current list size: ")
+                DetailsContract.Action.PlayVideo(getItem(adapterPosition).id)
+            }
                     .subscribe(relay::accept)
         }
 

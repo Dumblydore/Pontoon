@@ -24,7 +24,7 @@ class UserActivityAdapter @Inject constructor() : BaseListAdapter<UserContract.A
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
             subscriptions += view.clicks().subscribe {
-                relay.accept(getItem(layoutPosition).videoId.let(UserContract.Action::Video))
+                relay.accept(getItem(adapterPosition).videoId.let(UserContract.Action::Video))
             }
         }
 

@@ -48,14 +48,14 @@ class AccentColorAdapter @Inject constructor(private val circleHelper: CircleHel
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            subscriptions += itemView.clicks().map { colors[layoutPosition] }
+            subscriptions += itemView.clicks().map { colors[adapterPosition] }
                     .subscribe { accent ->
                         newSelectedColor?.let {
                             notifyItemChanged(colors.indexOf(it))
                         }
                         newSelectedColor = accent
                         relay.accept(accent)
-                        notifyItemChanged(layoutPosition)
+                        notifyItemChanged(adapterPosition)
                     }
         }
     }

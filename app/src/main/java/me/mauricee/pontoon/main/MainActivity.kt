@@ -27,7 +27,6 @@ import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
-import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.isupatches.wisefy.WiseFy
 import com.jakewharton.rxbinding2.support.design.widget.RxBottomNavigationView
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
@@ -84,8 +83,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     lateinit var privacyManager: PrivacyManager
     @Inject
     lateinit var playerFactory: PlayerFactory
-    @Inject
-    lateinit var castPlayer: CastPlayer
 
     private var stayingInsideApp = false
     private val miscActions = PublishRelay.create<MainContract.Action>()
@@ -480,34 +477,34 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     }
 
     private fun enableFullScreen(isEnabled: Boolean) {
-        if (isEnabled) {
-            root.doOnPreDraw {
+        root.doOnPreDraw {
+            if (isEnabled) {
                 window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                         View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                main.updateParams(constraintSet) {
+                    connect(main_player.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                    connect(main_player.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                    connect(main_player.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                    connect(main_player.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                    setDimensionRatio(main_player.id, "")
+                }
+                player.viewMode = Player.ViewMode.FullScreen
+            } else {
+                root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+                main.updateParams(constraintSet) {
+                    connect(main_player.id, ConstraintSet.START, guidelineVertical.id, ConstraintSet.START)
+                    connect(main_player.id, ConstraintSet.END, guidelineMarginEnd.id, ConstraintSet.END)
+                    connect(main_player.id, ConstraintSet.TOP, guidelineHorizontal.id, ConstraintSet.BOTTOM)
+                    clear(main_player.id, ConstraintSet.BOTTOM)
+                    setDimensionRatio(main_player.id, currentPlayerRatio)
+                }
+                player.viewMode = Player.ViewMode.Expanded
             }
-            root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            main.updateParams(constraintSet) {
-                connect(main_player.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(main_player.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(main_player.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(main_player.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-                setDimensionRatio(main_player.id, "")
-            }
-            player.viewMode = Player.ViewMode.FullScreen
-        } else {
-            root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            main.updateParams(constraintSet) {
-                connect(main_player.id, ConstraintSet.START, guidelineVertical.id, ConstraintSet.START)
-                connect(main_player.id, ConstraintSet.END, guidelineMarginEnd.id, ConstraintSet.END)
-                connect(main_player.id, ConstraintSet.TOP, guidelineHorizontal.id, ConstraintSet.BOTTOM)
-                clear(main_player.id, ConstraintSet.BOTTOM)
-                setDimensionRatio(main_player.id, currentPlayerRatio)
-            }
-            player.viewMode = Player.ViewMode.Expanded
+            animationTouchListener.pinchToZoomEnabled = isEnabled
         }
-        animationTouchListener.pinchToZoomEnabled = isEnabled
     }
 
     private fun displayUser(user: UserRepository.User, subCount: Int) {

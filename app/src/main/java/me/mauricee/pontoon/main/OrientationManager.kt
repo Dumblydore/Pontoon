@@ -9,7 +9,7 @@ class OrientationManager @Inject constructor(private val activity: AppCompatActi
     var isFullscreen: Boolean = false
         set(value) {
             field = value
-            activity.requestedOrientation = if (field) ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            activity.requestedOrientation = if (field) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 }

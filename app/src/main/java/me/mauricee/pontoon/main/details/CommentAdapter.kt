@@ -39,18 +39,18 @@ class CommentAdapter @Inject constructor(context: Context)
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
             subscriptions += Observable.merge(view.item_icon_small.clicks(), view.item_title.clicks())
-                    .map { getItem(layoutPosition).user }
+                    .map { getItem(adapterPosition).user }
                     .map(DetailsContract.Action::ViewUser)
                     .subscribe(relay::accept)
 
-            subscriptions += Observable.merge(view.item_thumb_up.clicks().map { getItem(layoutPosition) }.map(DetailsContract.Action::Like),
-                    view.item_thumb_down.clicks().map { getItem(layoutPosition) }.map(DetailsContract.Action::Dislike))
+            subscriptions += Observable.merge(view.item_thumb_up.clicks().map { getItem(adapterPosition) }.map(DetailsContract.Action::Like),
+                    view.item_thumb_down.clicks().map { getItem(adapterPosition) }.map(DetailsContract.Action::Dislike))
                     .subscribe(relay::accept)
 
-            subscriptions += view.item_comment.clicks().map { getItem(layoutPosition) }
+            subscriptions += view.item_comment.clicks().map { getItem(adapterPosition) }
                     .map(DetailsContract.Action::Reply).subscribe(relay::accept)
 
-            subscriptions += view.item_viewReplies.clicks().map { getItem(layoutPosition) }
+            subscriptions += view.item_viewReplies.clicks().map { getItem(adapterPosition) }
                     .map(DetailsContract.Action::ViewReplies).subscribe(relay::accept)
         }
 
