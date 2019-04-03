@@ -6,12 +6,12 @@ import io.reactivex.Single
 import io.reactivex.SingleTransformer
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toObservable
-import io.reactivex.rxkotlin.toSingle
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.*
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.ioStream
+import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
@@ -131,7 +131,7 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
     private fun cacheComment(comment: CommentPojo) {
         CommentEntity(comment.id, comment.video, comment.replying
                 ?: "", comment.user, comment.editDate, 0, 0, comment.postDate, comment.text)
-                .toSingle().flatMapCompletable { Completable.fromAction { commentDao.insert(it) } }
+                .toObservable().flatMapCompletable { Completable.fromAction { commentDao.insert(it) } }
                 .doOnIo().onErrorComplete()
                 .subscribe()
     }
