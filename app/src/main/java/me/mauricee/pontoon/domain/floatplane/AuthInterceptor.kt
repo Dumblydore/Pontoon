@@ -34,10 +34,13 @@ class AuthInterceptor @Inject constructor(private val accountManager: AccountMan
     }
 
     private fun pullHeaderFromResponse(response: Response) {
-        //KOTLIN
-        response.header("set-cookie")?.split("; ")
-                ?.first { it.contains(SailsSid) }?.split("$SailsSid=")
-                ?.let { it[1] }?.also { sid = it }
+        try {
+            response.header("set-cookie")?.split("; ")
+                    ?.firstOrNull { it.contains(SailsSid) }?.split("$SailsSid=")
+                    ?.let { it[1] }?.also { sid = it }
+        } catch (e: Exception) {
+
+        }
     }
 
     private fun checkIf403(response: Response) {
