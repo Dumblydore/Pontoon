@@ -245,12 +245,14 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     }
 
     override fun setVideoRatio(ratio: String) {
-        currentPlayerRatio = ratio
-        main.updateParams {
-            setDimensionRatio(main_player.id, "h,$ratio")
-            TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
-                duration = 150
-            })
+        if (!orientationManager.isFullscreen) {
+            currentPlayerRatio = ratio
+            main.updateParams {
+                setDimensionRatio(main_player.id, "h,$ratio")
+                TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
+                    duration = 150
+                })
+            }
         }
     }
 

@@ -64,6 +64,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 .setBoundaryCallback(callback)
                 .buildObservable()
                 .doOnDispose(callback::dispose)
+                .doOnTerminate(callback::dispose)
                 .apply {
                     if (refresh) {
                         Completable.fromCallable { videoDao.clearCreatorVideos(*creators) }
