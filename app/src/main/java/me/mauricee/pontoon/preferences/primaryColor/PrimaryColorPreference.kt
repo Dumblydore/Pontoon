@@ -31,6 +31,7 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
                 persistString(value.name)
                 field = value
             }
+            field = value
         }
 
     override fun getDialogLayoutResource(): Int = R.layout.preference_base_theme

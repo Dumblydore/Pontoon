@@ -27,7 +27,7 @@ class CreatorListAdapter @Inject constructor() :
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         init {
-            subscriptions += view.clicks().map { CreatorListContract.Action.Creator(getItem(layoutPosition)) }
+            subscriptions += view.clicks().map { CreatorListContract.Action.Creator(getItem(adapterPosition)) }
                     .subscribe(relay::accept)
         }
 

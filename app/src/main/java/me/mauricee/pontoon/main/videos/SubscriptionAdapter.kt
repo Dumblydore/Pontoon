@@ -29,7 +29,7 @@ class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoContract.
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
             subscriptions += view.findViewById<View>(R.id.item_icon_small).clicks()
-                    .map { VideoContract.Action.Subscription(getItem(layoutPosition)) }
+                    .map { VideoContract.Action.Subscription(getItem(adapterPosition)) }
                     .subscribe(relay::accept)
 
             view.item_icon_viewAll?.clicks()?.map { VideoContract.Action.Creators }?.subscribe(relay::accept)

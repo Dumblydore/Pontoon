@@ -52,14 +52,14 @@ class BaseThemeAdapter @Inject constructor(private val circleHelper: CircleHelpe
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
-            subscriptions += itemView.clicks().map { themes[layoutPosition] }
+            subscriptions += itemView.clicks().map { themes[adapterPosition] }
                     .subscribe {
                         newSelectedTheme?.let {
                             notifyItemChanged(themes.indexOf(it))
                         }
                         newSelectedTheme = it
                         relay.accept(it)
-                        notifyItemChanged(layoutPosition)
+                        notifyItemChanged(adapterPosition)
                     }
         }
     }

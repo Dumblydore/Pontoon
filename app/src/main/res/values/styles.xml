@@ -10,6 +10,7 @@
 
     <style name="PlayerToolbar" parent="AppTheme">
         <item name="android:actionOverflowButtonStyle">@style/ActionButton.Overflow.Icon</item>
+        <item name="mediaRouteTheme">@style/Theme.MediaRouter</item>
     </style>
 
     <style name="ActionButton.Overflow.Icon" parent="@style/Widget.AppCompat.ActionButton.Overflow">

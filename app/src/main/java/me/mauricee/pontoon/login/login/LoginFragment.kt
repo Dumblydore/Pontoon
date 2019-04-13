@@ -113,6 +113,7 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         fun newInstance(key: String, username: String): LoginFragment = LoginFragment().apply {
             arguments = bundleOf(ActivationKey to key, UsernameKey to username)
         }
+//        fun newInstance
     }
 
 }

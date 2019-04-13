@@ -9,7 +9,7 @@ import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
+import com.jakewharton.rxbinding2.view.clicks
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -46,14 +46,14 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View 
         super.onViewCreated(view, savedInstanceState)
         replies_list.adapter = adapter
         replies_list.layoutManager = LinearLayoutManager(requireContext())
-        subscriptions += RxToolbar.navigationClicks(replies_header).subscribe { dismiss() }
+        subscriptions += replies_header_icon.clicks().subscribe { dismiss() }
         presenter.attachView(this)
     }
 
     override fun updateState(state: RepliesContract.State) = when (state) {
         RepliesContract.State.Loading -> replies_lazy.state = LazyLayout.LOADING
         is RepliesContract.State.Replies -> {
-            replies_header.title = getString(R.string.replies_header, state.parent.user.username)
+            replies_header_text.text = getString(R.string.replies_header, state.parent.user.username)
             adapter.submitList(state.comments)
             replies_lazy.state = LazyLayout.SUCCESS
         }

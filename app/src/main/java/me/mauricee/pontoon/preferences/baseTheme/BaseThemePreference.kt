@@ -31,6 +31,7 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
                 persistString(value.name)
                 field = value
             }
+            field = value
         }
 
     override fun getDialogLayoutResource(): Int = R.layout.preference_base_theme

@@ -143,6 +143,9 @@ class PlayerFragment : BaseFragment<PlayerPresenter>(),
                 player_controls_progress.isVisible = state.isExpanded
                 player_controls_progress.acceptTapsFromUser = state.areControlsAccepted
                 player_display.isInFullscreen = state.isFullscreen
+                if (state.isExpanded) {
+                    player_display.requestFocus()
+                }
             }
         }
     }

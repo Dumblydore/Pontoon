@@ -73,19 +73,24 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
         subscriptions += GlideApp.with(this).asBitmap().load(creator.user.profileImage)
                 .toPalette().subscribe { paletteEvent ->
                     themeManager.getVibrantSwatch(paletteEvent.palette).apply {
-                        AnimatorSet().apply {
+                        animations += AnimatorSet().apply {
                             playTogether(
                                     setStatusBarColor(rgb.darken(.7f)),
-                                    ValueAnimator.ofArgb(rgb).apply { addUpdateListener { creator_toolbar.setBackgroundColor(it.animatedValue as Int) } },
+                                    ValueAnimator.ofArgb(rgb).apply {
+                                        addUpdateListener { creator_toolbar.setBackgroundColor(it.animatedValue as Int) }
+                                        animations += this
+                                    },
                                     ValueAnimator.ofArgb(titleTextColor).apply {
                                         addUpdateListener {
                                             val value = it.animatedValue as Int
                                             creator_toolbar.setTitleTextColor(value)
                                             creator_toolbar.navigationIcon?.mutate()?.setTint(value)
                                         }
+                                        animations += this
                                     }
                             )
-                        }.start()
+                            this.start()
+                        }
                     }
                 }
     }
@@ -102,7 +107,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        setStatusBarColor(requireActivity().primaryDarkColor).start()
+        animations += setStatusBarColor(requireActivity().primaryDarkColor).apply { startDelay }
     }
 
     companion object {
