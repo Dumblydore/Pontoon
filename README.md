@@ -12,7 +12,20 @@ An unnoffical Floatplane Club app. Still very much a work in progress. Looking f
 
 ## Contributing
 Feel free to make a Pull Request and I'll look at it when I get a chance
-### Building
-  Still working on proper documentation, but right now you need to create a fabric.properties file with `apiKey=0` (or substitute you own)
+### Getting Started
+#### Building
+The App should 
 
+#### Build number
+   add `buildNumber=${NUMBER}`. This is '0' by default
 
+#### Enabling Analytics
+   This app uses Crashlytics and Firebase Analytics. By default these will not be enabled when
+   building an APK. to enable both:
+   - Follow (this guide)[https://docs.fabric.io/android/fabric/overview.html] to obtain fabric.properties file and place in the `/app` directory.
+   - Follow (this guide)[https://firebase.google.com/docs/android/setup] to obtain an google-services.json file and place in the root of the project.
+   - add `enableAnalytics=true` as a gradle task property.
+
+#### Extras
+   - Add `pontoon.username` for the app to autofill that field when logging in. 
+   - Add `pontoon.password` for the app to autofill that field when logging in. 
