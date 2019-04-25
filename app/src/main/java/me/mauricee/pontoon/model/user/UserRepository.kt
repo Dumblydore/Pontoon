@@ -6,7 +6,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.domain.floatplane.api.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
 import org.threeten.bp.Instant

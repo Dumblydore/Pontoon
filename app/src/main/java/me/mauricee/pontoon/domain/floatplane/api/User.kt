@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.domain.floatplane
+package me.mauricee.pontoon.domain.floatplane.api
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
@@ -13,5 +13,5 @@ data class User(@SerializedName("id") val id: String,
                          @SerializedName("needs2FA") val needs2Fa: Boolean)
 
     @Keep
-    data class Response(@SerializedName("id") val id: String, @SerializedName("users") val users: List<User.Container>)
+    data class Response(@SerializedName("id") val id: String, @SerializedName("users") val users: List<Container>)
 }

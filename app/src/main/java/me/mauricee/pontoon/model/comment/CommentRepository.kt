@@ -7,7 +7,7 @@ import io.reactivex.SingleTransformer
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
-import me.mauricee.pontoon.domain.floatplane.*
+import me.mauricee.pontoon.domain.floatplane.api.*
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.ioStream
@@ -15,7 +15,7 @@ import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-private typealias CommentPojo = me.mauricee.pontoon.domain.floatplane.Comment
+private typealias CommentPojo = me.mauricee.pontoon.domain.floatplane.api.Comment
 
 //TODO this is shit, rewrite this.
 class CommentRepository @Inject constructor(private val commentDao: CommentDao,

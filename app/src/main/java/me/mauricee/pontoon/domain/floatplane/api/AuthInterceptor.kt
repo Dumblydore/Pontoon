@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.domain.floatplane
+package me.mauricee.pontoon.domain.floatplane.api
 
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay

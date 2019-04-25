@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.domain.floatplane
+package me.mauricee.pontoon.domain.floatplane.api
 
 import com.google.gson.annotations.SerializedName
 import org.threeten.bp.Instant

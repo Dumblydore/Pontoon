@@ -7,12 +7,10 @@ import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.common.StateBoundaryCallback
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.domain.floatplane.api.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
-import kotlin.math.log
 
 class SearchBoundaryCallback(private val query: String,
                              private val api: FloatPlaneApi,
@@ -46,7 +44,7 @@ class SearchBoundaryCallback(private val query: String,
     }
 
 
-    private fun pullUntilHit(startAt: Int = 0): Observable<List<me.mauricee.pontoon.domain.floatplane.Video>> = creators.toObservable()
+    private fun pullUntilHit(startAt: Int = 0): Observable<List<me.mauricee.pontoon.domain.floatplane.api.Video>> = creators.toObservable()
             .flatMap { api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id)) }
             .flatMapIterable { it }
             .toList().flatMapObservable { videos ->

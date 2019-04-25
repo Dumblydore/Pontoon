@@ -13,8 +13,8 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function4
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.domain.floatplane.Subscription
+import me.mauricee.pontoon.domain.floatplane.api.FloatPlaneApi
+import me.mauricee.pontoon.domain.floatplane.api.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.ioStream
@@ -162,7 +162,7 @@ data class Quality(val p360: String, val p480: String, val p720: String, val p10
 data class Video(val id: String, val title: String, val description: String, val releaseDate: Instant,
                  val duration: Long, val creator: UserRepository.Creator, val thumbnail: String, val watched: Instant?) {
 
-    constructor(video: me.mauricee.pontoon.domain.floatplane.Video, creator: UserRepository.Creator) : this(video.guid, video.title, video.description, video.releaseDate, video.duration, creator, video.defaultThumbnail, null)
+    constructor(video: me.mauricee.pontoon.domain.floatplane.api.Video, creator: UserRepository.Creator) : this(video.guid, video.title, video.description, video.releaseDate, video.duration, creator, video.defaultThumbnail, null)
     constructor(video: VideoEntity, creator: UserRepository.Creator) : this(video.id, video.title, video.description, video.releaseDate, video.duration, creator, video.thumbnail, video.watched)
 
     fun toBrowsableUrl(): String = "https://www.floatplane.com/video/$id"

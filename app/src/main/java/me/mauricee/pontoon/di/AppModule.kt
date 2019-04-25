@@ -27,8 +27,8 @@ import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.analytics.FirebaseNetworkInterceptor
-import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.domain.floatplane.api.AuthInterceptor
+import me.mauricee.pontoon.domain.floatplane.api.FloatPlaneApi
 import me.mauricee.pontoon.launch.LaunchActivity
 import me.mauricee.pontoon.launch.LaunchScope
 import me.mauricee.pontoon.login.LoginActivity

@@ -25,34 +25,21 @@ interface LoginContract {
         object Loading : State()
         object Request2FaCode : State()
         object InvalidAuthCode : State()
-        data class NetworkError(val type: Type, val code: Int) : State() {
+        sealed class Error(@StringRes val msg: Int) : State() {
             override val tag: String
-                get() = "${super.tag}_$type"
+                get() = javaClass.run { "${superclass.simpleName}_$simpleName" }
             override val level: EventTracker.Level
                 get() = EventTracker.Level.ERROR
 
-            enum class Type(@StringRes val msg: Int) {
-                Credentials(R.string.login_error_network_credentials),
-                Service(R.string.login_error_network_service),
-                Unknown(R.string.login_error_network_unknown)
-            }
+            data class Unknown(val errorContext: String) : Error(R.string.login_error_network_unknown)
+            object Credentials : Error(R.string.login_error_network_credentials)
+            object Service : Error(R.string.login_error_network_service)
+            object MissingUsername : Error(R.string.login_error_missingUsername)
+            object MissingPassword : Error(R.string.login_error_missingPassword)
+            object Network : Error(R.string.login_error_network_connection)
+            object Activation : Error(R.string.login_error_network_activation)
+            object General : Error(R.string.login_error_general)
         }
-
-        data class Error(val type: Type = Type.General) : State() {
-            override val tag: String
-                get() = "${super.tag}_$type"
-            override val level: EventTracker.Level
-                get() = EventTracker.Level.ERROR
-
-            enum class Type(@StringRes val msg: Int) {
-                MissingUsername(R.string.login_error_missingUsername),
-                MissingPassword(R.string.login_error_missingPassword),
-                Network(R.string.login_error_network_connection),
-                Activation(R.string.login_error_network_activation),
-                General(R.string.login_error_general)
-            }
-        }
-
     }
 
 }

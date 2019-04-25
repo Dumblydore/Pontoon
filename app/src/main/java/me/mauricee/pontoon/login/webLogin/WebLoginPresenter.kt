@@ -5,11 +5,9 @@ import io.reactivex.functions.Function
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
-import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.domain.floatplane.User
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.domain.floatplane.api.AuthInterceptor
+import me.mauricee.pontoon.domain.floatplane.api.FloatPlaneApi
+import me.mauricee.pontoon.domain.floatplane.api.User
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.login.LoginNavigator
 import retrofit2.HttpException

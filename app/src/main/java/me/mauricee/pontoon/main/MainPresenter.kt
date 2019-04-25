@@ -7,8 +7,8 @@ import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
-import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.domain.floatplane.api.AuthInterceptor
+import me.mauricee.pontoon.domain.floatplane.api.FloatPlaneApi
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.model.PontoonDatabase
 import me.mauricee.pontoon.model.user.UserRepository

@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.domain.floatplane
+package me.mauricee.pontoon.domain.floatplane.api
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName

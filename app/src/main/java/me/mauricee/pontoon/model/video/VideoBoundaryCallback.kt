@@ -6,12 +6,12 @@ import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.common.StateBoundaryCallback
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.domain.floatplane.api.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-private typealias VideoPojo = me.mauricee.pontoon.domain.floatplane.Video
+private typealias VideoPojo = me.mauricee.pontoon.domain.floatplane.api.Video
 
 class VideoBoundaryCallback(private val api: FloatPlaneApi,
                             private val videoDao: VideoDao,

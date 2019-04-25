@@ -9,10 +9,10 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.domain.floatplane.LoginAuthToken
-import me.mauricee.pontoon.domain.floatplane.LoginRequest
-import me.mauricee.pontoon.domain.floatplane.User
+import me.mauricee.pontoon.domain.floatplane.api.FloatPlaneApi
+import me.mauricee.pontoon.domain.floatplane.api.LoginAuthToken
+import me.mauricee.pontoon.domain.floatplane.api.LoginRequest
+import me.mauricee.pontoon.domain.floatplane.api.User
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.login.LoginNavigator
 import me.mauricee.pontoon.login.login.LoginContract

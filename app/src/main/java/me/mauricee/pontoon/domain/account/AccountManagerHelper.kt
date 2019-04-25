@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.google.gson.Gson
 import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.domain.floatplane.User
+import me.mauricee.pontoon.domain.floatplane.api.User
 import java.util.*
 import javax.inject.Inject
 
