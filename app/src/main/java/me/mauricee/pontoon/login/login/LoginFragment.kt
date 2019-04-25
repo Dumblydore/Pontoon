@@ -14,7 +14,6 @@ import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.ext.toast
-import me.mauricee.pontoon.login.login.LoginContract.State.Error.Type.*
 
 class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
 
@@ -51,7 +50,6 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         when (state) {
             is LoginContract.State.Error -> handleError(state)
             is LoginContract.State.Loading -> displayLoadingState()
-            is LoginContract.State.NetworkError -> handleNetworkError(state)
             LoginContract.State.Request2FaCode -> {
                 resetLoginButton()
                 login_token.isVisible = true
@@ -73,23 +71,25 @@ class LoginFragment : BaseFragment<LoginPresenter>(), LoginContract.View {
         login_progress.isVisible = true
     }
 
-    private fun handleNetworkError(error: LoginContract.State.NetworkError) {
-        resetLoginButton()
-        login_error.apply {
-            isVisible = true
-            text = getString(error.type.msg, error.code)
-        }
-    }
-
+    //TODO bubble up network codes?
     private fun handleError(error: LoginContract.State.Error) {
-        val msg = getString(error.type.msg)
+        val msg = getString(error.msg)
         resetLoginButton()
-        when (error.type) {
-            MissingUsername -> login_username_edit.error = msg
-            MissingPassword -> login_password_edit.error = msg
-            Network -> login_error.apply { isVisible = true; text = msg }
-            General -> login_error.apply { isVisible = true; text = msg }
-            Activation -> toast(msg)
+        when (error) {
+            LoginContract.State.Error.MissingUsername -> login_username_edit.error = msg
+            LoginContract.State.Error.MissingPassword -> login_password_edit.error = msg
+            LoginContract.State.Error.Network,
+            LoginContract.State.Error.General,
+            LoginContract.State.Error.Credentials,
+            LoginContract.State.Error.Service -> login_error.apply {
+                isVisible = true
+                text = getString(error.msg, error)
+            }
+            is LoginContract.State.Error.Unknown -> login_error.apply {
+                isVisible = true
+                text = getString(error.msg, error.errorContext)
+            }
+            LoginContract.State.Error.Activation -> toast(msg)
         }
     }
 
