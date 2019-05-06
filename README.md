@@ -14,7 +14,8 @@ An unnoffical Floatplane Club app. Still very much a work in progress. Looking f
 Feel free to make a Pull Request and I'll look at it when I get a chance
 ### Getting Started
 #### Building
-The App should 
+   There's nothing special you have to do to run the project (after commit 394624e). 
+   In Android Studio just sync and run. With gradle just run `./gradlew assembleDebug`
 
 #### Build number
    add `buildNumber=${NUMBER}`. This is '0' by default
