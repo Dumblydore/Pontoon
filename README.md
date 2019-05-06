@@ -14,8 +14,11 @@ An unnoffical Floatplane Club app. Still very much a work in progress. Looking f
 Feel free to make a Pull Request and I'll look at it when I get a chance
 ### Getting Started
 #### Building
-   There's nothing special you have to do to run the project (after commit 394624e). 
-   In Android Studio just sync and run. With gradle just run `./gradlew assembleDebug`
+   There's nothing special you have to do to run the project (after commit [394624e](https://github.com/Dumblydore/Pontoon/commit/394624e7f67d53b66a12cdfe79a314774be55080)). 
+   
+   In Android Studio just sync and run. 
+   
+   With gradle just run `./gradlew assembleDebug`
 
 #### Build number
    add `buildNumber=${NUMBER}`. This is '0' by default
@@ -23,8 +26,8 @@ Feel free to make a Pull Request and I'll look at it when I get a chance
 #### Enabling Analytics
    This app uses Crashlytics and Firebase Analytics. By default these will not be enabled when
    building an APK. to enable both:
-   - Follow (this guide)[https://docs.fabric.io/android/fabric/overview.html] to obtain fabric.properties file and place in the `/app` directory.
-   - Follow (this guide)[https://firebase.google.com/docs/android/setup] to obtain an google-services.json file and place in the root of the project.
+   - Follow [this guide](https://docs.fabric.io/android/fabric/overview.html) to obtain fabric.properties file and place in the `/app` directory.
+   - Follow [this guide](https://firebase.google.com/docs/android/setup) to obtain an google-services.json file and place in the root of the project.
    - add `enableAnalytics=true` as a gradle task property.
 
 #### Extras
