@@ -79,7 +79,7 @@ jobs:
             command: chmod +x ./gradlew && chmod +x ./gradle/wrapper/gradle-wrapper.jar
         - run:
             name: Build and Deploy Release
-            command: ./gradlew clean test assembleRelease -P buildNumber=${CIRCLE_BUILD_NUM}
+            command: ./gradlew clean test assembleRelease -P buildNumber=${CIRCLE_BUILD_NUM} -P enableAnalytics=true
         - store_artifacts:
             path: app/build/outputs/apk/release/app-release.apk
         - store_artifacts:
