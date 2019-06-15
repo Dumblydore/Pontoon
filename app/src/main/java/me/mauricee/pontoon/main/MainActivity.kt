@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.doOnLayout
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.transaction
@@ -146,6 +147,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
             } else {
                 hide()
             }
+        }
+        root.doOnNextLayout {
+            animationTouchListener.setMinVerticalLimit(main_player, main_bottomNav)
         }
         playerFactory.bind(this)
     }
@@ -387,8 +391,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     private fun scaleVideo(percentScrollUp: Float) {
 
         //Prevent guidelines to go out of screen bound
-        val percentVerticalMoved = Math.max(0F, Math.min(VideoTouchHandler.MIN_VERTICAL_LIMIT, percentScrollUp))
-        val movedPercent = percentVerticalMoved / VideoTouchHandler.MIN_VERTICAL_LIMIT
+        val percentVerticalMoved = Math.max(0F, Math.min(animationTouchListener.minVerticalLimit, percentScrollUp))
+        val movedPercent = percentVerticalMoved / animationTouchListener.minVerticalLimit
         val percentHorizontalMoved = VideoTouchHandler.MIN_HORIZONTAL_LIMIT * movedPercent
         val percentBottomMoved = 1F - movedPercent * (1F - VideoTouchHandler.MIN_BOTTOM_LIMIT)
         val percentMarginMoved = 1F - movedPercent * (1F - VideoTouchHandler.MIN_MARGIN_END_LIMIT)
@@ -445,7 +449,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     private fun expandPlayerTo(isExpanded: Boolean, expandedState: Player.ViewMode) {
         main_player.alpha = 1f
         main.updateParams(constraintSet) {
-            setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else VideoTouchHandler.MIN_VERTICAL_LIMIT)
+            setGuidelinePercent(guidelineHorizontal.id, if (isExpanded) 0F else animationTouchListener.minVerticalLimit)
             setGuidelinePercent(guidelineVertical.id, if (isExpanded) 0F else VideoTouchHandler.MIN_HORIZONTAL_LIMIT)
             setGuidelinePercent(guidelineBottom.id, if (isExpanded) 1F else VideoTouchHandler.MIN_BOTTOM_LIMIT)
             setGuidelinePercent(guidelineMarginEnd.id, if (isExpanded) 1F else VideoTouchHandler.MIN_MARGIN_END_LIMIT)

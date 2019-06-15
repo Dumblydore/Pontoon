@@ -2,6 +2,7 @@ package me.mauricee.pontoon.common.gestures
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -11,6 +12,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import dagger.Reusable
 import io.reactivex.Observable
+import me.mauricee.pontoon.ext.logd
 import javax.inject.Inject
 
 /**
@@ -22,7 +24,7 @@ import javax.inject.Inject
  */
 
 @Reusable
-class VideoTouchHandler @Inject constructor(activity: AppCompatActivity) : View.OnTouchListener {
+class VideoTouchHandler @Inject constructor(private val activity: AppCompatActivity) : View.OnTouchListener {
 
     private val eventRelay: Relay<GestureEvent> = PublishRelay.create()
 
@@ -47,6 +49,9 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity) : View.
         get() = eventRelay.hide()
     var isEnabled = true
     var pinchToZoomEnabled = false
+    var isSnackbarShowing = false
+    var minVerticalLimit: Float = MIN_VERTICAL_LIMIT
+        private set
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(view: View, event: MotionEvent): Boolean {
@@ -168,6 +173,17 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity) : View.
         }
     }
 
+    fun setMinVerticalLimit(playercontainer: View, vararg views: View) {
+        val combinedHeight = if (isExpanded) playercontainer.height.toFloat() else playercontainer.height * (1 - scaleGestureDetector.scaleFactor)
+                + views.sumBy(View::getHeight).toFloat() + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, activity.resources.displayMetrics)
+                .toInt()
+
+        val containerHeight = activity.window.decorView.findViewById<View>(android.R.id.content).height.toFloat()
+        minVerticalLimit = 1 - (combinedHeight / containerHeight)
+        logd("$combinedHeight/$containerHeight = $minVerticalLimit")
+
+    }
+
     private fun resetValues() {
         isTopScroll = false
         isSwipeScroll = false
@@ -188,7 +204,7 @@ class VideoTouchHandler @Inject constructor(activity: AppCompatActivity) : View.
          * Video limit params set minimum size a video can scale from both vertical
          * and horizontal directions
          */
-        const val MIN_VERTICAL_LIMIT = 0.685F
+        private const val MIN_VERTICAL_LIMIT = 0.685F
         const val MIN_HORIZONTAL_LIMIT = 0.425F
         const val MIN_BOTTOM_LIMIT = 0.90F
         const val MIN_MARGIN_END_LIMIT = 0.975F
