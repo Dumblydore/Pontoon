@@ -148,9 +148,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
                 hide()
             }
         }
-        root.doOnNextLayout {
-            animationTouchListener.setMinVerticalLimit(main_player, main_bottomNav)
-        }
         playerFactory.bind(this)
     }
 
@@ -215,6 +212,9 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
         }
         main.doOnPreDraw {
             animationTouchListener.isExpanded = true
+        }
+        root.doOnNextLayout {
+            animationTouchListener.setMinVerticalLimit(main_player, main_bottomNav)
         }
     }
 

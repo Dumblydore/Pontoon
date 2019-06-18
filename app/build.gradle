@@ -129,6 +129,9 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$arch_components_version"
     implementation "androidx.paging:paging-runtime:$arch_components_pagination_version"
     implementation "androidx.paging:paging-rxjava2:$arch_components_pagination_version"
+    implementation "com.nytimes.android:store3:$store_version"
+    implementation "com.nytimes.android:store-kotlin3:$store_version"
+    implementation "com.nytimes.android:middleware3:$store_version"
 
     //   Networking
     implementation "com.isupatches:wisefy:3.0.1"
