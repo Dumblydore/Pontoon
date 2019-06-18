@@ -5,6 +5,7 @@ import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.comment.Comment
+import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
 
 interface RepliesContract {
@@ -15,19 +16,19 @@ interface RepliesContract {
     sealed class State : EventTracker.State {
         object Loading : State()
         class Error(val type: ErrorType = ErrorType.General) : State()
-        class Liked(val comment: Comment) : State()
-        class Cleared(val comment: Comment) : State()
-        class Disliked(val comment: Comment) : State()
+        class Liked(val comment: CommentRepository.NewComment) : State()
+        class Cleared(val comment: CommentRepository.NewComment) : State()
+        class Disliked(val comment: CommentRepository.NewComment) : State()
         class CurrentUser(val user: UserRepository.User) : State()
-        class Replies(val parent: Comment, val comments: List<Comment>) : State()
+        class Replies(val parent: CommentRepository.NewComment, val comments: List<CommentRepository.NewComment>) : State()
     }
 
     sealed class Action : EventTracker.Action {
-        class Like(val comment: Comment) : Action()
-        class Reply(val parent: Comment) : Action()
-        class Clear(val comment: Comment) : Action()
+        class Like(val comment: CommentRepository.NewComment) : Action()
+        class Reply(val parent: CommentRepository.NewComment) : Action()
+        class Clear(val comment: CommentRepository.NewComment) : Action()
         class Parent(val comment: String) : Action()
-        class Dislike(val comment: Comment) : Action()
+        class Dislike(val comment: CommentRepository.NewComment) : Action()
         class ViewUser(val user: UserRepository.User) : Action()
     }
 

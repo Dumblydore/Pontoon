@@ -1,6 +1,8 @@
 package me.mauricee.pontoon.model.comment
 
 import androidx.annotation.Keep
+import androidx.paging.DataSource
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.DiffUtil
 import androidx.room.*
 import io.reactivex.Single
@@ -19,7 +21,6 @@ data class CommentEntity(
         val postDate: Instant,
         val text: String)
 
-//TODO store user interactions
 @Dao
 interface CommentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -29,7 +30,7 @@ interface CommentDao {
     fun update(vararg creatorEntity: CommentEntity)
 
     @Query("SELECT * FROM Comment WHERE video IS :videoId AND parent IS :videoId")
-    fun getCommentsOfVideo(videoId: String): Single<List<CommentEntity>>
+    fun getCommentsOfVideo(videoId: String): DataSource.Factory<Int, CommentEntity>
 
     @Query("SELECT * FROM Comment WHERE parent IS :commentId")
     fun getCommentsOfParent(commentId: String): Single<List<CommentEntity>>

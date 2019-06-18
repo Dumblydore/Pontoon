@@ -6,6 +6,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.comment.CommentRepository
@@ -31,8 +32,8 @@ class DetailsPresenter @Inject constructor(private val player: Player,
     private fun handleAction(it: DetailsContract.Action): Observable<DetailsContract.State> = when (it) {
         is DetailsContract.Action.PlayVideo -> loadVideo(it)
         is DetailsContract.Action.Comment -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video) }
-        is DetailsContract.Action.Reply -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video, it.parent) }
-        is DetailsContract.Action.ViewReplies -> stateless { detailsNavigator.displayReplies(it.comment) }
+        is DetailsContract.Action.Reply -> stateless {/* detailsNavigator.comment(player.currentlyPlaying!!.video, it.parent)*/ }
+        is DetailsContract.Action.ViewReplies -> stateless { /*detailsNavigator.displayReplies(it.comment) */}
         is DetailsContract.Action.ViewUser -> stateless { navigator.toUser(it.user) }
         is DetailsContract.Action.ViewCreator -> stateless { navigator.toCreator(player.currentlyPlaying!!.video.creator) }
         is DetailsContract.Action.Like -> commentRepository.like(it.comment).map<DetailsContract.State> { DetailsContract.State.Like(it) }
@@ -57,8 +58,14 @@ class DetailsPresenter @Inject constructor(private val player: Player,
                     .map(DetailsContract.State::RelatedVideos)
 
     private fun loadComments(video: String): Observable<DetailsContract.State> =
-            commentRepository.getComments(video)
-                    .flatMapSingle { video -> video.toObservable().filter { it.video == it.parent }.toList() }
-                    .onErrorReturnItem(emptyList())
-                    .map { if (it.isEmpty()) DetailsContract.State.Error(DetailsContract.ErrorType.NoComments) else DetailsContract.State.Comments(it) }
+            commentRepository.getComments(video).flatMapObservable {
+                Observable.merge(it.comments.map(DetailsContract.State::Comments), it.state.map(this::handleFetchState))
+            }.onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.NoComments))
+
+    private fun handleFetchState(state: StateBoundaryCallback.State): DetailsContract.State = when (state) {
+        StateBoundaryCallback.State.Loading -> DetailsContract.State.Fetching
+        StateBoundaryCallback.State.Error -> DetailsContract.State.Error(DetailsContract.ErrorType.FailedFetch)
+        StateBoundaryCallback.State.Fetched -> DetailsContract.State.Finished
+        StateBoundaryCallback.State.Finished -> DetailsContract.State.Fetching
+    }
 }

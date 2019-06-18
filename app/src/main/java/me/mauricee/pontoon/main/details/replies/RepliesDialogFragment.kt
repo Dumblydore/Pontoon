@@ -54,19 +54,19 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View 
         RepliesContract.State.Loading -> replies_lazy.state = LazyLayout.LOADING
         is RepliesContract.State.Replies -> {
             replies_header_text.text = getString(R.string.replies_header, state.parent.user.username)
-            adapter.submitList(state.comments)
+//            adapter.submitList(state.comments)
             replies_lazy.state = LazyLayout.SUCCESS
         }
         is RepliesContract.State.Liked -> {
-            adapter.submitList(listOf(state.comment))
+//            adapter.submitList(listOf(state.comment))
             Snackbar.make(view!!, getString(R.string.details_commentLiked), Snackbar.LENGTH_LONG).show()
         }
         is RepliesContract.State.Disliked -> {
-            adapter.submitList(listOf(state.comment))
+//            adapter.submitList(listOf(state.comment))
             Snackbar.make(view!!, getString(R.string.details_commentDisliked), Snackbar.LENGTH_LONG).show()
         }
         is RepliesContract.State.Cleared -> {
-            adapter.submitList(listOf(state.comment))
+//            adapter.submitList(listOf(state.comment))
         }
         is RepliesContract.State.CurrentUser -> {
         }

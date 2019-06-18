@@ -80,7 +80,7 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
             }
             is DetailsContract.State.Error -> handleError(state.type)
             is DetailsContract.State.Comments -> {
-                commentsAdapter.submitList(state.comments.toMutableList())
+//                TODO commentsAdapter.submitList(state.comments.toMutableList())
                 scrollToSelectedComment()
             }
             is DetailsContract.State.RelatedVideos -> {
@@ -88,11 +88,11 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
                 player_relatedVideos_divider.isVisible = true
             }
             is DetailsContract.State.Like -> {
-                commentsAdapter.submitList(listOf(state.comment))
+//                TODO commentsAdapter.submitList(listOf(state.comment))
                 snack(getString(R.string.details_commentLiked, state.comment.user.username))
             }
             is DetailsContract.State.Dislike -> {
-                commentsAdapter.submitList(listOf(state.comment))
+//                TODO commentsAdapter.submitList(listOf(state.comment))
                 snack(getString(R.string.details_commentDisliked, state.comment.user.username))
             }
             is DetailsContract.State.CurrentUser -> {
@@ -117,13 +117,13 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
     }
 
     private fun scrollToSelectedComment() {
-        arguments?.getString(CommentKey, "")?.apply {
-            if (isNotBlank()) {
-                val commentIndex = commentsAdapter.indexOf(this)
-                        .let { player_comments.getChildAt(it).y.toInt() }
-                player_details.smoothScrollTo(0, commentIndex)
-            }
-        }
+//        arguments?.getString(CommentKey, "")?.apply {
+//            if (isNotBlank()) {
+//                val commentIndex = commentsAdapter.indexOf(this)
+//                        .let { player_comments.getChildAt(it).y.toInt() }
+//                player_details.smoothScrollTo(0, commentIndex)
+//            }
+//        }
     }
 
     private fun displayVideoInfo(info: Video) {

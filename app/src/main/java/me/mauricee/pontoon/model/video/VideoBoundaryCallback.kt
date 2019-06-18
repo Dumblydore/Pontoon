@@ -19,34 +19,28 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
                             private vararg val creators: UserRepository.Creator)
     : StateBoundaryCallback<Video>(), Disposable {
 
-    private var isLoading = false
-
     init {
         onZeroItemsLoaded()
     }
 
     override fun onZeroItemsLoaded() {
         super.onZeroItemsLoaded()
-        if (isLoading) return
-        isLoading = true
         stateRelay.accept(State.Loading)
         disposable += creators.toObservable().flatMap { api.getVideos(it.id).flatMapIterable { it } }
                 .sorted(this::sortVideos)
-                .map{it.toEntity()}.toList()
+                .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: Video) {
         super.onItemAtEndLoaded(itemAtEnd)
-        if (isLoading) return
-        isLoading = true
         stateRelay.accept(State.Loading)
         disposable += creators.toObservable().flatMap {
             api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id))
         }.flatMapIterable { it }
                 .sorted(this::sortVideos)
-                .map{it.toEntity()}.toList()
+                .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
     }
@@ -56,7 +50,6 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
             videoDao.cacheVideos(*it.toTypedArray()).isNotEmpty() -> stateRelay.accept(State.Fetched)
             else -> stateRelay.accept(State.Finished)
         }
-        isLoading = false
     }
 
     private fun sortVideos(video1: VideoPojo, video2: VideoPojo) =

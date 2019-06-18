@@ -1,15 +1,17 @@
 package me.mauricee.pontoon.main.details
 
 import androidx.annotation.StringRes
+import androidx.paging.PagedList
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.comment.Comment
+import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 
 
-private typealias CommentModel = Comment
+private typealias CommentModel = CommentRepository.NewComment
 
 interface DetailsContract {
     interface View : BaseContract.View<State, Action>
@@ -36,10 +38,13 @@ interface DetailsContract {
 
     sealed class State : EventTracker.State {
         object Loading : State()
+        object Fetching : State()
+        object Fetched : State()
+        object Finished : State()
         class VideoInfo(val video: Video) : State()
         class Like(val comment: CommentModel) : State()
         class Dislike(val comment: CommentModel) : State()
-        class Comments(val comments: List<Comment>) : State()
+        class Comments(val comments: PagedList<CommentRepository.NewComment>) : State()
         class CurrentUser(val user: UserRepository.User) : State()
         class RelatedVideos(val relatedVideos: List<Video>) : State()
         class Error(val type: ErrorType = ErrorType.General) : State() {
@@ -49,6 +54,7 @@ interface DetailsContract {
     }
 
     enum class ErrorType(@StringRes val message: Int) {
+        FailedFetch(R.string.details_error_noComments),
         NoComments(R.string.details_error_noComments),
         NoRelatedVideos(R.string.details_error_noRelatedVideos),
         General(R.string.details_error_general),

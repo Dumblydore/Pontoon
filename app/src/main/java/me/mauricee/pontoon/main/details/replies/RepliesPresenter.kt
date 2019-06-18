@@ -27,9 +27,11 @@ class RepliesPresenter @Inject constructor(private val commentRepository: Commen
         is RepliesContract.Action.Like -> commentRepository.like(action.comment).map<RepliesContract.State>(RepliesContract.State::Liked).onErrorReturnItem(RepliesContract.State.Error(RepliesContract.ErrorType.Like))
         is RepliesContract.Action.Dislike -> commentRepository.dislike(action.comment).map<RepliesContract.State>(RepliesContract.State::Disliked).onErrorReturnItem(RepliesContract.State.Error(RepliesContract.ErrorType.Dislike))
         is RepliesContract.Action.Clear -> commentRepository.clear(action.comment).map<RepliesContract.State>(RepliesContract.State::Cleared).onErrorReturnItem(RepliesContract.State.Error(RepliesContract.ErrorType.Cleared))
-        is RepliesContract.Action.Reply -> stateless { navigator.comment(player.currentlyPlaying!!.video, action.parent) }
-        is RepliesContract.Action.Parent -> Observable.zip<List<Comment>, Comment, RepliesContract.State>(commentRepository.getReplies(action.comment).toObservable(), commentRepository.getComment(action.comment),
-                BiFunction { t1, t2 -> RepliesContract.State.Replies(t2, t1) }).startWith(RepliesContract.State.Loading).onErrorReturnItem(RepliesContract.State.Error())
+        is RepliesContract.Action.Reply -> stateless { /*TODO navigator.comment(player.currentlyPlaying!!.video, action.parent)*/ }
+        is RepliesContract.Action.Parent -> stateless {
+            /*TODO Observable.zip<List<Comment>, Comment, RepliesContract.State>(commentRepository.getReplies(action.comment).toObservable(), commentRepository.getComment(action.comment),
+                    BiFunction { t1, t2 -> RepliesContract.State.Replies(t2, t1) }).startWith(RepliesContract.State.Loading).onErrorReturnItem(RepliesContract.State.Error())*/
+        }
         is RepliesContract.Action.ViewUser -> stateless { mainNavigator.toUser(action.user) }
     }
 }

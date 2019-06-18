@@ -1,11 +1,15 @@
 package me.mauricee.pontoon.model.comment
 
+import androidx.paging.PagedList
+import androidx.paging.RxPagedListBuilder
+import androidx.recyclerview.widget.DiffUtil
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.SingleTransformer
 import io.reactivex.functions.BiFunction
 import io.reactivex.rxkotlin.toObservable
+import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.*
 import me.mauricee.pontoon.ext.RxHelpers
@@ -20,16 +24,27 @@ private typealias CommentPojo = me.mauricee.pontoon.domain.floatplane.Comment
 //TODO this is shit, rewrite this.
 class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                                             private val floatPlaneApi: FloatPlaneApi,
+                                            private val callback: CommentBoundaryCallback.Factory,
                                             private val userRepository: UserRepository,
-                                            private val accountManagerHelper: AccountManagerHelper) {
+                                            private val pageListConfig: PagedList.Config) {
 
-    private val currentUser by lazy { accountManagerHelper.account.let { UserRepository.User(it.id, it.username, it.profileImage.path) } }
+    data class CommentResult(val comments: Observable<PagedList<NewComment>>, val state: Observable<StateBoundaryCallback.State>)
 
-    fun getComments(videoId: String): Observable<List<Comment>> =
-            Single.concat(commentDao.getCommentsOfVideo(videoId).compose(daoToModel()), getApiComments(videoId))
-                    .map { child -> child.filter { it.replies.isNotEmpty() } }
-                    .toObservable().compose(RxHelpers.applyObservableSchedulers())
-                    .filter(List<Comment>::isNotEmpty)
+    private val currentUser
+        get() = userRepository.activeUser
+
+    fun getComments(videoId: String): Single<CommentResult> = Single.fromCallable {
+        val callback = callback.newInsance(videoId)
+        val comments = RxPagedListBuilder(commentDao.getCommentsOfVideo(videoId).map { comment ->
+            val user = userRepository.getUsers(comment.user).blockingFirst().first()
+            NewComment(comment, user)
+        }, pageListConfig)
+                .setBoundaryCallback(callback)
+                .buildObservable()
+                .doOnTerminate { callback.dispose() }
+                .doOnDispose { callback.dispose() }
+        CommentResult(comments, callback.state)
+    }.compose(RxHelpers.applySingleSchedulers())
 
     fun getComment(commentId: String): Observable<Comment> = commentDao.getComment(commentId).flatMapObservable { comment ->
         userRepository.getUsers(comment.user).flatMap { it.toObservable() }.map { user ->
@@ -51,12 +66,12 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
             }.toList().onErrorReturnItem(emptyList()).ioStream()
 
 
-    fun like(comment: Comment): Observable<Comment> = interactWithComment(comment, CommentInteraction.Type.Like)
+    fun like(comment: NewComment): Observable<NewComment> = Observable.empty() // interactWithComment(comment, CommentInteraction.Type.Like)
 
-    fun dislike(comment: Comment): Observable<Comment> = interactWithComment(comment, CommentInteraction.Type.Dislike)
+    fun dislike(comment: NewComment): Observable<NewComment> = Observable.empty() // interactWithComment(comment, CommentInteraction.Type.Dislike)
 
-    fun clear(comment: Comment): Observable<Comment> = floatPlaneApi.clearInteraction(ClearInteraction(comment.id))
-            .map { comment.clear() }
+    fun clear(comment: NewComment): Observable<NewComment> = Observable.empty() // floatPlaneApi.clearInteraction(ClearInteraction(comment.id))
+//            .map { comment.clear() }
 
     fun comment(text: String, video: String): Observable<Comment> =
             floatPlaneApi.post(CommentPost(text, video))
@@ -77,12 +92,12 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                         it.interactionCounts.dislike, emptyList(), currentUser)
             }
 
-    fun interactWithComment(comment: Comment, type: CommentInteraction.Type): Observable<Comment> =
-            if (commentHasDuplicateInteractions(comment, type)) clear(comment)
-            else floatPlaneApi.setComment(CommentInteraction(comment.id, type)).map {
-                (if (type == CommentInteraction.Type.Like) comment.like() else comment.dislike())
-                        .apply { commentDao.update(comment.toEntity()) }
-            }
+//    fun interactWithComment(comment: Comment, type: CommentInteraction.Type): Observable<Comment> =
+//            if (commentHasDuplicateInteractions(comment, type)) clear(comment)
+//            else floatPlaneApi.setComment(CommentInteraction(comment.id, type)).map {
+//                (if (type == CommentInteraction.Type.Like) comment.like() else comment.dislike())
+//                        .apply { commentDao.update(comment.toEntity()) }
+//            }
 
     private fun commentHasDuplicateInteractions(comment: Comment, type: CommentInteraction.Type): Boolean =
             (comment.userInteraction.contains(Comment.Interaction.Like) && type == CommentInteraction.Type.Like) ||
@@ -135,5 +150,17 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                 .doOnIo().onErrorComplete()
                 .subscribe()
     }
+    data class NewComment(val id: String, val parent: String, val text: String, val replies: Int, val score: Int, val user: UserRepository.User, val userInteraction: CommentInteraction.Type?) {
+        constructor(commentEntity: CommentEntity, user: UserRepository.User) : this(commentEntity.id, commentEntity.parent, commentEntity.text, 0, commentEntity.likes - commentEntity.dislikes, user, null)
+
+        companion object {
+            val ItemCallback = object : DiffUtil.ItemCallback<NewComment>() {
+                override fun areItemsTheSame(oldItem: NewComment, newItem: NewComment): Boolean = oldItem.id == newItem.id
+
+                override fun areContentsTheSame(oldItem: NewComment, newItem: NewComment): Boolean = newItem == oldItem
+            }
+        }
+    }
+
 }
 

@@ -23,10 +23,10 @@ interface FloatPlaneApi {
     val self: Observable<User>
 
     @POST("auth/logout")
-    fun logout() : Completable
+    fun logout(): Completable
 
     @POST("activation/email/confirm")
-    fun confirmEmail(@Body confirmationRequest: ConfirmationRequest) : Completable
+    fun confirmEmail(@Body confirmationRequest: ConfirmationRequest): Completable
 
     @POST("auth/login")
     fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
@@ -50,7 +50,7 @@ interface FloatPlaneApi {
     fun getVideoInfo(@Query("videoGUID") id: String): Observable<Video>
 
     @GET("video/comments")
-    fun getVideoComments(@Query("videoGUID") id: String): Observable<Comment.Container>
+    fun getVideoComments(@Query("videoGUID") id: String, @Query("limit") limit: Int = 20, @Query("commentGUID") afterComment: String? = null): Observable<Comment.Container>
 
     @GET("video/url")
     fun getVideoUrl(@Query("guid") id: String, @Query("quality") quality: String = "1080"): Observable<ResponseBody>

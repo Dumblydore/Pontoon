@@ -15,17 +15,19 @@ open class StateBoundaryCallback<T : Any> : PagedList.BoundaryCallback<T>() {
 
     @CallSuper
     override fun onZeroItemsLoaded() {
-        super.onZeroItemsLoaded()
+        if (stateRelay.value == State.Loading) return
         lastCall = ::onZeroItemsLoaded
     }
 
     @CallSuper
     override fun onItemAtEndLoaded(itemAtEnd: T) {
+        if (stateRelay.value == State.Loading) return
         lastCall = { onItemAtEndLoaded(itemAtEnd) }
     }
 
     @CallSuper
     override fun onItemAtFrontLoaded(itemAtFront: T) {
+        if (stateRelay.value == State.Loading) return
         lastCall = { onItemAtFrontLoaded(itemAtFront) }
     }
 
