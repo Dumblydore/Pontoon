@@ -12,6 +12,7 @@ buildscript {
     ext.arch_components_version = '2.0.0'
     ext.arch_components_pagination_version = '2.1.0'
     ext.nav_version = '1.0.0-alpha01'
+    ext.store_version = '3.1.1'
 
     repositories {
         google()

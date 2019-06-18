@@ -174,7 +174,7 @@ class VideoTouchHandler @Inject constructor(private val activity: AppCompatActiv
     }
 
     fun setMinVerticalLimit(playercontainer: View, vararg views: View) {
-        val combinedHeight = if (isExpanded) playercontainer.height.toFloat() else playercontainer.height * (1 - scaleGestureDetector.scaleFactor)
+        val combinedHeight = if (isExpanded) playercontainer.measuredHeight.toFloat() else playercontainer.height * (1 - scaleGestureDetector.scaleFactor)
                 + views.sumBy(View::getHeight).toFloat() + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, activity.resources.displayMetrics)
                 .toInt()
 
