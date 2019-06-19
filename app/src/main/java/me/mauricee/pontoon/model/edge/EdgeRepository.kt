@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.model.edge
 
+import com.nytimes.android.external.store3.base.impl.room.StoreRoom
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -12,27 +13,16 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import javax.inject.Inject
 
-class EdgeRepository @Inject constructor(private val edgeDao: EdgeDao,
-                                         private val floatPlaneApi: FloatPlaneApi,
+class EdgeRepository @Inject constructor(private val edgeStore: StoreRoom<List<String>, EdgeDao.Persistor.EdgeType>,
                                          private val client: OkHttpClient) {
 
     val downloadHost: Single<String>
-        get() = preCache { edgeDao.getDownloadEdgeHosts().flatMap(::getAvailableHosts) }
+        get() = edgeStore.get(EdgeDao.Persistor.EdgeType.Download).firstOrError().flatMap(::getAvailableHosts)
 
     val streamingHost: Single<String>
-        get() = preCache { edgeDao.getStreamingEdgeHosts().flatMap(::getAvailableHosts) }
-    
-    fun refresh(): Completable = Single.fromCallable { edgeDao.clear() }.flatMapCompletable { cacheEdges() }
-            .doOnIo()
+        get() = edgeStore.get(EdgeDao.Persistor.EdgeType.Streaming).firstOrError().flatMap(::getAvailableHosts)
 
-    private fun cacheEdges(): Completable = floatPlaneApi.edges.flatMapIterable { it.edges }
-            .map { EdgeEntity(it.allowStreaming, it.allowDownload, it.hostname) }
-            .toList()
-            .flatMapCompletable { Completable.fromCallable { edgeDao.addEdges(it) } }
-
-    private fun <T> preCache(action: () -> Single<T>): Single<T> = Single.fromCallable(edgeDao::size)
-            .flatMapCompletable { if (it > 0) Completable.complete() else cacheEdges() }
-            .toSingle { 0 }.flatMap { action() }.subscribeOn(Schedulers.io())
+    fun refresh(): Completable = Completable.fromAction { edgeStore.clear() }
 
     private fun getAvailableHosts(hosts: List<String>): Single<String> = hosts.map(::makeCall)
             .let { Observable.amb(it) }
