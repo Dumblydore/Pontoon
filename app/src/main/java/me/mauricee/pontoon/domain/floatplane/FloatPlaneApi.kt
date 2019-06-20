@@ -2,6 +2,7 @@ package me.mauricee.pontoon.domain.floatplane
 
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -42,6 +43,9 @@ interface FloatPlaneApi {
 
     @GET("creator/videos")
     fun getVideos(@Query("creatorGUID") creatorId: String, @Query("fetchAfter") startWith: Int = 0): Observable<List<Video>>
+
+    @GET("creator/videos")
+    fun searchVideos(@Query("creatorGUID") id: String, @Query("search") query: String, @Query("fetchAfter") startWith: Int = 0): Single<List<Video>>
 
     @GET("video/related")
     fun getRelatedVideos(@Query("videoGUID") id: String): Observable<List<Video>>
