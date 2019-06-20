@@ -1,6 +1,7 @@
 package me.mauricee.pontoon;
 
 import android.animation.Animator;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,13 +17,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import dagger.android.support.DaggerFragment;
 import io.reactivex.disposables.CompositeDisposable;
+import me.mauricee.pontoon.common.theme.StyleKt;
+import me.mauricee.pontoon.common.theme.ThemeManager;
+import me.mauricee.pontoon.ext.ViewExtKt;
 
 public abstract class BaseFragment<P extends BaseContract.Presenter> extends DaggerFragment {
 
     @Inject
     protected P presenter;
+    @Inject
+    protected ThemeManager manager;
 
     protected final CompositeDisposable subscriptions = new CompositeDisposable();
     protected final List<Animator> animations = new ArrayList<>();

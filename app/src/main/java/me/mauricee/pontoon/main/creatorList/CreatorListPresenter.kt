@@ -21,7 +21,7 @@ class CreatorListPresenter @Inject constructor(private val userRepository: UserR
             CreatorListContract.Action>>(videoRepository.subscriptions, view.actions,
             BiFunction { t1, t2 -> Pair(t1, t2) })
             .flatMap { handleActions(it.first, it.second) }
-            .startWith(getCreators().toObservable())
+            .startWith(getCreators())
 
 
     private fun handleActions(subscriptions: List<UserRepository.Creator>, action: CreatorListContract.Action) =

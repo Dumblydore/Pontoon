@@ -19,6 +19,9 @@ import me.mauricee.pontoon.model.comment.CommentDao
 import me.mauricee.pontoon.model.comment.CommentEntity
 import me.mauricee.pontoon.model.edge.EdgeDao
 import me.mauricee.pontoon.model.edge.EdgeEntity
+import me.mauricee.pontoon.model.subscription.SubscriptionDao
+import me.mauricee.pontoon.model.subscription.SubscriptionEntity
+import me.mauricee.pontoon.model.subscription.toEntity
 import me.mauricee.pontoon.model.user.*
 
 @Module
@@ -68,11 +71,10 @@ class ModelModule {
     @AppScope
     @Provides
     fun providesEdgeStore(api: FloatPlaneApi, daoPersistor: EdgeDao.Persistor): StoreRoom<List<String>, EdgeDao.Persistor.EdgeType> = StoreRoom.from(
-            { _ -> api.edges.flatMapIterable { it.edges }.map { EdgeEntity(it.allowStreaming, it.allowDownload, it.hostname) }.toList() }
-            , daoPersistor)
+            { _ -> api.edges.flatMapIterable { it.edges }.map { EdgeEntity(it.allowStreaming, it.allowDownload, it.hostname) }.toList() }, daoPersistor)
 
-//    @AppScope
-//    @Provides
-//    fun providesCommentStore(api: FloatPlaneApi, daoPersistor: CommentDao.Persistor): StoreRoom<List<CommentEntity>, String>
+    @AppScope
+    @Provides
+    fun providesSubscriptionFetcher(api: FloatPlaneApi): Fetcher<List<String>, Unit> = Fetcher { api.subscriptions.flatMapIterable { it }.map { it.creatorId }.toList() }
 
 }

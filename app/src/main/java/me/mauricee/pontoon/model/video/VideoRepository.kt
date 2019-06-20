@@ -47,7 +47,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
             .map { subs -> subs.map { it.creatorId }.toTypedArray() }
 
     private fun subscriptionsFromCache() = subscriptionDao.getSubscriptions()
-            .map { it.map { it.creator }.toTypedArray() }.filter { it.isNotEmpty() }
+            .map { it.toTypedArray() }.filter { it.isNotEmpty() }
 
     fun getSubscriptionFeed(unwatchedOnly: Boolean = false, clean: Boolean): Observable<SubscriptionFeed> = subscriptions.map {
         SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly, refresh = clean))

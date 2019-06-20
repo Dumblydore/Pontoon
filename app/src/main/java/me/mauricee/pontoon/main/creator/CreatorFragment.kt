@@ -36,6 +36,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
     private val creatorId by lazy { arguments!!.getString(CreatorIdKey) }
     private val creatorName by lazy { arguments!!.getString(CreatorNameKey) }
     private val primaryColor by lazy { ResourcesCompat.getColor(resources, R.color.colorPrimary, null) }
+
     @Inject
     lateinit var videoAdapter: VideoPageAdapter
     @Inject
@@ -105,9 +106,9 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
         creator_container_lazy.state = LazyLayout.ERROR
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        animations += setStatusBarColor(requireActivity().primaryDarkColor).apply { startDelay }
+    override fun onStop() {
+        super.onStop()
+        setStatusBarColor(requireActivity().primaryDarkColor).start()
     }
 
     companion object {

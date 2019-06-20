@@ -2,18 +2,12 @@ package me.mauricee.pontoon.model.user
 
 import androidx.recyclerview.widget.DiffUtil
 import com.nytimes.android.external.store3.base.impl.room.StoreRoom
-import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
-import me.mauricee.pontoon.ext.doOnIo
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.ext.loge
 import org.threeten.bp.Instant
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
@@ -23,15 +17,17 @@ class UserRepository @Inject constructor(private val floatPlaneApi: FloatPlaneAp
 
     val activeUser by lazy { accountManagerHelper.account.let { User(it.id, it.username, it.profileImage.path) } }
 
-    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> = creatorIds.toObservable().flatMap { creatorStoreRoom.get(it) }
+    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> = creatorIds.toObservable().flatMapSingle { creatorStoreRoom.get(it).firstOrError() }
             .flatMapIterable { it }
             .flatMapSingle { creator -> getUsers(creator.owner).map { Creator(creator, it.first()) }.toList() }
             .filter { it.isNotEmpty() }
             .compose(RxHelpers.applyObservableSchedulers())
 
-    fun getAllCreators(): Single<List<Creator>> = floatPlaneApi.allCreators.flatMapIterable { it }
-            .flatMap { getUsers(it.owner.id).map { user -> Creator(it.toEntity(), user.first()) } }
-            .toList().compose(RxHelpers.applySingleSchedulers())
+    fun getAllCreators(): Observable<List<Creator>> = floatPlaneApi.allCreators.flatMapSingle { creators ->
+        creators.toObservable().flatMapMaybe{
+            getUsers(it.owner.id).map { user -> Creator(it.toEntity(), user.first()) }.firstElement()
+        }.toList(creators.size)
+    }.compose(RxHelpers.applyObservableSchedulers())
 
     fun getUsers(vararg userIds: String): Observable<List<User>> = userIds.toObservable().flatMap { userStoreRoom.get(it) }
             .flatMapSingle { users -> users.toObservable().map { User(it.id, it.username, it.profileImage) }.toList() }

@@ -85,8 +85,8 @@ class UserFragment : UserContract.View, BaseFragment<UserPresenter>() {
         is UserContract.State.Error -> user_container_lazy.state = LazyLayout.ERROR
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onStop() {
+        super.onStop()
         setStatusBarColor(requireActivity().primaryDarkColor).start()
     }
 
