@@ -57,13 +57,13 @@ class ModelModule {
 
     @AppScope
     @Provides
-    fun providesCreatorStore(api: FloatPlaneApi, daoPersistor: CreatorDao.Persistor): StoreRoom<List<CreatorEntity>, String> = StoreRoom.from({
+    fun providesCreatorStore(api: FloatPlaneApi, daoPersistor: CreatorDao.Persistor): StoreRoom<CreatorEntity, String> = StoreRoom.from({
         api.getCreator(it).map { it.first().toEntity() }.firstOrError()
     }, daoPersistor)
 
     @AppScope
     @Provides
-    fun providesUserStore(api: FloatPlaneApi, daoPersistor: UserDao.Persistor): StoreRoom<List<UserEntity>, String> = StoreRoom.from({
+    fun providesUserStore(api: FloatPlaneApi, daoPersistor: UserDao.Persistor): StoreRoom<UserEntity, String> = StoreRoom.from({
         api.getUsers(it).map { it.users.first().user!!.toEntity() }.singleOrError()
     }, daoPersistor)
 

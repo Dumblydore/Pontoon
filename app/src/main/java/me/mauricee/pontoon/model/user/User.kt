@@ -20,10 +20,13 @@ interface UserDao {
     @Query("SELECT * FROM User WHERE id IN (:userIds)")
     fun getUsersByIds(vararg userIds: String): Observable<List<UserEntity>>
 
-    class Persistor @Inject constructor(private val dao: UserDao) : RoomPersister<UserEntity, List<UserEntity>, String> {
+    @Query("SELECT * FROM User WHERE id IS (:userId)")
+    fun getUserById(userId: String): Observable<UserEntity>
+
+    class Persistor @Inject constructor(private val dao: UserDao) : RoomPersister<UserEntity, UserEntity, String> {
         override fun write(key: String, raw: UserEntity) = dao.insert(raw)
 
-        override fun read(key: String): Observable<List<UserEntity>> = dao.getUsersByIds(key)
+        override fun read(key: String): Observable<UserEntity> = dao.getUserById(key)
     }
 }
 

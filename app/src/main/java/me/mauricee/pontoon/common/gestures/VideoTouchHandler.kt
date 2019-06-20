@@ -180,8 +180,6 @@ class VideoTouchHandler @Inject constructor(private val activity: AppCompatActiv
 
         val containerHeight = activity.window.decorView.findViewById<View>(android.R.id.content).height.toFloat()
         minVerticalLimit = 1 - (combinedHeight / containerHeight)
-        logd("$combinedHeight/$containerHeight = $minVerticalLimit")
-
     }
 
     private fun resetValues() {

@@ -26,13 +26,12 @@ class RelatedVideoAdapter @Inject constructor() : BaseListAdapter<DetailsContrac
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
             subscriptions += view.clicks().map {
-                logd("Current list size: ")
                 DetailsContract.Action.PlayVideo(getItem(adapterPosition).id)
             }
                     .subscribe(relay::accept)
         }
 
-        fun bind(video: me.mauricee.pontoon.model.video.Video) {
+        fun bind(video: Video) {
             itemView.let {
                 itemView.item_title.text = video.title
                 itemView.item_description.text = video.creator.name

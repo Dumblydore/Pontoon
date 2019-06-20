@@ -18,10 +18,12 @@ import me.mauricee.pontoon.domain.floatplane.Subscription
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.ioStream
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
+import me.mauricee.pontoon.model.subscription.SubscriptionStore
 import me.mauricee.pontoon.model.user.UserRepository
 import okhttp3.ResponseBody
 import org.threeten.bp.Instant
@@ -33,21 +35,15 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                                           private val videoDao: VideoDao,
                                           private val floatPlaneApi: FloatPlaneApi,
                                           private val subscriptionDao: SubscriptionDao,
+                                          private val subscriptionStore: SubscriptionStore,
                                           private val searchCallbackFactory: SearchBoundaryCallback.Factory,
                                           private val videoCallbackFactory: VideoBoundaryCallback.Factory,
                                           private val pageListConfig: PagedList.Config) {
 
-    val subscriptions: Observable<List<UserRepository.Creator>> = Observable.mergeArray(subscriptionsFromCache(), subscriptionsFromNetwork())
-            .debounce(400, TimeUnit.MILLISECONDS)
-            .flatMap { userRepo.getCreators(*it) }
+    val subscriptions: Observable<List<UserRepository.Creator>> = subscriptionStore.get()
+            .map { it.toTypedArray() }
+            .flatMapObservable { userRepo.getCreators(*it) }
             .compose(RxHelpers.applyObservableSchedulers())
-
-    private fun subscriptionsFromNetwork() = floatPlaneApi.subscriptions.flatMapSingle(this::validateSubscriptions)
-            .flatMap { subs -> cacheSubscriptions(subs).andThen(Observable.just(subs)) }
-            .map { subs -> subs.map { it.creatorId }.toTypedArray() }
-
-    private fun subscriptionsFromCache() = subscriptionDao.getSubscriptions()
-            .map { it.toTypedArray() }.filter { it.isNotEmpty() }
 
     fun getSubscriptionFeed(unwatchedOnly: Boolean = false, clean: Boolean): Observable<SubscriptionFeed> = subscriptions.map {
         SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly, refresh = clean))

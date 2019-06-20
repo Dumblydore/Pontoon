@@ -25,17 +25,16 @@ interface CreatorDao {
     @Query("SELECT * FROM Creator WHERE id IN (:creatorIds)")
     fun getCreatorsByIds(vararg creatorIds: String): Observable<List<CreatorEntity>>
 
+    @Query("SELECT * FROM Creator WHERE id is :creatorId")
+    fun getCreatorById(creatorId: String): Observable<CreatorEntity>
+
     @Query("SELECT * FROM Creator")
     fun getCreators(): Observable<List<CreatorEntity>>
 
-    class Persistor @Inject constructor(private val dao: CreatorDao) : RoomPersister<CreatorEntity, List<CreatorEntity>, String> {
+    class Persistor @Inject constructor(private val dao: CreatorDao) : RoomPersister<CreatorEntity, CreatorEntity, String> {
         override fun write(key: String, raw: CreatorEntity) = dao.insert(raw)
 
-        override fun read(key: String): Observable<List<CreatorEntity>> = if (key == All) dao.getCreators() else dao.getCreatorsByIds(key)
-    }
-
-    companion object {
-        const val All = ""
+        override fun read(key: String): Observable<CreatorEntity> = dao.getCreatorById(key)
     }
 }
 
