@@ -23,6 +23,8 @@ import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
 import me.mauricee.pontoon.model.subscription.toEntity
 import me.mauricee.pontoon.model.user.*
+import me.mauricee.pontoon.model.video.VideoDao
+import me.mauricee.pontoon.model.video.VideoEntity
 
 @Module
 class ModelModule {
@@ -65,6 +67,12 @@ class ModelModule {
     @Provides
     fun providesUserStore(api: FloatPlaneApi, daoPersistor: UserDao.Persistor): StoreRoom<UserEntity, String> = StoreRoom.from({
         api.getUsers(it).map { it.users.first().user!!.toEntity() }.singleOrError()
+    }, daoPersistor)
+
+    @AppScope
+    @Provides
+    fun providesVideoStore(api: FloatPlaneApi, daoPersistor: VideoDao.Persistor): StoreRoom<VideoEntity, String> = StoreRoom.from({
+        api.getVideoInfo(it).map { it.toEntity() }.singleOrError()
     }, daoPersistor)
 
 

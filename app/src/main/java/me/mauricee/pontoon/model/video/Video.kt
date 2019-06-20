@@ -2,8 +2,11 @@ package me.mauricee.pontoon.model.video
 
 import androidx.paging.DataSource
 import androidx.room.*
+import com.nytimes.android.external.store3.base.room.RoomPersister
 import io.reactivex.Maybe
+import io.reactivex.Observable
 import org.threeten.bp.Instant
+import javax.inject.Inject
 
 @Entity(tableName = "Video")
 data class VideoEntity(@PrimaryKey val id: String,
@@ -50,5 +53,11 @@ interface VideoDao {
 
     @Query("DELETE From Video WHERE creator IN (:creators)")
     fun clearCreatorVideos(vararg creators: String)
+
+    class Persistor @Inject constructor(private val dao: VideoDao) : RoomPersister<VideoEntity, VideoEntity, String> {
+        override fun write(key: String, raw: VideoEntity) = dao.insert(raw)
+
+        override fun read(key: String): Observable<VideoEntity> = dao.getVideo(key).toObservable()
+    }
 
 }

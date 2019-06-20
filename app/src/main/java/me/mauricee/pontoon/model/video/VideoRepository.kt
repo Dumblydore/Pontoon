@@ -5,6 +5,7 @@ import androidx.core.net.toUri
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
 import androidx.recyclerview.widget.DiffUtil
+import com.nytimes.android.external.store3.base.impl.room.StoreRoom
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -34,16 +35,17 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                                           private val edgeRepo: EdgeRepository,
                                           private val videoDao: VideoDao,
                                           private val floatPlaneApi: FloatPlaneApi,
-                                          private val subscriptionDao: SubscriptionDao,
+                                          private val videoStore: StoreRoom<VideoEntity, String>,
                                           private val subscriptionStore: SubscriptionStore,
                                           private val searchCallbackFactory: SearchBoundaryCallback.Factory,
                                           private val videoCallbackFactory: VideoBoundaryCallback.Factory,
                                           private val pageListConfig: PagedList.Config) {
 
-    val subscriptions: Observable<List<UserRepository.Creator>> = subscriptionStore.get()
-            .map { it.toTypedArray() }
-            .flatMapObservable { userRepo.getCreators(*it) }
-            .compose(RxHelpers.applyObservableSchedulers())
+    val subscriptions: Observable<List<UserRepository.Creator>>
+        get() = subscriptionStore.get()
+                .map { it.toTypedArray() }
+                .flatMapObservable { userRepo.getCreators(*it) }
+                .compose(RxHelpers.applyObservableSchedulers())
 
     fun getSubscriptionFeed(unwatchedOnly: Boolean = false, clean: Boolean): Observable<SubscriptionFeed> = subscriptions.map {
         SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly, refresh = clean))
@@ -84,15 +86,12 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                 .let { VideoResult(it, callback.state, callback::retry) }
     }
 
-    fun getVideo(video: String): Single<Video> = videoDao.getVideo(video)
-            .switchIfEmpty(getVideoInfoFromNetwork(video))
-            .flatMap { vid ->
-                userRepo.getCreators(vid.creator)
-                        .map { it.first() }
-                        .map { it ->
-                            Video(vid.id, vid.title, vid.description, vid.releaseDate, vid.duration, it, vid.thumbnail, null)
-                        }.firstOrError()
-            }.ioStream()
+    fun getVideo(video: String): Single<Video> = videoStore[video].firstOrError().flatMap { vid ->
+        userRepo.getCreators(vid.creator)
+                .map { it.first() }
+                .map { Video(vid, it) }
+                .firstOrError()
+    }.ioStream()
 
     fun getRelatedVideos(video: String): Single<List<Video>> = floatPlaneApi.getRelatedVideos(video).flatMap { videos ->
         videos.map { it.creator }.distinct().toTypedArray().let { userRepo.getCreators(*it).firstOrError() }
@@ -131,19 +130,6 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
         Completable.fromCallable { videoDao.setWatched(Instant.now(), video.id) }
                 .onErrorComplete().doOnIo().subscribe()
     }
-
-    private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
-            .map { it.toEntity() }.singleOrError()
-
-    private fun cacheSubscriptions(subscriptions: List<Subscription>) = subscriptions.toObservable()
-            .map { SubscriptionEntity(it.creatorId, it.plan.id, it.startDate, it.endDate) }
-            .toList().flatMapCompletable { Completable.fromAction { subscriptionDao.insert(*it.toTypedArray()) } }
-            .observeOn(Schedulers.io())
-            .onErrorComplete()
-
-    private fun validateSubscriptions(subscriptions: List<Subscription>) =
-            if (subscriptions.isEmpty()) Single.error(NoSubscriptionsException())
-            else Single.just(subscriptions)
 
     private fun getUrlFromResponse(host: String, responseBody: ResponseBody): String {
         val baseUri = responseBody.string().let { it.substring(1, it.length - 1) }.toUri()
