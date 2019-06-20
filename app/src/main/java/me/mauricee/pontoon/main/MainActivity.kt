@@ -213,9 +213,6 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
         main.doOnPreDraw {
             animationTouchListener.isExpanded = true
         }
-        root.doOnNextLayout {
-            animationTouchListener.setMinVerticalLimit(main_player, main_bottomNav)
-        }
     }
 
     override fun toPreferences() {
@@ -256,6 +253,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
                 TransitionManager.beginDelayedTransition(main, ChangeBounds().apply {
                     duration = 150
                 })
+                animationTouchListener.setMinVerticalLimit(main_player, main_bottomNav)
             }
         }
     }
