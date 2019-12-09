@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorPrimary">
+    android:background="?android:attr/colorPrimary"
+    tools:background="@color/colorPrimaryDark">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,43 +13,49 @@
         android:layout_gravity="center_vertical"
         android:orientation="vertical">
 
+        <ImageView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/ic_splash" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/login.username"
+            style="@style/Login.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginEnd="36dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login.username.edit"
+                style="@style/Login.EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_username"
-                android:maxLines="1"
-                android:inputType="textEmailAddress"
-                android:imeOptions="actionNext"
                 android:imeActionLabel=""
+                android:imeOptions="actionNext"
+                android:inputType="textEmailAddress"
+                android:maxLines="1"
                 android:nextFocusDown="@id/login.password.edit"
-                android:textColor="?android:textColorPrimaryInverse"
-                tools:text="@string/default_user"
-                tools:textColor="@color/md_white_1000" />
+                tools:text="@string/default_user" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/login.password"
+            style="@style/Login.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:imeOptions="actionGo"
+            android:layout_marginStart="36dp"
+            android:layout_marginEnd="36dp"
             android:layout_marginBottom="8dp"
+            android:imeOptions="actionGo"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -56,24 +63,25 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login.password.edit"
+                style="@style/Login.EditText"
+                android:textColorHint="?android:textColorHintInverse"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_password"
                 android:inputType="textPassword"
                 android:maxLines="1"
-                android:textColor="?android:textColorPrimaryInverse"
                 android:nextFocusDown="@id/login.password.edit"
-                tools:text="@string/default_pass"
-                tools:textColor="@color/md_white_1000" />
+                tools:text="@string/default_pass" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/login.token"
+            style="@style/Login.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginEnd="36dp"
             android:layout_marginBottom="8dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -84,14 +92,13 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login.token.edit"
+                style="@style/Login.EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_token"
-                android:inputType="number"
                 android:imeOptions="actionGo"
-                android:maxLines="1"
-                android:textColor="?android:textColorPrimaryInverse"
-                tools:textColor="@color/md_white_1000" />
+                android:inputType="number"
+                android:maxLines="1" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -112,8 +119,9 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="36dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/login.login"
+                style="@style/AppTheme.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorAccent"
@@ -121,8 +129,7 @@
                 android:paddingBottom="10dp"
                 android:text="@string/login_login"
                 android:textAlignment="center"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                style="?attr/buttonStyle"
+                app:backgroundTint="?android:attr/colorAccent"
                 app:cornerRadius="24dp" />
 
             <ProgressBar
@@ -135,18 +142,17 @@
                 tools:visibility="visible" />
         </FrameLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/login.signUp"
-            style="?android:attr/borderlessButtonStyle"
+            style="@style/AppTheme.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
-            android:padding="8dp"
             android:layout_marginEnd="36dp"
-            android:textAllCaps="false"
+            android:padding="8dp"
             android:text="@string/login_signup"
-            android:textColor="?android:attr/colorAccent"
-            tools:textColor="@color/colorAccent" />
+            android:textAllCaps="false"
+            android:textColor="?android:attr/colorAccent" />
 
     </LinearLayout>
 
@@ -193,15 +199,14 @@
 
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/login.privacy"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/AppTheme.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:padding="8dp"
         android:text="@string/login_privacy"
-        android:textColor="?android:attr/colorAccent"
-        tools:textColor="@color/colorAccent" />
+        android:textColor="?android:attr/colorAccent" />
 
 </FrameLayout>

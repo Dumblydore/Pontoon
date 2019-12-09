@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="bottomSheetDialogTheme">@style/AppThemeOverlay</item>
     </style>
 
@@ -21,6 +21,11 @@
 
     <style name="AppThemeOverlay.Amoled" parent="ThemeOverlay.MaterialComponents.Light.BottomSheetDialog" />
 
+    <style name="AppTheme.Button" parent="Widget.MaterialComponents.Button"/>
+    <style name="AppTheme.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton"/>
+    <style name="AppTheme.Button.OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton"/>
+    <style name="AppTheme.Button.IconButton" parent="Widget.MaterialComponents.Button"/>
+
     <style name="AppTheme.Launcher">
         <item name="android:colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -29,6 +34,11 @@
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
+
+    <style name="Login.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+<!--        <item name="boxBackgroundColor">@color/white</item>-->
+    </style>
+    <style name="Login.EditText" parent="Widget.MaterialComponents.TextInputEditText.FilledBox"/>
     <style name="TextAppearanceTitle">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">16sp</item>

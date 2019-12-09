@@ -36,16 +36,16 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings)
 
-        findPreference("settings_about").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedAbout) }
-        findPreference("settings_privacy_policy").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedPrivacyPolicy) }
-        findPreference("settings_refresh_edges").setOnPreferenceClickListener { push(SettingsContract.Action.SelectedRefreshEdges) }
+        findPreference<Preference>("settings_about")?.setOnPreferenceClickListener { push(SettingsContract.Action.SelectedAbout) }
+        findPreference<Preference>("settings_privacy_policy")?.setOnPreferenceClickListener { push(SettingsContract.Action.SelectedPrivacyPolicy) }
+        findPreference<Preference>("settings_refresh_edges")?.setOnPreferenceClickListener { push(SettingsContract.Action.SelectedRefreshEdges) }
         if (!requireActivity().hasNotch()) {
-            (findPreference("settings_general") as PreferenceCategory).removePreference(findPreference("settings_notch"))
+            (findPreference<Preference>("settings_general") as PreferenceCategory).removePreference(findPreference("settings_notch"))
         }
         if (!BuildConfig.DEBUG) {
-            (findPreference("settings_general") as PreferenceCategory).removePreference(findPreference("settings_test_crash"))
+            (findPreference<Preference>("settings_general") as PreferenceCategory).removePreference(findPreference("settings_test_crash"))
         } else {
-            findPreference("settings_test_crash").setOnPreferenceClickListener { Crashlytics.getInstance().crash(); true }
+            findPreference<Preference>("settings_test_crash")?.setOnPreferenceClickListener { Crashlytics.getInstance().crash(); true }
         }
 
         presenter.attachView(this)
