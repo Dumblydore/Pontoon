@@ -152,8 +152,8 @@ abstract class AppModule {
         @AppScope
         @Provides
         @JvmStatic
-        fun providesHlsFactory(okHttpClient: OkHttpClient, agent: String) =
-                HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient::newCall, agent))
+        fun providesHlsFactory(okHttpClient: OkHttpClient, authInterceptor: AuthInterceptor, agent: String) =
+                HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient.newBuilder().addInterceptor(authInterceptor).build()::newCall, agent))
 
         @AppScope
         @Provides
