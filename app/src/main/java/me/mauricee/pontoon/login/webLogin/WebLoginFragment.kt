@@ -26,7 +26,7 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
     override val actions: Observable<WebLoginContract.Action>
         get() = actionsRelay.hide()
 
-    private val url: String by lazy { arguments!!.getString(UrlKey) }
+    private val url: String by lazy { requireArguments().getString(UrlKey)!! }
 
     override fun getLayoutId(): Int = R.layout.fragment_web_login
 
@@ -58,7 +58,7 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
     inner class Webclient : WebViewClient() {
 
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-            view.settings.domStorageEnabled = !request.url.host.contains("floatplane")
+            view.settings.domStorageEnabled = !request.url.host!!.contains("floatplane")
             return super.shouldOverrideUrlLoading(view, request)
         }
 

@@ -12,7 +12,7 @@ import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.LoginAuthToken
 import me.mauricee.pontoon.domain.floatplane.LoginRequest
-import me.mauricee.pontoon.domain.floatplane.User
+import me.mauricee.pontoon.domain.floatplane.UserJson
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.login.LoginNavigator
 import me.mauricee.pontoon.login.login.LoginContract
@@ -45,9 +45,9 @@ class LoginPresenterTests {
     @MockK
     lateinit var view: LoginContract.View
     @RelaxedMockK
-    lateinit var user: User
+    lateinit var user: UserJson
     @RelaxedMockK
-    lateinit var userContainer: User.Container
+    lateinit var userContainer: UserJson.Container
 
     private lateinit var presenter: LoginPresenter
 

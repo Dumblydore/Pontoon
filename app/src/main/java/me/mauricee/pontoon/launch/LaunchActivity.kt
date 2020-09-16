@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.crashlytics.android.Crashlytics
-import com.google.firebase.perf.metrics.AddTrace
 import dagger.android.AndroidInjection
 import io.fabric.sdk.android.Fabric
 import me.mauricee.pontoon.R
@@ -19,7 +18,6 @@ class LaunchActivity : AppCompatActivity() {
     @Inject
     lateinit var accountManagerHelper: AccountManagerHelper
 
-    @AddTrace(name = "SplashScreen")
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -29,7 +27,7 @@ class LaunchActivity : AppCompatActivity() {
         val path = url?.path
         //Wonder if it makes sense to pass the Video to play to login if user isn't logged in.
         when {
-            path?.contains(activationPath) == true -> url.with { LoginActivity.activate(it.getQueryParameter(keyQuery), it.getQueryParameter(usernameQuery), this) }
+            path?.contains(activationPath) == true -> url.with { LoginActivity.activate(it.getQueryParameter(keyQuery)!!, it.getQueryParameter(usernameQuery)!!, this) }
             path?.contains(videoPath) == true && accountManagerHelper.isLoggedIn -> MainActivity.playVideo(this, intent.data!!.pathSegments.last())
             accountManagerHelper.isLoggedIn -> MainActivity.navigateTo(this)
             else -> LoginActivity.navigateTo(this)

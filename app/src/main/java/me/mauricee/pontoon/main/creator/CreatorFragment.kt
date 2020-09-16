@@ -33,8 +33,8 @@ import javax.inject.Inject
 
 class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
 
-    private val creatorId by lazy { arguments!!.getString(CreatorIdKey) }
-    private val creatorName by lazy { arguments!!.getString(CreatorNameKey) }
+    private val creatorId by lazy { requireArguments().getString(CreatorIdKey)!! }
+    private val creatorName by lazy { requireArguments().getString(CreatorNameKey)!! }
     private val primaryColor by lazy { ResourcesCompat.getColor(resources, R.color.colorPrimary, null) }
     @Inject
     lateinit var videoAdapter: VideoPageAdapter
@@ -42,7 +42,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
     lateinit var themeManager: ThemeManager
 
     private val refreshes
-        get() = RxSwipeRefreshLayout.refreshes(creator_container).map { CreatorContract.Action.Refresh(creatorId, true) }
+        get() = RxSwipeRefreshLayout.refreshes(creator_container).map { CreatorContract.Action.Refresh(creatorId!!, true) }
 
     override val actions: Observable<CreatorContract.Action>
         get() = Observable.merge(refreshes, videoAdapter.actions.map(CreatorContract.Action::PlayVideo))

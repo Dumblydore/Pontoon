@@ -2,9 +2,9 @@ apply plugin: 'com.android.application'
 
 def applyAnalytics = (project.findProperty('enableAnalytics') ?: "false").equalsIgnoreCase("true")
 
-apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 if (applyAnalytics) {
     apply plugin: 'io.fabric'
     apply plugin: 'com.google.firebase.firebase-perf'
@@ -26,12 +26,11 @@ android {
             storePassword localProperties.getProperty("release.storePassword", "")
         }
     }
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 30
     defaultConfig {
         applicationId "me.mauricee.pontoon"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode((major * 100) + (minor * 100) + patch)
         versionName "$major.$minor.$patch"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -57,8 +56,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
     testOptions {
         unitTests.returnDefaultValues = true
@@ -73,25 +75,41 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     //  Google
-    implementation "androidx.core:core-ktx:1.0.1"
-    implementation "androidx.fragment:fragment-ktx:$google_support_version"
-    implementation "androidx.preference:preference:$google_support_version"
+    implementation "androidx.core:core-ktx:1.3.1"
+    implementation "androidx.fragment:fragment-ktx:1.2.5"
+    implementation "androidx.preference:preference:1.1.1"
 
-    implementation "androidx.appcompat:appcompat:1.1.0-alpha-03"
-    implementation "androidx.recyclerview:recyclerview:1.1.0-alpha-03"
-    implementation "androidx.core:core:1.1.0-alpha-05"
-    implementation "androidx.media:media:1.0.1"
+    implementation "androidx.appcompat:appcompat:1.2.0"
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
+    implementation "androidx.core:core:1.3.1"
+    implementation "androidx.media:media:1.1.0"
     implementation "androidx.palette:palette:$google_support_version"
-    implementation "androidx.mediarouter:mediarouter:$google_support_version"
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation "androidx.mediarouter:mediarouter:1.1.0"
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation "com.google.android.material:material:$material_components_version"
 
     //    Google Play
-    implementation 'com.google.firebase:firebase-core:16.0.8'
-    implementation 'com.google.firebase:firebase-crash:16.2.1'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
-    implementation 'com.google.firebase:firebase-perf:16.2.4'
-    implementation 'com.google.android.gms:play-services-cast-framework:16.1.2'
+    implementation('com.google.firebase:firebase-core:17.5.0', {
+        // protobuf-lite that firebase-config and Tink depends on.
+        exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+    })
+    implementation('com.google.firebase:firebase-crash:16.2.1', {
+        // protobuf-lite that firebase-config and Tink depends on.
+        exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+    })
+    implementation('com.crashlytics.sdk.android:crashlytics:2.10.1', {
+        // protobuf-lite that firebase-config and Tink depends on.
+        exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+    })
+    implementation('com.google.firebase:firebase-perf:19.0.8', {
+        // protobuf-lite that firebase-config and Tink depends on.
+        exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+    })
+    implementation 'com.google.android.gms:play-services-cast-framework:19.0.0'
 
     //  UI
     implementation 'com.ncapdevi:frag-nav:2.4.0'
@@ -103,7 +121,7 @@ dependencies {
 
     //  RX
     implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
 
     //  Glide
@@ -136,7 +154,8 @@ dependencies {
 
     //   Networking
     implementation "com.isupatches:wisefy:3.0.1"
-    implementation 'com.google.code.gson:gson:2.8.4'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.nytimes.android:store3:3.1.1'
     implementation 'com.vanniktech:rxpermission:0.7.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
@@ -146,14 +165,12 @@ dependencies {
 
     //  Tests
     testImplementation 'junit:junit:4.12'
-    testImplementation 'net.bytebuddy:byte-buddy:1.8.22'
-    testImplementation 'net.bytebuddy:byte-buddy-agent:1.8.22'
-    testImplementation "io.mockk:mockk:1.8.13.kotlin13"
-    testImplementation "android.arch.persistence.room:testing:$arch_components_version"
+    testImplementation "io.mockk:mockk:1.9.3"
+//    testImplementation "android.arch.persistence.room:testing:$arch_components_version"
 
     //  Android tests
-    androidTestImplementation 'androidx.test:runner:1.1.0-alpha3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha3'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     //  Processors
     kapt "androidx.room:room-compiler:$arch_components_version"
@@ -163,4 +180,15 @@ dependencies {
 
 if (applyAnalytics) {
     apply plugin: 'com.google.gms.google-services'
+}
+
+if (project.hasProperty('kapt')) {
+    // Reference for 'kapt' DSL: https://kotlinlang.org/docs/reference/kapt.html#java-compiler-options
+    kapt {
+        // we expect this closure to run over a org.jetbrains.kotlin.gradle.plugin.KaptExtension
+        javacOptions {
+            option("-source", "8")
+            option("-target", "8")
+        }
+    }
 }

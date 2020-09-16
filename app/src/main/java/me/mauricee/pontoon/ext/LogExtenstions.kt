@@ -10,6 +10,8 @@ fun Any.logi(message: String, exception: Throwable? = null) {
     Log.i(this.javaClass.simpleName, message, exception)
 }
 
+fun Any.loge(exception: Throwable) = loge("", exception)
+
 fun Any.loge(message: String, exception: Throwable? = null) {
     Log.e(this.javaClass.simpleName, message, exception)
 }

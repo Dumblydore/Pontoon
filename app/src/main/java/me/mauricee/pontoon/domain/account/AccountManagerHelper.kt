@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.google.gson.Gson
 import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.domain.floatplane.User
+import me.mauricee.pontoon.domain.floatplane.UserJson
 import java.util.*
 import javax.inject.Inject
 
@@ -12,8 +12,8 @@ import javax.inject.Inject
 open class AccountManagerHelper @Inject constructor(private val sharedPreferences: SharedPreferences,
                                                     private val gson: Gson) {
 
-    var account: User
-        get() = sharedPreferences.getString(UserData, "").let { gson.fromJson(it, User::class.java) }
+    var account: UserJson
+        get() = sharedPreferences.getString(UserData, "").let { gson.fromJson(it, UserJson::class.java) }
         set(value) {
             sharedPreferences.edit(commit = true) { putString(UserData, gson.toJson(value)) }
         }
@@ -29,7 +29,7 @@ open class AccountManagerHelper @Inject constructor(private val sharedPreference
             }
         }
 
-    internal var sid: String = sharedPreferences.getString(SailsSid, "")
+    internal var sid: String = sharedPreferences.getString(SailsSid, "")!!
         set(value) {
             if (field != value) {
                 field = value

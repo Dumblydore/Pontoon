@@ -530,7 +530,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     private fun checkForVideoToPlay(): (Observable<MainContract.Action>) -> Observable<MainContract.Action> {
         return {
             if (intent.hasExtra(VideoToPlayKey)) {
-                val id = intent.getStringExtra(VideoToPlayKey)
+                val id = intent.getStringExtra(VideoToPlayKey)!!
                 intent.removeExtra(VideoToPlayKey)
                 it.startWith(MainContract.Action.PlayVideo(id))
             } else

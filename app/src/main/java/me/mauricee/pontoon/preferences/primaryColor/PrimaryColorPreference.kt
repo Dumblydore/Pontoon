@@ -36,7 +36,7 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
     override fun getDialogLayoutResource(): Int = R.layout.preference_base_theme
 
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
-        return a.getString(index)
+        return a.getString(index)!!
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {

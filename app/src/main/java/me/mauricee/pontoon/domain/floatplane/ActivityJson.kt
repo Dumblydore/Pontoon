@@ -6,9 +6,9 @@ import org.threeten.bp.Instant
 
 
 @Keep
-data class Activity(@SerializedName("comment") val comment: String,
-                    @SerializedName("time") val date: Instant,
-                    @SerializedName("video") val video: Video) {
+data class ActivityJson(@SerializedName("comment") val comment: String,
+                        @SerializedName("time") val date: Instant,
+                        @SerializedName("postId") val postId: String) {
 
     @Keep
     data class Video(@SerializedName("title") val title: String,
@@ -19,5 +19,5 @@ data class Activity(@SerializedName("comment") val comment: String,
     data class Creator(@SerializedName("title") val title: String, @SerializedName("url") val url: String)
 
     @Keep
-    data class Response(@SerializedName("activity") val activity: List<Activity>, @SerializedName("visibility") val visibility: String)
+    data class Response(@SerializedName("activity") val activity: List<ActivityJson>, @SerializedName("visibility") val visibility: String)
 }

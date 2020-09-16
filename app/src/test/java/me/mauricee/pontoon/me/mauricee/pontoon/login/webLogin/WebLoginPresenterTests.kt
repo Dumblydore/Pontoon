@@ -8,7 +8,7 @@ import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.domain.floatplane.User
+import me.mauricee.pontoon.domain.floatplane.UserJson
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.login.LoginNavigator
 import me.mauricee.pontoon.login.webLogin.WebLoginContract
@@ -37,7 +37,7 @@ class WebLoginPresenterTests {
     @RelaxedMockK
     lateinit var eventTracker: EventTracker
     @RelaxedMockK
-    lateinit var user: User
+    lateinit var user: UserJson
 
     private lateinit var presenter: WebLoginPresenter
 

@@ -14,6 +14,6 @@ abstract class BaseAdapter<Model, VH : RecyclerView.ViewHolder> : RecyclerView.A
 
     internal val subscriptions = CompositeDisposable()
 
-    override fun isDisposed(): Boolean = subscriptions.isDisposed
-    override fun dispose() = subscriptions.dispose()
+    override fun isDisposed(): Boolean = false
+    override fun dispose() = subscriptions.clear()
 }

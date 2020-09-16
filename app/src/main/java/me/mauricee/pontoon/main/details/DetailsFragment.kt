@@ -44,7 +44,7 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
                 relatedVideosAdapter.actions,
                 player_addComment.clicks().map { DetailsContract.Action.Comment },
                 player_small_icon.clicks().map { DetailsContract.Action.ViewCreator })
-                .startWith(DetailsContract.Action.PlayVideo(arguments!!.getString(VideoKey)))
+                .startWith(DetailsContract.Action.PlayVideo(requireArguments().getString(VideoKey)!!))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

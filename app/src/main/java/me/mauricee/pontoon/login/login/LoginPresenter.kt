@@ -34,7 +34,7 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
     }
 
     private fun attemptAuthentication(code: String): Observable<LoginContract.State> = if (code.matches(codeRegex)) {
-        floatPlaneApi.login(LoginAuthToken(code)).map(User.Container::user)
+        floatPlaneApi.login(LoginAuthToken(code)).map(UserJson.Container::user)
                 .flatMap(this::navigateToMain)
                 .startWith(LoginContract.State.Loading)
                 .onErrorReturn(::processError)
@@ -59,7 +59,7 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
                             .flatMap(this::navigateToMain)
             }.startWith(LoginContract.State.Loading).onErrorReturn(::processError)
 
-    private fun navigateToMain(user: User) = stateless {
+    private fun navigateToMain(user: UserJson) = stateless {
         manager.account = user
         navigator.onSuccessfulLogin()
     }

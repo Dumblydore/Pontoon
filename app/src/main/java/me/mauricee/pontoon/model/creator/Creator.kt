@@ -1,8 +1,7 @@
-package me.mauricee.pontoon.model.user
+package me.mauricee.pontoon.model.creator
 
 import androidx.room.*
 import io.reactivex.Observable
-import io.reactivex.Single
 
 @Entity(tableName = "Creator")
 class CreatorEntity(@PrimaryKey val id: String, val name: String,

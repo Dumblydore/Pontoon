@@ -2,6 +2,7 @@ package me.mauricee.pontoon.domain.floatplane
 
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -20,7 +21,7 @@ interface FloatPlaneApi {
     val edges: Observable<Edge.Response>
 
     @get:GET("user/self")
-    val self: Observable<User>
+    val self: Observable<UserJson>
 
     @POST("auth/logout")
     fun logout() : Completable
@@ -29,13 +30,13 @@ interface FloatPlaneApi {
     fun confirmEmail(@Body confirmationRequest: ConfirmationRequest) : Completable
 
     @POST("auth/login")
-    fun login(@Body loginCredentials: LoginRequest): Observable<User.Container>
+    fun login(@Body loginCredentials: LoginRequest): Observable<UserJson.Container>
 
     @POST("auth/checkFor2faLogin")
-    fun login(@Body token: LoginAuthToken): Observable<User.Container>
+    fun login(@Body token: LoginAuthToken): Observable<UserJson.Container>
 
     @GET("user/info")
-    fun getUsers(@Query("id") vararg id: String): Observable<User.Response>
+    fun getUsers(@Query("id") vararg id: String): Single<UserJson.Response>
 
     @GET("creator/info")
     fun getCreator(@Query("creatorGUID") vararg creatorId: String): Observable<List<Creator>>
@@ -56,7 +57,7 @@ interface FloatPlaneApi {
     fun getVideoUrl(@Query("guid") id: String, @Query("quality") quality: String = "1080"): Observable<ResponseBody>
 
     @GET("user/activity")
-    fun getActivity(@Query("id") id: String): Observable<Activity.Response>
+    fun getActivity(@Query("id") id: String): Single<ActivityJson.Response>
 
     @POST("video/comment")
     fun post(@Body comment: CommentPost): Observable<Comment>

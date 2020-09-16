@@ -20,6 +20,6 @@ abstract class BaseListAdapter<Action, Model, VH : RecyclerView.ViewHolder> : Li
     constructor(diffCallback: DiffUtil.ItemCallback<Model>) : super(diffCallback)
     constructor(config: AsyncDifferConfig<Model>) : super(config)
 
-    override fun isDisposed(): Boolean = subscriptions.isDisposed
-    override fun dispose() = subscriptions.dispose()
+    override fun isDisposed(): Boolean = false
+    override fun dispose() = subscriptions.clear()
 }

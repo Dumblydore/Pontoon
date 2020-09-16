@@ -26,9 +26,9 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
         get() = "Login"
     private val loginFragment: LoginFragment by lazy { LoginFragment.newInstance(activation, username) }
     private val activation: String
-        get() = if (intent.hasExtra(ActivationKey)) intent.getStringExtra(ActivationKey) else ""
+        get() = if (intent.hasExtra(ActivationKey)) intent.getStringExtra(ActivationKey)!! else ""
     private val username: String
-        get() = if (intent.hasExtra(UsernameKey)) intent.getStringExtra(UsernameKey) else ""
+        get() = if (intent.hasExtra(UsernameKey)) intent.getStringExtra(UsernameKey)!! else ""
 
     private lateinit var controller: FragNavController
 
