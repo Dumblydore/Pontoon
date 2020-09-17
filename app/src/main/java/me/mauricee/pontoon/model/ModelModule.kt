@@ -5,18 +5,17 @@ import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import me.mauricee.pontoon.di.AppScope
+import me.mauricee.pontoon.model.creator.CreatorModelModule
 import me.mauricee.pontoon.model.user.UserModelModule
 
-@Module(includes = [UserModelModule::class])
+@Module(includes = [UserModelModule::class, CreatorModelModule::class])
 class ModelModule {
 
     @AppScope
     @Provides
-    fun providesDatabase(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb").build()
-
-    @AppScope
-    @Provides
-    fun providesCreatorDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.creatorDao
+    fun providesDatabase(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb")
+            .fallbackToDestructiveMigration()
+            .build()
 
     @AppScope
     @Provides

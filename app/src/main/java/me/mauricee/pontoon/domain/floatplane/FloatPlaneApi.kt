@@ -15,7 +15,7 @@ interface FloatPlaneApi {
     val subscriptions: Observable<List<Subscription>>
 
     @get:GET("creator/list")
-    val allCreators: Observable<List<CreatorListItem>>
+    val allCreators: Single<List<CreatorListItem>>
 
     @get:GET("edges")
     val edges: Observable<Edge.Response>
@@ -39,7 +39,7 @@ interface FloatPlaneApi {
     fun getUsers(@Query("id") vararg id: String): Single<UserJson.Response>
 
     @GET("creator/info")
-    fun getCreator(@Query("creatorGUID") vararg creatorId: String): Observable<List<Creator>>
+    fun getCreator(@Query("creatorGUID") vararg creatorId: String): Single<List<CreatorJson>>
 
     @GET("creator/videos")
     fun getVideos(@Query("creatorGUID") creatorId: String, @Query("fetchAfter") startWith: Int = 0): Observable<List<Video>>

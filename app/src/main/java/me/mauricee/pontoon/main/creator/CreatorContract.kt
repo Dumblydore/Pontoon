@@ -5,6 +5,7 @@ import androidx.paging.PagedList
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 
@@ -23,7 +24,7 @@ interface CreatorContract {
         object Loading : State()
         object Fetching : State()
         object Fetched : State()
-        class DisplayCreator(val creator: UserRepository.Creator) : State()
+        class DisplayCreator(val creator: Creator) : State()
         class DisplayVideos(val videos: PagedList<Video>) : State()
         class Error(val type: Type = Type.Unknown) : State() {
             override val tag: String

@@ -6,11 +6,12 @@ import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.MainContract
+import me.mauricee.pontoon.model.creator.CreatorRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
 
-class CreatorListPresenter @Inject constructor(private val userRepository: UserRepository,
+class CreatorListPresenter @Inject constructor(private val creatorRepository: CreatorRepository,
                                                private val videoRepository: VideoRepository,
                                                private val mainNavigator: MainContract.Navigator,
                                                eventTracker: EventTracker) :
@@ -26,17 +27,17 @@ class CreatorListPresenter @Inject constructor(private val userRepository: UserR
 
     private fun handleActions(subscriptions: List<UserRepository.Creator>, action: CreatorListContract.Action) =
             when (action) {
-                is CreatorListContract.Action.Creator -> checkForSubscription(subscriptions, action)
+                is CreatorListContract.Action.CreatorSelected -> checkForSubscription(subscriptions, action)
             }
 
-    private fun checkForSubscription(subscriptions: List<UserRepository.Creator>, action: CreatorListContract.Action.Creator): Observable<CreatorListContract.State> {
+    private fun checkForSubscription(subscriptions: List<UserRepository.Creator>, action: CreatorListContract.Action.CreatorSelected): Observable<CreatorListContract.State> {
         return if (subscriptions.contains(action.creator))
-            stateless { mainNavigator.toCreator(action.creator) }
+            stateless {/* mainNavigator.toCreator(action.creator) */}
         else
             CreatorListContract.State.Error(CreatorListContract.State.Error.Type.Unsubscribed).toObservable()
     }
 
-    private fun getCreators() = userRepository.getAllCreators()
+    private fun getCreators() = creatorRepository.allCreators
             .map<CreatorListContract.State>(CreatorListContract.State::DisplayCreators)
             .onErrorReturnItem(CreatorListContract.State.Error())
 }

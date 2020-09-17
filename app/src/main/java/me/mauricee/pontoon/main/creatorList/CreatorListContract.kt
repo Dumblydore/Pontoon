@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.model.creator.Creator
 
 interface CreatorListContract {
 
@@ -13,12 +13,12 @@ interface CreatorListContract {
     interface Presenter : BaseContract.Presenter<View>
 
     sealed class Action : EventTracker.Action {
-        class Creator(val creator: UserRepository.Creator) : Action()
+        class CreatorSelected(val creator: Creator) : Action()
     }
 
     sealed class State : EventTracker.State {
         object Loading : State()
-        class DisplayCreators(val creator: List<UserRepository.Creator>) : State()
+        class DisplayCreators(val creator: List<Creator>) : State()
         class Error(val type: Type = Type.Unknown) : State() {
             override val tag: String
                 get() = "${super.tag}_$type"

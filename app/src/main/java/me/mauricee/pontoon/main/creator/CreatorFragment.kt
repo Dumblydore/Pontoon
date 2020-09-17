@@ -25,7 +25,7 @@ import me.mauricee.pontoon.ext.setStatusBarColor
 import me.mauricee.pontoon.ext.supportActionBar
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.main.VideoPageAdapter
-import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.preferences.darken
 import me.mauricee.pontoon.rx.glide.toPalette
@@ -69,7 +69,7 @@ class CreatorFragment : BaseFragment<CreatorPresenter>(), CreatorContract.View {
         CreatorContract.State.Fetched -> creator_list_progress.isVisible = false
     }
 
-    private fun displayCreator(creator: UserRepository.Creator) {
+    private fun displayCreator(creator: Creator) {
         subscriptions += GlideApp.with(this).asBitmap().load(creator.user.profileImage)
                 .toPalette().subscribe { paletteEvent ->
                     themeManager.getVibrantSwatch(paletteEvent.palette).apply {

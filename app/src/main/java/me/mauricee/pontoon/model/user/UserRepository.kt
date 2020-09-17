@@ -18,9 +18,6 @@ import javax.inject.Singleton
 
 @MainScope
 class UserRepository @Inject constructor(private val userStore: StoreRoom<me.mauricee.pontoon.model.user.User, String>,
-                                         private val floatPlaneApi: FloatPlaneApi,
-                                         private val userDao: UserDao,
-                                         private val creatorDao: CreatorDao,
                                          private val accountManagerHelper: AccountManagerHelper) {
 
     //TODO make this reactive?
@@ -28,37 +25,10 @@ class UserRepository @Inject constructor(private val userStore: StoreRoom<me.mau
 
     fun getUser(id: String): Observable<me.mauricee.pontoon.model.user.User> = userStore.getAndFetch(id)
 
-    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> =
-            Observable.mergeArray(creatorDao.getCreatorsByIds(*creatorIds), getCreatorsFromNetwork(*creatorIds))
-                    .flatMapSingle(this::loadCreators)
-                    .filter { it.isNotEmpty() }
-                    .debounce(400, TimeUnit.MILLISECONDS)
-                    .compose(RxHelpers.applyObservableSchedulers())
-
-    fun getAllCreators(): Observable<List<Creator>> = floatPlaneApi.allCreators.flatMapIterable { it }
-            .filter { it.subscriptions.isNotEmpty() }
-            .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner.id) }
-            .toList().flatMap {
-                creatorDao.insert(*it.toTypedArray())
-                loadCreators(it)
-            }.toObservable().compose(RxHelpers.applyObservableSchedulers())
-
-    private fun loadCreators(creators: List<CreatorEntity>) = creators.map { it.owner }.let { ids ->
-        getUsers(*ids.toTypedArray()).map { users -> Pair(creators, users) }.flatMap { pair ->
-            pair.first.toObservable().map { creator ->
-                val owner = pair.second.first { creator.owner == it.id }
-                Creator(creator.id, creator.name, creator.urlName, creator.about, owner)
-            }
-        }.toList()
-    }
+    fun getCreators(vararg creatorIds: String): Observable<List<Creator>> = Observable.empty()
 
     @Deprecated("", ReplaceWith("UserRepository.getUser()", "me.mauricee.pontoon.model.user"))
     fun getUsers(vararg userIds: String): Observable<List<User>> = Observable.empty()
-
-    private fun getCreatorsFromNetwork(vararg creatorIds: String) =
-            floatPlaneApi.getCreator(*creatorIds).flatMap { it.toObservable() }
-                    .map { CreatorEntity(it.id, it.title, it.urlname, it.about, it.description, it.owner) }
-                    .toList().toObservable()
 
     data class Creator(val id: String, val name: String, val url: String,
                        val about: String, val user: User) {

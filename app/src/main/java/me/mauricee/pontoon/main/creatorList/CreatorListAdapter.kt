@@ -10,12 +10,12 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseListAdapter
+import me.mauricee.pontoon.common.SimpleListAdapter
 import me.mauricee.pontoon.glide.GlideApp
-import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.model.creator.Creator
 import javax.inject.Inject
 
-class CreatorListAdapter @Inject constructor() :
-        BaseListAdapter<CreatorListContract.Action, UserRepository.Creator, CreatorListAdapter.ViewHolder>(UserRepository.Creator.ItemCallback) {
+class CreatorListAdapter @Inject constructor() : BaseListAdapter<CreatorListContract.Action, Creator, CreatorListAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_creator_card, parent, false).let(this::ViewHolder)
@@ -27,12 +27,12 @@ class CreatorListAdapter @Inject constructor() :
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         init {
-            subscriptions += view.clicks().map { CreatorListContract.Action.Creator(getItem(adapterPosition)) }
+            subscriptions += view.clicks().map { CreatorListContract.Action.CreatorSelected(getItem(adapterPosition)) }
                     .subscribe(relay::accept)
         }
 
-        fun bind(creator: UserRepository.Creator) {
-            itemView.item_title.text = creator.name
+        fun bind(creator: Creator) {
+            itemView.item_title.text = creator.entity.name
             GlideApp.with(itemView).load(creator.user.profileImage)
                     .placeholder(R.drawable.ic_default_thumbnail)
                     .error(R.drawable.ic_default_thumbnail)
