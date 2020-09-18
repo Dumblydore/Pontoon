@@ -3,9 +3,7 @@ package me.mauricee.pontoon.launch
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import com.crashlytics.android.Crashlytics
 import dagger.android.AndroidInjection
-import io.fabric.sdk.android.Fabric
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.ext.with
@@ -21,7 +19,6 @@ class LaunchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        Fabric.with(this, Crashlytics())
         PreferenceManager.setDefaultValues(this, R.xml.settings, false)
         val url = intent.data
         val path = url?.path

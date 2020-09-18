@@ -1,12 +1,13 @@
 apply plugin: 'com.android.application'
 
-def applyAnalytics = (project.findProperty('enableAnalytics') ?: "false").equalsIgnoreCase("true")
+def applyAnalytics = true// (project.findProperty('enableAnalytics') ?: "false").equalsIgnoreCase("true")
 
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 if (applyAnalytics) {
-    apply plugin: 'io.fabric'
+    apply plugin: 'com.google.gms.google-services'
+    apply plugin: 'com.google.firebase.crashlytics'
     apply plugin: 'com.google.firebase.firebase-perf'
 }
 
@@ -89,26 +90,10 @@ dependencies {
     implementation "com.google.android.material:material:$material_components_version"
 
     //    Google Play
-    implementation('com.google.firebase:firebase-core:17.5.0', {
-        // protobuf-lite that firebase-config and Tink depends on.
-        exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-    })
-    implementation('com.google.firebase:firebase-crash:16.2.1', {
-        // protobuf-lite that firebase-config and Tink depends on.
-        exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-    })
-    implementation('com.crashlytics.sdk.android:crashlytics:2.10.1', {
-        // protobuf-lite that firebase-config and Tink depends on.
-        exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-    })
-    implementation('com.google.firebase:firebase-perf:19.0.8', {
-        // protobuf-lite that firebase-config and Tink depends on.
-        exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-    })
+    implementation('com.google.firebase:firebase-core:17.5.0')
+    implementation('com.google.firebase:firebase-crash:16.2.1')
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
+    implementation('com.google.firebase:firebase-perf:19.0.8')
     implementation 'com.google.android.gms:play-services-cast-framework:19.0.0'
 
     //  UI
@@ -176,10 +161,6 @@ dependencies {
     kapt "androidx.room:room-compiler:$arch_components_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
-}
-
-if (applyAnalytics) {
-    apply plugin: 'com.google.gms.google-services'
 }
 
 if (project.hasProperty('kapt')) {

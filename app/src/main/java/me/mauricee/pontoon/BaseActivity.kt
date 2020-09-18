@@ -1,9 +1,7 @@
 package me.mauricee.pontoon
 
 import android.os.Bundle
-import com.crashlytics.android.Crashlytics
 import dagger.android.support.DaggerAppCompatActivity
-import io.fabric.sdk.android.Fabric
 import io.reactivex.disposables.CompositeDisposable
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.theme.ThemeManager
@@ -22,7 +20,6 @@ abstract class BaseActivity : DaggerAppCompatActivity(), EventTracker.Page {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Fabric.with(this, Crashlytics())
         themeManager.onCreate()
     }
 

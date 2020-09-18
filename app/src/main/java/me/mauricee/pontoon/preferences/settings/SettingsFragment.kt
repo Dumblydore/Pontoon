@@ -6,7 +6,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import dagger.android.support.AndroidSupportInjection
@@ -17,12 +17,14 @@ import me.mauricee.pontoon.ext.hasNotch
 import me.mauricee.pontoon.ext.toast
 import me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
 import me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
+import java.lang.RuntimeException
 import javax.inject.Inject
 
 class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
 
     override val actions: Observable<SettingsContract.Action>
         get() = actionRelay
+
     @Inject
     lateinit var presenter: SettingsPresenter
 
@@ -45,7 +47,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
         if (!BuildConfig.DEBUG) {
             (findPreference<PreferenceCategory>("settings_general"))?.removePreference(findPreference("settings_test_crash"))
         } else {
-            findPreference<Preference>("settings_test_crash")?.setOnPreferenceClickListener { Crashlytics.getInstance().crash(); true }
+            findPreference<Preference>("settings_test_crash")?.setOnPreferenceClickListener { throw RuntimeException("Test!"); }
         }
 
         presenter.attachView(this)

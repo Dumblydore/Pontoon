@@ -2,6 +2,7 @@ package me.mauricee.pontoon
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
+import com.google.firebase.FirebaseApp
 import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
@@ -30,6 +31,7 @@ class Pontoon : DaggerApplication() {
     lateinit var sub: Disposable
     override fun onCreate() {
         super.onCreate()
+        FirebaseApp.initializeApp(this)
         AndroidThreeTen.init(this)
         sub = privacyManager.isAnalyticsEnabled.subscribe {
             if (it) {
@@ -39,7 +41,7 @@ class Pontoon : DaggerApplication() {
         if (BuildConfig.DEBUG) {
             EventTracker.trackers += debugTracker
         }
-        AppCompatDelegate.setDefaultNightMode(PreferenceManager.getDefaultSharedPreferences(this).getInt(ThemeManager.DayNightModeKey, AppCompatDelegate.MODE_NIGHT_AUTO))
+        AppCompatDelegate.setDefaultNightMode(PreferenceManager.getDefaultSharedPreferences(this).getInt(ThemeManager.DayNightModeKey, AppCompatDelegate.MODE_NIGHT_AUTO_TIME))
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
