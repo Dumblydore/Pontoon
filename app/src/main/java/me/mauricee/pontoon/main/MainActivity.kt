@@ -206,7 +206,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
     override fun playVideo(video: Video, commentId: String) {
         animationTouchListener.show()
         loadFragment {
-            replace(R.id.main_player, PlayerFragment.newInstance(video.thumbnail))
+            replace(R.id.main_player, PlayerFragment.newInstance(video.entity.thumbnail))
             replace(R.id.main_details, DetailsFragment.newInstance(video.id, commentId))
         }
         main.doOnPreDraw {

@@ -33,7 +33,7 @@ class DownloadHelper @Inject constructor(private val videoRepository: VideoRepos
 
     private fun attemptToDownload(video: Video, quality: Player.QualityLevel) = videoRepository.getDownloadLink(video.id, quality).map {
         val request = DownloadManager.Request(it.toUri())
-        request.setTitle(context.getString(R.string.download_notification, video.title))
+        request.setTitle(context.getString(R.string.download_notification, video.entity.title))
         request.allowScanningByMediaScanner()
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, generateFilename(video, it.toUri()))
@@ -42,6 +42,6 @@ class DownloadHelper @Inject constructor(private val videoRepository: VideoRepos
     }
 
     private fun generateFilename(video: Video, path: Uri): String =
-            "${video.title.replace("\\W+".toRegex(), "_")}_${path.pathSegments.first { it.contains(".") }}"
+            "${video.entity.title.replace("\\W+".toRegex(), "_")}_${path.pathSegments.first { it.contains(".") }}"
                     .toLowerCase()
 }

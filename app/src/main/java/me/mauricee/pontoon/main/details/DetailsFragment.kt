@@ -128,9 +128,9 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
 
     private fun displayVideoInfo(info: Video) {
         player_details.scrollTo(0, 0)
-        info.apply {
+        info.entity.apply {
             player_title.text = title
-            player_subtitle.text = creator.name
+            player_subtitle.text = info.creator.entity.name
             player_description.text = description
             player_releaseDate.text = getString(R.string.details_postDate, DateUtils.getRelativeTimeSpanString(releaseDate.toEpochMilli()))
             Linkify.addLinks(player_description, Linkify.WEB_URLS)

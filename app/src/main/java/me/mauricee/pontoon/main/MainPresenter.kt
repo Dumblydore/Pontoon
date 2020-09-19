@@ -56,7 +56,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     }
 
     private fun playVideo(it: MainContract.Action.PlayVideo) =
-            videoRepository.getVideo(it.videoId).flatMapObservable { stateless { navigator.playVideo(it) } }
+            videoRepository.getVideo(it.videoId).firstOrError().flatMapObservable { stateless { navigator.playVideo(it) } }
 
     private fun subscriptions() = subscriptionRepository.subscriptions.onErrorReturnItem(emptyList())
             .map { MainContract.State.CurrentUser(userRepository.activeUser, it.size) }

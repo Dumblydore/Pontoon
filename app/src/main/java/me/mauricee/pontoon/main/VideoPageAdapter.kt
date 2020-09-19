@@ -16,12 +16,13 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_end_user_bubble.view.item_icon_viewAll
 import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.SimpleListAdapter
 import me.mauricee.pontoon.ext.getActivity
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.video.Video
 import javax.inject.Inject
 
-open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, VideoPageAdapter.ViewHolder>(Video.ItemCallback), Disposable {
+open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, VideoPageAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()), Disposable {
 
     internal val subscriptions = CompositeDisposable()
 
@@ -68,9 +69,9 @@ open class VideoPageAdapter @Inject constructor() : PagedListAdapter<Video, Vide
 
         fun bind(video: Video) {
             itemView.apply {
-                itemView.item_title.text = video.title
-                itemView.item_description.text = video.creator.name
-                GlideApp.with(itemView).load(video.thumbnail)
+                itemView.item_title.text = video.entity.title
+                itemView.item_description.text = video.creator.entity.name
+                GlideApp.with(itemView).load(video.entity.thumbnail)
                         .placeholder(R.drawable.ic_default_thumbnail)
                         .error(R.drawable.ic_default_thumbnail)
                         .transition(DrawableTransitionOptions.withCrossFade())

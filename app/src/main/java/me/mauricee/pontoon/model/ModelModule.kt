@@ -8,8 +8,9 @@ import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.model.creator.CreatorModelModule
 import me.mauricee.pontoon.model.subscription.SubscriptionModelModule
 import me.mauricee.pontoon.model.user.UserModelModule
+import me.mauricee.pontoon.model.video.VideoModelModule
 
-@Module(includes = [UserModelModule::class, CreatorModelModule::class, SubscriptionModelModule::class])
+@Module(includes = [UserModelModule::class, CreatorModelModule::class, SubscriptionModelModule::class, VideoModelModule::class])
 class ModelModule {
 
     @AppScope
@@ -17,10 +18,6 @@ class ModelModule {
     fun providesDatabase(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb")
             .fallbackToDestructiveMigration()
             .build()
-
-    @AppScope
-    @Provides
-    fun providesVideoDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.videoDao
 
     @AppScope
     @Provides

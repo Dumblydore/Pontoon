@@ -29,7 +29,7 @@ class CreatorModelModule {
             api.getUsers(*ownerIds).map { it.users }.throwIfEmpty().map { ownerList ->
                 val owners = ownerList.map { it.user!!.id to it.user }.toMap()
                 creators.map {
-                    AllCreatorPersistor.Raw(it, owners[it.id] ?: error("Couldn't find Creator"))
+                    AllCreatorPersistor.Raw(it, owners[it.owner.id] ?: error("Couldn't find Creator"))
                 }
             }
         }

@@ -1,38 +1,35 @@
 package me.mauricee.pontoon.main.creatorList
 
 import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.main.MainContract
+import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.creator.CreatorRepository
-import me.mauricee.pontoon.model.user.UserRepository
-import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.model.subscription.SubscriptionRepository
+import me.mauricee.pontoon.rx.RxTuple
 import javax.inject.Inject
 
 class CreatorListPresenter @Inject constructor(private val creatorRepository: CreatorRepository,
-                                               private val videoRepository: VideoRepository,
+                                               private val subscriptionRepository: SubscriptionRepository,
                                                private val mainNavigator: MainContract.Navigator,
                                                eventTracker: EventTracker) :
         BasePresenter<CreatorListContract.State, CreatorListContract.View>(eventTracker), CreatorListContract.Presenter {
 
-    override fun onViewAttached(view: CreatorListContract.View): Observable<CreatorListContract.State> = Observable.combineLatest<List<UserRepository.Creator>,
-            CreatorListContract.Action, Pair<List<UserRepository.Creator>,
-            CreatorListContract.Action>>(videoRepository.subscriptions, view.actions,
-            BiFunction { t1, t2 -> Pair(t1, t2) })
-            .flatMap { handleActions(it.first, it.second) }
-            .startWith(getCreators())
+    override fun onViewAttached(view: CreatorListContract.View): Observable<CreatorListContract.State> = RxTuple.combineLatestAsPair(subscriptionRepository.subscriptions, view.actions).flatMap {
+        val (subscribedCreators, action) = it
+        handleActions(subscribedCreators, action)
+    }.startWith(getCreators())
 
-
-    private fun handleActions(subscriptions: List<UserRepository.Creator>, action: CreatorListContract.Action) =
+    private fun handleActions(subscriptions: List<Creator>, action: CreatorListContract.Action) =
             when (action) {
                 is CreatorListContract.Action.CreatorSelected -> checkForSubscription(subscriptions, action)
             }
 
-    private fun checkForSubscription(subscriptions: List<UserRepository.Creator>, action: CreatorListContract.Action.CreatorSelected): Observable<CreatorListContract.State> {
+    private fun checkForSubscription(subscriptions: List<Creator>, action: CreatorListContract.Action.CreatorSelected): Observable<CreatorListContract.State> {
         return if (subscriptions.contains(action.creator))
-            stateless {/* mainNavigator.toCreator(action.creator) */}
+            stateless {/* mainNavigator.toCreator(action.creator) */ }
         else
             CreatorListContract.State.Error(CreatorListContract.State.Error.Type.Unsubscribed).toObservable()
     }

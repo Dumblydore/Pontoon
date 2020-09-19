@@ -1,31 +1,34 @@
 package me.mauricee.pontoon.main.search
 
 import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.main.MainContract
-import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.model.creator.Creator
+import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.rx.RxTuple
 import javax.inject.Inject
 
 class SearchPresenter @Inject constructor(private val navigator: MainContract.Navigator,
+                                          private val subscriptionRepository: SubscriptionRepository,
                                           private val videoRepository: VideoRepository, eventTracker: EventTracker) :
         BasePresenter<SearchContract.State, SearchContract.View>(eventTracker), SearchContract.Presenter {
 
-    override fun onViewAttached(view: SearchContract.View): Observable<SearchContract.State> =
-            Observable.combineLatest<List<UserRepository.Creator>, SearchContract.Action, Pair<List<UserRepository.Creator>, SearchContract.Action>>(
-                    videoRepository.subscriptions, view.actions.doOnNext { eventTracker.trackAction(it, view) },
-                    BiFunction { t1, t2 -> Pair(t1, t2) })
-                    .switchMap { handleActions(it.first, it.second) }
-                    .onErrorReturnItem(SearchContract.State.Error())
+    override fun onViewAttached(view: SearchContract.View): Observable<SearchContract.State> = RxTuple.combineLatestAsPair(subscriptionRepository.subscriptions,view.actions.doOnNext { eventTracker.trackAction(it, view) })
+            .switchMap {
+                val (subscribedCreators, action) = it
+                handleActions(subscribedCreators,action)
 
-    private fun handleActions(creators: List<UserRepository.Creator>, action: SearchContract.Action): Observable<SearchContract.State> =
+            }.onErrorReturnItem(SearchContract.State.Error())
+
+
+    private fun handleActions(creators: List<Creator>, action: SearchContract.Action): Observable<SearchContract.State> =
             when (action) {
                 is SearchContract.Action.Query -> {
                     if (action.query.isEmpty()) Observable.just<SearchContract.State>(SearchContract.State.Error(SearchContract.State.Type.NoText))
-                    else videoRepository.search(action.query, *creators.toTypedArray()).let { result ->
+                    else videoRepository.search(action.query, *creators.map { it.id }.toTypedArray()).let { result ->
                         Observable.merge(result.videos.map(SearchContract.State::Results), result.state.map { handleResultState(it, result.retry) })
                                 .onErrorReturnItem(SearchContract.State.Error())
                     }

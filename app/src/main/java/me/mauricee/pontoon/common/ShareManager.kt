@@ -14,7 +14,7 @@ class ShareManager @Inject constructor(private val context: AppCompatActivity) {
 
     private fun createShareIntent(video: Video) = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
-        putExtra(Intent.EXTRA_SUBJECT, video.title)
+        putExtra(Intent.EXTRA_SUBJECT, video.entity.title)
         putExtra(Intent.EXTRA_TEXT, video.toBrowsableUrl())
     }
 }

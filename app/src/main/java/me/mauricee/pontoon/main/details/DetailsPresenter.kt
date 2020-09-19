@@ -34,7 +34,7 @@ class DetailsPresenter @Inject constructor(private val player: Player,
         is DetailsContract.Action.Reply -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video, it.parent) }
         is DetailsContract.Action.ViewReplies -> stateless { detailsNavigator.displayReplies(it.comment) }
         is DetailsContract.Action.ViewUser -> stateless { navigator.toUser(it.user) }
-        is DetailsContract.Action.ViewCreator -> stateless { navigator.toCreator(player.currentlyPlaying!!.video.creator) }
+        is DetailsContract.Action.ViewCreator -> stateless { /*navigator.toCreator(player.currentlyPlaying!!.video.creator)*/ }
         is DetailsContract.Action.Like -> commentRepository.like(it.comment).map<DetailsContract.State> { DetailsContract.State.Like(it) }
                 .onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.Like))
         is DetailsContract.Action.Dislike -> commentRepository.dislike(it.comment).map<DetailsContract.State> { DetailsContract.State.Dislike(it) }
@@ -46,15 +46,14 @@ class DetailsPresenter @Inject constructor(private val player: Player,
     }
 
     private fun loadVideoDetails(action: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> =
-            videoRepository.getVideo(action.id).doOnSuccess(videoRepository::addToWatchHistory).flatMapObservable { video ->
+            videoRepository.getVideo(action.id).firstOrError().doOnSuccess(videoRepository::addToWatchHistory).flatMapObservable { video ->
                 videoRepository.getQualityOfVideo(action.id)
                         .flatMap { it -> Completable.fromAction { player.currentlyPlaying = Playback(video, it) }.subscribeOn(AndroidSchedulers.mainThread()).andThen(Observable.just(it)) }
                         .map { DetailsContract.State.VideoInfo(video) }
             }
 
     private fun loadRelatedVideos(video: String): Observable<DetailsContract.State> =
-            videoRepository.getRelatedVideos(video).toObservable()
-                    .map(DetailsContract.State::RelatedVideos)
+            videoRepository.getRelatedVideos(video).map(DetailsContract.State::RelatedVideos)
 
     private fun loadComments(video: String): Observable<DetailsContract.State> =
             commentRepository.getComments(video)

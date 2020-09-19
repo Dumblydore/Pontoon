@@ -9,16 +9,13 @@ import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
-import kotlin.math.log
 
 class SearchBoundaryCallback(private val query: String,
                              private val api: FloatPlaneApi,
                              private val videoDao: VideoDao,
                              private val disposable: CompositeDisposable,
-                             private vararg val creators: UserRepository.Creator)
+                             private vararg val creators: String)
     : StateBoundaryCallback<Video>(), Disposable {
 
     private var isLoading = false
@@ -46,8 +43,8 @@ class SearchBoundaryCallback(private val query: String,
     }
 
 
-    private fun pullUntilHit(startAt: Int = 0): Observable<List<me.mauricee.pontoon.domain.floatplane.Video>> = creators.toObservable()
-            .flatMap { api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id)) }
+    private fun pullUntilHit(startAt: Int = 0): Observable<List<me.mauricee.pontoon.domain.floatplane.VideoJson>> = creators.toObservable()
+            .flatMap { api.getVideos(it, videoDao.getNumberOfVideosByCreator(it)) }
             .flatMapIterable { it }
             .toList().flatMapObservable { videos ->
                 if (videos.any { it.title.contains(query, ignoreCase = true) }) Observable.just(videos)
@@ -56,7 +53,7 @@ class SearchBoundaryCallback(private val query: String,
 
     private fun cacheVideos(it: MutableList<VideoEntity>) {
         when {
-            videoDao.cacheVideos(*it.toTypedArray()).isNotEmpty() -> stateRelay.accept(State.Fetched)
+            videoDao.insert(it).isNotEmpty() -> stateRelay.accept(State.Fetched)
             else -> stateRelay.accept(State.Finished)
         }
         isLoading = false
@@ -70,7 +67,7 @@ class SearchBoundaryCallback(private val query: String,
 
 
     class Factory @Inject constructor(private val api: FloatPlaneApi, private val videoDao: VideoDao) {
-        fun newInstance(query: String, vararg creator: UserRepository.Creator) = SearchBoundaryCallback(query, api, videoDao, CompositeDisposable(), *creator)
+        fun newInstance(query: String, vararg creator: String) = SearchBoundaryCallback(query, api, videoDao, CompositeDisposable(), *creator)
     }
 
 }

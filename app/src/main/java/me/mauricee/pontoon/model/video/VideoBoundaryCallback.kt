@@ -8,15 +8,14 @@ import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.RxHelpers
-import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-private typealias VideoPojo = me.mauricee.pontoon.domain.floatplane.Video
+private typealias VideoPojo = me.mauricee.pontoon.domain.floatplane.VideoJson
 
 class VideoBoundaryCallback(private val api: FloatPlaneApi,
                             private val videoDao: VideoDao,
                             private val disposable: CompositeDisposable,
-                            private vararg val creators: UserRepository.Creator)
+                            private vararg val creatorIds: String)
     : StateBoundaryCallback<Video>(), Disposable {
 
     private var isLoading = false
@@ -30,11 +29,11 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
         if (isLoading) return
         isLoading = true
         stateRelay.accept(State.Loading)
-        disposable += creators.toObservable().flatMap { api.getVideos(it.id).flatMapIterable { it } }
+        disposable += creatorIds.toObservable().flatMap { api.getVideos(it).flatMapIterable { it } }
                 .sorted(this::sortVideos)
-                .map{it.toEntity()}.toList()
+                .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
-                .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
+                .subscribe(this::cacheVideos) { stateRelay.accept(State.Error) }
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: Video) {
@@ -42,18 +41,18 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
         if (isLoading) return
         isLoading = true
         stateRelay.accept(State.Loading)
-        disposable += creators.toObservable().flatMap {
-            api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id))
+        disposable += creatorIds.toObservable().flatMap {
+            api.getVideos(it, videoDao.getNumberOfVideosByCreator(it))
         }.flatMapIterable { it }
                 .sorted(this::sortVideos)
-                .map{it.toEntity()}.toList()
+                .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
-                .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
+                .subscribe(this::cacheVideos) { stateRelay.accept(State.Error) }
     }
 
     private fun cacheVideos(it: MutableList<VideoEntity>) {
         when {
-            videoDao.cacheVideos(*it.toTypedArray()).isNotEmpty() -> stateRelay.accept(State.Fetched)
+            videoDao.insert(it).isNotEmpty() -> stateRelay.accept(State.Fetched)
             else -> stateRelay.accept(State.Finished)
         }
         isLoading = false
@@ -70,7 +69,7 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
 
 
     class Factory @Inject constructor(private val api: FloatPlaneApi, private val videoDao: VideoDao) {
-        fun newInstance(vararg creator: UserRepository.Creator): VideoBoundaryCallback = VideoBoundaryCallback(api, videoDao, CompositeDisposable(), *creator)
+        fun newInstance(vararg creator: String): VideoBoundaryCallback = VideoBoundaryCallback(api, videoDao, CompositeDisposable(), *creator)
     }
 
 }

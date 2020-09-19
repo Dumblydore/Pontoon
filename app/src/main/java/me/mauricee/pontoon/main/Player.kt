@@ -79,12 +79,12 @@ class Player @Inject constructor(preferences: Preferences,
             if (value?.video?.id != field?.video?.id && value != null) {
                 load(value)
                 MediaMetadataCompat.Builder()
-                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, value.video.title)
-                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, value.video.description)
-                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, value.video.creator.name)
-                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value.video.thumbnail)
-                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, value.video.title)
-                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.duration)
+                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, value.video.entity.title)
+                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, value.video.entity.description)
+                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, value.video.creator.entity.name)
+                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value.video.entity.thumbnail)
+                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, value.video.entity.title)
+                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.entity.duration)
                         .build().apply(mediaSession::setMetadata)
             } else if (value != null) {
                 player?.playWhenReady = true
@@ -266,7 +266,7 @@ class Player @Inject constructor(preferences: Preferences,
 
     //TODO Not sure if this is the best way of doing it. It might be better to have it as a part of Video.
     private fun setMetadata(video: Video) {
-        previewImageRelay.accept(video.thumbnail)
+        previewImageRelay.accept(video.entity.thumbnail)
         timelineSubject.accept("https://cms.linustechtips.com/get/sprite/by_guid/${video.id}")
     }
 
@@ -279,7 +279,7 @@ class Player @Inject constructor(preferences: Preferences,
         }.toUri().let { load(it, playback.video) }
 
         setMetadata(playback.video)
-        previewImageRelay.accept(playback.video.thumbnail)
+        previewImageRelay.accept(playback.video.entity.thumbnail)
     }
 
     private fun load(uri: Uri, video: Video, startAt: Long = 0, autoPlay: Boolean = true) {
@@ -289,9 +289,9 @@ class Player @Inject constructor(preferences: Preferences,
         (player as? CastPlayer)?.just {
 
             val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE).apply {
-                putString(MediaMetadata.KEY_TITLE, video.title)
-                putString(MediaMetadata.KEY_SUBTITLE, video.creator.name)
-                addImage(WebImage(video.thumbnail.toUri()))
+                putString(MediaMetadata.KEY_TITLE, video.entity.title)
+                putString(MediaMetadata.KEY_SUBTITLE, video.creator.entity.name)
+                addImage(WebImage(video.entity.thumbnail.toUri()))
             }
             val info = MediaInfo.Builder(uri.toString())
                     .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)

@@ -12,6 +12,7 @@ import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.rx.RxTuple
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -33,7 +34,7 @@ class VideoPresenter @Inject constructor(private val subscriptionRepository: Sub
     private fun handleActions(action: VideoContract.Action): Observable<VideoContract.State> = when (action) {
         is VideoContract.Action.Refresh -> getVideos(action.clean).startWith(VideoContract.State.Loading())
         is VideoContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video) }
-        is VideoContract.Action.Subscription -> stateless { /*mainNavigator.toCreator(action.creator) */}
+        is VideoContract.Action.Subscription -> stateless { /*mainNavigator.toCreator(action.creator) */ }
         is VideoContract.Action.Share -> stateless { sharedManager.shareVideo(action.video) }
         is VideoContract.Action.Download -> downloadVideo(action.video, action.quality)
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
@@ -44,12 +45,14 @@ class VideoPresenter @Inject constructor(private val subscriptionRepository: Sub
             .map { if (it) VideoContract.State.DownloadStart else VideoContract.State.DownloadFailed }
             .onErrorReturnItem(VideoContract.State.DownloadFailed).toObservable()
 
-    private fun getVideos(clean: Boolean) = preferences.displayUnwatchedVideos
-            .flatMap { videoRepository.getSubscriptionFeed(it, clean) }
-            .flatMap<VideoContract.State> { feed ->
-                Observable.merge(feed.videos.videos.map(VideoContract.State::DisplayVideos),
-                        feed.videos.state.map { processPaginationState(it, feed.videos.retry) })
-            }.onErrorReturn(::processError).mergeWith(subscriptionRepository.subscriptions.map(VideoContract.State::DisplaySubscriptions))
+    private fun getVideos(clean: Boolean) = RxTuple.combineLatestAsPair(preferences.displayUnwatchedVideos,
+            subscriptionRepository.subscriptions.map { subs -> subs.map { it.id }.toTypedArray() }).map {
+        val (unwatched, subscribedCreators) = it
+        videoRepository.getVideos(unwatched, clean, *subscribedCreators)
+    }.switchMap { feed ->
+        Observable.merge(feed.videos.map(VideoContract.State::DisplayVideos),
+                feed.state.map { processPaginationState(it, feed.retry) })
+    }.onErrorReturn(::processError).mergeWith(subscriptionRepository.subscriptions.map(VideoContract.State::DisplaySubscriptions))
 
     private fun processError(e: Throwable): VideoContract.State.Error = when (e) {
         is VideoRepository.NoSubscriptionsException -> VideoContract.State.Error.Type.NoSubscriptions
