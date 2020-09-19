@@ -34,7 +34,7 @@ class DetailsPresenter @Inject constructor(private val player: Player,
         is DetailsContract.Action.Reply -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video, it.parent) }
         is DetailsContract.Action.ViewReplies -> stateless { detailsNavigator.displayReplies(it.comment) }
         is DetailsContract.Action.ViewUser -> stateless { navigator.toUser(it.user) }
-        is DetailsContract.Action.ViewCreator -> stateless { /*navigator.toCreator(player.currentlyPlaying!!.video.creator)*/ }
+        is DetailsContract.Action.ViewCreator -> stateless { player.currentlyPlaying?.video?.creator?.entity?.apply { navigator.toCreator(id, name) } }
         is DetailsContract.Action.Like -> commentRepository.like(it.comment).map<DetailsContract.State> { DetailsContract.State.Like(it) }
                 .onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.Like))
         is DetailsContract.Action.Dislike -> commentRepository.dislike(it.comment).map<DetailsContract.State> { DetailsContract.State.Dislike(it) }

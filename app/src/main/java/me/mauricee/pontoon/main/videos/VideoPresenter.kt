@@ -34,7 +34,7 @@ class VideoPresenter @Inject constructor(private val subscriptionRepository: Sub
     private fun handleActions(action: VideoContract.Action): Observable<VideoContract.State> = when (action) {
         is VideoContract.Action.Refresh -> getVideos(action.clean).startWith(VideoContract.State.Loading())
         is VideoContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video) }
-        is VideoContract.Action.Subscription -> stateless { /*mainNavigator.toCreator(action.creator) */ }
+        is VideoContract.Action.Subscription -> stateless { action.creator.entity.apply { mainNavigator.toCreator(name, id) }  }
         is VideoContract.Action.Share -> stateless { sharedManager.shareVideo(action.video) }
         is VideoContract.Action.Download -> downloadVideo(action.video, action.quality)
         VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }

@@ -29,7 +29,7 @@ class CreatorListPresenter @Inject constructor(private val creatorRepository: Cr
 
     private fun checkForSubscription(subscriptions: List<Creator>, action: CreatorListContract.Action.CreatorSelected): Observable<CreatorListContract.State> {
         return if (subscriptions.contains(action.creator))
-            stateless {/* mainNavigator.toCreator(action.creator) */ }
+            stateless { action.creator.entity.apply { mainNavigator.toCreator(name, id) } }
         else
             CreatorListContract.State.Error(CreatorListContract.State.Error.Type.Unsubscribed).toObservable()
     }

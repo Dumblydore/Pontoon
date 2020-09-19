@@ -69,18 +69,25 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
 
     @Inject
     lateinit var mainPresenter: MainPresenter
+
     @Inject
     lateinit var animationTouchListener: VideoTouchHandler
+
     @Inject
     lateinit var player: Player
+
     @Inject
     lateinit var orientationManager: OrientationManager
+
     @Inject
     lateinit var wiseFy: WiseFy
+
     @Inject
     lateinit var preferences: Preferences
+
     @Inject
     lateinit var privacyManager: PrivacyManager
+
     @Inject
     lateinit var playerFactory: PlayerFactory
 
@@ -219,8 +226,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
         PreferencesActivity.navigateTo(this)
     }
 
-    override fun toCreator(creator: UserRepository.Creator) {
-        controller.pushFragment(CreatorFragment.newInstance(creator.id, creator.name))
+    override fun toCreator(creatorName: String, creatorId: String) {
+        controller.pushFragment(CreatorFragment.newInstance(creatorId, creatorName))
         if (player.isActive) {
             animationTouchListener.isExpanded = false
             setPlayerExpanded(false)

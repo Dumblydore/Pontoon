@@ -15,6 +15,8 @@ interface CreatorContract {
 
     interface Presenter : BaseContract.Presenter<View>
 
+    data class Args(val creator: String)
+
     sealed class Action : EventTracker.Action {
         class Refresh(val creator: String, val clean: Boolean) : Action()
         class PlayVideo(val video: Video) : Action()
