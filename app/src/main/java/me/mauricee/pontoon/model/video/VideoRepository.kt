@@ -14,7 +14,7 @@ import io.reactivex.functions.Function4
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.domain.floatplane.Subscription
+import me.mauricee.pontoon.domain.floatplane.SubscriptionJson
 import me.mauricee.pontoon.ext.RxHelpers
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.ioStream
@@ -37,17 +37,7 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
                                           private val videoCallbackFactory: VideoBoundaryCallback.Factory,
                                           private val pageListConfig: PagedList.Config) {
 
-    val subscriptions: Observable<List<UserRepository.Creator>> = Observable.mergeArray(subscriptionsFromCache(), subscriptionsFromNetwork())
-            .debounce(400, TimeUnit.MILLISECONDS)
-            .flatMap { userRepo.getCreators(*it) }
-            .compose(RxHelpers.applyObservableSchedulers())
-
-    private fun subscriptionsFromNetwork() = floatPlaneApi.subscriptions.flatMapSingle(this::validateSubscriptions)
-            .flatMap { subs -> cacheSubscriptions(subs).andThen(Observable.just(subs)) }
-            .map { subs -> subs.map { it.creatorId }.toTypedArray() }
-
-    private fun subscriptionsFromCache() = subscriptionDao.getSubscriptions()
-            .map { it.map { it.creator }.toTypedArray() }.filter { it.isNotEmpty() }
+    val subscriptions: Observable<List<UserRepository.Creator>> = Observable.empty()
 
     fun getSubscriptionFeed(unwatchedOnly: Boolean = false, clean: Boolean): Observable<SubscriptionFeed> = subscriptions.map {
         SubscriptionFeed(it, getVideos(*it.toTypedArray(), unwatchedOnly = unwatchedOnly, refresh = clean))
@@ -138,16 +128,6 @@ class VideoRepository @Inject constructor(private val userRepo: UserRepository,
 
     private fun getVideoInfoFromNetwork(video: String): Single<VideoEntity> = floatPlaneApi.getVideoInfo(video)
             .map { it.toEntity() }.singleOrError()
-
-    private fun cacheSubscriptions(subscriptions: List<Subscription>) = subscriptions.toObservable()
-            .map { SubscriptionEntity(it.creatorId, it.plan.id, it.startDate, it.endDate) }
-            .toList().flatMapCompletable { Completable.fromAction { subscriptionDao.insert(*it.toTypedArray()) } }
-            .observeOn(Schedulers.io())
-            .onErrorComplete()
-
-    private fun validateSubscriptions(subscriptions: List<Subscription>) =
-            if (subscriptions.isEmpty()) Single.error(NoSubscriptionsException())
-            else Single.just(subscriptions)
 
     private fun getUrlFromResponse(host: String, responseBody: ResponseBody): String {
         val baseUri = responseBody.string().let { it.substring(1, it.length - 1) }.toUri()

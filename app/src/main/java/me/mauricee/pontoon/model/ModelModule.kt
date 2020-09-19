@@ -6,9 +6,10 @@ import dagger.Module
 import dagger.Provides
 import me.mauricee.pontoon.di.AppScope
 import me.mauricee.pontoon.model.creator.CreatorModelModule
+import me.mauricee.pontoon.model.subscription.SubscriptionModelModule
 import me.mauricee.pontoon.model.user.UserModelModule
 
-@Module(includes = [UserModelModule::class, CreatorModelModule::class])
+@Module(includes = [UserModelModule::class, CreatorModelModule::class, SubscriptionModelModule::class])
 class ModelModule {
 
     @AppScope
@@ -24,10 +25,6 @@ class ModelModule {
     @AppScope
     @Provides
     fun providesCommentDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.commentDao
-
-    @AppScope
-    @Provides
-    fun providesSubscriptionDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.subscriptionDao
 
     @AppScope
     @Provides

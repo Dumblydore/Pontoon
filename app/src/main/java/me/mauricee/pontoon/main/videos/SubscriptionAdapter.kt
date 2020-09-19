@@ -10,11 +10,13 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_end_user_bubble.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseListAdapter
+import me.mauricee.pontoon.common.SimpleListAdapter
 import me.mauricee.pontoon.glide.GlideApp
+import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
 
-class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoContract.Action, UserRepository.Creator, SubscriptionAdapter.ViewHolder>(UserRepository.Creator.ItemCallback) {
+class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoContract.Action, Creator, SubscriptionAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()) {
 
     override fun getItemViewType(position: Int): Int {
         return if (position == itemCount - 1) R.layout.item_end_user_bubble else R.layout.item_user_bubble
@@ -24,7 +26,6 @@ class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoContract.
             LayoutInflater.from(parent.context).inflate(viewType, parent, false).let(this::ViewHolder)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position))
-
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
@@ -36,7 +37,7 @@ class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoContract.
                     ?.also { subscriptions += it }
         }
 
-        fun bind(user: UserRepository.Creator) {
+        fun bind(user: Creator) {
             itemView.apply {
                 GlideApp.with(this).load(user.user.profileImage).circleCrop()
                         .transition(DrawableTransitionOptions.withCrossFade())

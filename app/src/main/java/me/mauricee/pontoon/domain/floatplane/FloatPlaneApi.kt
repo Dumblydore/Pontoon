@@ -12,7 +12,7 @@ import retrofit2.http.Query
 interface FloatPlaneApi {
 
     @get:GET("user/subscriptions")
-    val subscriptions: Observable<List<Subscription>>
+    val subscriptions: Single<List<SubscriptionJson>>
 
     @get:GET("creator/list")
     val allCreators: Single<List<CreatorListItem>>
@@ -39,7 +39,7 @@ interface FloatPlaneApi {
     fun getUsers(@Query("id") vararg id: String): Single<UserJson.Response>
 
     @GET("creator/info")
-    fun getCreator(@Query("creatorGUID") vararg creatorId: String): Single<List<CreatorJson>>
+    fun getCreators(@Query("creatorGUID") vararg creatorId: String): Single<List<CreatorJson>>
 
     @GET("creator/videos")
     fun getVideos(@Query("creatorGUID") creatorId: String, @Query("fetchAfter") startWith: Int = 0): Observable<List<Video>>

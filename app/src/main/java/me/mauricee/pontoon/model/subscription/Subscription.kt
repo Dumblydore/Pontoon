@@ -1,24 +1,57 @@
 package me.mauricee.pontoon.model.subscription
 
 import androidx.room.*
+import com.nytimes.android.external.store3.base.room.RoomPersister
 import io.reactivex.Observable
+import me.mauricee.pontoon.domain.floatplane.CreatorJson
+import me.mauricee.pontoon.domain.floatplane.SubscriptionJson
+import me.mauricee.pontoon.domain.floatplane.UserJson
+import me.mauricee.pontoon.model.BaseDao
+import me.mauricee.pontoon.model.creator.Creator
+import me.mauricee.pontoon.model.creator.CreatorDao
+import me.mauricee.pontoon.model.creator.CreatorEntity
+import me.mauricee.pontoon.model.creator.toEntity
+import me.mauricee.pontoon.model.user.UserDao
+import me.mauricee.pontoon.model.user.UserEntity
+import me.mauricee.pontoon.model.user.toEntity
 import org.threeten.bp.Instant
+import javax.inject.Inject
 
-@Entity(tableName = "Subscription")
-data class SubscriptionEntity(@PrimaryKey val creator: String, val planId: String, val startDate: Instant, val endDate: Instant)
+@Entity(tableName = "Subscriptions", foreignKeys = [ForeignKey(entity = CreatorEntity::class, parentColumns = ["id"], childColumns = ["creator"], onDelete = ForeignKey.CASCADE)])
+data class SubscriptionEntity(@PrimaryKey val creator: String,
+                              val planId: String,
+                              val startDate: Instant,
+                              val endDate: Instant)
+
+fun SubscriptionJson.toEntity(): SubscriptionEntity = SubscriptionEntity(creatorId, plan.id, startDate, endDate)
 
 @Dao
-interface SubscriptionDao {
+abstract class SubscriptionDao : BaseDao<SubscriptionEntity>() {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(vararg subscriptionEntity: SubscriptionEntity)
+    @Query("SELECT * FROM Creator INNER JOIN Subscriptions ON Subscriptions.creator=Creator.id")
+    abstract fun getSubscriptions(): Observable<List<Creator>>
 
-    @Update
-    fun update(vararg subscriptionEntity: SubscriptionEntity)
+}
 
-    @Query("SELECT * FROM Subscription")
-    fun getSubscriptions(): Observable<List<SubscriptionEntity>>
+class SubscriptionPersistor @Inject constructor(private val subscriptionDao: SubscriptionDao,
+                                                private val creatorDao: CreatorDao,
+                                                private val userDao: UserDao) : RoomPersister<List<SubscriptionPersistor.Raw>, List<Creator>, Unit> {
 
-    @Delete
-    fun delete(vararg subscriptionEntity: SubscriptionEntity)
+    data class Raw(val subscription: SubscriptionJson, val creator: CreatorJson, val user: UserJson)
+
+    override fun read(key: Unit): Observable<List<Creator>> = subscriptionDao.getSubscriptions()
+
+    override fun write(key: Unit, raw: List<Raw>) {
+        val users = mutableListOf<UserEntity>()
+        val creators = mutableListOf<CreatorEntity>()
+        val subscriptions = mutableListOf<SubscriptionEntity>()
+        raw.forEach {
+            users.add(it.user.toEntity())
+            creators.add(it.creator.toEntity())
+            subscriptions.add(it.subscription.toEntity())
+        }
+        userDao.upsert(users)
+        creatorDao.upsert(creators)
+        subscriptionDao.upsert(subscriptions)
+    }
 }

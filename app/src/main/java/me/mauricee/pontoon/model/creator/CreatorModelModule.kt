@@ -15,7 +15,7 @@ class CreatorModelModule {
 
     @Provides
     fun providesCreatorPersistor(api: FloatPlaneApi, persistor: CreatorPersistor): StoreRoom<Creator, String> = StoreRoom.from({ key ->
-        api.getCreator(key).throwIfEmpty().map { it.first() }.flatMap { creator ->
+        api.getCreators(key).throwIfEmpty().map { it.first() }.flatMap { creator ->
             api.getUsers(creator.owner).map { it.users }.throwIfEmpty().map { it.first() }.map { owner ->
                 CreatorPersistor.Raw(creator, owner.user!!)
             }

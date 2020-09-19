@@ -11,6 +11,7 @@ import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.model.PontoonDatabase
+import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject
@@ -19,6 +20,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
                                         private val animationTouchListener: VideoTouchHandler,
                                         private val userRepository: UserRepository,
                                         private val videoRepository: VideoRepository,
+                                        private val subscriptionRepository: SubscriptionRepository,
                                         private val player: Player,
                                         private val floatPlaneApi: FloatPlaneApi,
                                         private val pontoonDatabase: PontoonDatabase,
@@ -56,7 +58,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     private fun playVideo(it: MainContract.Action.PlayVideo) =
             videoRepository.getVideo(it.videoId).flatMapObservable { stateless { navigator.playVideo(it) } }
 
-    private fun subscriptions() = videoRepository.subscriptions.onErrorReturnItem(emptyList())
+    private fun subscriptions() = subscriptionRepository.subscriptions.onErrorReturnItem(emptyList())
             .map { MainContract.State.CurrentUser(userRepository.activeUser, it.size) }
 
     private fun logout(): Observable<MainContract.State> = Completable.fromAction {
