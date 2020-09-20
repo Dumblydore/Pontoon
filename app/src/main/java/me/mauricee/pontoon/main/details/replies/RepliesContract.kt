@@ -4,7 +4,10 @@ import androidx.annotation.StringRes
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.model.comment.ChildComment
 import me.mauricee.pontoon.model.comment.Comment
+import me.mauricee.pontoon.model.user.User
+import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.user.UserRepository
 
 interface RepliesContract {
@@ -18,8 +21,8 @@ interface RepliesContract {
         class Liked(val comment: Comment) : State()
         class Cleared(val comment: Comment) : State()
         class Disliked(val comment: Comment) : State()
-        class CurrentUser(val user: UserRepository.User) : State()
-        class Replies(val parent: Comment, val comments: List<Comment>) : State()
+        class CurrentUser(val user: User) : State()
+        class Replies(val parent: Comment, val comments: List<ChildComment>) : State()
     }
 
     sealed class Action : EventTracker.Action {
@@ -28,7 +31,7 @@ interface RepliesContract {
         class Clear(val comment: Comment) : Action()
         class Parent(val comment: String) : Action()
         class Dislike(val comment: Comment) : Action()
-        class ViewUser(val user: UserRepository.User) : Action()
+        class ViewUser(val user: UserEntity) : Action()
     }
 
     enum class ErrorType(@StringRes val msg: Int) {

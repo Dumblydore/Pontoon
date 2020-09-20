@@ -24,10 +24,10 @@ interface FloatPlaneApi {
     val self: Observable<UserJson>
 
     @POST("auth/logout")
-    fun logout() : Completable
+    fun logout(): Completable
 
     @POST("activation/email/confirm")
-    fun confirmEmail(@Body confirmationRequest: ConfirmationRequest) : Completable
+    fun confirmEmail(@Body confirmationRequest: ConfirmationRequest): Completable
 
     @POST("auth/login")
     fun login(@Body loginCredentials: LoginRequest): Observable<UserJson.Container>
@@ -51,7 +51,7 @@ interface FloatPlaneApi {
     fun getVideo(@Query("videoGUID") id: String): Single<VideoJson>
 
     @GET("video/comments")
-    fun getVideoComments(@Query("videoGUID") id: String): Observable<Comment.Container>
+    fun getVideoComments(@Query("videoGUID") id: String, @Query("limit") limit: Int, @Query("fetchAfter") fetchAfter: String?): Single<CommentJson.Container>
 
     @GET("video/url")
     fun getVideoUrl(@Query("guid") id: String, @Query("quality") quality: String = "1080"): Observable<ResponseBody>
@@ -60,14 +60,14 @@ interface FloatPlaneApi {
     fun getActivity(@Query("id") id: String): Single<ActivityJson.Response>
 
     @POST("video/comment")
-    fun post(@Body comment: CommentPost): Observable<Comment>
+    fun post(@Body comment: CommentPost): Observable<CommentJson>
 
     @POST("video/comment")
-    fun post(@Body comment: Reply): Observable<Comment>
+    fun post(@Body comment: Reply): Observable<CommentJson>
 
     @POST("video/comment/interaction/set")
-    fun setComment(@Body interaction: CommentInteraction): Observable<InteractionResult>
+    fun setComment(@Body interaction: CommentInteraction): Completable
 
     @POST("video/comment/interaction/clear")
-    fun clearInteraction(@Body body: ClearInteraction): Observable<Void>
+    fun clearInteraction(@Body body: ClearInteraction): Completable
 }

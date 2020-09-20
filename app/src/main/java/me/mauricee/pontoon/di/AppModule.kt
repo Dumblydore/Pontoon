@@ -74,59 +74,48 @@ abstract class AppModule {
     @ContributesAndroidInjector(modules = [PreferenceModule::class])
     abstract fun contributePreferenceActivity(): PreferencesActivity
 
-
-    @Module
     companion object {
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesSharedPreferences(context: Context): SharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(context)
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesAccountManager(context: Context) = AccountManager.get(context)
 
         @Provides
         @AppScope
-        @JvmStatic
         fun providesWifiManager(context: Context): WifiManager =
                 context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
         @Provides
         @AppScope
-        @JvmStatic
         fun providesPowerManager(context: Context): PowerManager =
                 context.getSystemService(Context.POWER_SERVICE) as PowerManager
 
         @Provides
         @AppScope
-        @JvmStatic
         fun providesUserAgent(context: Context): String =
                 Util.getUserAgent(context, BuildConfig.APPLICATION_ID)
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesGson(): Gson = ThreeTenGsonAdapter.registerAll(GsonBuilder().setLenient()).create()
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesRxJavaCallAdapterFactory(): RxJava2CallAdapterFactory =
                 RxJava2CallAdapterFactory.createAsync()
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesGsonConverterFactory(gson: Gson): GsonConverterFactory =
                 GsonConverterFactory.create(gson)
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesHttpClient(): OkHttpClient = OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(15, TimeUnit.SECONDS)
@@ -135,7 +124,6 @@ abstract class AppModule {
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesFloatPlaneApi(converterFactory: GsonConverterFactory,
                                   authInterceptor: AuthInterceptor,
                                   firebaseNetworkInterceptor: FirebaseNetworkInterceptor,
@@ -151,20 +139,17 @@ abstract class AppModule {
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesHlsFactory(okHttpClient: OkHttpClient, authInterceptor: AuthInterceptor, agent: String) =
                 HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient.newBuilder().addInterceptor(authInterceptor).build()::newCall, agent))
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesDateFormatter() = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault())
 
         @AppScope
         @Provides
-        @JvmStatic
         fun providesPageConfig() = PagedList.Config.Builder().setPageSize(20)
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(5)
@@ -172,23 +157,19 @@ abstract class AppModule {
 
         @Provides
         @AppScope
-        @JvmStatic
         fun providesSession(context: Context): MediaSessionCompat =
                 MediaSessionCompat(context, "Pontoon")
 
         @Provides
         @AppScope
-        @JvmStatic
         fun providesWiseFy(context: Context): WiseFy = WiseFy.Brains(context).getSmarts()
 
         @Provides
         @AppScope
-        @JvmStatic
         fun providesRxPermission(context: Context): RxPermission = RealRxPermission.getInstance(context)
 
         @Provides
         @AppScope
-        @JvmStatic
         fun providesAudioAttributes() = AudioAttributes.Builder()
                 .setUsage(C.USAGE_MEDIA)
                 .setContentType(C.CONTENT_TYPE_MOVIE)
@@ -196,7 +177,6 @@ abstract class AppModule {
 
         @Provides
         @AppScope
-        @JvmStatic
         fun providesLocalExoPlayer(audioAttributes: AudioAttributes, context: Context) =
                 ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
                         .apply {

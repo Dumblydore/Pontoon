@@ -3,15 +3,17 @@ package me.mauricee.pontoon.main.details
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.domain.floatplane.CommentInteraction
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.main.MainContract
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.rx.RxTuple
 import javax.inject.Inject
 
 class DetailsPresenter @Inject constructor(private val player: Player,
@@ -25,39 +27,42 @@ class DetailsPresenter @Inject constructor(private val player: Player,
 
     override fun onViewAttached(view: DetailsContract.View): Observable<DetailsContract.State> =
             view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap(this::handleAction).startWith(DetailsContract.State.Loading)
-                    .startWith(DetailsContract.State.CurrentUser(userRepository.activeUser))
+                    .mergeWith(userRepository.activeUser.map(DetailsContract.State::CurrentUser))
                     .onErrorReturnItem(DetailsContract.State.Error())
 
     private fun handleAction(it: DetailsContract.Action): Observable<DetailsContract.State> = when (it) {
-        is DetailsContract.Action.PlayVideo -> loadVideo(it)
-        is DetailsContract.Action.Comment -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video) }
-        is DetailsContract.Action.Reply -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video, it.parent) }
-        is DetailsContract.Action.ViewReplies -> stateless { detailsNavigator.displayReplies(it.comment) }
-        is DetailsContract.Action.ViewUser -> stateless { navigator.toUser(it.user) }
+        is DetailsContract.Action.PlayVideo -> loadVideo(it.id)
+        is DetailsContract.Action.PostComment -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video.id) }
+        is DetailsContract.Action.Reply -> stateless { detailsNavigator.comment(player.currentlyPlaying!!.video.id, it.parent.id) }
+        is DetailsContract.Action.ViewReplies -> stateless { detailsNavigator.displayReplies(it.comment.id) }
+        is DetailsContract.Action.ViewUser -> stateless { navigator.toUser(it.user.id) }
         is DetailsContract.Action.ViewCreator -> stateless { player.currentlyPlaying?.video?.creator?.entity?.apply { navigator.toCreator(id, name) } }
-        is DetailsContract.Action.Like -> commentRepository.like(it.comment).map<DetailsContract.State> { DetailsContract.State.Like(it) }
+        is DetailsContract.Action.Like -> stateless(commentRepository.interact(it.comment.id, CommentInteraction.Type.Like))
                 .onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.Like))
-        is DetailsContract.Action.Dislike -> commentRepository.dislike(it.comment).map<DetailsContract.State> { DetailsContract.State.Dislike(it) }
+        is DetailsContract.Action.Dislike -> stateless(commentRepository.interact(it.comment.id, CommentInteraction.Type.Dislike))
                 .onErrorReturnItem(DetailsContract.State.Error(DetailsContract.ErrorType.Dislike))
     }.onErrorReturnItem(DetailsContract.State.Error())
 
-    private fun loadVideo(video: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> = video.id.let { id ->
-        Observable.merge(loadRelatedVideos(id), loadComments(id), loadVideoDetails(video))
-    }
+    private fun loadVideo(video: String): Observable<DetailsContract.State> =
+            Observable.merge(loadRelatedVideos(video), loadComments(video), loadVideoDetails(video)).doOnNext { logd("${it::class.simpleName}") }
 
-    private fun loadVideoDetails(action: DetailsContract.Action.PlayVideo): Observable<DetailsContract.State> =
-            videoRepository.getVideo(action.id).firstOrError().doOnSuccess(videoRepository::addToWatchHistory).flatMapObservable { video ->
-                videoRepository.getQualityOfVideo(action.id)
-                        .flatMap { it -> Completable.fromAction { player.currentlyPlaying = Playback(video, it) }.subscribeOn(AndroidSchedulers.mainThread()).andThen(Observable.just(it)) }
-                        .map { DetailsContract.State.VideoInfo(video) }
-            }
+    private fun loadVideoDetails(videoId: String): Observable<DetailsContract.State> = videoRepository.getVideo(videoId).map(DetailsContract.State::VideoInfo)
+
+//            RxTuple.combineLatestAsTriple(videoRepository.getVideo(videoId),
+//            videoRepository.getQualityOfVideo(videoId), videoRepository.addToWatchHistory(videoId).andThen(Observable.just(Unit))).flatMap {
+//        val (video, quality) = it
+    //TODO fix playback
+//        Completable.fromAction { player.currentlyPlaying = Playback(video, quality) }.subscribeOn(AndroidSchedulers.mainThread())
+//                .andThen(Observable.just(DetailsContract.State.VideoInfo(video)))
+//        Observable.just(DetailsContract.State.VideoInfo(video))
+//    }
 
     private fun loadRelatedVideos(video: String): Observable<DetailsContract.State> =
             videoRepository.getRelatedVideos(video).map(DetailsContract.State::RelatedVideos)
 
-    private fun loadComments(video: String): Observable<DetailsContract.State> =
-            commentRepository.getComments(video)
-                    .flatMapSingle { video -> video.toObservable().filter { it.video == it.parent }.toList() }
-                    .onErrorReturnItem(emptyList())
-                    .map { if (it.isEmpty()) DetailsContract.State.Error(DetailsContract.ErrorType.NoComments) else DetailsContract.State.Comments(it) }
+    //TODO add paging states
+    private fun loadComments(video: String): Observable<DetailsContract.State> = Observable.defer {
+        val comments = commentRepository.getComments(video)
+        comments.pages.map(DetailsContract.State::Comments)//.firstElement().toObservable()
+    }
 }

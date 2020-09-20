@@ -1,5 +1,6 @@
 package me.mauricee.pontoon
 
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -25,6 +26,8 @@ abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S,
 
     inline fun stateless(crossinline action: () -> Unit): Observable<S> =
             Observable.defer { action(); Observable.empty<S>() }
+
+    inline fun stateless(action: Completable): Observable<S> = action.andThen(Observable.empty())
 
     protected open fun onViewAttached(view: V): Observable<S> = Observable.empty()
 

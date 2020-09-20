@@ -13,7 +13,7 @@ import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.user.toEntity
 import javax.inject.Inject
 
-@Entity(tableName = "Creator", foreignKeys = [ForeignKey(parentColumns = ["id"], childColumns = ["owner"], entity = UserEntity::class, onDelete = ForeignKey.CASCADE)])
+@Entity(tableName = "Creator", indices = [Index("owner")], foreignKeys = [ForeignKey(parentColumns = ["id"], childColumns = ["owner"], entity = UserEntity::class, onDelete = ForeignKey.CASCADE)])
 class CreatorEntity(@PrimaryKey val id: String,
                     val name: String,
                     val urlName: String,

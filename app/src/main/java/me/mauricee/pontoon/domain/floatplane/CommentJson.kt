@@ -3,16 +3,16 @@ package me.mauricee.pontoon.domain.floatplane
 import com.google.gson.annotations.SerializedName
 import org.threeten.bp.Instant
 
-data class Comment(@SerializedName("editDate") val editDate: Instant,
-                   @SerializedName("id") val id: String,
-                   @SerializedName("interactionCounts") val interactionCounts: InteractionCounts,
-                   @SerializedName("postDate") val postDate: Instant,
-                   @SerializedName("replies") val replies: List<Comment>,
-                   @SerializedName("replying") val replying: String?,
-                   @SerializedName("text") val text: String,
-                   @SerializedName("user") val user: String,
-                   @SerializedName("video") val video: String) {
-    data class Container(@SerializedName("comments") val comments: List<Comment>, @SerializedName("userInteractions") val interactions: List<UserInteraction>)
+data class CommentJson(@SerializedName("editDate") val editDate: Instant,
+                       @SerializedName("id") val id: String,
+                       @SerializedName("interactionCounts") val interactionCounts: InteractionCounts,
+                       @SerializedName("postDate") val postDate: Instant,
+                       @SerializedName("replies") val replies: List<CommentJson>,
+                       @SerializedName("replying") val replying: String?,
+                       @SerializedName("text") val text: String,
+                       @SerializedName("user") val user: String,
+                       @SerializedName("video") val video: String) {
+    data class Container(@SerializedName("comments") val comments: List<CommentJson>, @SerializedName("userInteractions") val interactions: List<UserInteraction>)
 }
 
 data class CommentInteraction(@SerializedName("commentGUID") val id: String, @SerializedName("type") val type: Type) {

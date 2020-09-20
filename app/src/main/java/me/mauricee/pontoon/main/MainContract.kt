@@ -4,22 +4,22 @@ import androidx.annotation.IdRes
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.model.user.User
 import me.mauricee.pontoon.model.video.Video
 
 interface MainContract {
-    interface View : BaseContract.View<MainContract.State, MainContract.Action> {
+    interface View : BaseContract.View<State, Action> {
         override val name: String
             get() = "Main"
     }
 
-    interface Presenter : BaseContract.Presenter<MainContract.View>
+    interface Presenter : BaseContract.Presenter<View>
 
     sealed class State : EventTracker.State {
         object Logout : State()
         object SessionExpired : State()
         data class NightMode(val isInNightMode: Boolean) : State()
-        data class CurrentUser(val user: UserRepository.User, val subCount: Int) : State()
+        data class CurrentUser(val user: User, val subCount: Int) : State()
     }
 
     sealed class Action : EventTracker.Action {
@@ -53,7 +53,7 @@ interface MainContract {
 
         fun toCreatorsList()
 
-        fun toUser(user: UserRepository.User)
+        fun toUser(userId: String)
 
         fun playVideo(video: Video, commentId: String = "")
 

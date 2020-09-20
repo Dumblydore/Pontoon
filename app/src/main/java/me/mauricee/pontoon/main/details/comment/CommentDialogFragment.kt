@@ -60,12 +60,12 @@ class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View 
     override fun updateState(state: CommentContract.State) {
         when (state) {
             is CommentContract.State.CurrentUser -> {
-                GlideApp.with(this).load(state.user.profileImage).circleCrop()
+                GlideApp.with(this).load(state.user.entity.profileImage).circleCrop()
                         .placeholder(R.drawable.ic_default_thumbnail)
                         .error(R.drawable.ic_default_thumbnail)
                         .into(comment_user_icon_small)
 
-                comment_header.text = getString(R.string.details_comment_header, state.user.username)
+                comment_header.text = getString(R.string.details_comment_header, state.user.entity.username)
                 comment_edit.requestFocusFromTouch()
             }
             CommentContract.State.Close -> dismiss()
@@ -86,10 +86,11 @@ class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View 
 
         private const val NoReply = "NO_REPLY"
 
-        fun newInstance(replyingTo: Comment? = null, video: Video) = CommentDialogFragment().apply {
-            arguments = bundleOf(VideoKey to (replyingTo?.user?.id ?: NoReply),
-                    NameKey to (replyingTo?.user?.username ?: NoReply),
-                    VideoKey to video.id)
+        //TODO
+        fun newInstance(videoId: String, replyingTo: String? = null) = CommentDialogFragment().apply {
+//            arguments = bundleOf(VideoKey to (replyingTo ?: NoReply),
+//                    NameKey to (replyingTo?.user?.username ?: NoReply),
+//                    VideoKey to video.id)
         }
     }
 }

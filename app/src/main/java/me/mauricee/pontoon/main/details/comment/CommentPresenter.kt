@@ -17,12 +17,12 @@ class CommentPresenter @Inject constructor(private val commentRepository: Commen
 
     override fun onViewAttached(view: CommentContract.View): Observable<CommentContract.State> = view.actions.flatMap<CommentContract.State> { action ->
         when (action) {
-            is CommentContract.Action.Comment -> commentRepository.comment(action.text, action.videoId)
-                    .flatMap { closeAfterAction { navigator.onCommentSuccess() } }
-            is CommentContract.Action.Reply -> commentRepository.comment(action.text, action.commentId, action.videoId)
-                    .flatMap { closeAfterAction { navigator.onCommentSuccess() } }
+            is CommentContract.Action.Comment -> commentRepository.postComment(action.text, action.videoId)
+                    .andThen(closeAfterAction { navigator.onCommentSuccess() })
+            is CommentContract.Action.Reply -> commentRepository.postComment(action.text, action.commentId, action.videoId)
+                    .andThen(closeAfterAction { navigator.onCommentSuccess() })
         }.onErrorResumeNext { _: Throwable -> closeAfterAction { navigator.onCommentError() } }
-    }.startWith(CommentContract.State.CurrentUser(userRepository.activeUser))
+    }.mergeWith(userRepository.activeUser.map(CommentContract.State::CurrentUser))
 
 
     private fun closeAfterAction(action: () -> Unit): Observable<CommentContract.State> {

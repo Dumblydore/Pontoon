@@ -11,12 +11,13 @@ data class VideoJson(@SerializedName("creator") val creator: String,
                      @SerializedName("duration") val duration: Long,
                      @SerializedName("guid") val guid: String,
                      @SerializedName("private") val isPrivate: Boolean,
-                     @SerializedName("releaseDate") val releaseDate: Instant,
+                     @SerializedName("releaseDate") val releaseDate: Instant?,
                      @SerializedName("tags") val tags: List<String>,
                      @SerializedName("thumbnail") val thumbnail: Image?,
                      @SerializedName("title") val title: String) {
     val defaultThumbnail: String
         get() = thumbnail?.path ?: ""
 
-    fun toEntity() = VideoEntity(guid, creator, description, releaseDate, duration, defaultThumbnail, title, null)
+    //TODO Sometimes related videos don't return with a release date
+    fun toEntity() = VideoEntity(guid, creator, description, releaseDate ?: Instant.now(), duration, defaultThumbnail, title, null)
 }

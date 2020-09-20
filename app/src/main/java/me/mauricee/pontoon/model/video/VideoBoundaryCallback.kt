@@ -30,7 +30,6 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
         isLoading = true
         stateRelay.accept(State.Loading)
         disposable += creatorIds.toObservable().flatMap { api.getVideos(it).flatMapIterable { it } }
-                .sorted(this::sortVideos)
                 .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe(this::cacheVideos) { stateRelay.accept(State.Error) }
@@ -44,7 +43,6 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
         disposable += creatorIds.toObservable().flatMap {
             api.getVideos(it, videoDao.getNumberOfVideosByCreator(it))
         }.flatMapIterable { it }
-                .sorted(this::sortVideos)
                 .map { it.toEntity() }.toList()
                 .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
                 .subscribe(this::cacheVideos) { stateRelay.accept(State.Error) }
@@ -57,9 +55,6 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
         }
         isLoading = false
     }
-
-    private fun sortVideos(video1: VideoPojo, video2: VideoPojo) =
-            (video2.releaseDate.epochSecond - video1.releaseDate.epochSecond).toInt()
 
     override fun isDisposed(): Boolean = disposable.isDisposed
 

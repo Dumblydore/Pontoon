@@ -18,13 +18,13 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.item_comment.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseListAdapter
+import me.mauricee.pontoon.common.SimpleListAdapter
+import me.mauricee.pontoon.domain.floatplane.CommentInteraction
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.comment.Comment
 import javax.inject.Inject
 
-//TODO Implement DiffUtil
-class CommentAdapter @Inject constructor(context: Context)
-    : BaseListAdapter<DetailsContract.Action, Comment, CommentAdapter.ViewHolder>(Comment.ItemCallback) {
+class CommentAdapter @Inject constructor(context: Context) : BaseListAdapter<DetailsContract.Action, Comment, CommentAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()) {
     private val primaryColor = ContextCompat.getColor(context, R.color.md_grey_600)
     private val positiveColor = ContextCompat.getColor(context, R.color.colorPositive)
     private val negativeColor = ContextCompat.getColor(context, R.color.colorNegative)
@@ -56,24 +56,20 @@ class CommentAdapter @Inject constructor(context: Context)
 
         fun bind(comment: Comment) {
             itemView.let {
-                val commentScore = comment.likes - comment.dislikes
+                val commentScore = comment.entity.score
                 it.item_title.text = comment.user.username
-                it.item_comment.text = comment.text
+                it.item_comment.text = comment.entity.text
                 LinkifyCompat.addLinks(it.item_comment, Linkify.WEB_URLS)
                 it.item_thumb_text.isVisible = commentScore != 0
                 it.item_thumb_text.text = "${if (commentScore > 0) "+" else ""} $commentScore"
                 it.item_viewReplies.isVisible = comment.replies.isNotEmpty()
                 it.item_viewReplies.text = itemView.context.resources.getQuantityString(R.plurals.details_comment_replies, comment.replies.size, comment.replies.size)
 
-                val likeTint = if (comment.userInteraction.contains(Comment.Interaction.Like))
-                    positiveColor
-                else
-                    primaryColor
-
-                val dislikeTint = if (comment.userInteraction.contains(Comment.Interaction.Dislike))
-                    negativeColor
-                else
-                    primaryColor
+                val (likeTint, dislikeTint) = when (comment.entity.userInteraction) {
+                    CommentInteraction.Type.Like -> positiveColor to primaryColor
+                    CommentInteraction.Type.Dislike -> primaryColor to negativeColor
+                    null -> primaryColor to primaryColor
+                }
 
                 DrawableCompat.setTint(itemView.item_thumb_up.drawable.mutate(), likeTint)
                 DrawableCompat.setTint(itemView.item_thumb_down.drawable.mutate(), dislikeTint)

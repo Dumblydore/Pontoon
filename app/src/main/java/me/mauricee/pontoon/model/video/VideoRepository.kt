@@ -17,7 +17,6 @@ import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.getAndFetch
 import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
-import me.mauricee.pontoon.model.user.UserRepository
 import okhttp3.ResponseBody
 import org.threeten.bp.Instant
 import javax.inject.Inject
@@ -55,7 +54,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
 
     fun getVideo(videoId: String): Observable<Video> = videoStore.getAndFetch(videoId)
 
-    fun getRelatedVideos(video: String): Observable<List<Video>> = relatedVideoStore.getAndFetch(video)
+    fun getRelatedVideos(video: String): Observable<List<Video>> = relatedVideoStore.get(video)
 
     fun search(query: String, vararg filteredSubs: String): VideoResult {
         val callback = searchCallbackFactory.newInstance(query, *filteredSubs)
@@ -90,10 +89,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                 .buildObservable()
     }
 
-    fun addToWatchHistory(video: Video) {
-        Completable.fromCallable { videoDao.setWatched(Instant.now(), video.id) }
-                .onErrorComplete().doOnIo().subscribe()
-    }
+    fun addToWatchHistory(videoId: String): Completable = videoDao.setWatched(videoId).doOnIo()
 
     private fun getUrlFromResponse(host: String, responseBody: ResponseBody): String {
         val baseUri = responseBody.string().let { it.substring(1, it.length - 1) }.toUri()

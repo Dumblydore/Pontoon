@@ -14,6 +14,7 @@ import me.mauricee.pontoon.model.PontoonDatabase
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.rx.RxTuple
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(private val accountManagerHelper: AccountManagerHelper,
@@ -37,7 +38,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
         when (it) {
             is MainContract.Action.SuccessfulLogout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
-            is MainContract.Action.Profile -> stateless { navigator.toUser(userRepository.activeUser) }
+            is MainContract.Action.Profile -> userRepository.activeUser.firstElement().flatMapObservable { stateless { navigator.toUser(it.entity.id) } }
             is MainContract.Action.Preferences -> stateless { navigator.toPreferences() }
             is MainContract.Action.PlayerClicked -> toggleControls()
             is MainContract.Action.PlayVideo -> playVideo(it)
@@ -58,8 +59,12 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     private fun playVideo(it: MainContract.Action.PlayVideo) =
             videoRepository.getVideo(it.videoId).firstOrError().flatMapObservable { stateless { navigator.playVideo(it) } }
 
-    private fun subscriptions() = subscriptionRepository.subscriptions.onErrorReturnItem(emptyList())
-            .map { MainContract.State.CurrentUser(userRepository.activeUser, it.size) }
+    private fun subscriptions() = RxTuple.combineLatestAsPair(userRepository.activeUser,
+            subscriptionRepository.subscriptions.onErrorReturnItem(emptyList()))
+            .map {
+                val (user, subs) = it
+                MainContract.State.CurrentUser(user, subs.size)
+            }
 
     private fun logout(): Observable<MainContract.State> = Completable.fromAction {
         accountManagerHelper.logout()

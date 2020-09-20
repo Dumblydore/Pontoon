@@ -54,7 +54,7 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View 
         RepliesContract.State.Loading -> replies_lazy.state = LazyLayout.LOADING
         is RepliesContract.State.Replies -> {
             replies_header_text.text = getString(R.string.replies_header, state.parent.user.username)
-            adapter.submitList(state.comments)
+//            adapter.submitList(state.comments)
             replies_lazy.state = LazyLayout.SUCCESS
         }
         is RepliesContract.State.Liked -> {
@@ -102,8 +102,8 @@ class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View 
     companion object {
         private const val ParentKey: String = "PARENT"
 
-        fun newInstance(comment: Comment) = RepliesDialogFragment().apply {
-            arguments = bundleOf(ParentKey to comment.id)
+        fun newInstance(comment: String) = RepliesDialogFragment().apply {
+            arguments = bundleOf(ParentKey to comment)
         }
     }
 }

@@ -2,8 +2,7 @@ package me.mauricee.pontoon.main.details.comment
 
 import me.mauricee.pontoon.BaseContract
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.comment.Comment
-import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.model.user.User
 
 interface CommentContract {
 
@@ -11,7 +10,7 @@ interface CommentContract {
     interface Presenter : BaseContract.Presenter<View>
 
     sealed class State : EventTracker.State {
-        class CurrentUser(val user: UserRepository.User) : State()
+        class CurrentUser(val user: User) : State()
         object Close : State()
     }
 

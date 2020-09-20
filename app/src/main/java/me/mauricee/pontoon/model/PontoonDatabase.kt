@@ -4,14 +4,15 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import me.mauricee.pontoon.domain.floatplane.CommentInteraction
 import me.mauricee.pontoon.model.comment.CommentDao
 import me.mauricee.pontoon.model.comment.CommentEntity
+import me.mauricee.pontoon.model.creator.CreatorDao
+import me.mauricee.pontoon.model.creator.CreatorEntity
 import me.mauricee.pontoon.model.edge.EdgeDao
 import me.mauricee.pontoon.model.edge.EdgeEntity
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
-import me.mauricee.pontoon.model.creator.CreatorDao
-import me.mauricee.pontoon.model.creator.CreatorEntity
 import me.mauricee.pontoon.model.user.UserDao
 import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.user.activity.ActivityDao
@@ -53,4 +54,10 @@ class InstantTypeConverter {
     @TypeConverter
     fun toLong(value: LocalDateTime?): Long = (value
             ?: LocalDateTime.now()).toEpochSecond(ZoneOffset.UTC)
+
+    @TypeConverter
+    fun toCommentInteractionType(value: String?): CommentInteraction.Type? = value?.let(CommentInteraction.Type::valueOf)
+
+    @TypeConverter
+    fun toString(value: CommentInteraction.Type?): String? = value?.toString()
 }

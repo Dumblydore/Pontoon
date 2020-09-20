@@ -58,7 +58,7 @@ import me.mauricee.pontoon.main.search.SearchFragment
 import me.mauricee.pontoon.main.user.UserFragment
 import me.mauricee.pontoon.main.videos.VideoFragment
 import me.mauricee.pontoon.model.preferences.Preferences
-import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.model.user.User
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.preferences.PreferencesActivity
 import me.mauricee.pontoon.rx.glide.toPalette
@@ -242,8 +242,8 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
         }
     }
 
-    override fun toUser(user: UserRepository.User) {
-        controller.pushFragment(UserFragment.newInstance(user.id))
+    override fun toUser(userId: String) {
+        controller.pushFragment(UserFragment.newInstance(userId))
         if (player.isActive) {
             animationTouchListener.isExpanded = false
             setPlayerExpanded(false)
@@ -516,12 +516,12 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View,
         }
     }
 
-    private fun displayUser(user: UserRepository.User, subCount: Int) {
+    private fun displayUser(user: User, subCount: Int) {
         main_drawer.getHeaderView(0).apply {
             user.with { user ->
-                findViewById<TextView>(R.id.header_title).text = user.username
+                findViewById<TextView>(R.id.header_title).text = user.entity.username
                 findViewById<TextView>(R.id.header_subtitle).text = getString(R.string.home_subtitle_suffix, subCount)
-                subscriptions += GlideApp.with(this).asBitmap().load(user.profileImage)
+                subscriptions += GlideApp.with(this).asBitmap().load(user.entity.profileImage)
                         .toPalette().subscribe { palette ->
                             findViewById<ImageView>(R.id.header_icon).setImageBitmap(palette.bitmap)
                             themeManager.getVibrantSwatch(palette.palette).apply {
