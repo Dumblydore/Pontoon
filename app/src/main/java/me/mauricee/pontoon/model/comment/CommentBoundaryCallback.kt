@@ -35,16 +35,11 @@ class CommentBoundaryCallback private constructor(private val videoId: String,
                 .flatMap { Observable.fromIterable(it.replies).startWith(it) }
                 .map { it.toEntity(interactions[it.id]?.type) }
                 .toList()
-                .flatMap { flatComments ->
-                    getUsers(flatComments)
-                            .map { flatComments to it }
-                }
+                .flatMap { flatComments -> getUsers(flatComments).map { flatComments to it } }
                 .map {
                     val (flatComments, users) = it
                     userDao.insert(users)
                     commentDao.insert(flatComments)
-//                    if (commentDao.insert(flatComments).isEmpty()) PagingState.Completed
-//                    else PagingState.Fetched
                     PagingState.Completed
                 }.toObservable().switchIfEmpty(Observable.just(PagingState.Completed))
                 .doOnError(::loge)

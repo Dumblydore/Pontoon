@@ -9,16 +9,13 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.BiFunction
-import io.reactivex.functions.Function4
 import io.reactivex.schedulers.Schedulers
+import me.mauricee.pontoon.domain.floatplane.ContentType
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.getAndFetch
-import me.mauricee.pontoon.main.Player
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import okhttp3.ResponseBody
-import org.threeten.bp.Instant
 import javax.inject.Inject
 
 class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Video, String>,
@@ -67,20 +64,24 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                 .let { VideoResult(it, callback.state, callback::retry) }
     }
 
-    fun getDownloadLink(videoId: String, quality: Player.QualityLevel): Single<String> = Observable.combineLatest<ResponseBody, String, String>(
+    fun getStream(videoId: String): Single<List<Stream>> = floatPlaneApi.getVideoContent(videoId, ContentType.vod).map { content ->
+        content.resource.data.qualityLevels.map { level ->
+            val uri = content.resource.uri.replace("{qualityLevels}", level.name)
+                    .replace("{qualityLevelParams.token}", content.resource.data.qualityLevelParams[level.name]?.token
+                            ?: "")
+            Stream(level.label, "${content.cdn}$uri")
+        }
+    }
+
+    //TODO
+    fun getDownloadLink(videoId: String, qualityIndex: Int): Single<String> = Single.never()
+
+    /*Observable.combineLatest<ResponseBody, String, String>(
             floatPlaneApi.getVideoUrl(videoId, quality.name.replace("p", "")), edgeRepo.downloadHost.toObservable(),
             BiFunction { t1, t2 ->
                 getUrlFromResponse(t2, t1).replace("/chunk.m3u8", "")
             })
-            .singleOrError()
-
-    fun getQualityOfVideo(videoId: String): Observable<Quality> = edgeRepo.streamingHost.flatMapObservable<Quality> { host ->
-        Observable.zip(floatPlaneApi.getVideoUrl(videoId, "360").map { getUrlFromResponse(host, it) },
-                floatPlaneApi.getVideoUrl(videoId, "480").map { getUrlFromResponse(host, it) },
-                floatPlaneApi.getVideoUrl(videoId, "720").map { getUrlFromResponse(host, it) },
-                floatPlaneApi.getVideoUrl(videoId, "1080").map { getUrlFromResponse(host, it) },
-                Function4 { t1, t2, t3, t4 -> Quality(t1, t2, t3, t4) })
-    }
+            .singleOrError()*/
 
     fun watchHistory(): Observable<PagedList<Video>> = videoDao.history().let {
         RxPagedListBuilder(it, pageListConfig)
@@ -100,6 +101,8 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
     class NoSubscriptionsException : Exception("No subscriptions available")
 }
 
-data class Quality(val p360: String, val p480: String, val p720: String, val p1080: String)
+data class Stream(val name: String, val url: String)
 
-data class Playback(val video: Video, val quality: Quality)
+data class Playback(val video: Video, val streams: List<Stream>)
+
+operator fun List<Stream>.get(value: String): Stream? = firstOrNull { it.name == value }

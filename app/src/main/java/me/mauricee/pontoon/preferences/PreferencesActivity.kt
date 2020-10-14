@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.mikepenz.aboutlibraries.LibsBuilder
-import me.mauricee.pontoon.BaseActivity
+import me.mauricee.pontoon.ui.BaseActivity
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.analytics.PrivacyManager

@@ -8,7 +8,7 @@ import com.google.android.gms.cast.framework.media.CastMediaOptions
 import com.google.android.gms.cast.framework.media.MediaIntentReceiver
 import com.google.android.gms.cast.framework.media.NotificationOptions
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.main.MainActivity
+import me.mauricee.pontoon.ui.main.MainActivity
 
 class OptionProvider : OptionsProvider {
     override fun getCastOptions(context: Context): CastOptions {

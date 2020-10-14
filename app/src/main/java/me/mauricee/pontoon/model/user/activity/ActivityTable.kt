@@ -11,11 +11,11 @@ import me.mauricee.pontoon.model.user.UserEntity
 import org.threeten.bp.Instant
 
 @Entity(tableName = "Activities", foreignKeys = [ForeignKey(entity = UserEntity::class, parentColumns = ["id"], childColumns = ["userId"], onDelete = ForeignKey.CASCADE)])
-data class ActivityEntity(val userId: String,
+data class ActivityEntity(@PrimaryKey val userId: String,
                           val comment: String,
                           val date: Instant,
                           val postId: String) : Diffable<Long> {
-    @PrimaryKey
+
     override var id: Long = 0L
 }
 

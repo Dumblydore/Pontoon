@@ -22,7 +22,10 @@ abstract class UserDao : BaseDao<UserEntity>() {
 }
 
 data class User(@Embedded val entity: UserEntity,
-                @Relation(parentColumn = "id", entityColumn = "userId") val activities: List<ActivityEntity>)
+                @Relation(parentColumn = "id", entityColumn = "userId") val activities: List<ActivityEntity>) : Diffable<String> {
+    @Ignore
+    override val id: String = entity.id
+}
 
 fun UserJson.toEntity() = UserEntity(id, username, profileImage.path)
 

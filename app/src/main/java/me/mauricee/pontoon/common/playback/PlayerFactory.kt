@@ -4,6 +4,7 @@ import android.app.Activity
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.cast.CastPlayer
+import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener
 import com.google.android.gms.cast.framework.CastContext
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
@@ -12,7 +13,7 @@ import me.mauricee.pontoon.di.AppScope
 import javax.inject.Inject
 
 @AppScope
-class PlayerFactory @Inject constructor(private val localPlayer: SimpleExoPlayer) : CastPlayer.SessionAvailabilityListener {
+class PlayerFactory @Inject constructor(private val localPlayer: SimpleExoPlayer) : SessionAvailabilityListener {
     private val currentlyPlayingRelay: Relay<Player> = BehaviorRelay.create()
     private var castPlayer: CastPlayer? = null
         set(value) {

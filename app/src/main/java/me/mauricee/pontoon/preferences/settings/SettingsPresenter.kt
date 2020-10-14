@@ -1,7 +1,7 @@
 package me.mauricee.pontoon.preferences.settings
 
 import io.reactivex.Observable
-import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.edge.EdgeRepository

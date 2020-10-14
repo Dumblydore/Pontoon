@@ -1,0 +1,62 @@
+package me.mauricee.pontoon.ui.main
+
+import androidx.annotation.IdRes
+import me.mauricee.pontoon.ui.BaseContract
+import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.model.user.User
+import me.mauricee.pontoon.model.video.Video
+
+interface MainContract {
+    interface View : BaseContract.View<State, Action> {
+        override val name: String
+            get() = "Main"
+    }
+
+    interface Presenter : BaseContract.Presenter<View>
+
+    sealed class State : EventTracker.State {
+        object Logout : State()
+        object SessionExpired : State()
+        data class NightMode(val isInNightMode: Boolean) : State()
+        data class CurrentUser(val user: User, val subCount: Int) : State()
+    }
+
+    sealed class Action : EventTracker.Action {
+        object SuccessfulLogout : Action()
+        object Expired : Action()
+        object Preferences : Action()
+        object Profile : Action()
+        object NightMode : Action()
+        object PlayerClicked : Action()
+        data class PlayVideo(val videoId: String) : Action()
+
+
+        companion object {
+            fun fromNavDrawer(@IdRes id: Int) = when (id) {
+                R.id.action_logout -> SuccessfulLogout
+                R.id.action_prefs -> Preferences
+                R.id.action_profile -> Profile
+                R.id.action_dayNight -> NightMode
+                else -> throw RuntimeException("Invalid Navigation Drawer option")
+            }
+        }
+    }
+
+    interface Navigator {
+
+//        val optionsBottomSheet: OptionsBottomSheetView
+
+        fun toPreferences()
+
+        fun toCreator(creatorName: String, creatorId: String)
+
+        fun toCreatorsList()
+
+        fun toUser(userId: String)
+
+        fun playVideo(video: Video, commentId: String = "")
+
+        fun setMenuExpanded(isExpanded: Boolean)
+    }
+}

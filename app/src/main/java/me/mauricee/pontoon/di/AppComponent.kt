@@ -6,7 +6,7 @@ import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import dagger.android.support.DaggerApplication
-import me.mauricee.pontoon.Pontoon
+import me.mauricee.pontoon.ui.Pontoon
 import me.mauricee.pontoon.analytics.EventTrackerModule
 import me.mauricee.pontoon.model.ModelModule
 

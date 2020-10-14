@@ -56,6 +56,9 @@ interface FloatPlaneApi {
     @GET("video/url")
     fun getVideoUrl(@Query("guid") id: String, @Query("quality") quality: String = "1080"): Observable<ResponseBody>
 
+    @GET("v2/cdn/delivery")
+    fun getVideoContent(@Query("guid") videoId: String, @Query("type") type: ContentType): Single<VideoContentJson>
+
     @GET("user/activity")
     fun getActivity(@Query("id") id: String): Single<ActivityJson.Response>
 

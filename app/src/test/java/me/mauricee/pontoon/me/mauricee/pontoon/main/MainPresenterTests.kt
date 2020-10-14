@@ -15,9 +15,9 @@ import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.main.MainContract
-import me.mauricee.pontoon.main.MainPresenter
-import me.mauricee.pontoon.main.Player
+import me.mauricee.pontoon.ui.main.MainContract
+import me.mauricee.pontoon.ui.main.MainPresenter
+import me.mauricee.pontoon.playback.Player
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.MockkRule
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.SchedulerRule
 import me.mauricee.pontoon.model.PontoonDatabase

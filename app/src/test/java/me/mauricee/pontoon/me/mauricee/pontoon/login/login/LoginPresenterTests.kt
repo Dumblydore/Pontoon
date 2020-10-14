@@ -14,9 +14,9 @@ import me.mauricee.pontoon.domain.floatplane.LoginAuthToken
 import me.mauricee.pontoon.domain.floatplane.LoginRequest
 import me.mauricee.pontoon.domain.floatplane.UserJson
 import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.login.LoginNavigator
-import me.mauricee.pontoon.login.login.LoginContract
-import me.mauricee.pontoon.login.login.LoginPresenter
+import me.mauricee.pontoon.ui.login.LoginNavigator
+import me.mauricee.pontoon.ui.login.login.LoginContract
+import me.mauricee.pontoon.ui.login.login.LoginPresenter
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.MockkRule
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.SchedulerRule
 import org.junit.Before

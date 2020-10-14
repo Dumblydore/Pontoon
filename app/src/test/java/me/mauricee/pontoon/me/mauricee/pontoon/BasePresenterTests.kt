@@ -3,8 +3,8 @@ package me.mauricee.pontoon.me.mauricee.pontoon
 import io.mockk.impl.annotations.MockK
 import io.mockk.spyk
 import io.mockk.verify
-import me.mauricee.pontoon.BaseContract
-import me.mauricee.pontoon.BasePresenter
+import me.mauricee.pontoon.ui.BaseContract
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.MockkRule
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.SchedulerRule

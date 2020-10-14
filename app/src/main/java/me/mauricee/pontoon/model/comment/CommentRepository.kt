@@ -35,7 +35,13 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
         Completable.fromAction { commentDao.insert(it.toEntity(null)) }
     }
 
-    fun interact(commentId: String, interaction: CommentInteraction.Type?): Completable = getComment(commentId).firstElement().flatMapCompletable { comment ->
+    fun like(commentId: String): Completable = interact(commentId, CommentInteraction.Type.Like)
+
+    fun dislike(commentId: String): Completable = interact(commentId, CommentInteraction.Type.Dislike)
+
+    fun clear(commentId: String): Completable = interact(commentId, null)
+
+    private fun interact(commentId: String, interaction: CommentInteraction.Type?): Completable = getComment(commentId).firstElement().flatMapCompletable { comment ->
         if (interaction == null || comment.entity.userInteraction == interaction)
             floatPlaneApi.clearInteraction(ClearInteraction(commentId)).andThen(commentDao.setComment(commentId, null))
         else floatPlaneApi.setComment(CommentInteraction(commentId, interaction)).andThen(commentDao.setComment(commentId, interaction))

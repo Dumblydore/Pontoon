@@ -10,9 +10,9 @@ import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.domain.floatplane.UserJson
 import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.login.LoginNavigator
-import me.mauricee.pontoon.login.webLogin.WebLoginContract
-import me.mauricee.pontoon.login.webLogin.WebLoginPresenter
+import me.mauricee.pontoon.ui.login.LoginNavigator
+import me.mauricee.pontoon.ui.login.webLogin.WebLoginContract
+import me.mauricee.pontoon.ui.login.webLogin.WebLoginPresenter
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.MockkRule
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.SchedulerRule
 import org.junit.Before
