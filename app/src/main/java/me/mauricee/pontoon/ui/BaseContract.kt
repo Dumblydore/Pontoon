@@ -12,6 +12,10 @@ interface BaseContract {
         fun updateState(state: S)
     }
 
+    interface Router<R> {
+        fun routeTo(route: R)
+    }
+
     interface Presenter<in V> {
         fun attachView(view: V)
 

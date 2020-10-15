@@ -53,7 +53,7 @@ class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneAp
     }
 
     private fun login(request: LoginRequest): Observable<LoginContract.State> = floatPlaneApi.login(request)
-            .flatMap<LoginContract.State> {
+            .flatMap {
                 if (it.needs2Fa) LoginContract.State.Request2FaCode.toObservable() else
                     it.user.toObservable()
                             .flatMap(this::navigateToMain)

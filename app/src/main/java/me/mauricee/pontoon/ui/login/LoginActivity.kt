@@ -3,15 +3,13 @@ package me.mauricee.pontoon.ui.login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.core.net.toUri
-import androidx.core.view.doOnPreDraw
 import com.ncapdevi.fragnav.FragNavController
-import kotlinx.android.synthetic.main.activity_login.*
-import me.mauricee.pontoon.ui.BaseActivity
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.analytics.PrivacyManager
-import me.mauricee.pontoon.ui.login.login.LoginContract
+import me.mauricee.pontoon.ui.BaseActivity
 import me.mauricee.pontoon.ui.login.login.LoginFragment
 import me.mauricee.pontoon.ui.login.webLogin.WebLoginFragment
 import me.mauricee.pontoon.ui.main.MainActivity
@@ -21,6 +19,11 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
 
     @Inject
     lateinit var privacyManager: PrivacyManager
+
+    @Inject
+    lateinit var loginViewModelFactory: LoginViewModel.Factory
+
+    val loginViewModel: LoginViewModel by viewModels { loginViewModelFactory }
 
     override val name: String
         get() = "Login"
@@ -39,6 +42,9 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
         controller = FragNavController.Builder(savedInstanceState, supportFragmentManager, R.id.login)
                 .rootFragment(loginFragment)
                 .build()
+        loginViewModel.watchStateValue { prompt2FaCode }.observe(this) {
+            if (it) controller.clearStack()
+        }
     }
 
     override fun onBackPressed() {
@@ -56,12 +62,6 @@ class LoginActivity : BaseActivity(), LoginNavigator, EventTracker.Page {
     override fun onStop() {
         super.onStop()
         privacyManager.hidePromptIfOpen()
-    }
-
-    //TODO really janky???
-    override fun promptFor2FA() {
-        controller.clearStack()
-        login.doOnPreDraw { loginFragment.updateState(LoginContract.State.Request2FaCode) }
     }
 
     override fun toLttLogin() = controller.pushFragment(WebLoginFragment.loginWithLttForum())

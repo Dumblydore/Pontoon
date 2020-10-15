@@ -27,7 +27,7 @@ class WebLoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlan
                         }
                     }.onErrorReturnItem(WebLoginContract.State.Error)
 
-    private fun attemptLogin(cookieStr: String): Observable<WebLoginContract.State>? {
+    private fun attemptLogin(cookieStr: String): Observable<WebLoginContract.State> {
         val cookies = cookieStr.split(";").associate { cookie ->
             cookie.split("=").let { it.first() to it.last() }
         }
@@ -38,7 +38,7 @@ class WebLoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlan
                 ?: "", URLDecoder.decode(cookies[sailsKey], "UTF-8")!!)
 
         return floatPlaneApi.self.flatMap(::onSuccessfulLogin).onErrorResumeNext(Function {
-            if ((it as? HttpException)?.code() in 400..499) stateless { navigator.promptFor2FA() }
+            if ((it as? HttpException)?.code() in 400..499) stateless { }
             else WebLoginContract.State.Error.toObservable()
         })
     }

@@ -6,23 +6,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import dagger.android.support.DaggerFragment;
 import io.reactivex.disposables.CompositeDisposable;
 
-public abstract class BaseFragment<P extends BaseContract.Presenter> extends DaggerFragment {
-
-    @Inject
-    protected P presenter;
+public abstract class NewBaseFragment extends DaggerFragment {
 
     protected final CompositeDisposable subscriptions = new CompositeDisposable();
     protected final List<Animator> animations = new ArrayList<>();
@@ -38,14 +34,12 @@ public abstract class BaseFragment<P extends BaseContract.Presenter> extends Dag
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ((AppCompatActivity) requireActivity()).setSupportActionBar(getToolbar());
-        presenter.attachView(this);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         subscriptions.clear();
-        presenter.detachView();
         for (Animator animator : animations) {
             animator.cancel();
         }

@@ -35,11 +35,14 @@ abstract class LoginModule {
     @ContributesAndroidInjector
     abstract fun contributeLttLoginFragment(): WebLoginFragment
 
-    @Module
     companion object {
 
         @Provides
         @LoginScope
         fun provideEventTracker(page: EventTracker.Page) = EventTracker(page)
+
+        @Provides
+        @LoginScope
+        fun LoginActivity.providesViewModel(): LoginViewModel = loginViewModel
     }
 }

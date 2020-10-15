@@ -11,20 +11,22 @@ import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
-import com.jakewharton.rxrelay2.PublishRelay
-import com.jakewharton.rxrelay2.Relay
-import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_web_login.*
-import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.with
+import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.login.LoginAction
+import me.mauricee.pontoon.ui.login.LoginViewModel
+import javax.inject.Inject
 
 
-class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.View {
-    private val actionsRelay: Relay<WebLoginContract.Action> = PublishRelay.create()
-    override val actions: Observable<WebLoginContract.Action>
-        get() = actionsRelay.hide()
+class WebLoginFragment : NewBaseFragment() {
+
+    @Inject
+    lateinit var viewModel: LoginViewModel
+
 
     private val url: String by lazy { requireArguments().getString(UrlKey)!! }
 
@@ -46,10 +48,7 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
             loadWithOverviewMode = true
         }
         login_webview.webViewClient = Webclient()
-    }
-
-    override fun updateState(state: WebLoginContract.State) = when (state) {
-        is WebLoginContract.State.Error -> {
+        viewModel.watchStateValue { error }.notNull().observe(viewLifecycleOwner) {
             Toast.makeText(requireContext(), getString(R.string.lttLogin_error), Toast.LENGTH_LONG).show()
             requireActivity().onBackPressed()
         }
@@ -67,7 +66,7 @@ class WebLoginFragment : BaseFragment<WebLoginPresenter>(), WebLoginContract.Vie
             super.onPageFinished(view, url)
             url.toUri().path?.with { uriPath ->
                 if (uriPath.contains(CallbackPath) || uriPath.contains(ConfirmPath)) {
-                    actionsRelay.accept(WebLoginContract.Action.Login(CookieManager.getInstance().getCookie(url)))
+                    viewModel.sendAction(LoginAction.LoginWithCookie(CookieManager.getInstance().getCookie(url)))
                 }
             }
         }
