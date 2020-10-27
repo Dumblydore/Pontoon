@@ -13,7 +13,7 @@ import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.referentialDistinctUntilChanged
 
-abstract class BaseViewModel<S, A : EventTracker.Action> : ViewModel, BaseContract.View<S, A> {
+abstract class BaseViewModel<S : Any, A : EventTracker.Action> : ViewModel, BaseContract.View<S, A> {
     private val _actions = PublishRelay.create<A>()
     override val actions: Observable<A>
         get() = _actions.hide()

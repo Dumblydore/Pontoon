@@ -55,7 +55,7 @@ interface MainContract {
 
         fun toUser(userId: String)
 
-        fun playVideo(video: Video, commentId: String = "")
+        fun playVideo(videoId: String, commentId: String = "")
 
         fun setMenuExpanded(isExpanded: Boolean)
     }

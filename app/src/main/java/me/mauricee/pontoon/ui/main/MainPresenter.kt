@@ -2,7 +2,6 @@ package me.mauricee.pontoon.ui.main
 
 import io.reactivex.Completable
 import io.reactivex.Observable
-import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.gestures.VideoTouchHandler
 import me.mauricee.pontoon.common.theme.ThemeManager
@@ -14,8 +13,8 @@ import me.mauricee.pontoon.model.PontoonDatabase
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.VideoRepository
-import me.mauricee.pontoon.playback.Player
 import me.mauricee.pontoon.rx.RxTuple
+import me.mauricee.pontoon.ui.BasePresenter
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(private val accountManagerHelper: AccountManagerHelper,
@@ -23,7 +22,6 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
                                         private val userRepository: UserRepository,
                                         private val videoRepository: VideoRepository,
                                         private val subscriptionRepository: SubscriptionRepository,
-                                        private val player: Player,
                                         private val floatPlaneApi: FloatPlaneApi,
                                         private val pontoonDatabase: PontoonDatabase,
                                         private val authInterceptor: AuthInterceptor,
@@ -57,8 +55,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
         }
     }
 
-    private fun playVideo(it: MainContract.Action.PlayVideo) =
-            videoRepository.getVideo(it.videoId).firstOrError().flatMapObservable { stateless { navigator.playVideo(it) } }
+    private fun playVideo(it: MainContract.Action.PlayVideo) = stateless { navigator.playVideo(it.videoId) }
 
     private fun subscriptions() = RxTuple.combineLatestAsPair(userRepository.activeUser,
             subscriptionRepository.subscriptions.onErrorReturnItem(emptyList()))

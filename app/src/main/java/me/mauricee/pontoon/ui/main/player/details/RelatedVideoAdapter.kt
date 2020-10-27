@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.ui.main.details
+package me.mauricee.pontoon.ui.main.player.details
 
 import android.view.LayoutInflater
 import android.view.View

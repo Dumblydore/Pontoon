@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.ui.main.details.replies
+package me.mauricee.pontoon.ui.main.player.details.replies
 
 import android.content.Context
 import android.os.Bundle
@@ -17,8 +17,8 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_replies.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.LazyLayout
-import me.mauricee.pontoon.ui.main.details.CommentAdapter
-import me.mauricee.pontoon.ui.main.details.DetailsContract
+import me.mauricee.pontoon.ui.main.player.details.CommentAdapter
+import me.mauricee.pontoon.ui.main.player.details.DetailsContract
 import javax.inject.Inject
 
 class RepliesDialogFragment : BottomSheetDialogFragment(), RepliesContract.View {

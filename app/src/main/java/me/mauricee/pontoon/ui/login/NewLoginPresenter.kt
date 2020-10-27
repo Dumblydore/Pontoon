@@ -5,6 +5,7 @@ import io.reactivex.functions.Function
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
 import me.mauricee.pontoon.domain.floatplane.*
 import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.StatefulPresenter
 import retrofit2.HttpException
 import java.net.URLDecoder
@@ -16,34 +17,38 @@ class NewLoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlan
 
     private val codeRegex = Regex("[0-9]+")
 
-    override fun onAction(state: LoginState, action: LoginAction): Observable<LoginState> = when (action) {
-        is LoginAction.Login -> attemptLogin(state, action.username, action.password)
+    override fun onViewAttached(view: BaseContract.View<LoginState, LoginAction>): Observable<LoginState> {
+        return view.actions.flatMap(::onAction)
+    }
+
+    private fun onAction(action: LoginAction): Observable<LoginState> = when (action) {
+        is LoginAction.Login -> attemptLogin(action.username, action.password)
         is LoginAction.LoginWithCookie -> attemptLogin(action.cookie)
-        is LoginAction.Activate -> attemptActivation(state, action.code, action.username)
-        is LoginAction.Authenticate -> attemptAuthentication(state, action.authCode)
+        is LoginAction.Activate -> attemptActivation(action.code, action.username)
+        is LoginAction.Authenticate -> attemptAuthentication(action.authCode)
         LoginAction.LttLogin -> stateless(navigator::toLttLogin)
         LoginAction.DiscordLogin -> stateless(navigator::toDiscordLogin)
         LoginAction.SignUp -> stateless(navigator::toSignUp)
         LoginAction.PrivacyPolicy -> stateless(navigator::toPrivacyPolicy)
     }
 
-    private fun attemptAuthentication(state: LoginState, code: String): Observable<LoginState> = if (code.matches(codeRegex)) {
+    private fun attemptAuthentication(code: String): Observable<LoginState> = if (code.matches(codeRegex)) {
         floatPlaneApi.login(LoginAuthToken(code)).map(UserJson.Container::user)
                 .flatMap(this::navigateToMain)
                 .startWith(state.copy(isLoading = true))
                 .onErrorReturn(::processError)
     } else state.copy(isLoading = false, error = LoginError.InvalidAuthCode).toObservable()
 
-    private fun attemptActivation(state: LoginState, code: String, username: String): Observable<LoginState> =
+    private fun attemptActivation(code: String, username: String): Observable<LoginState> =
             floatPlaneApi.confirmEmail(ConfirmationRequest(code, username)).andThen(floatPlaneApi.self)
                     .flatMap(this::navigateToMain)
                     .startWith(state.copy(isLoading = true))
                     .onErrorReturnItem(state.copy(isLoading = false, error = LoginError.Activation))
 
-    private fun attemptLogin(state: LoginState, username: String, password: String): Observable<LoginState> = when {
+    private fun attemptLogin(username: String, password: String): Observable<LoginState> = when {
         username.isEmpty() -> state.copy(isLoading = false, error = LoginError.MissingUsername).toObservable()
         password.isEmpty() -> state.copy(isLoading = false, error = LoginError.MissingPassword).toObservable()
-        else -> login(state, LoginRequest(username, password))
+        else -> login(LoginRequest(username, password))
     }
 
     private fun attemptLogin(cookieStr: String): Observable<LoginState> {
@@ -64,7 +69,7 @@ class NewLoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlan
         })
     }
 
-    private fun login(state: LoginState, request: LoginRequest): Observable<LoginState> = floatPlaneApi.login(request).flatMap {
+    private fun login(request: LoginRequest): Observable<LoginState> = floatPlaneApi.login(request).flatMap {
         if (it.needs2Fa) state.copy(isLoading = false, prompt2FaCode = true).toObservable()
         else navigateToMain(it.user!!)
     }.startWith(state.copy(isLoading = true, error = null)).onErrorReturn(::processError)

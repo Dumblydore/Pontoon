@@ -34,16 +34,15 @@ abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S,
     protected open fun onViewDetached() {}
 }
 
-abstract class StatefulPresenter<S, A : EventTracker.Action> {
+abstract class StatefulPresenter<S : Any, A : EventTracker.Action> {
+    @Volatile
+    protected lateinit var state: S
     fun attachView(view: BaseContract.View<S, A>, initialState: S): Observable<S> {
-        return onViewAttached(initialState).startWith(initialState).switchMap { newState ->
-            view.actions.flatMap { action -> onAction(newState, action) }.startWith(newState)
-        }
+        state = initialState
+        return onViewAttached(view).startWith(initialState).doOnNext { state = it }
     }
 
-    open fun onViewAttached(state: S): Observable<S> = Observable.empty()
-
-    open fun onAction(state: S, action: A): Observable<S> = Observable.empty()
+    open fun onViewAttached(view: BaseContract.View<S, A>): Observable<S> = Observable.empty()
 
     internal fun stateless(action: () -> Unit): Observable<S> = Observable.defer { action(); Observable.empty() }
 

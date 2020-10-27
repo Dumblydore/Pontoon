@@ -36,7 +36,7 @@ fun <T> Observable<T>.ioStream() = this.compose(RxHelpers.applyObservableSchedul
 fun Completable.doOnIo() = this.compose(RxHelpers.applyCompletableSchedulers())
 
 
-fun <T> T.toObservable() = Observable.just(this)!!
+fun <T> T.toObservable() = Observable.just(this)
 
 inline fun <reified T> Single<List<T>>.throwIfEmpty(): Single<List<T>> = flatMap {
     if (it.isEmpty())

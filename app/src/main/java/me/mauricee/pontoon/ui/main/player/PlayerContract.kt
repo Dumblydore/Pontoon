@@ -1,55 +1,56 @@
 package me.mauricee.pontoon.ui.main.player
 
-import me.mauricee.pontoon.ui.BaseContract
+import androidx.annotation.StringRes
+import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.video.Stream
+import me.mauricee.pontoon.model.comment.Comment
+import me.mauricee.pontoon.model.user.UserEntity
+import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.ui.BaseViewModel
+import javax.inject.Inject
 
-interface PlayerContract {
+class PlayerViewModel(p: PlayerPresenter) : BaseViewModel<PlayerState, PlayerAction>(PlayerState(), p) {
+    class Factory @Inject constructor(p: PlayerPresenter) : BaseViewModel.Factory<PlayerViewModel>({ PlayerViewModel(p) })
+}
 
-    interface View : BaseContract.View<State, Action>
-    interface Presenter : BaseContract.Presenter<View>
-    interface Controls {
-        fun toggleFullscreen()
-        fun setPlayerExpanded(isExpanded: Boolean)
-        fun setVideoRatio(ratio: String)
-    }
+interface PlayerNavigator {
+    fun comment(videoId: String, comment: String? = null)
+    fun displayReplies(commentId: String)
+    fun onCommentSuccess()
+    fun onCommentError()
+}
 
-    sealed class State : EventTracker.State {
-        object Paused : State()
-        object Playing : State()
-        object DownloadStart : State()
-        object DownloadFailed : State()
-        object Error : State()
-        object HideControls : State() {
-            override val level: EventTracker.Level
-                get() = EventTracker.Level.DEBUG
-        }
-        data class ToggleControls(val showProgress: Boolean) : State()
-        data class ControlBehavior(val areControlsAccepted: Boolean, val isFullscreen: Boolean, val isExpanded: Boolean): State()
-        data class Bind(val displayPipIcon: Boolean) : State()
-        data class Preview(val path: String) : State()
-        data class PreviewThumbnail(val path: String) : State()
-        data class Duration(val duration: Long, val formattedDuration: String) : State() {
-            override val level: EventTracker.Level
-                get() = EventTracker.Level.DEBUG
-        }
-        data class Progress(val progress: Long, val bufferedProgress: Long, val formattedProgress: String) : State() {
-            override val level: EventTracker.Level
-                get() = EventTracker.Level.DEBUG
-        }
-        data class DisplayQualityOptions(val options: List<Stream>) : State()
-        data class Quality(val qualityLevel: Stream) : State()
-    }
+sealed class PlayerAction : EventTracker.Action {
+    object ViewCreator : PlayerAction()
+    class PlayVideo(val videoId: String, val commentId: String? = null) : PlayerAction()
+    class Like(val comment: Comment) : PlayerAction()
+    class Reply(val parent: Comment) : PlayerAction()
+    class Dislike(val comment: Comment) : PlayerAction()
+    class ViewReplies(val comment: Comment) : PlayerAction()
+    class ViewUser(val user: UserEntity) : PlayerAction()
+    class SetViewMode(val viewMode: ViewMode) : PlayerAction()
+}
 
-    sealed class Action : EventTracker.Action {
-        object PlayPause : Action()
-        object SkipForward : Action()
-        object SkipBackward : Action()
-        object ToggleFullscreen : Action()
-        object MinimizePlayer : Action()
-        object RequestShare : Action()
-        class SeekProgress(val progress: Int) : Action()
-        class Download(val quality: Int) : Action()
-        class Quality(val quality: Int) : Action()
-    }
+data class PlayerState(val isLoading: Boolean = true,
+                       val video: Video? = null,
+                       val relatedVideos: List<Video> = emptyList(),
+                       val comments: List<Comment> = emptyList(),
+                       val errors: List<PlayerErrors> = emptyList(),
+                       val viewMode: ViewMode = ViewMode.None(false))
+
+sealed class ViewMode {
+    data class None(val dismissed: Boolean) : ViewMode()
+    data class Scale(val percent: Float) : ViewMode()
+    data class Swipe(val percent: Float) : ViewMode()
+    object PictureInPicture : ViewMode()
+    data class FullScreen(val controlsEnabled: Boolean) : ViewMode()
+    data class Expanded(val controlsEnabled: Boolean) : ViewMode()
+}
+
+enum class PlayerErrors(@StringRes val message: Int) {
+    NoComments(R.string.details_error_noComments),
+    NoRelatedVideos(R.string.details_error_noRelatedVideos),
+    General(R.string.details_error_general),
+    Like(R.string.details_error_like),
+    Dislike(R.string.details_error_dislike)
 }

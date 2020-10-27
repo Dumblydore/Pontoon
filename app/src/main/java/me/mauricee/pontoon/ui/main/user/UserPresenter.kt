@@ -24,8 +24,7 @@ class UserPresenter @Inject constructor(private val videoRepository: VideoReposi
         is UserContract.Action.Video -> navigateToVideo(action)
     }
 
-    private fun navigateToVideo(action: UserContract.Action.Video) = videoRepository.getVideo(action.videoId)
-            .firstOrError().flatMapObservable { stateless { navigator.playVideo(it) } }
+    private fun navigateToVideo(action: UserContract.Action.Video) = stateless { navigator.playVideo(action.videoId) }
             .onErrorReturnItem(UserContract.State.Error(UserContract.State.Error.Type.PlaybackFailed))
 
     private fun refresh(userId: String): Observable<UserContract.State> = userRepository.getUser(userId)

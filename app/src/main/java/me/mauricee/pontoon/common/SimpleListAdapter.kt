@@ -37,7 +37,7 @@ class SimpleListAdapter<M : Diffable<*>>(
             view.setOnClickListener(this)
         }
 
-        override fun onClick(v: View) = _clicks.onNext(ClickEvent(v, adapterPosition, getItem(adapterPosition)))
+        override fun onClick(v: View) = _clicks.onNext(ClickEvent(v, layoutPosition, getItem(layoutPosition)))
     }
 
     data class ClickEvent<M>(val view: View, val position: Int, val model: M)

@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.ui.main.player
+package me.mauricee.pontoon.ui.main.player.playback
 
 import android.content.Context
 import android.util.AttributeSet

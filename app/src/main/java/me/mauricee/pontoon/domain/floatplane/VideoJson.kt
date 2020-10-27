@@ -19,5 +19,6 @@ data class VideoJson(@SerializedName("creator") val creator: String,
         get() = thumbnail?.path ?: ""
 
     //TODO Sometimes related videos don't return with a release date
-    fun toEntity() = VideoEntity(guid, creator, description, releaseDate ?: Instant.now(), duration, defaultThumbnail, title, null)
+    fun toEntity() = VideoEntity(guid, creator, description, releaseDate
+            ?: Instant.now(), duration, defaultThumbnail, title, null)
 }

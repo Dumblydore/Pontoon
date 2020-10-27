@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.ui.main.details.comment
+package me.mauricee.pontoon.ui.main.player.details.comment
 
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.analytics.EventTracker

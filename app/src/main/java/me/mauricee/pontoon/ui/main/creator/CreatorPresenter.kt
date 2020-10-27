@@ -20,7 +20,7 @@ class CreatorPresenter @Inject constructor(private val creatorRepository: Creato
 
     private fun handleActions(action: CreatorContract.Action): Observable<CreatorContract.State> = when (action) {
         is CreatorContract.Action.Refresh -> refresh(action.creator, action.clean)
-        is CreatorContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video) }
+        is CreatorContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video.id) }
     }.onErrorReturnItem(CreatorContract.State.Error())
 
     private fun refresh(creator: String, clean: Boolean): Observable<CreatorContract.State> = Observable.merge(

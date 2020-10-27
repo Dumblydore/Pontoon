@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.model.video
 
 import android.net.Uri
+import android.os.Parcelable
 import androidx.core.net.toUri
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
@@ -10,6 +11,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.parcel.Parcelize
 import me.mauricee.pontoon.domain.floatplane.ContentType
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.doOnIo
@@ -69,7 +71,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
             val uri = content.resource.uri.replace("{qualityLevels}", level.name)
                     .replace("{qualityLevelParams.token}", content.resource.data.qualityLevelParams[level.name]?.token
                             ?: "")
-            Stream(level.label, "${content.cdn}$uri")
+            Stream(level.label, level.order, "${content.cdn}$uri")
         }
     }
 
@@ -101,7 +103,8 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
     class NoSubscriptionsException : Exception("No subscriptions available")
 }
 
-data class Stream(val name: String, val url: String)
+@Parcelize
+data class Stream(val name: String, val ordinal: Int, val url: String) : Parcelable
 
 data class Playback(val video: Video, val streams: List<Stream>)
 

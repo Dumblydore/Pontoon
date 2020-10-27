@@ -5,11 +5,13 @@ def applyAnalytics = true// (project.findProperty('enableAnalytics') ?: "false")
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'de.jjohannes.missing-metadata-guava'
 if (applyAnalytics) {
     apply plugin: 'com.google.gms.google-services'
     apply plugin: 'com.google.firebase.crashlytics'
     apply plugin: 'com.google.firebase.firebase-perf'
 }
+
 
 def major = 0
 def minor = 9
@@ -133,6 +135,7 @@ dependencies {
     implementation "com.google.android.exoplayer:extension-cast:$exo_player_version"
     implementation "com.google.android.exoplayer:exoplayer-hls:$exo_player_version"
     implementation "com.google.android.exoplayer:extension-mediasession:$exo_player_version"
+    implementation "com.google.android.exoplayer:extension-media2:$exo_player_version"
 
     //  Architecture Components
     implementation "androidx.room:room-runtime:$arch_components_version"
@@ -154,6 +157,7 @@ dependencies {
     // MediaSession
     implementation "androidx.media2:media2-session:$media_version"
     implementation "androidx.media2:media2-player:$media_version"
+    implementation "androidx.media2:media2-widget:$media_version"
 
     //  Tests
     testImplementation 'junit:junit:4.12'

@@ -18,7 +18,7 @@ import me.mauricee.pontoon.ui.login.LoginError
 import me.mauricee.pontoon.ui.login.LoginViewModel
 import javax.inject.Inject
 
-class LoginFragment : NewBaseFragment() {
+class LoginFragment : NewBaseFragment(R.layout.fragment_login) {
 
     @Inject
     lateinit var viewModel: LoginViewModel
@@ -41,8 +41,6 @@ class LoginFragment : NewBaseFragment() {
                 login_token_edit.editorActionEvents().map { loginAction },
                 login_privacy.clicks().map { LoginAction.PrivacyPolicy }))
                 .compose(emitActivationArgs())
-
-    override fun getLayoutId(): Int = R.layout.fragment_login
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

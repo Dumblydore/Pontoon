@@ -37,24 +37,23 @@ import me.mauricee.pontoon.rx.context.registerReceiver
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-@AppScope
-class Player @Inject constructor(preferences: Preferences,
+class Player @Inject constructor(/*preferences: Preferences,
                                  private val networkSourceFactory: HlsMediaSource.Factory,
                                  private val context: Context,
                                  private val playerFactory: PlayerFactory,
-                                 private val mediaSession: MediaSessionCompat) : MediaSessionCompat.Callback(),
+                                 private val mediaSession: MediaSessionCompat*/) : MediaSessionCompat.Callback(),
         Player.EventListener, LifecycleObserver {
     @PlaybackStateCompat.State
     private var state: Int = PlaybackStateCompat.STATE_NONE
-        set(value) {
-            if (field != value) {
-                field = value
-                stateSubject.accept(value)
-                PlaybackStateCompat.Builder(mediaSession.controller.playbackState)
-                        .setState(value, player?.currentPosition ?: 0, 1f)
-                        .build().also(mediaSession::setPlaybackState)
-            }
-        }
+//        set(value) {
+//            if (field != value) {
+//                field = value
+//                stateSubject.accept(value)
+//                PlaybackStateCompat.Builder(mediaSession.controller.playbackState)
+//                        .setState(value, player?.currentPosition ?: 0, 1f)
+//                        .build().also(mediaSession::setPlaybackState)
+//            }
+//        }
 
     private val subs = CompositeDisposable()
 
@@ -76,25 +75,25 @@ class Player @Inject constructor(preferences: Preferences,
 
     private var player: Player? = null
     var currentlyPlaying: Playback? = null
-        set(value) {
-            if (value?.video?.id != field?.video?.id && value != null) {
-                load(value)
-                MediaMetadataCompat.Builder()
-                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, value.video.entity.title)
-                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, value.video.entity.description)
-                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, value.video.creator.entity.name)
-                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value.video.entity.thumbnail)
-                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, value.video.entity.title)
-                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.entity.duration)
-                        .build().apply(mediaSession::setMetadata)
-            } else if (value != null) {
-                player?.playWhenReady = true
-            } else {
-                player?.stop()
-                mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
-            }
-            field = value
-        }
+//        set(value) {
+//            if (value?.video?.id != field?.video?.id && value != null) {
+//                load(value)
+//                MediaMetadataCompat.Builder()
+//                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, value.video.entity.title)
+//                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, value.video.entity.description)
+//                        .putText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, value.video.creator.entity.name)
+//                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value.video.entity.thumbnail)
+//                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, value.video.entity.title)
+//                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, value.video.entity.duration)
+//                        .build().apply(mediaSession::setMetadata)
+//            } else if (value != null) {
+//                player?.playWhenReady = true
+//            } else {
+//                player?.stop()
+//                mediaSession.setMetadata(MediaMetadataCompat.Builder().build())
+//            }
+//            field = value
+//        }
 
     var viewMode: ViewMode = ViewMode.Expanded
         set(value) {
@@ -106,7 +105,7 @@ class Player @Inject constructor(preferences: Preferences,
     val viewModes: Observable<ViewMode>
         get() = viewModeRelay.hide()
 
-    var quality: String = preferences.defaultQualityLevel
+    var quality: String = ""/*preferences.defaultQualityLevel
         set(value) {
             if (value != field) {
                 val progress = player?.currentPosition ?: 0
@@ -117,7 +116,7 @@ class Player @Inject constructor(preferences: Preferences,
                 }
             }
             field = value
-        }
+        }*/
 
     val isPlaying: Boolean
         get() = state == PlaybackStateCompat.STATE_PLAYING
@@ -129,24 +128,24 @@ class Player @Inject constructor(preferences: Preferences,
         get() = player is SimpleExoPlayer
 
     init {
-        mediaSession.setPlaybackState(PlaybackStateCompat.Builder().setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
-                .setActions(PlaybackStateCompat.ACTION_PAUSE or
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
-                        PlaybackStateCompat.ACTION_PLAY)
-                .build())
-        bind()
-        subs += playerFactory.playback.subscribe {
-            player?.playWhenReady = false
-            player?.removeListener(this)
-            it.addListener(this)
-            val oldPlayer = player
-            player = it
-            currentlyPlaying?.apply {
-                load((streams[quality]
-                        ?: streams.first()).url.toUri(), video, oldPlayer?.currentPosition
-                        ?: 0, mediaSession.isActive)
-            }
-        }
+//        mediaSession.setPlaybackState(PlaybackStateCompat.Builder().setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
+//                .setActions(PlaybackStateCompat.ACTION_PAUSE or
+//                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
+//                        PlaybackStateCompat.ACTION_PLAY)
+//                .build())
+//        bind()
+//        subs += playerFactory.playback.subscribe {
+//            player?.playWhenReady = false
+//            player?.removeListener(this)
+//            it.addListener(this)
+//            val oldPlayer = player
+//            player = it
+//            currentlyPlaying?.apply {
+//                load((streams[quality]
+//                        ?: streams.first()).url.toUri(), video, oldPlayer?.currentPosition
+//                        ?: 0, mediaSession.isActive)
+//            }
+//        }
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -206,51 +205,51 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     fun release() {
-        playerFactory.release()
-        mediaSession.release()
+//        playerFactory.release()
+//        mediaSession.release()
     }
 
     fun playPause() {
         if (player?.playWhenReady == true) onPause() else onPlay()
     }
 
-    fun progress(): Observable<Long> = playerFactory.playback.switchMap { currentPlayer ->
+    fun progress(): Observable<Long> = /*playerFactory.playback.switchMap { currentPlayer ->
         Observable.interval(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.from(currentPlayer.applicationLooper))
                 .map { currentPlayer.currentPosition }
                 .subscribeOn(AndroidSchedulers.from(currentPlayer.applicationLooper))
                 .startWith(currentPlayer.currentPosition)
-    }
+    }*/ Observable.empty()
 
-    fun bufferedProgress(): Observable<Long> = playerFactory.playback.switchMap { currentPlayer ->
+    fun bufferedProgress(): Observable<Long> = /*playerFactory.playback.switchMap { currentPlayer ->
         Observable.interval(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.from(currentPlayer.applicationLooper))
                 .map { currentPlayer.bufferedPosition }
                 .subscribeOn(AndroidSchedulers.from(currentPlayer.applicationLooper))
                 .startWith(currentPlayer.bufferedPosition)
-    }
+    }*/ Observable.empty()
 
     fun setQualityIndex(qualityIndex: Int): Stream? {
         return currentlyPlaying?.streams?.getOrNull(qualityIndex)?.also { quality = it.name }
     }
 
     fun bind() {
-        mediaSession.setCallback(this)
-        subs += context.registerReceiver(IntentFilter(Intent.ACTION_HEADSET_PLUG))
-                .map(BroadcastEvent::intent).subscribe(this::handleHeadsetChanges)
+//        mediaSession.setCallback(this)
+//        subs += context.registerReceiver(IntentFilter(Intent.ACTION_HEADSET_PLUG))
+//                .map(BroadcastEvent::intent).subscribe(this::handleHeadsetChanges)
     }
 
     fun onActive() {
-        mediaSession.isActive = true
+//        mediaSession.isActive = true
     }
 
     fun onInactive() {
-        mediaSession.isActive = false
+//        mediaSession.isActive = false
     }
 
     fun clear() {
-        subs.clear()
-        mediaSession.setCallback(null)
-        player?.removeListener(this)
-        mediaSession.release()
+//        subs.clear()
+//        mediaSession.setCallback(null)
+//        player?.removeListener(this)
+//        mediaSession.release()
     }
 
     private fun handleHeadsetChanges(intent: Intent) {
@@ -273,25 +272,26 @@ class Player @Inject constructor(preferences: Preferences,
     }
 
     private fun load(uri: Uri, video: Video, startAt: Long = 0, autoPlay: Boolean = true) {
-        (player as? ExoPlayer)?.just {
-            setMediaSource(networkSourceFactory.createMediaSource(MediaItem.fromUri(uri)))
-        }
-        (player as? CastPlayer)?.just {
-
-            val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE).apply {
-                putString(MediaMetadata.KEY_TITLE, video.entity.title)
-                putString(MediaMetadata.KEY_SUBTITLE, video.creator.entity.name)
-                addImage(WebImage(video.entity.thumbnail.toUri()))
-            }
-            val info = MediaInfo.Builder(uri.toString())
-                    .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                    .setContentType("application/x-mpegurl")
-                    .setMetadata(metaData)
-                    .build()
-            loadItem(MediaQueueItem.Builder(info).setAutoplay(true).build(), startAt)
-        }
-
-        player?.playWhenReady = autoPlay
+//        (player as? ExoPlayer)?.just {
+//            setMediaSource(networkSourceFactory.createMediaSource(MediaItem.fromUri(uri)))
+//            prepare()
+//        }
+//        (player as? CastPlayer)?.just {
+//
+//            val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE).apply {
+//                putString(MediaMetadata.KEY_TITLE, video.entity.title)
+//                putString(MediaMetadata.KEY_SUBTITLE, video.creator.entity.name)
+//                addImage(WebImage(video.entity.thumbnail.toUri()))
+//            }
+//            val info = MediaInfo.Builder(uri.toString())
+//                    .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+//                    .setContentType("application/x-mpegurl")
+//                    .setMetadata(metaData)
+//                    .build()
+//            loadItem(MediaQueueItem.Builder(info).setAutoplay(true).build(), startAt)
+//        }
+//
+//        player?.playWhenReady = autoPlay
     }
 
     enum class ViewMode {

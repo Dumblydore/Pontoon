@@ -1,26 +1,66 @@
 package me.mauricee.pontoon.playback
 
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.plusAssign
-import me.mauricee.pontoon.common.playback.PlayerFactory
-import me.mauricee.pontoon.di.AppScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
+import androidx.media2.session.MediaController
+import androidx.media2.session.MediaSession
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ext.cast.CastPlayer
+import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener
+import com.google.android.exoplayer2.ext.media2.SessionPlayerConnector
+import io.reactivex.Completable
+import io.reactivex.schedulers.Schedulers
+import me.mauricee.pontoon.rx.Optional
+import me.mauricee.pontoon.ui.main.MainScope
+import me.mauricee.pontoon.ui.main.player.playback.NewPlayerView
 import javax.inject.Inject
 
-@AppScope
-class NewPlayer @Inject constructor(private val playerFactory: PlayerFactory,
-                                    private val mediaSessionConnector: MediaSessionConnector) : Disposable {
-
-    private val subs = CompositeDisposable()
-    private var activePlayer: Player? = null
+@MainScope
+class NewPlayer @Inject constructor(lifecycle: LifecycleOwner,
+                                    private val exoPlayer: WrappedExoPlayer,
+                                    private val playerConnector: SessionPlayerConnector,
+                                    private val session: MediaSession,
+                                    private val controller: MediaController,
+                                    private val castPlayer: Optional<CastPlayer>) : LifecycleObserver, MediaController.ControllerCallback() {
 
     init {
-        subs += playerFactory.playback.doOnNext { activePlayer = it }.subscribe(mediaSessionConnector::setPlayer)
+        lifecycle.lifecycle.addObserver(this)
     }
 
-    override fun dispose() = subs.clear()
+    val isPlayingLocally: Boolean
+        get() = exoPlayer.activePlayer is SimpleExoPlayer
 
-    override fun isDisposed(): Boolean = false
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    private fun onCreate() {
+    }
+
+    fun playItem(videoId: String): Completable = Completable.fromAction {
+        controller.setMediaItem(videoId).get()
+        controller.play()
+    }.subscribeOn(Schedulers.computation())
+
+    fun pause(): Completable = Completable.fromAction {
+        controller.pause()
+    }
+
+    fun stop(): Completable = Completable.fromAction {
+        controller.pause()
+    }
+
+    fun bindToPlayer(view: NewPlayerView) {
+        view.setSession(playerConnector, exoPlayer)
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private fun onDestroy() {
+        playerConnector.close()
+        controller.close()
+        session.close()
+        castPlayer.value?.apply {
+            setSessionAvailabilityListener(null)
+            release()
+        }
+    }
 }

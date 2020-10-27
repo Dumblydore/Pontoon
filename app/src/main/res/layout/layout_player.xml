@@ -56,4 +56,14 @@
         android:background="@drawable/bg_scale_outline"
         android:visibility="gone"
         tools:visibility="visible" />
+
+    <me.mauricee.pontoon.common.TimeBarView
+        android:id="@+id/player_controls_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="-8dp"
+        android:progress="50"
+        android:secondaryProgress="60"
+        android:splitTrack="true" />
 </FrameLayout>

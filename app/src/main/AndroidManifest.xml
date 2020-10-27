@@ -72,6 +72,7 @@
         <activity
             android:name="me.mauricee.pontoon.ui.main.MainActivity"
             android:allowTaskReparenting="true"
+            android:hardwareAccelerated="true"
             android:autoRemoveFromRecents="true"
             android:windowSoftInputMode="adjustPan"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|uiMode"
@@ -80,8 +81,13 @@
             android:resizeableActivity="true"
             android:screenOrientation="portrait"
             android:supportsPictureInPicture="true" />
-
         <activity android:name=".preferences.PreferencesActivity" />
+<!--        <service android:name=".playback.PlayerService"-->
+<!--            android:exported="false">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="androidx.media2.session.MediaSessionService" />-->
+<!--            </intent-filter>-->
+<!--        </service>-->
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="me.mauricee.pontoon.cast.OptionProvider" />

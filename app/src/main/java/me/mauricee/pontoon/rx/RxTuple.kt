@@ -25,4 +25,9 @@ object RxTuple {
     fun <T, R, V> combineLatestAsTriple(t1: Observable<T>, t2: Observable<R>, t3: Observable<V>): Observable<Triple<T, R, V>> =
             Observable.combineLatest<T, R, V, Triple<T, R, V>>(t1, t2, t3, Function3(::Triple))
 
+    fun <T, R, V, X> combineLatestAsQuad(t1: Observable<T>, t2: Observable<R>, t3: Observable<V>, t4: Observable<X>): Observable<Quad<T, R, V, X>> =
+            Observable.combineLatest<T, R, V, X, Quad<T, R, V, X>>(t1, t2, t3, t4, ::Quad)
+
 }
+
+data class Quad<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)

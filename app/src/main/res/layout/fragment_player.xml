@@ -4,21 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <me.mauricee.pontoon.ui.main.player.PlayerView
+    <me.mauricee.pontoon.ui.main.player.playback.NewPlayerView
         android:id="@+id/player.display"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:controller_layout_id="@layout/layout_player_controls"
-        app:player_layout_id="@layout/layout_player" />
-
-    <me.mauricee.pontoon.common.TimeBarView
-        android:id="@+id/player_controls_progress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="-8dp"
-        android:progress="50"
-        android:secondaryProgress="60"
-        android:splitTrack="true" />
-
+        app:enableControlView="true" />
 </FrameLayout>

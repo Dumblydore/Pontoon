@@ -28,7 +28,7 @@ class HistoryPresenter @Inject constructor(private val videoRepository: VideoRep
 
     private fun handleAction(action: HistoryContract.Action): Observable<HistoryContract.State> = stateless {
         when (action) {
-            is HistoryContract.Action.PlayVideo -> navigator.playVideo(action.video)
+            is HistoryContract.Action.PlayVideo -> navigator.playVideo(action.video.id)
         }
     }
 }

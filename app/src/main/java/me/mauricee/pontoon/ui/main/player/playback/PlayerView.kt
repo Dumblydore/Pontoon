@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.ui.main.player
+package me.mauricee.pontoon.ui.main.player.playback
 
 import android.content.Context
 import android.graphics.Color
@@ -110,7 +110,8 @@ class PlayerView : FrameLayout, VideoListener, Player.EventListener {
         player.addListener(this)
         (player as? SimpleExoPlayer)?.with {
             player.addVideoListener(this)
-            player.setVideoTextureView(player_content_surface)
+//            player.setVideoTextureView(
+//                    player_content_surface)
             onRenderedFirstFrame()
 
         }

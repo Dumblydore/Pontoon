@@ -22,15 +22,13 @@ import me.mauricee.pontoon.ui.login.LoginViewModel
 import javax.inject.Inject
 
 
-class WebLoginFragment : NewBaseFragment() {
+class WebLoginFragment : NewBaseFragment(R.layout.fragment_web_login) {
 
     @Inject
     lateinit var viewModel: LoginViewModel
 
 
     private val url: String by lazy { requireArguments().getString(UrlKey)!! }
-
-    override fun getLayoutId(): Int = R.layout.fragment_web_login
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

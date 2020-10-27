@@ -1,10 +1,10 @@
-package me.mauricee.pontoon.ui.main.details
+package me.mauricee.pontoon.ui.main.player.details
 
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import me.mauricee.pontoon.ui.main.details.comment.CommentDialogFragment
-import me.mauricee.pontoon.ui.main.details.replies.RepliesDialogFragment
+import me.mauricee.pontoon.ui.main.player.details.comment.CommentDialogFragment
+import me.mauricee.pontoon.ui.main.player.details.replies.RepliesDialogFragment
 
 @Module
 interface DetailsModule {

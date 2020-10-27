@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.ui.main.details
+package me.mauricee.pontoon.ui.main.player.details
 
 import android.os.Bundle
 import android.text.format.DateUtils
@@ -8,56 +8,60 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.transition.TransitionInflater
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.snackbar.Snackbar
-import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_details.*
 import kotlinx.android.synthetic.main.fragment_details.view.*
 import kotlinx.android.synthetic.main.item_details_post_comment.view.*
 import kotlinx.android.synthetic.main.item_details_video.view.*
+import kotlinx.android.synthetic.main.item_video_card.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.SimpleListAdapter
+import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.User
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.ui.BaseFragment
-import me.mauricee.pontoon.ui.main.details.comment.CommentDialogFragment
-import me.mauricee.pontoon.ui.main.details.replies.RepliesDialogFragment
+import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.main.player.PlayerAction
+import me.mauricee.pontoon.ui.main.player.PlayerViewModel
+import me.mauricee.pontoon.ui.main.player.details.comment.CommentDialogFragment
+import me.mauricee.pontoon.ui.main.player.details.replies.RepliesDialogFragment
 import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
-class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, DetailsContract.Navigator {
-
-    @Inject
-    lateinit var relatedVideosAdapter: RelatedVideoAdapter
+class DetailsFragment : NewBaseFragment(R.layout.fragment_details), DetailsContract.Navigator {
 
     @Inject
     lateinit var commentsAdapter: CommentAdapter
-    private val detailsAdapter = SimpleListAdapter(R.layout.item_details_video, ::displayVideoInfo)
-    private val postCommentAdapter = SimpleListAdapter(R.layout.item_details_post_comment, ::displayCurrentUser)
 
     @Inject
     lateinit var formatter: DateTimeFormatter
 
-    override fun getLayoutId(): Int = R.layout.fragment_details
+    @Inject
+    lateinit var viewModel: PlayerViewModel
 
-    override val actions: Observable<DetailsContract.Action>
-        get() = Observable.merge(commentsAdapter.actions,
-                relatedVideosAdapter.actions,
-                postCommentAdapter.clicks.map { DetailsContract.Action.PostComment }
-                /*player_small_icon.clicks().map { DetailsContract.Action.ViewCreator }*/)
-                .startWith(DetailsContract.Action.PlayVideo(requireArguments().getString(VideoKey)!!))
+    private val detailsAdapter = SimpleListAdapter(R.layout.item_details_video, ::displayVideoInfo)
+    private val relatedVideosAdapter = SimpleListAdapter(R.layout.item_video_list, ::bindRelatedVideo)
+    private val postCommentAdapter = SimpleListAdapter(R.layout.item_details_post_comment, ::displayCurrentUser)
+    private val contentAdapter by lazy { ConcatAdapter(detailsAdapter, relatedVideosAdapter, postCommentAdapter, commentsAdapter) }
+
+    private val videoId: String by lazy { requireArguments().getString(VideoKey, "") }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        postponeEnterTransition()
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
         subscriptions += commentsAdapter
-        subscriptions += relatedVideosAdapter
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        details_content.adapter = ConcatAdapter(detailsAdapter, relatedVideosAdapter, postCommentAdapter, commentsAdapter)
+        details_content.adapter = contentAdapter
+        subscriptions += relatedVideosAdapter.clicks.map { PlayerAction.PlayVideo(it.model.id) }
+                .subscribe(viewModel::sendAction)
+        subscriptions += postCommentAdapter.clicks.subscribe { comment(videoId) }
+        subscriptions += commentsAdapter.actions.subscribe { }
         subscriptions += detailsAdapter.clicks.subscribe {
             it.view.apply {
                 player_description.apply { isVisible = !isVisible }
@@ -65,31 +69,10 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
                 player_releaseDate.isVisible = player_description.isVisible
             }
         }
-    }
-
-    override fun updateState(state: DetailsContract.State) = when (state) {
-        is DetailsContract.State.Loading -> {
-        }
-        is DetailsContract.State.VideoInfo -> detailsAdapter.submitList(listOf(state.video))
-        is DetailsContract.State.Error -> handleError(state.type)
-        is DetailsContract.State.Comments -> {
-            commentsAdapter.submitList(state.comments)
-            scrollToSelectedComment()
-        }
-        is DetailsContract.State.RelatedVideos -> relatedVideosAdapter.submitList(state.relatedVideos)
-        is DetailsContract.State.Like -> snack(getString(R.string.details_commentLiked, state.comment.user.username))
-        is DetailsContract.State.Dislike -> snack(getString(R.string.details_commentDisliked, state.comment.user.username))
-        is DetailsContract.State.CurrentUser -> postCommentAdapter.submitList(listOf(state.user))
-    }
-
-    private fun handleError(type: DetailsContract.ErrorType) {
-        when (type) {
-            DetailsContract.ErrorType.Like,
-            DetailsContract.ErrorType.Dislike -> Snackbar.make(requireView(), type.message, Snackbar.LENGTH_LONG).show()
-            else -> {
-//                details.state = LazyLayout.ERROR
-//                details.errorText = getString(type.message)
-            }
+        viewModel.watchStateValue { video?.let(::listOf) }.notNull().observe(viewLifecycleOwner, detailsAdapter::submitList)
+        viewModel.watchStateValue { relatedVideos }.observe(viewLifecycleOwner, relatedVideosAdapter::submitList)
+        viewModel.watchStateValue { comments }.observe(viewLifecycleOwner) {
+            commentsAdapter.submitList(it) { scrollToSelectedComment() }
         }
     }
 
@@ -121,6 +104,16 @@ class DetailsFragment : BaseFragment<DetailsPresenter>(), DetailsContract.View, 
                 .placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
                 .into(view.player_small_icon)
+    }
+
+    private fun bindRelatedVideo(itemView: View, video: Video) {
+        itemView.item_title.text = video.entity.title
+        itemView.item_description.text = video.creator.entity.name
+        GlideApp.with(itemView).load(video.entity.thumbnail)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .placeholder(R.drawable.ic_default_thumbnail)
+                .error(R.drawable.ic_default_thumbnail)
+                .into(itemView.item_icon_big)
     }
 
     private fun snack(text: CharSequence, duration: Int = Snackbar.LENGTH_SHORT) {

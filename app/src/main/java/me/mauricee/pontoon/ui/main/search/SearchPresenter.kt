@@ -33,7 +33,7 @@ class SearchPresenter @Inject constructor(private val navigator: MainContract.Na
                                 .onErrorReturnItem(SearchContract.State.Error())
                     }
                 }
-                is SearchContract.Action.PlayVideo -> stateless { navigator.playVideo(action.video) }
+                is SearchContract.Action.PlayVideo -> stateless { navigator.playVideo(action.video.id) }
             }
 
     private fun handleResultState(state: StateBoundaryCallback.State, retry: () -> Unit): SearchContract.State = when (state) {

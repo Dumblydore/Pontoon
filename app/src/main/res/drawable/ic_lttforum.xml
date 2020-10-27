@@ -1,9 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--TODO Placeholder-->
+<!-- Thanks to u/Bit_1 from Reddit! -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:height="24dp"
     android:width="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path android:fillColor="#fff" android:pathData="M17,12V3A1,1 0 0,0 16,2H3A1,1 0 0,0 2,3V17L6,13H16A1,1 0 0,0 17,12M21,6H19V15H6V17A1,1 0 0,0 7,18H18L22,22V7A1,1 0 0,0 21,6Z" />
+    android:height="24dp"
+    android:viewportWidth="2223"
+    android:viewportHeight="2223">
+    <path
+        android:fillColor="#fff"
+        android:fillType="evenOdd"
+        android:pathData="M1111.11,0C1724.35,0 2222.22,497.87 2222.22,1111.11C2222.22,1724.35 1724.35,2222.22 1111.11,2222.22C497.87,2222.22 0,1724.35 0,1111.11C0,497.87 497.87,0 1111.11,0ZM1111.11,111.11C1663.03,111.11 2111.11,559.19 2111.11,1111.11C2111.11,1663.03 1663.03,2111.11 1111.11,2111.11C559.19,2111.11 111.11,1663.03 111.11,1111.11C111.11,559.19 559.19,111.11 1111.11,111.11Z" />
+    <path
+        android:fillColor="#fff"
+        android:pathData="M1827.36,1850.56L1539.31,2039.74L1539.31,916.67L1827.36,916.67L1827.36,1850.56Z" />
+    <path
+        android:fillColor="#fff"
+        android:pathData="M1949.01,387.94L762.48,785.85L762.62,482.43L1560.92,214.71L1949.01,387.94Z" />
+    <path
+        android:fillColor="#fff"
+        android:pathData="M972.24,1536.13L972.24,608.35L1255.99,608.35L1255.99,1443.41L972.24,1536.13Z" />
+    <path
+        android:fillColor="#fff"
+        android:pathData="M2138.06,921.08L1327.68,1192.13L1327.21,889.52L2046.98,648.77L2138.06,921.08Z" />
+    <path
+        android:fillColor="#fff"
+        android:pathData="M1470.47,1433.39L582.7,1741.51L676.93,2012.99L1469.98,1737.75L1470.47,1433.39Z" />
+    <path
+        android:fillColor="#fff"
+        android:pathData="M700.5,2023.06L629.91,2023.06L394.44,1829.71L394.44,377.23L658.79,153.57L700.5,153.57L700.5,2023.06Z" />
 </vector>

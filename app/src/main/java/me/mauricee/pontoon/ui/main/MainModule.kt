@@ -10,63 +10,67 @@ import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ui.main.creator.CreatorFragment
 import me.mauricee.pontoon.ui.main.creatorList.CreatorListFragment
-import me.mauricee.pontoon.ui.main.details.DetailsFragment
-import me.mauricee.pontoon.ui.main.details.DetailsModule
 import me.mauricee.pontoon.ui.main.history.HistoryFragment
-import me.mauricee.pontoon.ui.main.player.PlayerContract
-import me.mauricee.pontoon.ui.main.player.PlayerFragment
+import me.mauricee.pontoon.ui.main.player.PlayerViewModel
+import me.mauricee.pontoon.ui.main.player.details.DetailsFragment
+import me.mauricee.pontoon.ui.main.player.details.DetailsModule
+import me.mauricee.pontoon.ui.main.player.playback.PlayerContract
+import me.mauricee.pontoon.ui.main.player.playback.PlayerFragment
+import me.mauricee.pontoon.ui.main.player.playback.PlayerModule
 import me.mauricee.pontoon.ui.main.search.SearchFragment
 import me.mauricee.pontoon.ui.main.user.UserFragment
 import me.mauricee.pontoon.ui.main.videos.VideoFragment
 
 @Module
-abstract class MainModule {
+interface MainModule {
 
     @Binds
-    abstract fun bindMainNavigator(mainActivity: MainActivity): MainContract.Navigator
+    fun bindMainNavigator(mainActivity: MainActivity): MainContract.Navigator
 
     @Binds
-    abstract fun bindFullscreenCallback(mainActivity: MainActivity): PlayerContract.Controls
+    fun bindFullscreenCallback(mainActivity: MainActivity): PlayerContract.Controls
 
     @Binds
-    abstract fun bindPage(mainActivity: MainActivity): EventTracker.Page
+    fun bindPage(mainActivity: MainActivity): EventTracker.Page
 
     @Binds
-    abstract fun bindLifecycleOwner(mainActivity: MainActivity): LifecycleOwner
+    fun bindLifecycleOwner(mainActivity: MainActivity): LifecycleOwner
 
     @Binds
-    abstract fun bindActivity(mainActivity: MainActivity): AppCompatActivity
+    fun bindActivity(mainActivity: MainActivity): AppCompatActivity
 
     @ContributesAndroidInjector
-    abstract fun contributeVideoFragment(): VideoFragment
+    fun contributeVideoFragment(): VideoFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeSearchFragment(): SearchFragment
+    fun contributeSearchFragment(): SearchFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeUserFragment(): UserFragment
+    fun contributeUserFragment(): UserFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeCreatorFragment(): CreatorFragment
+    fun contributeCreatorFragment(): CreatorFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeCreatorListFragment(): CreatorListFragment
+    fun contributeCreatorListFragment(): CreatorListFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeHistoryFragment(): HistoryFragment
+    fun contributeHistoryFragment(): HistoryFragment
 
     @ContributesAndroidInjector(modules = [DetailsModule::class])
-    abstract fun contributePlayerFragment(): DetailsFragment
+    fun contributePlayerFragment(): DetailsFragment
 
-    @ContributesAndroidInjector
-    abstract fun contributeVideoPlayerFragment(): PlayerFragment
+    @ContributesAndroidInjector(modules = [PlayerModule::class])
+    fun contributeVideoPlayerFragment(): PlayerFragment
 
-    @Module
     companion object {
-        @MainScope
         @Provides
-        @JvmStatic
-        fun providesSharedPreferences(activity: MainActivity): MenuInflater = activity.menuInflater
+        @MainScope
+        fun MainActivity.providesMenuInflater(): MenuInflater = menuInflater
+
+        @Provides
+        @MainScope
+        fun MainActivity.providesPlayerViewModel(): PlayerViewModel = playerViewModel
     }
 
 }
