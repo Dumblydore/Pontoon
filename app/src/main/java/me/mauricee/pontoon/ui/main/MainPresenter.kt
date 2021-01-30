@@ -58,7 +58,7 @@ class MainPresenter @Inject constructor(private val accountManagerHelper: Accoun
     private fun playVideo(it: MainContract.Action.PlayVideo) = stateless { navigator.playVideo(it.videoId) }
 
     private fun subscriptions() = RxTuple.combineLatestAsPair(userRepository.activeUser,
-            subscriptionRepository.subscriptions.onErrorReturnItem(emptyList()))
+            subscriptionRepository.subscriptions.get().onErrorReturnItem(emptyList()))
             .map {
                 val (user, subs) = it
                 MainContract.State.CurrentUser(user, subs.size)

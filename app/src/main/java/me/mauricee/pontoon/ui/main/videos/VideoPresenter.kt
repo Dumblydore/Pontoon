@@ -47,13 +47,13 @@ class VideoPresenter @Inject constructor(private val subscriptionRepository: Sub
 //            .onErrorReturnItem(VideoContract.State.DownloadFailed).toObservable()
 
     private fun getVideos(clean: Boolean) = RxTuple.combineLatestAsPair(preferences.displayUnwatchedVideos,
-            subscriptionRepository.subscriptions.map { subs -> subs.map { it.id }.toTypedArray() }).map {
+            subscriptionRepository.subscriptions.get().map { subs -> subs.map { it.id }.toTypedArray() }).map {
         val (unwatched, subscribedCreators) = it
         videoRepository.getVideos(unwatched, clean, *subscribedCreators)
     }.switchMap { feed ->
         Observable.merge(feed.pages.map(VideoContract.State::DisplayVideos),
                 feed.state.map { processPaginationState(it, feed.retry) })
-    }.onErrorReturn(::processError).mergeWith(subscriptionRepository.subscriptions.map(VideoContract.State::DisplaySubscriptions))
+    }.onErrorReturn(::processError).mergeWith(subscriptionRepository.subscriptions.get().map(VideoContract.State::DisplaySubscriptions))
 
     private fun processError(e: Throwable): VideoContract.State.Error = when (e) {
         is VideoRepository.NoSubscriptionsException -> VideoContract.State.Error.Type.NoSubscriptions

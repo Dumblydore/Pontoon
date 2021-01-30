@@ -3,6 +3,7 @@ package me.mauricee.pontoon.ui.main.creatorList
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.support.v4.widget.refreshes
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
@@ -13,9 +14,13 @@ import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.main.MainContract
 import javax.inject.Inject
 
 class CreatorListFragment : NewBaseFragment(R.layout.fragment_creator_list) {
+
+    @Inject
+    lateinit var mainNavigator: MainContract.Navigator
 
     @Inject
     lateinit var creatorAdapter: CreatorListAdapter
@@ -33,8 +38,16 @@ class CreatorListFragment : NewBaseFragment(R.layout.fragment_creator_list) {
             addItemDecoration(SpaceItemDecoration(resources.getDimensionPixelSize(R.dimen.grid_spacing)))
         }
 
+        subscriptions += creatorAdapter.actions.subscribe { viewModel.sendAction(it) }
         subscriptions += binding.creatorListContainer.refreshes().subscribe {
             viewModel.sendAction(CreatorListContract.Action.Refresh)
+        }
+
+        viewModel.events.observe(viewLifecycleOwner) { event ->
+            when (event) {
+                is CreatorListContract.Event.DisplayUnsubscribedPrompt -> Snackbar.make(binding.root, getString(R.string.creator_list_unsubscribed), Snackbar.LENGTH_SHORT).show()
+                is CreatorListContract.Event.NavigateToCreator -> mainNavigator.toCreator("", event.creator.id)
+            }
         }
 
         viewModel.state.mapDistinct(CreatorListContract.State::creators)

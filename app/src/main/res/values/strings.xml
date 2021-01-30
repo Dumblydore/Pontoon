@@ -75,9 +75,10 @@
 
     <!-- All Creators -->
     <string name="creators_title">Creators</string>
+    <string name="creators_list_error_noCreators">Could not load creators</string>
+    <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
 
     <!-- Creator -->
-    <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
     <string name="creator_error_noCreator">Couldn\'t load creator.</string>
     <string name="creator_error_noVideos">This creator has no videos.</string>
     <string name="creator_error_general">@string/error_general</string>

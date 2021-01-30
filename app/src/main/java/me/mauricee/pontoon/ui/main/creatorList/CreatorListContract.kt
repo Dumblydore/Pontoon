@@ -25,15 +25,16 @@ interface CreatorListContract {
         class DisplayError(val error: Errors? = null) : Reducer()
     }
 
-    sealed class Event
+    sealed class Event {
+        class DisplayUnsubscribedPrompt(val creator: Creator) : Event()
+        class NavigateToCreator(val creator: Creator) : Event()
+    }
 
     class ViewModel(p: CreatorListPresenter) : EventViewModel<State, Action, Event>(State(), p) {
         class Factory @Inject constructor(p: CreatorListPresenter) : BaseViewModel.Factory<ViewModel>({ ViewModel(p) })
     }
 
     enum class Errors(@StringRes val msg: Int) {
-        Network(R.string.creator_error_noCreator),
-        Unsubscribed(R.string.creator_error_noVideos),
-        Unknown(R.string.creator_error_general)
+        Network(R.string.creators_list_error_noCreators)
     }
 }

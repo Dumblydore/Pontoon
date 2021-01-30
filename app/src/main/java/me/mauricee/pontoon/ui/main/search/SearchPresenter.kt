@@ -16,7 +16,7 @@ class SearchPresenter @Inject constructor(private val navigator: MainContract.Na
                                           private val videoRepository: VideoRepository, eventTracker: EventTracker) :
         BasePresenter<SearchContract.State, SearchContract.View>(eventTracker), SearchContract.Presenter {
 
-    override fun onViewAttached(view: SearchContract.View): Observable<SearchContract.State> = RxTuple.combineLatestAsPair(subscriptionRepository.subscriptions,view.actions.doOnNext { eventTracker.trackAction(it, view) })
+    override fun onViewAttached(view: SearchContract.View): Observable<SearchContract.State> = RxTuple.combineLatestAsPair(subscriptionRepository.subscriptions.get(),view.actions.doOnNext { eventTracker.trackAction(it, view) })
             .switchMap {
                 val (subscribedCreators, action) = it
                 handleActions(subscribedCreators,action)
