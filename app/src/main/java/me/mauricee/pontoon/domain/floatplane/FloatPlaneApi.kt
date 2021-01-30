@@ -30,7 +30,7 @@ interface FloatPlaneApi {
     fun confirmEmail(@Body confirmationRequest: ConfirmationRequest): Completable
 
     @POST("auth/login")
-    fun login(@Body loginCredentials: LoginRequest): Observable<UserJson.Container>
+    fun login(@Body loginCredentials: LoginRequest): Single<UserJson.Container>
 
     @POST("auth/checkFor2faLogin")
     fun login(@Body token: LoginAuthToken): Observable<UserJson.Container>

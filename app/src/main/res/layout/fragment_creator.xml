@@ -38,7 +38,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
+                android:orientation="vertical"
                 android:paddingTop="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_video_card" />
         </me.mauricee.pontoon.common.LazyLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

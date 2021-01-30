@@ -51,7 +51,7 @@ class VideoPresenter @Inject constructor(private val subscriptionRepository: Sub
         val (unwatched, subscribedCreators) = it
         videoRepository.getVideos(unwatched, clean, *subscribedCreators)
     }.switchMap { feed ->
-        Observable.merge(feed.videos.map(VideoContract.State::DisplayVideos),
+        Observable.merge(feed.pages.map(VideoContract.State::DisplayVideos),
                 feed.state.map { processPaginationState(it, feed.retry) })
     }.onErrorReturn(::processError).mergeWith(subscriptionRepository.subscriptions.map(VideoContract.State::DisplaySubscriptions))
 

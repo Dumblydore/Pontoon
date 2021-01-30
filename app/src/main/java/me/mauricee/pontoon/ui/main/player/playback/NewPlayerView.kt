@@ -121,7 +121,16 @@ class NewPlayerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     override fun onRenderedFirstFrame() {
         super.onRenderedFirstFrame()
-        logd("ExoPlayer tracks: ${exoPlayer?.currentTrackGroups?.length ?: 0}")
+        exoPlayer?.currentTrackGroups?.let {
+            for (i in 0 until it.length) {
+                val group = it.get(i)
+                for (y in 0 until group.length) {
+                    val format = group.getFormat(y)
+                    logd("ExoPlayer tracks: $format")
+                }
+            }
+        }
+//        ${exoPlayer?.currentTrackGroups ?: 0}
     }
 
     private fun startProgressWatcher(sessionPlayer: SessionPlayer) {

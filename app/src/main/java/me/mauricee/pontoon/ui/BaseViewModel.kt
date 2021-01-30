@@ -8,10 +8,21 @@ import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.subjects.PublishSubject
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.livedata.SingleLiveEvent
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.referentialDistinctUntilChanged
+
+abstract class EventViewModel<S : Any, A : EventTracker.Action, E : Any>(initialState: S, presenter: ReduxPresenter<S, *, A, E>) : BaseViewModel<S, A>() {
+    private val _events = SingleLiveEvent<E>()
+    val events: LiveData<E>
+        get() = _events
+
+    init {
+        subs += presenter.events.subscribe(_events::postValue)
+        subs += presenter.attachView(this, initialState).subscribe(::updateState)
+    }
+}
 
 abstract class BaseViewModel<S : Any, A : EventTracker.Action> : ViewModel, BaseContract.View<S, A> {
     private val _actions = PublishRelay.create<A>()
@@ -25,6 +36,10 @@ abstract class BaseViewModel<S : Any, A : EventTracker.Action> : ViewModel, Base
     constructor() : super()
 
     constructor(initialState: S, presenter: StatefulPresenter<S, A>) : super() {
+        subs += presenter.attachView(this, initialState).subscribe(::updateState)
+    }
+
+    constructor(initialState: S, presenter: ReduxPresenter<S, *, A, *>) : super() {
         subs += presenter.attachView(this, initialState).subscribe(::updateState)
     }
 

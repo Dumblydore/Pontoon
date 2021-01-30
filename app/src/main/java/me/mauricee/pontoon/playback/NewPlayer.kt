@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.playback
 
+import android.os.Parcelable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -12,6 +13,7 @@ import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener
 import com.google.android.exoplayer2.ext.media2.SessionPlayerConnector
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.parcel.Parcelize
 import me.mauricee.pontoon.rx.Optional
 import me.mauricee.pontoon.ui.main.MainScope
 import me.mauricee.pontoon.ui.main.player.playback.NewPlayerView
@@ -28,6 +30,9 @@ class NewPlayer @Inject constructor(lifecycle: LifecycleOwner,
     init {
         lifecycle.lifecycle.addObserver(this)
     }
+
+    val supportedQuality: Set<Quality>?
+        get() = controller.currentMediaItem?.metadata?.extras?.getParcelableArrayList<Quality>("")?.toSet()
 
     val isPlayingLocally: Boolean
         get() = exoPlayer.activePlayer is SimpleExoPlayer
@@ -63,4 +68,7 @@ class NewPlayer @Inject constructor(lifecycle: LifecycleOwner,
             release()
         }
     }
+
+    @Parcelize
+    data class Quality(val label: String, val url: String) : Parcelable
 }

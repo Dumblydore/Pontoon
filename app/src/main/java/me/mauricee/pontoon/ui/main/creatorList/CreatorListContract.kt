@@ -1,34 +1,39 @@
 package me.mauricee.pontoon.ui.main.creatorList
 
 import androidx.annotation.StringRes
-import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.creator.Creator
+import me.mauricee.pontoon.ui.BaseViewModel
+import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.ui.UiState
+import javax.inject.Inject
 
 interface CreatorListContract {
 
-    interface View : BaseContract.View<State, Action>
-
-    interface Presenter : BaseContract.Presenter<View>
-
     sealed class Action : EventTracker.Action {
+        object Refresh : Action()
         class CreatorSelected(val creator: Creator) : Action()
     }
 
-    sealed class State : EventTracker.State {
-        object Loading : State()
-        class DisplayCreators(val creator: List<Creator>) : State()
-        class Error(val type: Type = Type.Unknown) : State() {
-            override val tag: String
-                get() = "${super.tag}_$type"
-            override val level: EventTracker.Level
-                get() = EventTracker.Level.ERROR
-            enum class Type(@StringRes val msg: Int) {
-                Network(R.string.creator_error_noCreator),
-                Unsubscribed(R.string.creator_error_noVideos),
-                Unknown(R.string.creator_error_general)
-            }
-        }
+    data class State(val uiState: UiState = UiState.Empty, val creators: List<Creator> = emptyList())
+
+    sealed class Reducer {
+        object Loading : Reducer()
+        object Refreshing : Reducer()
+        class DisplayCreators(val creators: List<Creator>) : Reducer()
+        class DisplayError(val error: Errors? = null) : Reducer()
+    }
+
+    sealed class Event
+
+    class ViewModel(p: CreatorListPresenter) : EventViewModel<State, Action, Event>(State(), p) {
+        class Factory @Inject constructor(p: CreatorListPresenter) : BaseViewModel.Factory<ViewModel>({ ViewModel(p) })
+    }
+
+    enum class Errors(@StringRes val msg: Int) {
+        Network(R.string.creator_error_noCreator),
+        Unsubscribed(R.string.creator_error_noVideos),
+        Unknown(R.string.creator_error_general)
     }
 }

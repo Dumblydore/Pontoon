@@ -19,10 +19,10 @@ internal class CallObservable(private val originalCall: Call) : Observable<Respo
         var terminated = false
         try {
             val response = call.execute()
-            if (!call.isCanceled) {
+        if (!call.isCanceled()) {
                 observer.onNext(response)
             }
-            if (!call.isCanceled) {
+            if (!call.isCanceled()) {
                 terminated = true
                 observer.onComplete()
             }
@@ -30,7 +30,7 @@ internal class CallObservable(private val originalCall: Call) : Observable<Respo
             Exceptions.throwIfFatal(t)
             if (terminated) {
                 RxJavaPlugins.onError(t)
-            } else if (!call.isCanceled) {
+            } else if (!call.isCanceled()) {
                 try {
                     observer.onError(t)
                 } catch (inner: Throwable) {
@@ -46,6 +46,6 @@ internal class CallObservable(private val originalCall: Call) : Observable<Respo
 
         override fun dispose() = call.cancel()
 
-        override fun isDisposed(): Boolean = call.isCanceled
+        override fun isDisposed(): Boolean = call.isCanceled()
     }
 }

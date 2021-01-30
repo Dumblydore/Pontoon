@@ -4,11 +4,17 @@ import android.os.Looper
 import android.view.TextureView
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.analytics.AnalyticsListener
+import com.google.android.exoplayer2.source.LoadEventInfo
+import com.google.android.exoplayer2.source.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.video.VideoListener
 import me.mauricee.pontoon.common.playback.PlayerFactory
+import me.mauricee.pontoon.ext.logd
+import me.mauricee.pontoon.ext.loge
+import java.io.IOException
 import javax.inject.Inject
 
 class WrappedExoPlayer @Inject constructor(localExoPlayer: SimpleExoPlayer, private val playerFactory: PlayerFactory) : Player {
@@ -17,6 +23,17 @@ class WrappedExoPlayer @Inject constructor(localExoPlayer: SimpleExoPlayer, priv
     var activePlayer: Player = localExoPlayer
         private set
 
+    init {
+        localExoPlayer.addAnalyticsListener(object : AnalyticsListener {
+            override fun onPlayerError(eventTime: AnalyticsListener.EventTime, error: ExoPlaybackException) {
+                loge(error)
+            }
+
+            override fun onLoadError(eventTime: AnalyticsListener.EventTime, loadEventInfo: LoadEventInfo, mediaLoadData: MediaLoadData, error: IOException, wasCanceled: Boolean) {
+                loge(error)
+            }
+        })
+    }
 
     fun addVideoListener(listener: VideoListener) {
         (activePlayer as? SimpleExoPlayer)?.addVideoListener(listener)

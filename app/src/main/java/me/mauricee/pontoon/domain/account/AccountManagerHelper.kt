@@ -9,6 +9,7 @@ import java.util.*
 import javax.inject.Inject
 
 @AppScope
+@Deprecated(message = "Use Session repository")
 open class AccountManagerHelper @Inject constructor(private val sharedPreferences: SharedPreferences,
                                                     private val gson: Gson) {
 

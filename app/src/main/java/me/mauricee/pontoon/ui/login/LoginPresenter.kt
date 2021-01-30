@@ -11,9 +11,9 @@ import retrofit2.HttpException
 import java.net.URLDecoder
 import javax.inject.Inject
 
-class NewLoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
-                                            private val manager: AccountManagerHelper,
-                                            private val navigator: LoginNavigator) : StatefulPresenter<LoginState, LoginAction>() {
+class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
+                                         private val manager: AccountManagerHelper,
+                                         private val navigator: LoginNavigator) : StatefulPresenter<LoginState, LoginAction>() {
 
     private val codeRegex = Regex("[0-9]+")
 
@@ -69,7 +69,7 @@ class NewLoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlan
         })
     }
 
-    private fun login(request: LoginRequest): Observable<LoginState> = floatPlaneApi.login(request).flatMap {
+    private fun login(request: LoginRequest): Observable<LoginState> = floatPlaneApi.login(request).flatMapObservable {
         if (it.needs2Fa) state.copy(isLoading = false, prompt2FaCode = true).toObservable()
         else navigateToMain(it.user!!)
     }.startWith(state.copy(isLoading = true, error = null)).onErrorReturn(::processError)

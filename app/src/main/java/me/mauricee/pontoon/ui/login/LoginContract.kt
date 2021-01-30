@@ -6,8 +6,8 @@ import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ui.BaseViewModel
 import javax.inject.Inject
 
-class LoginViewModel(p: NewLoginPresenter) : BaseViewModel<LoginState, LoginAction>(LoginState(), p) {
-    class Factory @Inject constructor(p: NewLoginPresenter) : BaseViewModel.Factory<LoginViewModel>({ LoginViewModel(p) })
+class LoginViewModel(p: LoginPresenter) : BaseViewModel<LoginState, LoginAction>(LoginState(), p) {
+    class Factory @Inject constructor(p: LoginPresenter) : BaseViewModel.Factory<LoginViewModel>({ LoginViewModel(p) })
 }
 
 sealed class LoginAction : EventTracker.Action {
@@ -24,7 +24,6 @@ sealed class LoginAction : EventTracker.Action {
 data class LoginState(val isLoading: Boolean = false,
                       val prompt2FaCode: Boolean = false,
                       val error: LoginError? = null)
-
 
 enum class LoginError(@StringRes val msg: Int) {
     MissingUsername(R.string.login_error_missingUsername),

@@ -9,6 +9,7 @@ import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ui.main.creator.CreatorFragment
+import me.mauricee.pontoon.ui.main.creator.CreatorModule
 import me.mauricee.pontoon.ui.main.creatorList.CreatorListFragment
 import me.mauricee.pontoon.ui.main.history.HistoryFragment
 import me.mauricee.pontoon.ui.main.player.PlayerViewModel
@@ -39,6 +40,7 @@ interface MainModule {
     @Binds
     fun bindActivity(mainActivity: MainActivity): AppCompatActivity
 
+
     @ContributesAndroidInjector
     fun contributeVideoFragment(): VideoFragment
 
@@ -48,7 +50,7 @@ interface MainModule {
     @ContributesAndroidInjector
     fun contributeUserFragment(): UserFragment
 
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [CreatorModule::class])
     fun contributeCreatorFragment(): CreatorFragment
 
     @ContributesAndroidInjector

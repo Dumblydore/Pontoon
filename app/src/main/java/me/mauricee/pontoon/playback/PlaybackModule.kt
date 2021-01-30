@@ -14,6 +14,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.gms.cast.framework.CastContext
 import dagger.Module
 import dagger.Provides
+import io.lindstrom.m3u8.parser.MasterPlaylistParser
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.playback.converters.HlsMediaItemConverter
 import me.mauricee.pontoon.playback.providers.MediaItemProvider
@@ -28,6 +29,10 @@ object PlaybackModule {
 
     @Provides
     @MainScope
+    fun providesPlaylistParser() = MasterPlaylistParser()
+
+    @Provides
+    @MainScope
     fun providesAudioAttributes(): AudioAttributes = AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.CONTENT_TYPE_MOVIE)
@@ -36,7 +41,7 @@ object PlaybackModule {
     @Provides
     @MainScope
     fun providesHlsFactory(okHttpClient: OkHttpClient, authInterceptor: AuthInterceptor, agent: String): HlsMediaSource.Factory =
-            HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient.newBuilder().addInterceptor(authInterceptor).build()::newCall, agent))
+            HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient.newBuilder().addInterceptor(authInterceptor).build(), agent))
 
 
     @Provides

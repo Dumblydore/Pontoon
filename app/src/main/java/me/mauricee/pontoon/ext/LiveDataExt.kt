@@ -12,6 +12,8 @@ fun <T : Any> LiveData<T?>.notNull(): LiveData<T> = NotNullLiveData(this)
 
 inline fun <T, R> LiveData<T>.map(crossinline action: ((T) -> R)): LiveData<R> = Transformations.map(this) { action(it) }
 
+inline fun <T, R> LiveData<T>.mapDistinct(crossinline action: ((T) -> R)): LiveData<R> = Transformations.distinctUntilChanged(Transformations.map(this) { action(it) })
+
 fun <T> LiveData<T>.distinctUntilChanged(): LiveData<T> = Transformations.distinctUntilChanged(this)
 
 fun <T> LiveData<T>.referentialDistinctUntilChanged(): LiveData<T> = MediatorLiveData<T>().also { out ->

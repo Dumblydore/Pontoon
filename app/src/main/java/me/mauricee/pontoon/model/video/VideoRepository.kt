@@ -16,6 +16,7 @@ import me.mauricee.pontoon.domain.floatplane.ContentType
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.getAndFetch
+import me.mauricee.pontoon.model.PagedModel
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import okhttp3.ResponseBody
 import javax.inject.Inject
@@ -29,7 +30,8 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                                           private val videoCallbackFactory: VideoBoundaryCallback.Factory,
                                           private val pageListConfig: PagedList.Config) {
 
-    fun getVideos(unwatchedOnly: Boolean, clean: Boolean, vararg creatorIds: String): VideoResult {
+
+    fun getVideos(unwatchedOnly: Boolean, clean: Boolean, vararg creatorIds: String): PagedModel<Video> {
         val callback = videoCallbackFactory.newInstance(*creatorIds)
         val factory = if (unwatchedOnly) videoDao.getUnwatchedVideosByCreators(*creatorIds) else
             videoDao.getVideoByCreators(*creatorIds)
@@ -48,7 +50,9 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                                 .onErrorComplete().subscribe().also { doOnDispose(it::dispose) }
                     }
                 }
-                .let { VideoResult(it, callback.state, callback::retry) }
+                .let {
+                    PagedModel(it, callback.state, callback::refresh, callback::retry)
+                }
     }
 
     fun getVideo(videoId: String): Observable<Video> = videoStore.getAndFetch(videoId)
@@ -71,7 +75,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
             val uri = content.resource.uri.replace("{qualityLevels}", level.name)
                     .replace("{qualityLevelParams.token}", content.resource.data.qualityLevelParams[level.name]?.token
                             ?: "")
-            Stream(level.label, level.order, "${content.cdn}$uri")
+            Stream(level.label, level.order, level.width, level.height, "${content.cdn}$uri")
         }
     }
 
@@ -104,7 +108,10 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
 }
 
 @Parcelize
-data class Stream(val name: String, val ordinal: Int, val url: String) : Parcelable
+data class Stream(val name: String,
+                  val ordinal: Int,
+                  val width: Int, val height: Int,
+                  val url: String) : Parcelable
 
 data class Playback(val video: Video, val streams: List<Stream>)
 

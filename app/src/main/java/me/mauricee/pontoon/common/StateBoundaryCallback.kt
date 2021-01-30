@@ -13,6 +13,8 @@ open class StateBoundaryCallback<T : Any> : PagedList.BoundaryCallback<T>() {
 
     fun retry(): Unit = lastCall()
 
+    fun refresh(): Unit = onZeroItemsLoaded()
+
     @CallSuper
     override fun onZeroItemsLoaded() {
         super.onZeroItemsLoaded()

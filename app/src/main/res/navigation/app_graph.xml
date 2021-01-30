@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/app_graph"
+    app:startDestination="@id/launchFragment">
+
+    <fragment
+        android:id="@+id/launchFragment"
+        android:name="me.mauricee.pontoon.ui.launch.LaunchFragment"
+        android:label="LaunchFragment">
+        <action
+            android:id="@+id/action_launchFragment_to_login_graph"
+            app:destination="@id/login_graph">
+            <argument
+                android:name="initWith2FA"
+                app:argType="boolean" />
+        </action>
+        <action
+            android:id="@+id/action_launchFragment_to_main_graph"
+            app:destination="@id/main_graph" />
+    </fragment>
+    <navigation
+        android:id="@+id/login_graph"
+        app:startDestination="@id/loginFragment">
+        <fragment
+            android:id="@+id/loginFragment"
+            android:name="me.mauricee.pontoon.ui.login.login.LoginFragment"
+            android:label="LoginFragment">
+            <argument
+                android:name="initWith2FA"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <action
+                android:id="@+id/action_loginFragment_to_webLoginFragment"
+                app:destination="@id/webLoginFragment" />
+        </fragment>
+        <action
+            android:id="@+id/action_global_main_graph"
+            app:destination="@id/main_graph" />
+        <fragment
+            android:id="@+id/webLoginFragment"
+            android:name="me.mauricee.pontoon.ui.login.webLogin.WebLoginFragment"
+            android:label="WebLoginFragment" />
+    </navigation>
+    <navigation
+        android:id="@+id/main_graph"
+        app:startDestination="@id/videoFragment">
+        <fragment
+            android:id="@+id/videoFragment"
+            android:name="me.mauricee.pontoon.ui.main.videos.VideoFragment"
+            android:label="VideoFragment" />
+        <action
+            android:id="@+id/action_global_login_graph"
+            app:destination="@id/login_graph" />
+    </navigation>
+</navigation>

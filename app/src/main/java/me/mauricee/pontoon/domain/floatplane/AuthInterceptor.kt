@@ -44,7 +44,7 @@ class AuthInterceptor @Inject constructor(private val accountManager: AccountMan
     }
 
     private fun checkIf403(response: Response) {
-        if (!response.isSuccessful && response.code() == HTTP_FORBIDDEN) {
+        if (!response.isSuccessful && response.code == HTTP_FORBIDDEN) {
             sessionRelay.accept(true)
         }
     }

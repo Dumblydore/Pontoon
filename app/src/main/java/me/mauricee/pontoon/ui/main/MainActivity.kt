@@ -221,7 +221,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View, 
     }
 
     override fun toCreator(creatorName: String, creatorId: String) {
-        controller.pushFragment(CreatorFragment.newInstance(creatorId, creatorName))
+        controller.pushFragment(CreatorFragment.newInstance(creatorId))
         playerViewModel.sendAction(PlayerAction.SetViewMode(ViewMode.PictureInPicture))
     }
 
