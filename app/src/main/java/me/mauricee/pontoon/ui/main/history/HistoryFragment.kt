@@ -2,44 +2,42 @@ package me.mauricee.pontoon.ui.main.history
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.widget.Toolbar
-import androidx.recyclerview.widget.LinearLayoutManager
-import io.reactivex.Observable
-import kotlinx.android.synthetic.main.fragment_history.*
-import kotlinx.android.synthetic.main.lazy_error_layout.view.*
-import me.mauricee.pontoon.ui.BaseFragment
+import androidx.fragment.app.viewModels
+import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.LazyLayout
+import me.mauricee.pontoon.databinding.FragmentHistoryBinding
+import me.mauricee.pontoon.ext.mapDistinct
+import me.mauricee.pontoon.ext.notNull
+import me.mauricee.pontoon.ext.view.viewBinding
+import me.mauricee.pontoon.ui.NewBaseFragment
 import me.mauricee.pontoon.ui.main.VideoPageAdapter
 import javax.inject.Inject
 
-class HistoryFragment : BaseFragment<HistoryPresenter>(), HistoryContract.View {
+class HistoryFragment : NewBaseFragment(R.layout.fragment_history) {
 
     @Inject
     lateinit var videoAdapter: VideoPageAdapter
 
-    override val actions: Observable<HistoryContract.Action>
-        get() = videoAdapter.actions.map(HistoryContract.Action::PlayVideo)
+    @Inject
+    lateinit var factory: HistoryContract.ViewModel.Factory
 
-    override fun getLayoutId(): Int = R.layout.fragment_history
-
-    override fun getToolbar(): Toolbar? = history_toolbar
+    private val viewModel: HistoryContract.ViewModel by viewModels { factory }
+    private val binding by viewBinding(FragmentHistoryBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        history_list.adapter = videoAdapter
-        history_list.layoutManager = LinearLayoutManager(requireContext())
-    }
 
-    override fun updateState(state: HistoryContract.State) = when (state) {
-        is HistoryContract.State.Loading -> {}//history_container_lazy.state = LazyLayout.LOADING
-        is HistoryContract.State.DisplayVideos -> {
-            history_container_lazy.state = LazyLayout.SUCCESS
-            videoAdapter.submitList(state.videos)
+        binding.historyList.adapter = videoAdapter
+
+        subscriptions += videoAdapter.actions.subscribe {
+            viewModel.sendAction(HistoryContract.Action.PlayVideo(it))
         }
-        is HistoryContract.State.Error -> {
-            history_container_lazy.state = LazyLayout.ERROR
-            history_container_lazy.lazy_error_text.setText(state.type.msg)
-        }
+
+        viewModel.state.mapDistinct(HistoryContract.State::videos)
+                .observe(viewLifecycleOwner, videoAdapter::submitList)
+        viewModel.state.mapDistinct { it.uiState.lazyState() }
+                .observe(viewLifecycleOwner) { binding.historyContainerLazy.state = it }
+        viewModel.state.mapDistinct { it.uiState.error }.notNull()
+                .observe(viewLifecycleOwner) { binding.historyContainerLazy.errorText = it.text(requireContext()) }
     }
 }

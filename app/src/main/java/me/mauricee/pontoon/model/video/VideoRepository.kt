@@ -16,7 +16,9 @@ import me.mauricee.pontoon.domain.floatplane.ContentType
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.getAndFetch
+import me.mauricee.pontoon.model.NewPagedModel
 import me.mauricee.pontoon.model.PagedModel
+import me.mauricee.pontoon.model.PagedResult
 import me.mauricee.pontoon.model.edge.EdgeRepository
 import okhttp3.ResponseBody
 import javax.inject.Inject
@@ -44,7 +46,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                 .doOnTerminate(callback::dispose)
                 .apply {
                     if (clean) {
-                        Completable.fromCallable { videoDao.clearCreatorVideos(*creatorIds) }
+                        videoDao.clearCreatorVideos(*creatorIds)
                                 .observeOn(Schedulers.io())
                                 .subscribeOn(Schedulers.io())
                                 .onErrorComplete().subscribe().also { doOnDispose(it::dispose) }
@@ -59,7 +61,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
 
     fun getRelatedVideos(video: String): Observable<List<Video>> = relatedVideoStore.get(video)
 
-    fun search(query: String, vararg filteredSubs: String): VideoResult {
+    fun search(query: String, vararg filteredSubs: String): NewPagedModel<Video> {
         val callback = searchCallbackFactory.newInstance(query, *filteredSubs)
         return RxPagedListBuilder(videoDao.search("%$query%", *filteredSubs), pageListConfig)
                 .setFetchScheduler(Schedulers.io())
@@ -67,7 +69,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                 .setBoundaryCallback(callback)
                 .buildObservable()
                 .doOnDispose(callback::dispose)
-                .let { VideoResult(it, callback.state, callback::retry) }
+                .let { NewPagedModel(it, callback.pagingState, callback::refresh) }
     }
 
     fun getStream(videoId: String): Single<List<Stream>> = floatPlaneApi.getVideoContent(videoId, ContentType.vod).map { content ->

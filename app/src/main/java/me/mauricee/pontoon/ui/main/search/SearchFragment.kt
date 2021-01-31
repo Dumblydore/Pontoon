@@ -2,74 +2,63 @@ package me.mauricee.pontoon.ui.main.search
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
-import com.jakewharton.rxbinding2.view.clicks
-import io.reactivex.Observable
-import kotlinx.android.synthetic.main.fragment_search.*
-import kotlinx.android.synthetic.main.lazy_error_layout.*
-import me.mauricee.pontoon.ui.BaseFragment
+import com.jakewharton.rxbinding2.support.v7.widget.queryTextChanges
+import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.LazyLayout
+import me.mauricee.pontoon.databinding.FragmentSearchBinding
+import me.mauricee.pontoon.ext.map
+import me.mauricee.pontoon.ext.mapDistinct
+import me.mauricee.pontoon.ext.notNull
+import me.mauricee.pontoon.ext.view.viewBinding
+import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.main.VideoPageAdapter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class SearchFragment : BaseFragment<SearchPresenter>(), SearchContract.View {
+class SearchFragment : NewBaseFragment(R.layout.fragment_search) {
 
     @Inject
     lateinit var adapter: VideoPageAdapter
 
-    override val actions: Observable<SearchContract.Action>
-        get() = Observable.merge(adapter.actions.map(SearchContract.Action::PlayVideo),
-                lazy_error_retry.clicks().map { SearchContract.Action.Query(search_view.query.toString()) },
-                RxSearchView.queryTextChanges(search_view)
-                        .debounce(250, TimeUnit.MILLISECONDS)
-                        .map { SearchContract.Action.Query(it.toString()) }
-        ).startWith(SearchContract.Action.Query(search_view.query.toString()))
+    @Inject
+    lateinit var factory: SearchViewModel.Factory
 
-    override fun getLayoutId(): Int = R.layout.fragment_search
-
-    override fun getToolbar(): Toolbar? = search_toolbar
+    private val viewModel: SearchViewModel by viewModels { factory }
+    private val binding: FragmentSearchBinding by viewBinding(FragmentSearchBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        search_list.adapter = adapter
-        search_list.layoutManager = LinearLayoutManager(requireActivity())
-        if (search_view.query.isEmpty()) {
-            search_view.isIconified = false
-            search_view.requestFocusFromTouch()
-        }
-    }
 
-    override fun updateState(state: SearchContract.State) = when (state) {
-        is SearchContract.State.Loading -> {
-            adapter.submitList(null)
-            search_container_lazy.state = LazyLayout.LOADING
-        }
-        is SearchContract.State.FetchingPage -> search_page_progress.isVisible = true
-        is SearchContract.State.Results -> {
-            adapter.submitList(state.list)
-            search_container_lazy.state = LazyLayout.SUCCESS
-        }
-        is SearchContract.State.Error -> {
-            search_container_lazy.displayRetryButton = state.type != SearchContract.State.Type.NoText
-            search_container_lazy.errorText = getString(state.type.msg)
-            search_container_lazy.state = LazyLayout.ERROR
-        }
-        is SearchContract.State.FetchError -> {
-            search_page_progress.isVisible = false
-            Snackbar.make(view!!, state.type.msg, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry) { state.retry() }
-                    .show()
-        }
-        is SearchContract.State.FinishFetching -> search_page_progress.isVisible = false
-    }
+        binding.searchList.adapter = adapter
 
-    override fun reset() {
-        search_list.smoothScrollToPosition(0)
+        subscriptions += adapter.actions.map(SearchAction::VideoClicked)
+                .subscribe(viewModel::sendAction)
+        subscriptions += binding.searchView.queryTextChanges()
+                .filter(CharSequence::isNotBlank)
+                .map(CharSequence::toString)
+                .map(SearchAction::Query)
+                .debounce(250, TimeUnit.MILLISECONDS)
+                .subscribe(viewModel::sendAction)
+
+
+        viewModel.state.apply {
+            mapDistinct(SearchState::videos).observe(viewLifecycleOwner, adapter::submitList)
+            map { it.screenState.lazyState() }.observe(viewLifecycleOwner) {
+                binding.searchContainerLazy.state = it
+            }
+            mapDistinct { it.pageState is UiState.Loading }.observe(viewLifecycleOwner) {
+                binding.searchPageProgress.isVisible = it
+            }
+            mapDistinct { it.screenState.error }.notNull().observe(viewLifecycleOwner) {
+                binding.searchContainerLazy.errorText = it.text(requireContext())
+            }
+            mapDistinct { it.pageState.error?.message }.notNull().observe(viewLifecycleOwner) {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+            }
+        }
     }
 }

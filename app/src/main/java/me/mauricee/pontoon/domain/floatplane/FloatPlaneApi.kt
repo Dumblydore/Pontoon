@@ -44,6 +44,9 @@ interface FloatPlaneApi {
     @GET("creator/videos")
     fun getVideos(@Query("creatorGUID") creatorId: String, @Query("fetchAfter") startWith: Int = 0): Observable<List<VideoJson>>
 
+    @GET("creator/videos")
+    fun searchVideos(@Query("creatorGUID") id: String, @Query("search") query: String, @Query("fetchAfter") startWith: Int = 0): Single<List<VideoJson>>
+
     @GET("video/related")
     fun getRelatedVideos(@Query("videoGUID") id: String): Single<List<VideoJson>>
 
@@ -55,7 +58,7 @@ interface FloatPlaneApi {
 
     @GET("video/url")
     fun getVideoUrl(@Query("guid") id: String, @Query("quality") quality: String = "1080"): Observable<ResponseBody>
-
+    
     @GET("v2/cdn/delivery")
     fun getVideoContent(@Query("guid") videoId: String, @Query("type") type: ContentType): Single<VideoContentJson>
 

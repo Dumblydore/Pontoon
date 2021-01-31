@@ -17,7 +17,7 @@ abstract class BaseBoundaryCallback<T> : PagedList.BoundaryCallback<T>(), Dispos
         get() = _pagingState.value == PagingState.Fetching || _pagingState.value == PagingState.InitialFetch
     protected val subscriptions = CompositeDisposable()
     private val pagingSubscriptions = CompositeDisposable()
-    private val _pagingState = BehaviorSubject.createDefault<PagingState>(PagingState.Empty)
+    private val _pagingState = BehaviorSubject.create<PagingState>()
 
     init {
         subscriptions += pagingSubscriptions
@@ -32,6 +32,7 @@ abstract class BaseBoundaryCallback<T> : PagedList.BoundaryCallback<T>(), Dispos
             pagingSubscriptions += noItemsLoaded().startWith(PagingState.InitialFetch)
                     .doOnError(this::loge)
                     .onErrorReturnItem(PagingState.Error)
+                    .subscribeOn(Schedulers.io())
                     .subscribe(_pagingState::onNext)
         }
     }
@@ -41,6 +42,7 @@ abstract class BaseBoundaryCallback<T> : PagedList.BoundaryCallback<T>(), Dispos
             pagingSubscriptions += endItemLoaded(itemAtEnd).startWith(PagingState.Fetching)
                     .doOnError(this::loge)
                     .onErrorReturnItem(PagingState.Error)
+                    .subscribeOn(Schedulers.io())
                     .subscribe(_pagingState::onNext)
         }
     }
@@ -50,6 +52,7 @@ abstract class BaseBoundaryCallback<T> : PagedList.BoundaryCallback<T>(), Dispos
             pagingSubscriptions += frontItemLoaded(itemAtFront).startWith(PagingState.Fetching)
                     .doOnError(this::loge)
                     .onErrorReturnItem(PagingState.Error)
+                    .subscribeOn(Schedulers.io())
                     .subscribe(_pagingState::onNext)
         }
     }

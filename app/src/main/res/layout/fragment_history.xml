@@ -32,6 +32,8 @@
             android:id="@+id/history.list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_video_card" />
     </me.mauricee.pontoon.common.LazyLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

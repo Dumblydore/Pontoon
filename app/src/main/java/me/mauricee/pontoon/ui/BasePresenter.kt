@@ -74,7 +74,7 @@ abstract class ReduxPresenter<S : Any, R : Any, A : EventTracker.Action, E : Any
 
     protected open fun onViewAttached(view: BaseContract.View<S, A>): Observable<R> = Observable.empty()
 
-    protected fun noReduce(action: () -> Unit): Observable<R> = Observable.defer { action(); Observable.empty() }
+    protected fun noReduce(action: () -> Unit): Observable<R> = noReduce(Completable.fromAction(action))
 
     protected fun noReduce(action: Completable): Observable<R> = action.andThen(Observable.empty())
 

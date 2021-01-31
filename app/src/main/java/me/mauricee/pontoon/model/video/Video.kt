@@ -67,7 +67,7 @@ abstract class VideoDao : BaseDao<VideoEntity>() {
     abstract fun setWatched(id: String, watched: Instant = Instant.now()): Completable
 
     @Query("DELETE From Videos WHERE creator IN (:creators)")
-    abstract fun clearCreatorVideos(vararg creators: String)
+    abstract fun clearCreatorVideos(vararg creators: String) : Completable
 
     @Query("SELECT * FROM Videos INNER JOIN RelatedVideos ON Videos.id=RelatedVideos.relatedVideoId WHERE RelatedVideos.originalVideoId=:videoId LIMIT 5")
     abstract fun getRelatedVideos(videoId: String): Observable<List<Video>>

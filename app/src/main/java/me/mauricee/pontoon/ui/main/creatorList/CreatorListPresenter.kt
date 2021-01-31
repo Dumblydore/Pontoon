@@ -43,7 +43,7 @@ class CreatorListPresenter @Inject constructor(private val creatorRepository: Cr
                     .map<CreatorListContract.Event> { CreatorListContract.Event.NavigateToCreator(action.creator) }
                     .switchIfEmpty(Single.just(CreatorListContract.Event.DisplayUnsubscribedPrompt(action.creator)))
                     .flatMapCompletable { Completable.fromAction { sendEvent(it) } })
-            CreatorListContract.Action.Refresh -> creators.fresh()
+            CreatorListContract.Action.Refresh -> creators.fetch()
                     .map<CreatorListContract.Reducer>(CreatorListContract.Reducer::DisplayCreators)
                     .toObservable().startWith(CreatorListContract.Reducer.Refreshing)
                     .onErrorReturn(::handleError)

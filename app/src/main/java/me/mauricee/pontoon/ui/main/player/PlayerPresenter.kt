@@ -52,11 +52,11 @@ class PlayerPresenter @Inject constructor(private val player: NewPlayer,
         is PlayerAction.SetViewMode -> setViewMode(state, action.viewMode)
     }
 
-    private fun playVideo(videoId: String): Observable<PlayerState> = RxTuple.combineLatestAsQuad(
+    private fun playVideo(videoId: String): Observable<PlayerState> = videoRepo.addToWatchHistory(videoId).andThen(RxTuple.combineLatestAsQuad(
             player.playItem(videoId).andThen(Unit.toObservable()),
             videoRepo.getVideo(videoId).map { Either.either<Video, PlayerErrors>(it) }.onErrorReturnItem(Either.or(PlayerErrors.General)),
             videoRepo.getRelatedVideos(videoId).map { Either.either<List<Video>, PlayerErrors>(it) }.onErrorReturnItem(Either.or(PlayerErrors.NoRelatedVideos)),
-            commentRepo.getComments(videoId).pages).map {
+            commentRepo.getComments(videoId).pages)).map {
         val (_, video, relatedVideos, comments) = it
         val errors = state.errors.toMutableList()
         video.or(errors::add)

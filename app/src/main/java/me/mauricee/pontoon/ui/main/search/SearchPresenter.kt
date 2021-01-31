@@ -1,45 +1,59 @@
 package me.mauricee.pontoon.ui.main.search
 
 import io.reactivex.Observable
-import me.mauricee.pontoon.ui.BasePresenter
-import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.common.StateBoundaryCallback
-import me.mauricee.pontoon.ui.main.MainContract
+import me.mauricee.pontoon.common.PagingState
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.video.VideoRepository
-import me.mauricee.pontoon.rx.RxTuple
+import me.mauricee.pontoon.ui.BaseContract
+import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.UiError
+import me.mauricee.pontoon.ui.UiState
+import me.mauricee.pontoon.ui.main.MainContract
 import javax.inject.Inject
 
 class SearchPresenter @Inject constructor(private val navigator: MainContract.Navigator,
                                           private val subscriptionRepository: SubscriptionRepository,
-                                          private val videoRepository: VideoRepository, eventTracker: EventTracker) :
-        BasePresenter<SearchContract.State, SearchContract.View>(eventTracker), SearchContract.Presenter {
-
-    override fun onViewAttached(view: SearchContract.View): Observable<SearchContract.State> = RxTuple.combineLatestAsPair(subscriptionRepository.subscriptions.get(),view.actions.doOnNext { eventTracker.trackAction(it, view) })
-            .switchMap {
-                val (subscribedCreators, action) = it
-                handleActions(subscribedCreators,action)
-
-            }.onErrorReturnItem(SearchContract.State.Error())
+                                          private val videoRepository: VideoRepository) : ReduxPresenter<SearchState, SearchReducer, SearchAction, SearchEvent>() {
 
 
-    private fun handleActions(creators: List<Creator>, action: SearchContract.Action): Observable<SearchContract.State> =
-            when (action) {
-                is SearchContract.Action.Query -> {
-                    if (action.query.isEmpty()) Observable.just<SearchContract.State>(SearchContract.State.Error(SearchContract.State.Type.NoText))
-                    else videoRepository.search(action.query, *creators.map { it.id }.toTypedArray()).let { result ->
-                        Observable.merge(result.videos.map(SearchContract.State::Results), result.state.map { handleResultState(it, result.retry) })
-                                .onErrorReturnItem(SearchContract.State.Error())
-                    }
-                }
-                is SearchContract.Action.PlayVideo -> stateless { navigator.playVideo(action.video.id) }
-            }
+    override fun onViewAttached(view: BaseContract.View<SearchState, SearchAction>): Observable<SearchReducer> {
+        return subscriptionRepository.subscriptions.get().map { it.map(Creator::id) }
+                .switchMap { creators -> view.actions.switchMap { handleActions(creators, it) } }
+                .doOnNext { logd("Reducer: ${it::class.java.simpleName}") }
+    }
 
-    private fun handleResultState(state: StateBoundaryCallback.State, retry: () -> Unit): SearchContract.State = when (state) {
-        StateBoundaryCallback.State.Loading -> SearchContract.State.FetchingPage
-        StateBoundaryCallback.State.Error -> SearchContract.State.FetchError(SearchContract.State.Type.Network, retry)
-        StateBoundaryCallback.State.Fetched -> SearchContract.State.FinishFetching
-        StateBoundaryCallback.State.Finished -> SearchContract.State.FetchError(SearchContract.State.Type.NoResults, retry)
+    override fun onReduce(state: SearchState, reducer: SearchReducer): SearchState {
+        return when (reducer) {
+            SearchReducer.ClearVideos -> state.copy(videos = null)
+            SearchReducer.Loading -> state.copy(screenState = UiState.Loading)
+            SearchReducer.FetchingPage -> state.copy(pageState = UiState.Loading)
+            SearchReducer.FinishFetching -> state.copy(pageState = UiState.Success)
+            is SearchReducer.ScreenError -> state.copy(screenState = UiState.Failed(UiError(reducer.error.msg)))
+            is SearchReducer.PageError -> state.copy(pageState = UiState.Failed(UiError(reducer.error.msg)))
+            is SearchReducer.UpdateVideos -> state.copy(screenState = UiState.Success, videos = reducer.videos)
+        }
+    }
+
+    private fun handleActions(creators: List<String>, action: SearchAction): Observable<SearchReducer> {
+        return when (action) {
+            is SearchAction.Query -> query(creators, action.query)
+            is SearchAction.VideoClicked -> noReduce { navigator.playVideo(action.video.id) }
+        }
+    }
+
+    private fun query(creators: List<String>, query: String): Observable<SearchReducer> {
+        val (pages, state) = videoRepository.search(query, *creators.toTypedArray())
+        return Observable.merge(pages.map(SearchReducer::UpdateVideos), state.map(::handlePageState))
+    }
+
+    private fun handlePageState(state: PagingState): SearchReducer = when (state) {
+        PagingState.InitialFetch -> SearchReducer.FetchingPage
+        PagingState.Fetching -> SearchReducer.FetchingPage
+        PagingState.Fetched -> SearchReducer.FinishFetching
+        PagingState.Completed -> SearchReducer.FinishFetching
+        PagingState.Empty -> SearchReducer.ScreenError(SearchError.NoResults)
+        PagingState.Error -> SearchReducer.PageError(SearchError.General)
     }
 }
