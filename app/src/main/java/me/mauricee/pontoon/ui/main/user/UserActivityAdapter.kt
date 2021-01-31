@@ -13,7 +13,7 @@ import me.mauricee.pontoon.common.SimpleListAdapter
 import me.mauricee.pontoon.model.user.activity.ActivityEntity
 import javax.inject.Inject
 
-class UserActivityAdapter @Inject constructor() : BaseListAdapter<UserContract.Action, ActivityEntity, UserActivityAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()) {
+class UserActivityAdapter @Inject constructor() : BaseListAdapter<UserAction, ActivityEntity, UserActivityAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()) {
 
     override fun getItemViewType(position: Int): Int = R.layout.item_activity_comment
 
@@ -25,13 +25,13 @@ class UserActivityAdapter @Inject constructor() : BaseListAdapter<UserContract.A
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
             subscriptions += view.clicks().subscribe {
-                relay.accept(getItem(adapterPosition).postId.let(UserContract.Action::Video))
+                relay.accept(UserAction.ActivityClicked(getItem(layoutPosition)))
             }
         }
 
         //TODO
         fun bind(activity: ActivityEntity) {
-            itemView.item_title.text = itemView.context.getString(R.string.activity_comment_context, "TEST")
+//            itemView.item_title.text = itemView.context.getString(R.string.activity_comment_context, activity.)
             itemView.item_comment.text = activity.comment
         }
     }

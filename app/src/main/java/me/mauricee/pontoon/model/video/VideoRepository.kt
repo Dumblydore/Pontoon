@@ -33,7 +33,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                                           private val pageListConfig: PagedList.Config) {
 
 
-    fun getVideos(unwatchedOnly: Boolean, clean: Boolean, vararg creatorIds: String): PagedModel<Video> {
+    fun getVideos(unwatchedOnly: Boolean, vararg creatorIds: String): PagedModel<Video> {
         val callback = videoCallbackFactory.newInstance(*creatorIds)
         val factory = if (unwatchedOnly) videoDao.getUnwatchedVideosByCreators(*creatorIds) else
             videoDao.getVideoByCreators(*creatorIds)
@@ -44,14 +44,6 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                 .buildObservable()
                 .doOnDispose(callback::dispose)
                 .doOnTerminate(callback::dispose)
-                .apply {
-                    if (clean) {
-                        videoDao.clearCreatorVideos(*creatorIds)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.io())
-                                .onErrorComplete().subscribe().also { doOnDispose(it::dispose) }
-                    }
-                }
                 .let {
                     PagedModel(it, callback.state, callback::refresh, callback::retry)
                 }

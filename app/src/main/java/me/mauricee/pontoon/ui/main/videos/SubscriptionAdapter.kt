@@ -15,7 +15,7 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.creator.Creator
 import javax.inject.Inject
 
-class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoContract.Action, Creator, SubscriptionAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()) {
+class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoAction, Creator, SubscriptionAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()) {
 
     override fun getItemViewType(position: Int): Int {
         return if (position == itemCount - 1) R.layout.item_end_user_bubble else R.layout.item_user_bubble
@@ -29,10 +29,10 @@ class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoContract.
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
             subscriptions += view.findViewById<View>(R.id.item_icon_small).clicks()
-                    .map { VideoContract.Action.Subscription(getItem(adapterPosition)) }
+                    .map { VideoAction.Subscription(getItem(bindingAdapterPosition)) }
                     .subscribe(relay::accept)
 
-            view.item_icon_viewAll?.clicks()?.map { VideoContract.Action.Creators }?.subscribe(relay::accept)
+            view.item_icon_viewAll?.clicks()?.map { VideoAction.Creators }?.subscribe(relay::accept)
                     ?.also { subscriptions += it }
         }
 

@@ -3,7 +3,8 @@ package me.mauricee.pontoon.model.user
 import com.nytimes.android.external.store3.base.impl.room.StoreRoom
 import io.reactivex.Observable
 import me.mauricee.pontoon.domain.account.AccountManagerHelper
-import me.mauricee.pontoon.ext.getAndFetch
+import me.mauricee.pontoon.ext.getAsDataModel
+import me.mauricee.pontoon.model.DataModel
 import me.mauricee.pontoon.ui.main.MainScope
 import javax.inject.Inject
 
@@ -14,6 +15,6 @@ class UserRepository @Inject constructor(private val userStore: StoreRoom<User, 
     val activeUser: Observable<User>
         get() = Observable.fromCallable { User(accountManagerHelper.account.toEntity(), emptyList()) }
 
-    fun getUser(id: String): Observable<User> = userStore.getAndFetch(id)
+    fun getUser(id: String): DataModel<User> = userStore.getAsDataModel(id)
 }
 

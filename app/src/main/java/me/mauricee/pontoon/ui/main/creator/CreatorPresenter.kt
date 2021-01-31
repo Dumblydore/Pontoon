@@ -17,7 +17,7 @@ class CreatorPresenter @Inject constructor(private val args: CreatorContract.Arg
                                            private val mainNavigator: MainContract.Navigator) : ReduxPresenter<CreatorContract.State, CreatorContract.Reducer, CreatorContract.Action, CreatorContract.Event>() {
 
     override fun onViewAttached(view: BaseContract.View<CreatorContract.State, CreatorContract.Action>): Observable<CreatorContract.Reducer> {
-        val (pages, states, refresh) = videoRepository.getVideos(false, false, args.creator)
+        val (pages, states, refresh) = videoRepository.getVideos(false, args.creator)
         val creator = creatorRepository.getCreator(args.creator)
                 .map<CreatorContract.Reducer>(CreatorContract.Reducer::DisplayCreator)
                 .onErrorReturn { CreatorContract.Reducer.Error(CreatorContract.Errors.Network) }

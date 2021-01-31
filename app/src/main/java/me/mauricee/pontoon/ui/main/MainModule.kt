@@ -20,6 +20,7 @@ import me.mauricee.pontoon.ui.main.player.playback.PlayerFragment
 import me.mauricee.pontoon.ui.main.player.playback.PlayerModule
 import me.mauricee.pontoon.ui.main.search.SearchFragment
 import me.mauricee.pontoon.ui.main.user.UserFragment
+import me.mauricee.pontoon.ui.main.user.UserModule
 import me.mauricee.pontoon.ui.main.videos.VideoFragment
 
 @Module
@@ -47,7 +48,7 @@ interface MainModule {
     @ContributesAndroidInjector
     fun contributeSearchFragment(): SearchFragment
 
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [UserModule::class])
     fun contributeUserFragment(): UserFragment
 
     @ContributesAndroidInjector(modules = [CreatorModule::class])

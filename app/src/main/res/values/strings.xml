@@ -196,7 +196,7 @@
     <string name="download_error">Error Downloading video</string>
 
     <!-- User -->
-    <string name="activity_comment_context">Posed a comment on %s:</string>
+    <string name="activity_comment_context">Posed a comment</string>
 
     <!-- Play Icon -->
     <string name="play_icon_upper_path_data">M 44 32 L 44 64 L 100 64 L 100 64 Z</string>

@@ -2,117 +2,68 @@ package me.mauricee.pontoon.ui.main.videos
 
 import android.content.Context
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
-import androidx.paging.PagedList
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
-import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
-import com.jakewharton.rxrelay2.PublishRelay
-import io.reactivex.Observable
-import kotlinx.android.synthetic.main.fragment_videos.*
-import me.mauricee.pontoon.ui.BaseFragment
+import com.jakewharton.rxbinding2.support.v4.widget.refreshes
+import com.jakewharton.rxbinding2.support.v7.widget.navigationClicks
+import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.LazyLayout
-import me.mauricee.pontoon.playback.Player
-import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.rx.lazylayout.retries
+import me.mauricee.pontoon.databinding.FragmentVideosBinding
+import me.mauricee.pontoon.ext.map
+import me.mauricee.pontoon.ext.mapDistinct
+import me.mauricee.pontoon.ext.notNull
+import me.mauricee.pontoon.ext.view.viewBinding
+import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
-class VideoFragment : BaseFragment<VideoPresenter>(), VideoContract.View {
-
-    override fun getLayoutId(): Int = R.layout.fragment_videos
+class VideoFragment : NewBaseFragment(R.layout.fragment_videos) {
 
     @Inject
     lateinit var videoAdapter: SubscriptionVideoAdapter
 
-    private val miscActions = PublishRelay.create<VideoContract.Action>()
-    private val refreshes
-        get() = Observable.merge(RxSwipeRefreshLayout.refreshes(videos_container),
-                videos_container_lazy.retries())
-                .doOnNext { videoAdapter.submitList(null) }
-                .map { VideoContract.Action.Refresh(true) }
+    @Inject
+    lateinit var factory: VideoViewModel.Factory
 
-    override val actions: Observable<VideoContract.Action>
-        get() = Observable.merge(refreshes, miscActions,
-                videoAdapter.actions.map(VideoContract.Action::PlayVideo),
-                videoAdapter.subscriptionAdapter.actions)
-                .startWith(VideoContract.Action.Refresh(false))
-                .mergeWith(RxToolbar.navigationClicks(videos_toolbar).map { VideoContract.Action.NavMenu })
-
-    override fun getToolbar(): Toolbar? = videos_toolbar
+    private val viewModel: VideoViewModel by viewModels { factory }
+    private val binding by viewBinding(FragmentVideosBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        videos_list.layoutManager = LayoutManager(requireContext())
-        videos_list.adapter = videoAdapter
-        videos_list.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-        videos_container_lazy.setupWithSwipeRefreshLayout(videos_container)
-    }
 
-    override fun updateState(state: VideoContract.State) {
-        when (state) {
-            is VideoContract.State.Loading -> {
-                if (state.clean) {
-                    videoAdapter.submitList(null)
-                    videos_container_lazy.state = LazyLayout.LOADING
-                    videos_container.isRefreshing = true
-                } else {
-                    videos_page_progress.isVisible = true
-                }
-            }
-            is VideoContract.State.DownloadStart -> Toast.makeText(requireContext(), R.string.download_start, Toast.LENGTH_LONG).show()
-            is VideoContract.State.DownloadFailed -> Toast.makeText(requireContext(), R.string.download_error, Toast.LENGTH_LONG).show()
-            is VideoContract.State.DisplayVideos -> displayVideos(state.videos)
-            is VideoContract.State.Error -> processError(state)
-            is VideoContract.State.DisplaySubscriptions -> videoAdapter.subscriptionAdapter.submitList(state.subscriptions)
-            is VideoContract.State.FinishPageFetch -> videos_page_progress.isVisible = false
-            is VideoContract.State.FetchError -> processFetchError(state)
+        binding.videosList.apply {
+            adapter = videoAdapter
+            layoutManager = LayoutManager(requireContext())
+            addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         }
-    }
 
-    override fun reset() {
-        videos_list.smoothScrollToPosition(0)
-    }
+        viewModel.state.mapDistinct(VideoState::subscriptions).observe(viewLifecycleOwner, videoAdapter.subscriptionAdapter::submitList)
+        viewModel.state.mapDistinct(VideoState::videos).observe(viewLifecycleOwner, videoAdapter::submitList)
 
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-//        videoAdapter.contextVideo?.let { video ->
-//            when (item.itemId) {
-//                R.id.action_share -> VideoContract.Action.Share(video)
-//                R.id.action_download_p1080 -> VideoContract.Action.Download(video, Player.QualityLevel.p1080)
-//                R.id.action_download_p720 -> VideoContract.Action.Download(video, Player.QualityLevel.p720)
-//                R.id.action_download_p480 -> VideoContract.Action.Download(video, Player.QualityLevel.p480)
-//                R.id.action_download_p360 -> VideoContract.Action.Download(video, Player.QualityLevel.p360)
-//                else -> null
-//            }?.let(miscActions::accept)
-//        }
-        return true
-    }
+        viewModel.state.mapDistinct { it.screenState.error }.notNull().observe(viewLifecycleOwner) {
+            binding.videosContainerLazy.errorText = it.text(requireContext())
+        }
+        viewModel.state.mapDistinct { it.screenState.lazyState() }.observe(viewLifecycleOwner) {
+            binding.videosContainerLazy.state = it
+        }
+        viewModel.state.map { it.screenState.isRefreshing() }.observe(viewLifecycleOwner) {
+            binding.videosContainer.isRefreshing = it
+        }
+        viewModel.state.map { it.pageState == UiState.Loading }.observe(viewLifecycleOwner) {
+            binding.videosPageProgress.isVisible = it
+        }
 
-    private fun displayVideos(videos: PagedList<Video>) {
-        videoAdapter.submitList(videos)
-        videos_container_lazy.state = LazyLayout.SUCCESS
-    }
-
-    private fun processError(error: VideoContract.State.Error) {
-        videos_container_lazy.errorView
-                ?.findViewById<TextView>(R.id.lazy_error_text)
-                ?.setText(error.type.msg)
-        videos_container_lazy.state = LazyLayout.ERROR
-    }
-
-    private fun processFetchError(error: VideoContract.State.FetchError) {
-        Snackbar.make(view!!, error.type.msg, Snackbar.LENGTH_LONG)
-                .also {
-                    if (error.type != VideoContract.State.FetchError.Type.NoVideos)
-                        it.setAction(R.string.retry) { error.retry() }
-                }.show()
+        subscriptions += binding.videosToolbar.navigationClicks().map { VideoAction.NavMenu }
+                .subscribe(viewModel::sendAction)
+        subscriptions += binding.videosContainer.refreshes().map { VideoAction.Refresh }
+                .subscribe(viewModel::sendAction)
+        subscriptions += videoAdapter.actions.map(VideoAction::PlayVideo)
+                .subscribe(viewModel::sendAction)
+        subscriptions += videoAdapter.subscriptionAdapter.actions
+                .subscribe(viewModel::sendAction)
     }
 
     private class LayoutManager(context: Context) : LinearLayoutManager(context) {

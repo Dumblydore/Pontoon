@@ -49,7 +49,7 @@ interface MainContract {
 
         fun toPreferences()
 
-        fun toCreator(creatorName: String, creatorId: String)
+        fun toCreator(creatorId: String)
 
         fun toCreatorsList()
 

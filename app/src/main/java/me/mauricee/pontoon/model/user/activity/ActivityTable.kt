@@ -14,7 +14,7 @@ import org.threeten.bp.Instant
 data class ActivityEntity(@PrimaryKey val userId: String,
                           val comment: String,
                           val date: Instant,
-                          val postId: String) : Diffable<Long> {
+                          val postId: String?) : Diffable<Long> {
 
     override var id: Long = 0L
 }

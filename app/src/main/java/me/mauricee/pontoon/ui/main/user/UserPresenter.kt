@@ -1,34 +1,37 @@
 package me.mauricee.pontoon.ui.main.user
 
 import io.reactivex.Observable
-import me.mauricee.pontoon.ui.BasePresenter
-import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ui.main.MainContract
+import me.mauricee.pontoon.model.DataModel
+import me.mauricee.pontoon.model.user.User
 import me.mauricee.pontoon.model.user.UserRepository
-import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.ui.BaseContract
+import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.UiError
+import me.mauricee.pontoon.ui.UiState
+import me.mauricee.pontoon.ui.main.MainContract
 import javax.inject.Inject
 
-class UserPresenter @Inject constructor(private val videoRepository: VideoRepository,
+class UserPresenter @Inject constructor(private val args: UserArgs,
                                         private val userRepository: UserRepository,
-                                        private val navigator: MainContract.Navigator,
-                                        eventTracker: EventTracker) :
+                                        private val navigator: MainContract.Navigator) : ReduxPresenter<UserState, UserReducer, UserAction, UserEvent>() {
 
-        UserContract.Presenter, BasePresenter<UserContract.State, UserContract.View>(eventTracker) {
-
-    override fun onViewAttached(view: UserContract.View): Observable<UserContract.State> = view.actions
-            .doOnNext { eventTracker.trackAction(it, view) }.switchMap(::handleAction)
-            .onErrorReturnItem(UserContract.State.Error())
-
-    private fun handleAction(action: UserContract.Action): Observable<UserContract.State> = when (action) {
-        is UserContract.Action.Refresh -> refresh(action.userId)
-        is UserContract.Action.Video -> navigateToVideo(action)
+    override fun onViewAttached(view: BaseContract.View<UserState, UserAction>): Observable<UserReducer> {
+        val user = userRepository.getUser(args.userId)
+        return user.get().map<UserReducer>(UserReducer::UserLoaded)
+                .startWith(UserReducer.Loading)
+                .mergeWith(view.actions.flatMap { handleAction(user, it) })
     }
 
-    private fun navigateToVideo(action: UserContract.Action.Video) = stateless { navigator.playVideo(action.videoId) }
-            .onErrorReturnItem(UserContract.State.Error(UserContract.State.Error.Type.PlaybackFailed))
+    override fun onReduce(state: UserState, reducer: UserReducer): UserState = when (reducer) {
+        UserReducer.Loading -> state.copy(uiState = UiState.Loading)
+        is UserReducer.UserLoaded -> state.copy(uiState = UiState.Success, user = reducer.user.entity, activity = reducer.user.activities)
+        is UserReducer.Error -> state.copy(uiState = UiState.Failed(UiError(reducer.error.msg)))
+    }
 
-    private fun refresh(userId: String): Observable<UserContract.State> = userRepository.getUser(userId)
-            .map<UserContract.State>(UserContract.State::DisplayUser)
-            .onErrorReturnItem(UserContract.State.Error(UserContract.State.Error.Type.User))
-            .startWith(UserContract.State.Loading)
+    private fun handleAction(user: DataModel<User>, action: UserAction): Observable<UserReducer> {
+        return when (action) {
+            UserAction.Refresh -> user.fetch().map<UserReducer>(UserReducer::UserLoaded).toObservable()
+            is UserAction.ActivityClicked -> noReduce { action.activity.postId?.let(navigator::playVideo) }
+        }
+    }
 }

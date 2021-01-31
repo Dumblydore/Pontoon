@@ -1,70 +1,78 @@
 package me.mauricee.pontoon.ui.main.videos
 
+import com.jakewharton.rx.replayingShare
 import io.reactivex.Observable
-import me.mauricee.pontoon.ui.BasePresenter
-import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.common.ShareManager
 import me.mauricee.pontoon.common.StateBoundaryCallback
-import me.mauricee.pontoon.common.download.DownloadHelper
-import me.mauricee.pontoon.ui.main.MainContract
-import me.mauricee.pontoon.playback.Player
+import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
-import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
-import me.mauricee.pontoon.rx.RxTuple
-import retrofit2.HttpException
+import me.mauricee.pontoon.ui.BaseContract
+import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.UiError
+import me.mauricee.pontoon.ui.UiState
+import me.mauricee.pontoon.ui.main.MainContract
 import javax.inject.Inject
 
 class VideoPresenter @Inject constructor(private val subscriptionRepository: SubscriptionRepository,
                                          private val videoRepository: VideoRepository,
                                          private val mainNavigator: MainContract.Navigator,
                                          private val preferences: Preferences,
-                                         private val sharedManager: ShareManager,
-                                         private val downloadHelper: DownloadHelper,
-                                         eventTracker: EventTracker) :
+                                         private val sharedManager: ShareManager) : ReduxPresenter<VideoState, VideoReducer, VideoAction, VideoEvent>() {
 
-        BasePresenter<VideoContract.State, VideoContract.View>(eventTracker), VideoContract.Presenter {
-
-    override fun onViewAttached(view: VideoContract.View): Observable<VideoContract.State> = view.actions
-            .doOnNext { eventTracker.trackAction(it, view) }
-            .flatMap(this::handleActions)
-            .onErrorReturnItem(VideoContract.State.Error())
-
-    private fun handleActions(action: VideoContract.Action): Observable<VideoContract.State> = when (action) {
-        is VideoContract.Action.Refresh -> getVideos(action.clean).startWith(VideoContract.State.Loading())
-        is VideoContract.Action.PlayVideo -> stateless { mainNavigator.playVideo(action.video.id) }
-        is VideoContract.Action.Subscription -> stateless { action.creator.entity.apply { mainNavigator.toCreator(name, id) }  }
-        is VideoContract.Action.Share -> stateless { sharedManager.shareVideo(action.video) }
-        is VideoContract.Action.Download -> downloadVideo(action.video)
-        VideoContract.Action.Creators -> stateless { mainNavigator.toCreatorsList() }
-        VideoContract.Action.NavMenu -> stateless { mainNavigator.setMenuExpanded(true) }
+    override fun onViewAttached(view: BaseContract.View<VideoState, VideoAction>): Observable<VideoReducer> {
+        return preferences.displayUnwatchedVideos.switchMap { displayUnwatchedVideos ->
+            val actions = view.actions.replayingShare()
+            val subscriptions = subscriptionRepository.subscriptions
+            val refreshes = actions.filter { it is VideoAction.Refresh }
+                    .map { true }
+                    .startWith(false)
+                    .switchMap { fresh ->
+                        if (fresh) subscriptions.fetch().toObservable()
+                        else subscriptions.get()
+                    }.switchMap { load(displayUnwatchedVideos, it) }
+            val otherActions = actions.filter { it !is VideoAction.Refresh }
+                    .flatMap { handleAction(it) }
+            Observable.merge(refreshes, otherActions)
+        }
     }
 
-    private fun downloadVideo(video: Video): Observable<VideoContract.State> = Observable.empty()
-//            = downloadHelper.download(video, qualityLevel)
-//            .map { if (it) VideoContract.State.DownloadStart else VideoContract.State.DownloadFailed }
-//            .onErrorReturnItem(VideoContract.State.DownloadFailed).toObservable()
+    override fun onReduce(state: VideoState, reducer: VideoReducer): VideoState = when (reducer) {
+        VideoReducer.Loading -> state.copy(screenState = UiState.Loading, pageState = UiState.Empty)
+        VideoReducer.Fetching -> state.copy(pageState = UiState.Loading)
+        VideoReducer.Fetched -> state.copy(pageState = UiState.Success)
+        is VideoReducer.FetchedVideos -> state.copy(videos = reducer.videos)
+        is VideoReducer.FetchedSubscriptions -> state.copy(subscriptions = reducer.subscriptions)
+        is VideoReducer.ScreenError -> state.copy(screenState = UiState.Failed(reducer.error))
+        is VideoReducer.PageError -> state.copy(pageState = UiState.Failed(reducer.error))
+    }
 
-    private fun getVideos(clean: Boolean) = RxTuple.combineLatestAsPair(preferences.displayUnwatchedVideos,
-            subscriptionRepository.subscriptions.get().map { subs -> subs.map { it.id }.toTypedArray() }).map {
-        val (unwatched, subscribedCreators) = it
-        videoRepository.getVideos(unwatched, clean, *subscribedCreators)
-    }.switchMap { feed ->
-        Observable.merge(feed.pages.map(VideoContract.State::DisplayVideos),
-                feed.state.map { processPaginationState(it, feed.retry) })
-    }.onErrorReturn(::processError).mergeWith(subscriptionRepository.subscriptions.get().map(VideoContract.State::DisplaySubscriptions))
 
-    private fun processError(e: Throwable): VideoContract.State.Error = when (e) {
-        is VideoRepository.NoSubscriptionsException -> VideoContract.State.Error.Type.NoSubscriptions
-        is HttpException -> VideoContract.State.Error.Type.Network
-        else -> VideoContract.State.Error.Type.Unknown
-    }.let(VideoContract.State::Error)
+    private fun load(displayUnwatchedVideos: Boolean, subs: List<Creator>): Observable<VideoReducer> {
+        val (pages, states) = videoRepository.getVideos(displayUnwatchedVideos, *subs.map(Creator::id).toTypedArray())
+        return Observable.merge(pages.map(VideoReducer::FetchedVideos), states.map(::mapPagingStates))
+                .startWith(VideoReducer.FetchedSubscriptions(subs))
+    }
 
-    private fun processPaginationState(state: StateBoundaryCallback.State, retry: () -> Unit): VideoContract.State = when (state) {
-        StateBoundaryCallback.State.Loading -> VideoContract.State.Loading(false)
-        StateBoundaryCallback.State.Error -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.Network, retry)
-        StateBoundaryCallback.State.Fetched -> VideoContract.State.FinishPageFetch
-        StateBoundaryCallback.State.Finished -> VideoContract.State.FetchError(VideoContract.State.FetchError.Type.NoVideos, retry)
+    private fun handleAction(action: VideoAction): Observable<VideoReducer> {
+        return when (action) {
+            is VideoAction.Subscription -> noReduce { mainNavigator.toCreator(action.creator.id) }
+            is VideoAction.PlayVideo -> noReduce { mainNavigator.playVideo(action.video.id) }
+            is VideoAction.Share -> noReduce { sharedManager.shareVideo(action.video) }
+            is VideoAction.Download -> noReduce { }
+            VideoAction.Creators -> noReduce { mainNavigator.toCreatorsList() }
+            VideoAction.NavMenu -> noReduce { mainNavigator.setMenuExpanded(true) }
+            VideoAction.Refresh -> throw RuntimeException("Should not enter branch! (VideoAction.Refresh)")
+        }
+    }
+
+    private fun mapPagingStates(state: StateBoundaryCallback.State): VideoReducer {
+        return when (state) {
+            StateBoundaryCallback.State.Loading -> VideoReducer.Fetching
+            StateBoundaryCallback.State.Error -> VideoReducer.PageError(UiError(VideoErrors.Unknown.msg))
+            StateBoundaryCallback.State.Fetched -> VideoReducer.Fetched
+            StateBoundaryCallback.State.Finished -> VideoReducer.Fetched
+        }
     }
 }

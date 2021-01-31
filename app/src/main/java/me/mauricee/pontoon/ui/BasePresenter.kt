@@ -4,6 +4,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import me.mauricee.pontoon.analytics.EventTracker
@@ -61,10 +62,10 @@ abstract class ReduxPresenter<S : Any, R : Any, A : EventTracker.Action, E : Any
         get() = _events.hide()
 
     fun attachView(view: BaseContract.View<S, A>, initialState: S): Observable<S> {
+        state = initialState
         return onViewAttached(view)
-                .map { onReduce(state, it) }
+                .concatMapSingle { reduce(state, it) }
                 .startWith(initialState)
-                .doOnNext { state = it }
                 .doOnDispose { onDetach() }
     }
 
@@ -82,5 +83,11 @@ abstract class ReduxPresenter<S : Any, R : Any, A : EventTracker.Action, E : Any
 
     protected open fun onDetach() {
 
+    }
+
+    private fun reduce(oldState: S, reducer: R): Single<S> = Single.fromCallable {
+        val newState = onReduce(oldState, reducer)
+        state = newState
+        newState
     }
 }

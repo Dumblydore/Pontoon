@@ -33,7 +33,6 @@ import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxrelay2.PublishRelay
 import com.ncapdevi.fragnav.FragNavController
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
@@ -220,7 +219,7 @@ class MainActivity : BaseActivity(), MainContract.Navigator, MainContract.View, 
         }
     }
 
-    override fun toCreator(creatorName: String, creatorId: String) {
+    override fun toCreator(creatorId: String) {
         controller.pushFragment(CreatorFragment.newInstance(creatorId))
         playerViewModel.sendAction(PlayerAction.SetViewMode(ViewMode.PictureInPicture))
     }

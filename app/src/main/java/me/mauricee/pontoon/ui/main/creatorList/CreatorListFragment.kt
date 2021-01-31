@@ -46,7 +46,7 @@ class CreatorListFragment : NewBaseFragment(R.layout.fragment_creator_list) {
         viewModel.events.observe(viewLifecycleOwner) { event ->
             when (event) {
                 is CreatorListContract.Event.DisplayUnsubscribedPrompt -> Snackbar.make(binding.root, getString(R.string.creator_list_unsubscribed), Snackbar.LENGTH_SHORT).show()
-                is CreatorListContract.Event.NavigateToCreator -> mainNavigator.toCreator("", event.creator.id)
+                is CreatorListContract.Event.NavigateToCreator -> mainNavigator.toCreator(event.creator.id)
             }
         }
 

@@ -10,6 +10,7 @@ import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.databinding.FragmentCreatorBinding
+import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
@@ -41,7 +42,7 @@ class CreatorFragment : NewBaseFragment(R.layout.fragment_creator) {
 
         viewModel.state.mapDistinct { it.screenState.lazyState() }
                 .observe(viewLifecycleOwner) { binding.creatorContainerLazy.state = it }
-        viewModel.state.mapDistinct { it.screenState.isRefreshing() }.observe(viewLifecycleOwner) {
+        viewModel.state.map { it.screenState.isRefreshing() }.observe(viewLifecycleOwner) {
             binding.creatorContainer.isRefreshing = it
         }
         viewModel.state.mapDistinct { it.screenState.error }.notNull().observe(viewLifecycleOwner) {

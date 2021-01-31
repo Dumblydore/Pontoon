@@ -8,7 +8,7 @@ import org.threeten.bp.Instant
 @Keep
 data class ActivityJson(@SerializedName("comment") val comment: String,
                         @SerializedName("time") val date: Instant,
-                        @SerializedName("postId") val postId: String) {
+                        @SerializedName("postId") val postId: String?) {
 
     @Keep
     data class Video(@SerializedName("title") val title: String,
