@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.preferences
+package me.mauricee.pontoon.ui.preferences
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
@@ -6,10 +6,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
-import me.mauricee.pontoon.preferences.baseTheme.BaseThemePreference
-import me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
-import me.mauricee.pontoon.preferences.settings.SettingsFragment
+import me.mauricee.pontoon.ui.preferences.accentColor.AccentColorPreference
+import me.mauricee.pontoon.ui.preferences.baseTheme.BaseThemePreference
+import me.mauricee.pontoon.ui.preferences.primaryColor.PrimaryColorPreference
+import me.mauricee.pontoon.ui.preferences.settings.SettingsFragment
 
 @Module
 abstract class PreferenceModule {

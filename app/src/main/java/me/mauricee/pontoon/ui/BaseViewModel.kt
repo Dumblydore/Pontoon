@@ -10,12 +10,12 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.livedata.SingleLiveEvent
+import me.mauricee.pontoon.ext.livedata.LiveEvent
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.referentialDistinctUntilChanged
 
 abstract class EventViewModel<S : Any, A : EventTracker.Action, E : Any>(initialState: S, presenter: ReduxPresenter<S, *, A, E>) : BaseViewModel<S, A>() {
-    private val _events = SingleLiveEvent<E>()
+    private val _events = LiveEvent<E>()
     val events: LiveData<E>
         get() = _events
 

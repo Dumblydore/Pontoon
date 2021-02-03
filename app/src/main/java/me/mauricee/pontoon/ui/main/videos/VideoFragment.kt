@@ -23,7 +23,7 @@ import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.main.MainContract
 import me.mauricee.pontoon.ui.main.player.PlayerAction
 import me.mauricee.pontoon.ui.main.player.PlayerViewModel
-import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionVideoFragmentToCreatorFragment
+import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionGlobalCreatorFragment
 import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionVideoFragmentToCreatorListFragment
 import javax.inject.Inject
 
@@ -44,7 +44,7 @@ class VideoFragment : NewBaseFragment(R.layout.fragment_videos) {
         viewModel.events.observe(this) {
             val directions = when (it) {
                 VideoEvent.NavigateToAllCreators -> actionVideoFragmentToCreatorListFragment()
-                is VideoEvent.NavigateToCreator -> actionVideoFragmentToCreatorFragment(it.creatorId)
+                is VideoEvent.NavigateToCreator -> actionGlobalCreatorFragment(it.creatorId)
             }
             findNavController().navigate(directions)
         }

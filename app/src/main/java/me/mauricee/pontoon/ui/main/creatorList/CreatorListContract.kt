@@ -5,7 +5,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.creator.Creator
-import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.EventViewModel
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject

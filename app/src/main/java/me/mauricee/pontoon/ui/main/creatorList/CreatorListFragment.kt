@@ -17,7 +17,7 @@ import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.ui.NewBaseFragment
-import me.mauricee.pontoon.ui.main.creatorList.CreatorListFragmentDirections.actionCreatorListFragmentToCreatorFragment
+import me.mauricee.pontoon.ui.main.creatorList.CreatorListFragmentDirections.actionGlobalCreatorFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -48,7 +48,7 @@ class CreatorListFragment : NewBaseFragment(R.layout.fragment_creator_list) {
             when (event) {
                 is CreatorListContract.Event.DisplayUnsubscribedPrompt -> Snackbar.make(binding.root, getString(R.string.creator_list_unsubscribed), Snackbar.LENGTH_SHORT).show()
                 is CreatorListContract.Event.NavigateToCreator -> {
-                    findNavController().navigate(actionCreatorListFragmentToCreatorFragment(event.creator.id))
+                    findNavController().navigate(actionGlobalCreatorFragment(event.creator.id))
                 }
             }
         }

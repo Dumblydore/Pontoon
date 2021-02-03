@@ -35,7 +35,6 @@ class MainPresenter @Inject constructor(private val sessionRepository: SessionRe
         is MainContract.Reducer.DisplayNightModeToggle -> state.copy(isNightModeEnabled = reducer.isNightModeEnabled)
     }
 
-
     private fun handleActions(user: User, action: MainContract.Action): Observable<MainContract.Reducer> = when (action) {
         MainContract.Action.Expired -> logout()
         MainContract.Action.SuccessfulLogout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
@@ -53,44 +52,6 @@ class MainPresenter @Inject constructor(private val sessionRepository: SessionRe
     private fun sessionExpirations(): Observable<MainContract.Reducer> = authInterceptor.sessionExpired
             .concatMap { noReduce { sendEvent(MainContract.Event.SessionExpired) } }
 
-
-    //        BasePresenter<MainContract.State, MainContract.View>(eventTracker), MainContract.Presenter {
-//
-//    override fun onViewAttached(view: MainContract.View): Observable<MainContract.State> =
-//            Observable.merge(subscriptions(), actions(view), authInterceptor.sessionExpired.map { MainContract.State.SessionExpired })
-//                    .startWith(MainContract.State.NightMode(false))
-//
-//    private fun actions(view: MainContract.View) = view.actions.doOnNext { eventTracker.trackAction(it, view) }.flatMap {
-//        when (it) {
-//            is MainContract.Action.SuccessfulLogout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
-//            is MainContract.Action.Profile -> userRepository.activeUser.firstElement().flatMapObservable { stateless { navigator.toUser(it.entity.id) } }
-//            is MainContract.Action.Preferences -> stateless { navigator.toPreferences() }
-//            is MainContract.Action.PlayerClicked -> toggleControls()
-//            is MainContract.Action.PlayVideo -> playVideo(it)
-//            MainContract.Action.Expired -> logout()
-//            MainContract.Action.NightMode -> stateless {
-//                navigator.setMenuExpanded(false)
-//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-////                themeManager.toggleNightMode()
-//            }
-//        }
-//    }
-//
-//    private fun toggleControls(): Observable<MainContract.State> {
-//        return stateless {
-//            if (!animationTouchListener.isExpanded) animationTouchListener.isExpanded = true
-//        }
-//    }
-//
-//    private fun playVideo(it: MainContract.Action.PlayVideo) = stateless { navigator.playVideo(it.videoId) }
-//
-//    private fun subscriptions() = RxTuple.combineLatestAsPair(userRepository.activeUser,
-//            subscriptionRepository.subscriptions.get().onErrorReturnItem(emptyList()))
-//            .map {
-//                val (user, subs) = it
-//                MainContract.State.CurrentUser(user, subs.size)
-//            }
-//
     private fun logout() = Completable.merge(listOf(
             sessionRepository.logout(),
             Completable.fromAction { pontoonDatabase.clearAllTables() }

@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.preferences.settings
+package me.mauricee.pontoon.ui.preferences.settings
 
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.analytics.EventTracker

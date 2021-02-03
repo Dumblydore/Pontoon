@@ -1,44 +1,41 @@
 package me.mauricee.pontoon.ui.main.player.details.comment
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
+import androidx.core.view.isGone
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.widget.textChanges
-import dagger.android.support.AndroidSupportInjection
-import io.reactivex.Observable
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import kotlinx.android.synthetic.main.fragment_comment.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.databinding.FragmentCommentBinding
+import me.mauricee.pontoon.ext.mapDistinct
+import me.mauricee.pontoon.ext.notNull
+import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.glide.GlideApp
+import me.mauricee.pontoon.ui.assistedViewModel
 import javax.inject.Inject
 
-class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View {
+@AndroidEntryPoint
+class CommentDialogFragment : BottomSheetDialogFragment() {
+
+    @Inject
+    lateinit var presenterFactory: CommentPresenter.Factory
+
+    @Inject
+    lateinit var viewModelFactory: CommentContract.ViewModel.Factory
 
     private val subscriptions = CompositeDisposable()
-    private val replyingId: String
-        get() = arguments!!.getString(ReplyKey, NoReply)
-    private val replyName: String
-        get() = arguments!!.getString(NameKey, NoReply)
-    private val videoId: String
-        get() = arguments!!.getString(VideoKey, "")
-    @Inject
-    lateinit var presenter: CommentPresenter
 
-    override val actions: Observable<CommentContract.Action>
-        get() = comment_submit.clicks().map { comment_edit.text.toString() }.map<CommentContract.Action> {
-            if (replyingId == NoReply) CommentContract.Action.Comment(it, videoId) else CommentContract.Action.Reply(it, replyingId, videoId)
-        }
-
-    override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
+    private val args by navArgs<CommentDialogFragmentArgs>()
+    private val viewModel: CommentContract.ViewModel by assistedViewModel {
+        viewModelFactory.create(presenterFactory.create(CommentContract.Args(args.videoId, args.commentId)))
     }
+    private val binding by viewBinding(FragmentCommentBinding::bind)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_comment, container, false)
@@ -46,48 +43,24 @@ class CommentDialogFragment : BottomSheetDialogFragment(), CommentContract.View 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        subscriptions += comment_edit.textChanges().subscribe { comment_submit.isVisible = it.isNotBlank() }
-        comment_reply.apply {
-            isVisible = replyName != NoReply
-            text = getString(R.string.reply_subhead, replyName)
+
+        subscriptions += binding.commentSubmit.clicks().map { binding.commentEdit.text.toString() }
+                .map(CommentContract.Action::Comment)
+                .subscribe(viewModel::sendAction)
+
+        viewModel.state.mapDistinct { it.user?.entity }.notNull().observe(viewLifecycleOwner) {
+            GlideApp.with(this).load(it.profileImage).circleCrop()
+                    .placeholder(R.drawable.ic_default_thumbnail)
+                    .error(R.drawable.ic_default_thumbnail)
+                    .into(binding.commentUserIconSmall)
+            binding.commentHeader.text = getString(R.string.details_comment_header, it.username)
+            binding.commentEdit.requestFocusFromTouch()
         }
-        presenter.attachView(this)
-    }
-
-    override fun updateState(state: CommentContract.State) {
-        when (state) {
-            is CommentContract.State.CurrentUser -> {
-                GlideApp.with(this).load(state.user.entity.profileImage).circleCrop()
-                        .placeholder(R.drawable.ic_default_thumbnail)
-                        .error(R.drawable.ic_default_thumbnail)
-                        .into(comment_user_icon_small)
-
-                comment_header.text = getString(R.string.details_comment_header, state.user.entity.username)
-                comment_edit.requestFocusFromTouch()
-            }
-            CommentContract.State.Close -> dismiss()
+        viewModel.state.mapDistinct(CommentContract.State::replyingTo).observe(viewLifecycleOwner){
+            binding.commentReply.isGone = it.isNullOrEmpty()
+            binding.commentReply.text = getString(R.string.reply_subhead, it)
         }
+
     }
 
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        subscriptions.clear()
-        presenter.detachView()
-    }
-
-    companion object {
-        private const val NameKey: String = "NAME"
-        private const val ReplyKey: String = "REPLY"
-        private const val VideoKey: String = "VIDEO"
-
-        private const val NoReply = "NO_REPLY"
-
-        //TODO
-        fun newInstance(videoId: String, replyingTo: String? = null) = CommentDialogFragment().apply {
-//            arguments = bundleOf(VideoKey to (replyingTo ?: NoReply),
-//                    NameKey to (replyingTo?.user?.username ?: NoReply),
-//                    VideoKey to video.id)
-        }
-    }
 }

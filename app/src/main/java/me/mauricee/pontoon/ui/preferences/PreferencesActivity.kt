@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.preferences
+package me.mauricee.pontoon.ui.preferences
 
 import android.content.Context
 import android.content.Intent
@@ -9,7 +9,7 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.analytics.PrivacyManager
 import me.mauricee.pontoon.ext.loadFragment
-import me.mauricee.pontoon.preferences.settings.SettingsFragment
+import me.mauricee.pontoon.ui.preferences.settings.SettingsFragment
 
 class PreferencesActivity : BaseActivity(), PreferencesNavigator, EventTracker.Page {
 

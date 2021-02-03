@@ -4,10 +4,9 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
-import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import com.jakewharton.rxbinding2.support.v4.widget.refreshes
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.SimpleBindingAdapter
@@ -23,11 +22,13 @@ import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.user.activity.ActivityEntity
-import me.mauricee.pontoon.preferences.darken
 import me.mauricee.pontoon.rx.glide.toPalette
 import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.assistedViewModel
+import me.mauricee.pontoon.ui.preferences.darken
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class UserFragment : NewBaseFragment(R.layout.fragment_user) {
 
 
@@ -35,9 +36,16 @@ class UserFragment : NewBaseFragment(R.layout.fragment_user) {
     lateinit var themeManager: ThemeManager
 
     @Inject
-    lateinit var factory: UserViewModel.Factory
+    lateinit var presenterFactory: UserPresenter.Factory
 
-    private val viewModel: UserViewModel by viewModels { factory }
+    @Inject
+    lateinit var viewModelFactory: UserViewModel.Factory
+
+    private val args by navArgs<UserFragmentArgs>()
+
+    private val viewModel: UserViewModel by assistedViewModel {
+        viewModelFactory.create(presenterFactory.create(UserArgs(args.userId)))
+    }
     private val binding: FragmentUserBinding by viewBinding(FragmentUserBinding::bind)
 
     private val adapter = SimpleBindingAdapter(ItemActivityCommentBinding::inflate, ::bind)
@@ -94,10 +102,5 @@ class UserFragment : NewBaseFragment(R.layout.fragment_user) {
     override fun onDestroyView() {
         super.onDestroyView()
         setStatusBarColor(requireActivity().primaryDarkColor).start()
-    }
-
-    companion object {
-        internal const val UserKey = "UserKey"
-        fun newInstance(userId: String): Fragment = UserFragment().apply { arguments = bundleOf(UserKey to userId) }
     }
 }

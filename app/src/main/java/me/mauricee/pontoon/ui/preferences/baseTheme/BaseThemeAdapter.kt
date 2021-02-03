@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.preferences.baseTheme
+package me.mauricee.pontoon.ui.preferences.baseTheme
 
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +12,7 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.common.theme.BaseTheme
 import me.mauricee.pontoon.common.theme.ThemeManager
-import me.mauricee.pontoon.preferences.CircleHelper
+import me.mauricee.pontoon.ui.preferences.CircleHelper
 import javax.inject.Inject
 
 class BaseThemeAdapter @Inject constructor(private val circleHelper: CircleHelper, private val themeManager: ThemeManager) : BaseAdapter<BaseTheme, BaseThemeAdapter.ViewHolder>() {

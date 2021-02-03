@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.preferences.settings
+package me.mauricee.pontoon.ui.preferences.settings
 
 import android.content.Context
 import android.os.Bundle
@@ -6,7 +6,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import dagger.android.support.AndroidSupportInjection
@@ -15,8 +14,8 @@ import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.hasNotch
 import me.mauricee.pontoon.ext.toast
-import me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
-import me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
+import me.mauricee.pontoon.ui.preferences.accentColor.AccentColorPreference
+import me.mauricee.pontoon.ui.preferences.primaryColor.PrimaryColorPreference
 import java.lang.RuntimeException
 import javax.inject.Inject
 

@@ -44,6 +44,7 @@ interface MainContract {
         data class TriggerNightMode(val mode: Int) : Event()
         data class NavigateToUser(val user: User) : Event()
         object ToggleMenu : Event()
+        object CloseMenu : Event()
         object NavigateToPreferences : Event()
         object NavigateToLoginScreen : Event()
         object SessionExpired : Event()
@@ -59,7 +60,5 @@ interface MainContract {
     interface Navigator {
 
         fun playVideo(videoId: String, commentId: String = "")
-
-        fun setMenuExpanded(isExpanded: Boolean)
     }
 }

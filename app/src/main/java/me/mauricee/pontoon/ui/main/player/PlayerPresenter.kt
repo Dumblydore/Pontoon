@@ -49,8 +49,9 @@ class PlayerPresenter @Inject constructor(private val player: NewPlayer,
         is PlayerReducer.DisplayCommentError -> state.copy(commentState = UiState.Failed(reducer.error))
         PlayerReducer.FetchingComments -> state.copy(commentState = UiState.Loading)
         PlayerReducer.CommentsFetched -> state.copy(commentState = UiState.Success)
-        PlayerReducer.ToggleViewMode -> state.copy(viewMode = handleClick(state.viewMode))
+        PlayerReducer.ToggleFullScreen -> state.copy(viewMode = handleClick(state.viewMode))
         is PlayerReducer.DisplayUser -> state.copy(user = reducer.user)
+        is PlayerReducer.SetViewMode -> if (state.viewMode == reducer.viewMode) state else state.copy(viewMode = reducer.viewMode)
     }
 
     private fun handleOtherActions(video: Video, action: PlayerAction): Observable<PlayerReducer> = when (action) {
@@ -59,11 +60,15 @@ class PlayerPresenter @Inject constructor(private val player: NewPlayer,
         is PlayerAction.Dislike -> noReduce(commentRepo.dislike(action.comment.id))
         is PlayerAction.Reply -> noReduce { sendEvent(PlayerEvent.PostComment(video.id, action.parent.id)) }
         is PlayerAction.ViewReplies -> noReduce { sendEvent(PlayerEvent.DisplayReplies(action.comment.id)) }
-        is PlayerAction.ViewUser -> noReduce { sendEvent(PlayerEvent.DisplayUser(action.user)) }
-        is PlayerAction.SetViewMode -> Observable.just(PlayerReducer.UpdateViewMode(action.viewMode))
+        is PlayerAction.ViewUser -> Observable.fromCallable {
+            sendEvent(PlayerEvent.DisplayUser(action.user))
+            PlayerReducer.SetViewMode(ViewMode.Collapsed)
+        }
+        is PlayerAction.ToggleFullscreen -> Observable.just(PlayerReducer.ToggleFullScreen)
         PlayerAction.PostComment -> noReduce { sendEvent(PlayerEvent.PostComment(video.id)) }
-        is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(PlayerAction.PlayVideo)")
         is PlayerAction.SetQuality -> noReduce { player.setQuality(action.quality) }
+        is PlayerAction.SetViewMode -> Observable.just(PlayerReducer.SetViewMode(action.viewMode))
+        is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(PlayerAction.PlayVideo)")
     }
 
     private fun loadVideoContents(video: Video): Observable<PlayerReducer> {

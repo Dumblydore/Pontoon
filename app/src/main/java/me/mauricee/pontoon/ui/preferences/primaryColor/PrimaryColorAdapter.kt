@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.preferences.primaryColor
+package me.mauricee.pontoon.ui.preferences.primaryColor
 
 import android.view.LayoutInflater
 import android.view.View
@@ -13,8 +13,8 @@ import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.common.theme.PrimaryColor
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.common.theme.primaryColor
-import me.mauricee.pontoon.preferences.CircleHelper
-import me.mauricee.pontoon.preferences.darken
+import me.mauricee.pontoon.ui.preferences.CircleHelper
+import me.mauricee.pontoon.ui.preferences.darken
 import javax.inject.Inject
 
 class PrimaryColorAdapter @Inject constructor(private val circleHelper: CircleHelper, private val themeManager: ThemeManager) : BaseAdapter<PrimaryColor, PrimaryColorAdapter.ViewHolder>() {

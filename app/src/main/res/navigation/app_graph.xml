@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_graph"
     app:startDestination="@id/launchFragment">
 
     <fragment
         android:id="@+id/launchFragment"
         android:name="me.mauricee.pontoon.ui.launch.LaunchFragment"
-        android:label="LaunchFragment">
+        android:label="LaunchFragment"
+        tools:layout="@layout/fragment_launch">
         <action
             android:id="@+id/action_launchFragment_to_login_graph"
             app:destination="@id/login_graph"
@@ -37,7 +39,8 @@
         <fragment
             android:id="@+id/loginFragment"
             android:name="me.mauricee.pontoon.ui.login.login.LoginFragment"
-            android:label="LoginFragment">
+            android:label="LoginFragment"
+            tools:layout="@layout/fragment_login">
             <argument
                 android:name="initWith2FA"
                 android:defaultValue="false"
@@ -53,7 +56,8 @@
         <fragment
             android:id="@+id/webLoginFragment"
             android:name="me.mauricee.pontoon.ui.login.webLogin.WebLoginFragment"
-            android:label="WebLoginFragment" >
+            android:label="WebLoginFragment"
+            tools:layout="@layout/fragment_web_login">
             <argument
                 android:name="site"
                 app:argType="me.mauricee.pontoon.ui.login.LoginWebsites" />
@@ -71,6 +75,25 @@
     <fragment
         android:id="@+id/mainFragment"
         android:name="me.mauricee.pontoon.ui.main.MainFragment"
-        android:label="MainFragment" />
+        android:label="MainFragment"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_mainFragment_to_login_graph"
+            app:destination="@id/login_graph"
+            app:enterAnim="@anim/nav_default_exit_anim"
+            app:exitAnim="@anim/nav_default_enter_anim"
+            app:popEnterAnim="@anim/nav_default_pop_exit_anim"
+            app:popExitAnim="@anim/nav_default_pop_enter_anim"
+            app:popUpTo="@id/app_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_mainFragment_to_aboutFragment2"
+            app:destination="@id/aboutFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="me.mauricee.pontoon.ui.preferences.about.AboutFragment"
+        android:label="AboutFragment"
+        tools:layout="@layout/fragment_about" />
 
 </navigation>

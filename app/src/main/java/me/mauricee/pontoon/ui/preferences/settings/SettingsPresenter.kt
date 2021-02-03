@@ -1,11 +1,11 @@
-package me.mauricee.pontoon.preferences.settings
+package me.mauricee.pontoon.ui.preferences.settings
 
 import io.reactivex.Observable
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.edge.EdgeRepository
-import me.mauricee.pontoon.preferences.PreferencesNavigator
+import me.mauricee.pontoon.ui.preferences.PreferencesNavigator
 import javax.inject.Inject
 
 class SettingsPresenter @Inject constructor(private val navigator: PreferencesNavigator,

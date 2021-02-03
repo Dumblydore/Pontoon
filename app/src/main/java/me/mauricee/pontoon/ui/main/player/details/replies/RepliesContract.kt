@@ -1,36 +1,45 @@
 package me.mauricee.pontoon.ui.main.player.details.replies
 
 import androidx.annotation.StringRes
-import me.mauricee.pontoon.ui.BaseContract
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.comment.ChildComment
 import me.mauricee.pontoon.model.comment.Comment
+import me.mauricee.pontoon.model.comment.CommentEntity
 import me.mauricee.pontoon.model.user.User
-import me.mauricee.pontoon.model.user.UserEntity
+import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.ui.UiState
 
 interface RepliesContract {
 
-    interface View : BaseContract.View<State, Action>
-    interface Presenter : BaseContract.Presenter<View>
+    data class Args(val commentId: String)
 
-    sealed class State : EventTracker.State {
-        object Loading : State()
-        class Error(val type: ErrorType = ErrorType.General) : State()
-        class Liked(val comment: Comment) : State()
-        class Cleared(val comment: Comment) : State()
-        class Disliked(val comment: Comment) : State()
-        class CurrentUser(val user: User) : State()
-        class Replies(val parent: Comment, val comments: List<ChildComment>) : State()
+    data class State(val uiState: UiState = UiState.Empty,
+                     val parentComment: CommentEntity? = null,
+                     val comments: List<ChildComment> = emptyList(),
+                     val user: User? = null)
+
+    sealed class Reducer {
+        object Loading : Reducer()
+        data class Error(val type: ErrorType = ErrorType.General) : Reducer()
+        data class CurrentUser(val user: User) : Reducer()
+        data class Replies(val parent: CommentEntity, val comments: List<ChildComment>) : Reducer()
     }
 
     sealed class Action : EventTracker.Action {
         class Like(val comment: Comment) : Action()
         class Reply(val parent: Comment) : Action()
         class Clear(val comment: Comment) : Action()
-        class Parent(val comment: String) : Action()
         class Dislike(val comment: Comment) : Action()
-        class ViewUser(val user: UserEntity) : Action()
+    }
+
+    sealed class Event {
+        data class Liked(val comment: Comment) : Event()
+        data class Cleared(val comment: Comment) : Event()
+        data class Disliked(val comment: Comment) : Event()
     }
 
     enum class ErrorType(@StringRes val msg: Int) {
@@ -38,6 +47,13 @@ interface RepliesContract {
         Like(R.string.replies_error_like),
         Dislike(R.string.replies_error_dislike),
         Cleared(R.string.replies_error_cleared),
+    }
+
+    class ViewModel @AssistedInject constructor(@Assisted p: RepliesPresenter) : EventViewModel<State, Action, Event>(State(), p) {
+        @AssistedFactory
+        interface Factory {
+            fun create(p: RepliesPresenter): ViewModel
+        }
     }
 
 }

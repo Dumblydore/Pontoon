@@ -1,15 +1,16 @@
 package me.mauricee.pontoon.ui.main.user
 
 import androidx.annotation.StringRes
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.user.User
 import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.user.activity.ActivityEntity
-import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.EventViewModel
 import me.mauricee.pontoon.ui.UiState
-import javax.inject.Inject
 
 
 data class UserArgs(val userId: String)
@@ -37,6 +38,9 @@ enum class UserError(@StringRes val msg: Int) {
     General(R.string.user_error_general)
 }
 
-class UserViewModel(p: UserPresenter) : EventViewModel<UserState, UserAction, UserEvent>(UserState(), p) {
-    class Factory @Inject constructor(p: UserPresenter) : BaseViewModel.Factory<UserViewModel>({ UserViewModel(p) })
+class UserViewModel @AssistedInject constructor(@Assisted p: UserPresenter) : EventViewModel<UserState, UserAction, UserEvent>(UserState(), p) {
+    @AssistedFactory
+    interface Factory {
+        fun create(p: UserPresenter): UserViewModel
+    }
 }

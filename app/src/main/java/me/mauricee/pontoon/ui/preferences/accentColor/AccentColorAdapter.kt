@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.preferences.accentColor
+package me.mauricee.pontoon.ui.preferences.accentColor
 
 import android.view.LayoutInflater
 import android.view.View
@@ -13,8 +13,8 @@ import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.common.theme.AccentColor
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.common.theme.accentColor
-import me.mauricee.pontoon.preferences.CircleHelper
-import me.mauricee.pontoon.preferences.darken
+import me.mauricee.pontoon.ui.preferences.CircleHelper
+import me.mauricee.pontoon.ui.preferences.darken
 import javax.inject.Inject
 
 class AccentColorAdapter @Inject constructor(private val circleHelper: CircleHelper, private val themeManager: ThemeManager) : BaseAdapter<AccentColor, AccentColorAdapter.ViewHolder>() {

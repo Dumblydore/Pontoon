@@ -8,6 +8,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.logd
 
 abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S, *>>(protected val eventTracker: EventTracker)
     : BaseContract.Presenter<V> {
@@ -49,6 +50,7 @@ abstract class ReduxPresenter<S : Any, R : Any, A : EventTracker.Action, E : Any
     fun attachView(view: BaseContract.View<S, A>, initialState: S): Observable<S> {
         state = initialState
         return onViewAttached(view)
+                .doOnNext { logd("Reducer: ${it.javaClass.simpleName}") }
                 .concatMapSingle { reduce(state, it) }
                 .startWith(initialState)
                 .doOnDispose { onDetach() }

@@ -9,7 +9,7 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.ui.BaseViewModel
+import me.mauricee.pontoon.ui.EventViewModel
 import me.mauricee.pontoon.ui.UiState
 
 interface CreatorContract {
@@ -34,7 +34,7 @@ interface CreatorContract {
     sealed class Event
 
 
-    class ViewModel @AssistedInject constructor(@Assisted p: CreatorPresenter) : BaseViewModel<State, Action>(State(), p) {
+    class ViewModel @AssistedInject constructor(@Assisted p: CreatorPresenter) : EventViewModel<State, Action, Event>(State(), p) {
         @AssistedFactory
         interface Factory {
             fun create(p: CreatorPresenter): ViewModel

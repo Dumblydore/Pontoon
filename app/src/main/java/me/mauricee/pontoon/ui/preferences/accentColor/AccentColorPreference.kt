@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.preferences.baseTheme
+package me.mauricee.pontoon.ui.preferences.accentColor
 
 import android.content.Context
 import android.content.res.TypedArray
@@ -7,16 +7,16 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.preference.DialogPreference
 import androidx.preference.PreferenceDialogFragmentCompat
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.preference_base_theme.view.*
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.common.theme.BaseTheme
+import me.mauricee.pontoon.common.theme.AccentColor
 import me.mauricee.pontoon.common.theme.ThemeManager
 import javax.inject.Inject
 
-class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
+class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
         DialogPreference(context, attrs, defStyleAttr, defStyleRes) {
 
     constructor(context: Context) : this(context, null)
@@ -25,7 +25,7 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, defStyleAttr)
 
-    var theme: BaseTheme = BaseTheme.Light
+    var theme: AccentColor = AccentColor.Default
         set(value) {
             if (value != field) {
                 persistString(value.name)
@@ -40,23 +40,23 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        theme = (defaultValue as? String)?.let { BaseTheme.fromString(it) } ?: BaseTheme.Light
+        theme = (defaultValue as? String)?.let { AccentColor.fromString(it) } ?: AccentColor.Default
     }
 
     class Fragment : PreferenceDialogFragmentCompat() {
         @Inject
-        lateinit var adapter: BaseThemeAdapter
+        lateinit var adapter: AccentColorAdapter
         @Inject
         lateinit var themeManager: ThemeManager
 
-        private lateinit var selectedTheme: BaseTheme
+        private lateinit var selectedAccentColor: AccentColor
         private lateinit var selection: Disposable
 
         override fun onDialogClosed(positiveResult: Boolean) {
             if (positiveResult) {
-                (preference as? BaseThemePreference)?.let {
-                    it.theme = selectedTheme
-                    themeManager.baseTheme = selectedTheme
+                (preference as? AccentColorPreference)?.let {
+                    it.theme = selectedAccentColor
+                    themeManager.accentColor = selectedAccentColor
                     themeManager.commit()
                 }
             }
@@ -67,9 +67,9 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
             AndroidSupportInjection.inject(this)
             super.onBindDialogView(view)
             view.preference_base_themes.adapter = adapter
-            view.preference_base_themes.layoutManager = GridLayoutManager(requireContext(), 3)
-            selection = adapter.actions.subscribe { selectedTheme = it }
-            selectedTheme = themeManager.baseTheme
+            view.preference_base_themes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            selection = adapter.actions.subscribe { selectedAccentColor = it }
+            selectedAccentColor = themeManager.accentColor
         }
 
         companion object {

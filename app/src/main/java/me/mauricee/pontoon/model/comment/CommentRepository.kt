@@ -27,11 +27,16 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
 
     fun getComment(commentId: String): Observable<Comment> = commentDao.getComment(commentId)
 
-    fun postComment(message: String, postId: String): Completable = floatPlaneApi.post(CommentPost(message, postId)).flatMapCompletable {
+    fun postComment(message: String, postId: String, parentCommentId: String?) = if (parentCommentId.isNullOrEmpty())
+        post(message, postId)
+    else
+        reply(message, postId, parentCommentId)
+
+    private fun post(message: String, postId: String): Completable = floatPlaneApi.post(CommentPost(message, postId)).flatMapCompletable {
         Completable.fromAction { commentDao.insert(it.toEntity(null)) }
     }
 
-    fun postComment(message: String, postId: String, parentCommentId: String): Completable = floatPlaneApi.post(Reply(parentCommentId, message, postId)).flatMapCompletable {
+    private fun reply(message: String, postId: String, parentCommentId: String): Completable = floatPlaneApi.post(Reply(parentCommentId, message, postId)).flatMapCompletable {
         Completable.fromAction { commentDao.insert(it.toEntity(null)) }
     }
 

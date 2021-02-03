@@ -1,8 +1,10 @@
 package me.mauricee.pontoon.common.theme
 
 import android.app.Activity
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
@@ -15,7 +17,7 @@ import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function3
-import io.reactivex.rxkotlin.plusAssign
+import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.rx.preferences.watchString
@@ -23,13 +25,14 @@ import javax.inject.Inject
 
 
 @ActivityRetainedScoped
-class ThemeManager @Inject constructor(private val prefs: Preferences,
+class ThemeManager @Inject constructor(private val context: Context,
+                                       private val prefs: Preferences,
                                        private val preferences: SharedPreferences) : LifecycleObserver {
 
     private val subs = CompositeDisposable()
 
-//    val isInNightMode: Boolean
-//        get() = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+    val isInNightMode: Boolean
+        get() = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
     var baseTheme: BaseTheme
         set(value) {
@@ -104,11 +107,10 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     fun getMutedSwatch(palette: Palette) = palette.mutedSwatch
 
     fun toggleNightMode() {
-
-//        mode = if (isInNightMode) AppCompatDelegate.MODE_NIGHT_NO
-//        else AppCompatDelegate.MODE_NIGHT_YES
-//        if (BuildConfig.DEBUG)
-//            Toast.makeText(activity, "Switching to mode: $mode", Toast.LENGTH_LONG).show()
+        mode = if (isInNightMode) AppCompatDelegate.MODE_NIGHT_NO
+        else AppCompatDelegate.MODE_NIGHT_YES
+        if (BuildConfig.DEBUG)
+            Toast.makeText(context, "Switching to mode: $mode", Toast.LENGTH_LONG).show()
     }
 
     private fun setDayNightBehavior(behavior: DayNightBehavior) = when (behavior) {

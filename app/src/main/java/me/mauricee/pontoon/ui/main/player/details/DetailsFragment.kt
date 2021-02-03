@@ -5,6 +5,7 @@ import android.text.format.DateUtils
 import android.text.util.Linkify
 import android.view.View
 import androidx.core.os.bundleOf
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ConcatAdapter
@@ -28,13 +29,10 @@ import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.playback.NewPlayer
 import me.mauricee.pontoon.ui.NewBaseFragment
-import me.mauricee.pontoon.ui.main.MainContract
 import me.mauricee.pontoon.ui.main.player.PlayerAction
 import me.mauricee.pontoon.ui.main.player.PlayerEvent
 import me.mauricee.pontoon.ui.main.player.PlayerState
 import me.mauricee.pontoon.ui.main.player.PlayerViewModel
-import me.mauricee.pontoon.ui.main.player.details.comment.CommentDialogFragment
-import me.mauricee.pontoon.ui.main.player.details.replies.RepliesDialogFragment
 import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -61,7 +59,6 @@ class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
         super.onCreate(savedInstanceState)
         postponeEnterTransition()
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
-        subscriptions += commentsAdapter
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -93,7 +90,7 @@ class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
         viewModel.state.mapDistinct(PlayerState::video).notNull().map(::listOf).observe(viewLifecycleOwner, detailsAdapter::submitList)
         viewModel.state.mapDistinct(PlayerState::relatedVideos).observe(viewLifecycleOwner, relatedVideosAdapter::submitList)
         viewModel.state.mapDistinct(PlayerState::comments).observe(viewLifecycleOwner) {
-            commentsAdapter.submitList(it) { scrollToSelectedComment() }
+            binding.root.doOnLayout { _ -> commentsAdapter.submitList(it) }
         }
     }
 
@@ -143,12 +140,8 @@ class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
 
     private fun handleEvents(playerEvent: PlayerEvent) {
         when (playerEvent) {
-            is PlayerEvent.PostComment -> CommentDialogFragment.newInstance(playerEvent.videoId, playerEvent.comment).also { it.show(parentFragmentManager, tag) }
-            is PlayerEvent.DisplayReplies -> RepliesDialogFragment.newInstance(playerEvent.commentId).show(parentFragmentManager, tag)
             PlayerEvent.OnCommentSuccess -> Snackbar.make(requireView(), R.string.details_commentPosted, Snackbar.LENGTH_LONG).show()
             PlayerEvent.OnCommentError -> Snackbar.make(requireView(), R.string.details_error_commentPost, Snackbar.LENGTH_LONG).show()
-            is PlayerEvent.DisplayUser -> {
-            }//navigator.toUser(playerEvent.user.id)
         }
     }
 

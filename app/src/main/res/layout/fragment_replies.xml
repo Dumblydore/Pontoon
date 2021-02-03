@@ -11,14 +11,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/replies.header.icon"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-
-
-            android:src="@drawable/ic_close" />
+            app:icon="@drawable/ic_close" />
 
         <TextView
             android:id="@+id/replies.header.text"
@@ -43,6 +42,8 @@
             android:id="@+id/replies.list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_comment" />
     </me.mauricee.pontoon.common.LazyLayout>
 

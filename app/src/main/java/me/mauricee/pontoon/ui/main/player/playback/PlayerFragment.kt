@@ -10,10 +10,12 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.layout_player_controls.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.databinding.FragmentPlayerBinding
+import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.playback.NewPlayer
 import me.mauricee.pontoon.ui.NewBaseFragment
 import me.mauricee.pontoon.ui.main.player.PlayerAction
+import me.mauricee.pontoon.ui.main.player.PlayerState
 import me.mauricee.pontoon.ui.main.player.PlayerViewModel
 import me.mauricee.pontoon.ui.main.player.ViewMode
 import javax.inject.Inject
@@ -39,19 +41,17 @@ class PlayerFragment : NewBaseFragment(R.layout.fragment_player) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         newPlayer.bindToPlayer(binding.playerDisplay)
-        subscriptions += binding.playerDisplay.fullscreenClicked().map {
-            PlayerAction.SetViewMode(ViewMode.Fullscreen)
-        }.subscribe(viewModel::sendAction)
-        viewModel.watchStateValue { viewMode }.observe(viewLifecycleOwner) {
-//            when (it) {
-//                is ViewMode.FullScreen -> {
-//                    if (it.controlsEnabled) view.player_display.showController() else view.player_display.hideController()
-//                }
-//                is ViewMode.Expanded -> {
-//                    if (it.controlsEnabled) view.player_display.showController() else view.player_display.hideController()
-//                }
-//                else -> view.player_display.hideController()
-//            }
+        subscriptions += binding.playerDisplay.fullscreenClicked()
+                .map { PlayerAction.ToggleFullscreen }
+                .subscribe(viewModel::sendAction)
+
+        viewModel.state.map(PlayerState::viewMode).observe(viewLifecycleOwner) {
+            when (it) {
+                ViewMode.Expanded -> binding.playerDisplay.showController()
+                ViewMode.Fullscreen -> binding.playerDisplay.showController()
+                ViewMode.Dismissed -> binding.playerDisplay.hideController()
+                ViewMode.Collapsed -> binding.playerDisplay.hideController()
+            }
         }
     }
 }

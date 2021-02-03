@@ -1,5 +1,8 @@
 package me.mauricee.pontoon.ui.main.user
 
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import io.reactivex.Observable
 import me.mauricee.pontoon.model.DataModel
 import me.mauricee.pontoon.model.user.User
@@ -8,12 +11,9 @@ import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.ReduxPresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
-import me.mauricee.pontoon.ui.main.MainContract
-import javax.inject.Inject
 
-class UserPresenter @Inject constructor(private val args: UserArgs,
-                                        private val userRepository: UserRepository,
-                                        private val navigator: MainContract.Navigator) : ReduxPresenter<UserState, UserReducer, UserAction, UserEvent>() {
+class UserPresenter @AssistedInject constructor(@Assisted private val args: UserArgs,
+                                                private val userRepository: UserRepository) : ReduxPresenter<UserState, UserReducer, UserAction, UserEvent>() {
 
     override fun onViewAttached(view: BaseContract.View<UserState, UserAction>): Observable<UserReducer> {
         val user = userRepository.getUser(args.userId)
@@ -31,7 +31,12 @@ class UserPresenter @Inject constructor(private val args: UserArgs,
     private fun handleAction(user: DataModel<User>, action: UserAction): Observable<UserReducer> {
         return when (action) {
             UserAction.Refresh -> user.fetch().map<UserReducer>(UserReducer::UserLoaded).toObservable()
-            is UserAction.ActivityClicked -> noReduce { action.activity.postId?.let(navigator::playVideo) }
+            is UserAction.ActivityClicked -> noReduce { /*action.activity.postId?.let(navigator::playVideo) */}
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(args: UserArgs): UserPresenter
     }
 }
