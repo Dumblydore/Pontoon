@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.ui.login.login
+package me.mauricee.pontoon.ui.login
 
 import android.content.Intent
 import android.os.Bundle
@@ -24,9 +24,8 @@ import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.ui.NewBaseFragment
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
-import me.mauricee.pontoon.ui.login.*
-import me.mauricee.pontoon.ui.login.login.LoginFragmentDirections.actionGlobalMainFragment
-import me.mauricee.pontoon.ui.login.login.LoginFragmentDirections.actionLoginFragmentToWebLoginFragment
+import me.mauricee.pontoon.ui.login.LoginFragmentDirections.actionGlobalMainFragment
+import me.mauricee.pontoon.ui.login.LoginFragmentDirections.actionLoginFragmentToWebLoginFragment
 
 @AndroidEntryPoint
 class LoginFragment : NewBaseFragment(R.layout.fragment_login) {

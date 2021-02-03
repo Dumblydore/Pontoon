@@ -4,7 +4,6 @@ import androidx.annotation.IdRes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.user.User
 import me.mauricee.pontoon.ui.EventViewModel
 import javax.inject.Inject
@@ -51,14 +50,5 @@ interface MainContract {
     }
 
     @HiltViewModel
-    class ViewModel @Inject constructor(p: MainPresenter) : EventViewModel<State, Action, Event>(State(), p) {
-        init {
-            logd("Creating MainViewModel!")
-        }
-    }
-
-    interface Navigator {
-
-        fun playVideo(videoId: String, commentId: String = "")
-    }
+    class ViewModel @Inject constructor(p: MainPresenter) : EventViewModel<State, Action, Event>(State(), p)
 }

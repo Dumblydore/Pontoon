@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class NewMainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var themeManager: ThemeManager

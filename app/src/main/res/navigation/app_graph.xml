@@ -38,7 +38,7 @@
         app:startDestination="@id/loginFragment">
         <fragment
             android:id="@+id/loginFragment"
-            android:name="me.mauricee.pontoon.ui.login.login.LoginFragment"
+            android:name="me.mauricee.pontoon.ui.login.LoginFragment"
             android:label="LoginFragment"
             tools:layout="@layout/fragment_login">
             <argument
@@ -55,7 +55,7 @@
         </fragment>
         <fragment
             android:id="@+id/webLoginFragment"
-            android:name="me.mauricee.pontoon.ui.login.webLogin.WebLoginFragment"
+            android:name="me.mauricee.pontoon.ui.login.WebLoginFragment"
             android:label="WebLoginFragment"
             tools:layout="@layout/fragment_web_login">
             <argument

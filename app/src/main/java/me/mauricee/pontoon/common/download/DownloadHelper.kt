@@ -1,18 +1,11 @@
 package me.mauricee.pontoon.common.download
 
-import android.Manifest
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import androidx.core.content.getSystemService
-import androidx.core.net.toUri
-import com.vanniktech.rxpermission.Permission
 import com.vanniktech.rxpermission.RxPermission
-import io.reactivex.Completable
 import io.reactivex.Single
-import me.mauricee.pontoon.R
-import me.mauricee.pontoon.playback.Player
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
 import javax.inject.Inject

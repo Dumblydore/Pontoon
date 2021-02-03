@@ -11,8 +11,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.video.VideoListener
-import me.mauricee.pontoon.common.playback.PlayerFactory
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.loge
 import java.io.IOException
 import javax.inject.Inject

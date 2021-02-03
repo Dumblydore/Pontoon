@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.common.playback
+package me.mauricee.pontoon.playback
 
 import android.app.Activity
 import androidx.lifecycle.Lifecycle

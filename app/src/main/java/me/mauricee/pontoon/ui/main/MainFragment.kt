@@ -33,7 +33,7 @@ import me.mauricee.pontoon.ui.main.player.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainFragment : NewBaseFragment(R.layout.fragment_main), MainContract.Navigator, MotionLayout.TransitionListener {
+class MainFragment : NewBaseFragment(R.layout.fragment_main), MotionLayout.TransitionListener {
 
     @Inject
     lateinit var player: NewPlayer
@@ -143,10 +143,6 @@ class MainFragment : NewBaseFragment(R.layout.fragment_main), MainContract.Navig
             MainContract.Event.SessionExpired -> TODO()
             MainContract.Event.CloseMenu -> binding.root.closeDrawer(binding.mainDrawer)
         }
-    }
-
-    override fun playVideo(videoId: String, commentId: String) {
-        binding.main.transitionToEnd()
     }
 
     private fun toggleDrawer() {

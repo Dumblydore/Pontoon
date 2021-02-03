@@ -117,31 +117,3 @@ interface AppModule {
 
     }
 }
-//    @Binds
-//    abstract fun bindContext(application: Application): Context
-//
-//
-//    @ContributesAndroidInjector
-//    abstract fun contributesNewMainActivity()
-//
-//    @LaunchScope
-//    @ContributesAndroidInjector
-//    abstract fun contributeLaunchActivity(): LaunchActivity
-//
-//    @LoginScope
-//    @ContributesAndroidInjector(modules = [LoginModule::class])
-//    abstract fun contributeLoginActivity(): LoginActivity
-//
-//    @MainScope
-//    @ContributesAndroidInjector(modules = [MainModule::class, PlaybackModule::class])
-//    abstract fun contributeMainActivity(): MainActivity
-//
-//    @PreferencesScope
-//    @ContributesAndroidInjector(modules = [PreferenceModule::class])
-//    abstract fun contributePreferenceActivity(): PreferencesActivity
-//
-//    companion object {
-//
-
-//
-

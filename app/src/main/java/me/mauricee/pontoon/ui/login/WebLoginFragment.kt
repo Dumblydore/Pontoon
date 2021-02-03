@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.ui.login.webLogin
+package me.mauricee.pontoon.ui.login
 
 import android.os.Bundle
 import android.view.View
@@ -19,8 +19,6 @@ import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.ui.NewBaseFragment
-import me.mauricee.pontoon.ui.login.LoginAction
-import me.mauricee.pontoon.ui.login.LoginViewModel
 
 
 @AndroidEntryPoint
