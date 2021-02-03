@@ -2,6 +2,7 @@ package me.mauricee.pontoon.common
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.scopes.ActivityScoped
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.just
 import me.mauricee.pontoon.model.video.Video

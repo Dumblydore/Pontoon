@@ -8,6 +8,13 @@
     android:keepScreenOn="true"
     tools:context=".ui.main.MainActivity">
 
+    <ImageView
+        android:id="@+id/reveal"
+        android:visibility="gone"
+        tools:src="@color/colorAccent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
@@ -100,4 +107,6 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/layout_navigation_header"
         app:menu="@menu/main_drawer" />
+
+
 </androidx.drawerlayout.widget.DrawerLayout>

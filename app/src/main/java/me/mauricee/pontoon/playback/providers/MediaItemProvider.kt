@@ -42,7 +42,7 @@ class MediaItemProvider @Inject constructor(private val videoRepository: VideoRe
             .putLong(MediaMetadata.METADATA_KEY_DURATION, video.entity.duration * 1000L)
             .putString(PontoonMetadata.TimeLineUri, "https://cms.linustechtips.com/get/sprite/by_guid/${video.id}")
             .setExtras(Bundle().apply {
-                putParcelableArrayList("test", ArrayList(streams.sortedBy { it.ordinal }.map { NewPlayer.Quality(it.name, it.url) }))
+                putParcelableArrayList(PontoonMetadata.QualityLevelsKey, ArrayList(streams.sortedBy { it.ordinal }.map { NewPlayer.Quality(it.name, it.url) }))
             }).build()
 
 }

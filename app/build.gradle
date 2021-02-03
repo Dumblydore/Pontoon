@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'dagger.hilt.android.plugin'
 
 def applyAnalytics = true// (project.findProperty('enableAnalytics') ?: "false").equalsIgnoreCase("true")
 
@@ -46,6 +47,7 @@ android {
         resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username", "")}\""
         resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password", "")}\""
         resValue 'string', 'cast_id', "\"${localProperties.getProperty("pontoon.castId", "")}\""
+        javaCompileOptions.annotationProcessorOptions.arguments['dagger.hilt.disableModulesHaveInstallInCheck'] = 'true'
     }
     buildTypes {
         release {
@@ -119,7 +121,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     implementation "com.jakewharton.rxbinding2:rxbinding-kotlin:$rx_binding_version"
-    implementation "com.jakewharton.rxbinding2:rxbinding-design-kotlin:$rx_binding_version"
+//    implementation "com.jakewharton.rxbinding2:rxbinding-material-kotlin:$rx_binding_version"
     implementation "com.jakewharton.rxbinding2:rxbinding-support-v4-kotlin:$rx_binding_version"
     implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7-kotlin:$rx_binding_version"
 
@@ -143,8 +145,14 @@ dependencies {
     implementation('org.aaronhe:threetenbp-gson-adapter:1.0.2') {
         transitive = false
     }
+
+    //Dagger
     implementation "com.google.dagger:dagger:$dagger_version"
-    implementation "com.google.dagger:dagger-android-support:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:2.31.2"
+    implementation "com.google.dagger:hilt-android:$dagger_version"
+    implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0-alpha03'
+    kapt 'androidx.hilt:hilt-compiler:1.0.0-alpha03'
+    kapt "com.google.dagger:hilt-android-compiler:$dagger_version"
 
     // ExoPlayer
     implementation "com.google.android.exoplayer:exoplayer-core:$exo_player_version"
@@ -154,6 +162,7 @@ dependencies {
     implementation "com.google.android.exoplayer:exoplayer-hls:$exo_player_version"
     implementation "com.google.android.exoplayer:extension-mediasession:$exo_player_version"
     implementation "com.google.android.exoplayer:extension-media2:$exo_player_version"
+    implementation "androidx.startup:startup-runtime:1.0.0"
 
     //  Architecture Components
     implementation "androidx.room:room-runtime:$arch_components_version"
@@ -195,7 +204,7 @@ dependencies {
     //  Processors
     kapt "androidx.room:room-compiler:$arch_components_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:2.31.2"
 }
 
 wire {

@@ -37,21 +37,6 @@ abstract class BasePresenter<S : EventTracker.State, in V : BaseContract.View<S,
     protected open fun onViewDetached() {}
 }
 
-abstract class StatefulPresenter<S : Any, A : EventTracker.Action> {
-    @Volatile
-    protected lateinit var state: S
-    fun attachView(view: BaseContract.View<S, A>, initialState: S): Observable<S> {
-        state = initialState
-        return onViewAttached(view).startWith(initialState).doOnNext { state = it }
-    }
-
-    open fun onViewAttached(view: BaseContract.View<S, A>): Observable<S> = Observable.empty()
-
-    protected fun stateless(action: () -> Unit): Observable<S> = Observable.defer { action(); Observable.empty() }
-
-    protected fun stateless(action: Completable): Observable<S> = action.andThen(Observable.empty())
-}
-
 abstract class ReduxPresenter<S : Any, R : Any, A : EventTracker.Action, E : Any> {
 
     @Volatile

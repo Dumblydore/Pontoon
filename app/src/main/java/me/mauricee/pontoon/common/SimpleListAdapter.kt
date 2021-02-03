@@ -56,8 +56,8 @@ class SimpleBindingAdapter<VM : ViewBinding, M : Diffable<*>>(
         private val onBind: (VM, M) -> Unit,
 ) : ListAdapter<M, SimpleBindingAdapter<VM, M>.ViewHolder>(ItemCallback<M>()) {
 
-    private val _clicks = PublishSubject.create<ClickEvent<M>>()
-    val clicks: Observable<ClickEvent<M>>
+    private val _clicks = PublishSubject.create<ClickEvent<VM, M>>()
+    val clicks: Observable<ClickEvent<VM, M>>
         get() = _clicks.hide()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(onCreate(LayoutInflater.from(parent.context), parent, false))
@@ -73,10 +73,10 @@ class SimpleBindingAdapter<VM : ViewBinding, M : Diffable<*>>(
             itemView.setOnClickListener(this)
         }
 
-        override fun onClick(v: View) = _clicks.onNext(ClickEvent(v, bindingAdapterPosition, getItem(bindingAdapterPosition)))
+        override fun onClick(v: View) = _clicks.onNext(ClickEvent(binding, bindingAdapterPosition, getItem(bindingAdapterPosition)))
     }
 
-    data class ClickEvent<M>(val view: View, val position: Int, val model: M)
+    data class ClickEvent<VM, M>(val view: VM, val position: Int, val model: M)
 
     class ItemCallback<M : Diffable<*>> : DiffUtil.ItemCallback<M>() {
         override fun areItemsTheSame(oldItem: M, newItem: M): Boolean = oldItem.id == newItem.id

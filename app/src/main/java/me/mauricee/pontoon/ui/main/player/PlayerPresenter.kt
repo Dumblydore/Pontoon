@@ -1,86 +1,95 @@
 package me.mauricee.pontoon.ui.main.player
 
-import io.reactivex.Completable
+import com.jakewharton.rx.replayingShare
 import io.reactivex.Observable
-import me.mauricee.pontoon.common.gestures.GestureEvent
-import me.mauricee.pontoon.common.gestures.VideoTouchHandler
-import me.mauricee.pontoon.ext.toObservable
+import io.reactivex.Single
+import me.mauricee.pontoon.common.PagingState
 import me.mauricee.pontoon.model.comment.CommentRepository
+import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
 import me.mauricee.pontoon.playback.NewPlayer
-import me.mauricee.pontoon.rx.Either
-import me.mauricee.pontoon.rx.RxTuple
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.StatefulPresenter
+import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.UiError
+import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: NewPlayer,
+                                          private val userRepo: UserRepository,
                                           private val videoRepo: VideoRepository,
-                                          private val commentRepo: CommentRepository,
-                                          private val animationTouchListener: VideoTouchHandler) : StatefulPresenter<PlayerState, PlayerAction>() {
+                                          private val commentRepo: CommentRepository) : ReduxPresenter<PlayerState, PlayerReducer, PlayerAction, PlayerEvent>() {
 
+    override fun onViewAttached(view: BaseContract.View<PlayerState, PlayerAction>): Observable<PlayerReducer> {
+        val actions = view.actions.replayingShare()
+        val playVideo = actions.filter { it is PlayerAction.PlayVideo }
+                .cast(PlayerAction.PlayVideo::class.java)
+                .concatMapSingle { player.playItem(it.videoId).andThen(Single.just(it.videoId)) }
+                .switchMap(videoRepo::getVideo)
+                .switchMap { video ->
+                    val otherActions = view.actions.filter { it !is PlayerAction.PlayVideo }
+                            .flatMap { handleOtherActions(video, it) }
+                    Observable.merge(loadVideoContents(video), otherActions)
+                            .startWith(PlayerReducer.DisplayVideo(video))
+                            .onErrorReturnItem(PlayerReducer.DisplayVideoError(UiError(PlayerErrors.General.message)))
+                }.startWith(PlayerReducer.Loading)
 
-    override fun onViewAttached(view: BaseContract.View<PlayerState, PlayerAction>): Observable<PlayerState> {
-        return RxTuple.combineLatestAsPair(view.actions.flatMap(::onAction), gestures().distinctUntilChanged()).flatMap {
-            val (actionState, newViewMode) = it
-            when {
-                state.viewMode != newViewMode -> setViewMode(actionState, newViewMode)
-                else -> actionState.toObservable()
-            }
-        }
+        return Observable.merge(loadUser(), playVideo)
     }
 
-    private fun gestures(): Observable<ViewMode> = animationTouchListener.events.map { gesture ->
-        when (gesture) {
-            is GestureEvent.Click -> handleClick(state.viewMode)
-            is GestureEvent.Dismiss -> ViewMode.None(true)
-            is GestureEvent.Scale -> ViewMode.Scale(gesture.percentage)
-            is GestureEvent.Swipe -> ViewMode.Swipe(gesture.percentage)
-            is GestureEvent.Expand -> if (gesture.isExpanded) ViewMode.Expanded(true) else ViewMode.PictureInPicture
-        }
+    override fun onReduce(state: PlayerState, reducer: PlayerReducer): PlayerState = when (reducer) {
+        PlayerReducer.Loading -> state.copy(videoState = UiState.Loading, relatedVideosState = UiState.Loading)
+        is PlayerReducer.DisplayQualityLevels -> state.copy(qualityLevels = reducer.qualityLevels)
+        is PlayerReducer.DisplayComments -> state.copy(commentState = UiState.Success, comments = reducer.comments)
+        is PlayerReducer.DisplayVideo -> state.copy(viewMode = ViewMode.Expanded, videoState = UiState.Success, video = reducer.video)
+        is PlayerReducer.DisplayRelatedVideo -> state.copy(relatedVideosState = UiState.Success, relatedVideos = reducer.videos)
+        is PlayerReducer.UpdateViewMode -> state.copy(viewMode = reducer.viewMode)
+        is PlayerReducer.DisplayVideoError -> state.copy(videoState = UiState.Failed(reducer.error))
+        is PlayerReducer.DisplayRelatedVideosError -> state.copy(relatedVideosState = UiState.Failed(reducer.error))
+        is PlayerReducer.DisplayCommentError -> state.copy(commentState = UiState.Failed(reducer.error))
+        PlayerReducer.FetchingComments -> state.copy(commentState = UiState.Loading)
+        PlayerReducer.CommentsFetched -> state.copy(commentState = UiState.Success)
+        PlayerReducer.ToggleViewMode -> state.copy(viewMode = handleClick(state.viewMode))
+        is PlayerReducer.DisplayUser -> state.copy(user = reducer.user)
     }
 
-    private fun onAction(action: PlayerAction): Observable<PlayerState> = when (action) {
-        PlayerAction.ViewCreator -> stateless { }
-        is PlayerAction.PlayVideo -> playVideo(action.videoId)
-        is PlayerAction.Like -> stateless { }
-        is PlayerAction.Reply -> stateless { }
-        is PlayerAction.Dislike -> stateless { }
-        is PlayerAction.ViewReplies -> stateless { }
-        is PlayerAction.ViewUser -> stateless { }
-        is PlayerAction.SetViewMode -> setViewMode(state, action.viewMode)
+    private fun handleOtherActions(video: Video, action: PlayerAction): Observable<PlayerReducer> = when (action) {
+        PlayerAction.ViewCreator -> noReduce { /*mainNavigator.toCreator(video.creator.id) */ }
+        is PlayerAction.Like -> noReduce(commentRepo.like(action.comment.id))
+        is PlayerAction.Dislike -> noReduce(commentRepo.dislike(action.comment.id))
+        is PlayerAction.Reply -> noReduce { sendEvent(PlayerEvent.PostComment(video.id, action.parent.id)) }
+        is PlayerAction.ViewReplies -> noReduce { sendEvent(PlayerEvent.DisplayReplies(action.comment.id)) }
+        is PlayerAction.ViewUser -> noReduce { sendEvent(PlayerEvent.DisplayUser(action.user)) }
+        is PlayerAction.SetViewMode -> Observable.just(PlayerReducer.UpdateViewMode(action.viewMode))
+        PlayerAction.PostComment -> noReduce { sendEvent(PlayerEvent.PostComment(video.id)) }
+        is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(PlayerAction.PlayVideo)")
+        is PlayerAction.SetQuality -> noReduce { player.setQuality(action.quality) }
     }
 
-    private fun playVideo(videoId: String): Observable<PlayerState> = videoRepo.addToWatchHistory(videoId).andThen(RxTuple.combineLatestAsQuad(
-            player.playItem(videoId).andThen(Unit.toObservable()),
-            videoRepo.getVideo(videoId).map { Either.either<Video, PlayerErrors>(it) }.onErrorReturnItem(Either.or(PlayerErrors.General)),
-            videoRepo.getRelatedVideos(videoId).map { Either.either<List<Video>, PlayerErrors>(it) }.onErrorReturnItem(Either.or(PlayerErrors.NoRelatedVideos)),
-            commentRepo.getComments(videoId).pages)).map {
-        val (_, video, relatedVideos, comments) = it
-        val errors = state.errors.toMutableList()
-        video.or(errors::add)
-        relatedVideos.or(errors::add)
-        state.copy(isLoading = false, video = video.value, relatedVideos = relatedVideos.value
-                ?: emptyList(), comments = comments, errors = errors)
-    }.startWith(state.copy(isLoading = true, errors = emptyList()))
+    private fun loadVideoContents(video: Video): Observable<PlayerReducer> {
+        val (commentPages, commentStates) = commentRepo.getComments(video.id)
+        return Observable.merge(listOf(videoRepo.getRelatedVideos(video.id).map<PlayerReducer>(PlayerReducer::DisplayRelatedVideo).onErrorReturnItem(PlayerReducer.DisplayRelatedVideosError(UiError(PlayerErrors.General.message))),
+                player.supportedQuality.map<PlayerReducer>(PlayerReducer::DisplayQualityLevels),
+                commentPages.map<PlayerReducer>(PlayerReducer::DisplayComments),
+                commentStates.map(::mapCommentStates)
+        ))
+    }
 
-    private fun setViewMode(state: PlayerState, newViewMode: ViewMode): Observable<PlayerState> = Observable.defer {
-        val oldViewMode = state.viewMode
-        when (newViewMode) {
-            is ViewMode.None -> player.stop()
-            ViewMode.PictureInPicture -> Completable.complete()
-            is ViewMode.FullScreen -> Completable.complete()
-            is ViewMode.Expanded -> Completable.complete()
-            is ViewMode.Scale -> Completable.complete()
-            is ViewMode.Swipe -> Completable.complete()
-        }.andThen(Observable.just(state.copy(viewMode = newViewMode)))
-
+    private fun mapCommentStates(pagingState: PagingState): PlayerReducer = when (pagingState) {
+        PagingState.InitialFetch -> PlayerReducer.FetchingComments
+        PagingState.Fetching -> PlayerReducer.FetchingComments
+        PagingState.Fetched -> PlayerReducer.CommentsFetched
+        PagingState.Completed -> PlayerReducer.CommentsFetched
+        PagingState.Empty -> PlayerReducer.DisplayCommentError(UiError(PlayerErrors.General.message))
+        PagingState.Error -> PlayerReducer.DisplayCommentError(UiError(PlayerErrors.General.message))
     }
 
     private fun handleClick(viewMode: ViewMode) = when (viewMode) {
-        is ViewMode.Expanded -> ViewMode.Expanded(!viewMode.controlsEnabled)
-        is ViewMode.FullScreen -> ViewMode.FullScreen(!viewMode.controlsEnabled)
+        ViewMode.Expanded -> ViewMode.Fullscreen
+        ViewMode.Fullscreen -> ViewMode.Expanded
         else -> viewMode
     }
+
+    private fun loadUser(): Observable<PlayerReducer> = userRepo.activeUser
+            .map { PlayerReducer.DisplayUser(it.entity) }
 }

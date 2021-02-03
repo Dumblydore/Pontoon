@@ -25,55 +25,55 @@ import me.mauricee.pontoon.ui.main.videos.VideoFragment
 
 @Module
 interface MainModule {
-
-    @Binds
-    fun bindMainNavigator(mainActivity: MainActivity): MainContract.Navigator
-
-    @Binds
-    fun bindFullscreenCallback(mainActivity: MainActivity): PlayerContract.Controls
-
-    @Binds
-    fun bindPage(mainActivity: MainActivity): EventTracker.Page
-
-    @Binds
-    fun bindLifecycleOwner(mainActivity: MainActivity): LifecycleOwner
-
-    @Binds
-    fun bindActivity(mainActivity: MainActivity): AppCompatActivity
-
-
-    @ContributesAndroidInjector
-    fun contributeVideoFragment(): VideoFragment
-
-    @ContributesAndroidInjector
-    fun contributeSearchFragment(): SearchFragment
-
-    @ContributesAndroidInjector(modules = [UserModule::class])
-    fun contributeUserFragment(): UserFragment
-
-    @ContributesAndroidInjector(modules = [CreatorModule::class])
-    fun contributeCreatorFragment(): CreatorFragment
-
-    @ContributesAndroidInjector
-    fun contributeCreatorListFragment(): CreatorListFragment
-
-    @ContributesAndroidInjector
-    fun contributeHistoryFragment(): HistoryFragment
-
-    @ContributesAndroidInjector(modules = [DetailsModule::class])
-    fun contributePlayerFragment(): DetailsFragment
-
-    @ContributesAndroidInjector(modules = [PlayerModule::class])
-    fun contributeVideoPlayerFragment(): PlayerFragment
-
-    companion object {
-        @Provides
-        @MainScope
-        fun MainActivity.providesMenuInflater(): MenuInflater = menuInflater
-
-        @Provides
-        @MainScope
-        fun MainActivity.providesPlayerViewModel(): PlayerViewModel = playerViewModel
-    }
+//
+//    @Binds
+//    fun bindMainNavigator(mainActivity: MainActivity): MainContract.Navigator
+//
+//    @Binds
+//    fun bindFullscreenCallback(mainActivity: MainActivity): PlayerContract.Controls
+//
+//    @Binds
+//    fun bindPage(mainActivity: MainActivity): EventTracker.Page
+//
+//    @Binds
+//    fun bindLifecycleOwner(mainActivity: MainActivity): LifecycleOwner
+//
+//    @Binds
+//    fun bindActivity(mainActivity: MainActivity): AppCompatActivity
+//
+//
+//    @ContributesAndroidInjector
+//    fun contributeVideoFragment(): VideoFragment
+//
+//    @ContributesAndroidInjector
+//    fun contributeSearchFragment(): SearchFragment
+//
+//    @ContributesAndroidInjector(modules = [UserModule::class])
+//    fun contributeUserFragment(): UserFragment
+//
+//    @ContributesAndroidInjector(modules = [CreatorModule::class])
+//    fun contributeCreatorFragment(): CreatorFragment
+//
+//    @ContributesAndroidInjector
+//    fun contributeCreatorListFragment(): CreatorListFragment
+//
+//    @ContributesAndroidInjector
+//    fun contributeHistoryFragment(): HistoryFragment
+//
+//    @ContributesAndroidInjector(modules = [DetailsModule::class])
+//    fun contributePlayerFragment(): DetailsFragment
+//
+//    @ContributesAndroidInjector(modules = [PlayerModule::class])
+//    fun contributeVideoPlayerFragment(): PlayerFragment
+//
+//    companion object {
+//        @Provides
+//        @MainScope
+//        fun MainActivity.providesMenuInflater(): MenuInflater = menuInflater
+//
+//        @Provides
+//        @MainScope
+//        fun MainActivity.providesPlayerViewModel(): PlayerViewModel = playerViewModel
+//    }
 
 }

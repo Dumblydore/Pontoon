@@ -1,25 +1,23 @@
 package me.mauricee.pontoon.ui.main
 
 import androidx.annotation.IdRes
-import me.mauricee.pontoon.ui.BaseContract
+import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.user.User
-import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.ui.EventViewModel
+import javax.inject.Inject
 
 interface MainContract {
-    interface View : BaseContract.View<State, Action> {
-        override val name: String
-            get() = "Main"
-    }
 
-    interface Presenter : BaseContract.Presenter<View>
+    data class State(val user: User? = null,
+                     val subCount: Int? = null,
+                     val isNightModeEnabled: Boolean = false)
 
-    sealed class State : EventTracker.State {
-        object Logout : State()
-        object SessionExpired : State()
-        data class NightMode(val isInNightMode: Boolean) : State()
-        data class CurrentUser(val user: User, val subCount: Int) : State()
+    sealed class Reducer {
+        data class DisplayUser(val user: User, val subCount: Int) : Reducer()
+        data class DisplayNightModeToggle(val isNightModeEnabled: Boolean) : Reducer()
     }
 
     sealed class Action : EventTracker.Action {
@@ -29,8 +27,7 @@ interface MainContract {
         object Profile : Action()
         object NightMode : Action()
         object PlayerClicked : Action()
-        data class PlayVideo(val videoId: String) : Action()
-
+        object ToggleMenu : Action()
 
         companion object {
             fun fromNavDrawer(@IdRes id: Int) = when (id) {
@@ -43,17 +40,23 @@ interface MainContract {
         }
     }
 
+    sealed class Event {
+        data class TriggerNightMode(val mode: Int) : Event()
+        data class NavigateToUser(val user: User) : Event()
+        object ToggleMenu : Event()
+        object NavigateToPreferences : Event()
+        object NavigateToLoginScreen : Event()
+        object SessionExpired : Event()
+    }
+
+    @HiltViewModel
+    class ViewModel @Inject constructor(p: MainPresenter) : EventViewModel<State, Action, Event>(State(), p) {
+        init {
+            logd("Creating MainViewModel!")
+        }
+    }
+
     interface Navigator {
-
-//        val optionsBottomSheet: OptionsBottomSheetView
-
-        fun toPreferences()
-
-        fun toCreator(creatorId: String)
-
-        fun toCreatorsList()
-
-        fun toUser(userId: String)
 
         fun playVideo(videoId: String, commentId: String = "")
 

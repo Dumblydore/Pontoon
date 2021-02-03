@@ -3,6 +3,7 @@ package me.mauricee.pontoon.ui.main.history
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.databinding.FragmentHistoryBinding
@@ -13,15 +14,13 @@ import me.mauricee.pontoon.ui.NewBaseFragment
 import me.mauricee.pontoon.ui.main.VideoPageAdapter
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class HistoryFragment : NewBaseFragment(R.layout.fragment_history) {
 
     @Inject
     lateinit var videoAdapter: VideoPageAdapter
+    private val viewModel: HistoryContract.ViewModel by viewModels()
 
-    @Inject
-    lateinit var factory: HistoryContract.ViewModel.Factory
-
-    private val viewModel: HistoryContract.ViewModel by viewModels { factory }
     private val binding by viewBinding(FragmentHistoryBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

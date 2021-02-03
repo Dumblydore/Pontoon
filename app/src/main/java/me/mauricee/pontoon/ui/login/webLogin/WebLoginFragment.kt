@@ -8,32 +8,32 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.core.net.toUri
-import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.navigation.fragment.navArgs
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_web_login.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.ui.NewBaseFragment
 import me.mauricee.pontoon.ui.login.LoginAction
 import me.mauricee.pontoon.ui.login.LoginViewModel
-import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class WebLoginFragment : NewBaseFragment(R.layout.fragment_web_login) {
 
-    @Inject
-    lateinit var viewModel: LoginViewModel
+    private val args: WebLoginFragmentArgs by navArgs()
+    private val viewModel: LoginViewModel by hiltNavGraphViewModels(R.id.login_graph)
 
-
-    private val url: String by lazy { requireArguments().getString(UrlKey)!! }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupWebview()
-        login_webview.loadUrl(url)
+        login_webview.loadUrl(args.site.url)
         subscriptions += RxToolbar.navigationClicks(login_toolbar).subscribe { requireActivity().onBackPressed() }
     }
 
@@ -46,8 +46,8 @@ class WebLoginFragment : NewBaseFragment(R.layout.fragment_web_login) {
             loadWithOverviewMode = true
         }
         login_webview.webViewClient = Webclient()
-        viewModel.watchStateValue { error }.notNull().observe(viewLifecycleOwner) {
-            Toast.makeText(requireContext(), getString(R.string.lttLogin_error), Toast.LENGTH_LONG).show()
+        viewModel.state.mapDistinct { it.uiState.error }.notNull().observe(viewLifecycleOwner) {
+            Toast.makeText(requireContext(), it.text(requireContext()), Toast.LENGTH_LONG).show()
             requireActivity().onBackPressed()
         }
     }
@@ -71,14 +71,7 @@ class WebLoginFragment : NewBaseFragment(R.layout.fragment_web_login) {
     }
 
     companion object {
-
-        private const val UrlKey = "Url_Key"
         private const val CallbackPath = "/connect/login/callback"
         private const val ConfirmPath = "api/activation/email/confirm"
-        private const val LttUrl = "https://www.floatplane.com/api/connect/ltt?redirect=$CallbackPath&create=true&login=true"
-        private const val DiscordUrl = "https://www.floatplane.com/api/connect/discord?redirect=$CallbackPath&create=true&login=true"
-
-        fun loginWithLttForum(): Fragment = WebLoginFragment().apply { arguments = bundleOf(UrlKey to LttUrl) }
-        fun loginWithDiscord(): Fragment = WebLoginFragment().apply { arguments = bundleOf(UrlKey to DiscordUrl) }
     }
 }

@@ -13,7 +13,7 @@ import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.main.MainContract
 import javax.inject.Inject
 
-class SearchPresenter @Inject constructor(private val navigator: MainContract.Navigator,
+class SearchPresenter @Inject constructor(/*private val navigator: MainContract.Navigator,*/
                                           private val subscriptionRepository: SubscriptionRepository,
                                           private val videoRepository: VideoRepository) : ReduxPresenter<SearchState, SearchReducer, SearchAction, SearchEvent>() {
 
@@ -39,7 +39,7 @@ class SearchPresenter @Inject constructor(private val navigator: MainContract.Na
     private fun handleActions(creators: List<String>, action: SearchAction): Observable<SearchReducer> {
         return when (action) {
             is SearchAction.Query -> query(creators, action.query)
-            is SearchAction.VideoClicked -> noReduce { navigator.playVideo(action.video.id) }
+            is SearchAction.VideoClicked -> noReduce { /*navigator.playVideo(action.video.id) */}
         }
     }
 

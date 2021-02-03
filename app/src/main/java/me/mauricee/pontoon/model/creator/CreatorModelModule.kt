@@ -3,12 +3,15 @@ package me.mauricee.pontoon.model.creator
 import com.nytimes.android.external.store3.base.impl.room.StoreRoom
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityRetainedComponent
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.throwIfEmpty
 import me.mauricee.pontoon.model.PontoonDatabase
 
 @Module
-class CreatorModelModule {
+@InstallIn(ActivityRetainedComponent::class)
+object CreatorModelModule {
 
     @Provides
     fun PontoonDatabase.providesCreatorDao() = creatorDao

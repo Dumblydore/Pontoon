@@ -6,13 +6,9 @@ import me.mauricee.pontoon.model.session.SessionRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.ReduxPresenter
 import me.mauricee.pontoon.ui.UiState
-import me.mauricee.pontoon.ui.launch.LaunchFragmentDirections.actionLaunchFragmentToLoginGraph
-import me.mauricee.pontoon.ui.launch.LaunchFragmentDirections.actionLaunchFragmentToMainGraph
 import javax.inject.Inject
 
-class LaunchPresenter @Inject constructor(
-        private val sessionRepository: SessionRepository
-) : ReduxPresenter<LaunchState, LaunchReducer, LaunchAction, LaunchEvent>() {
+class LaunchPresenter @Inject constructor(private val sessionRepository: SessionRepository) : ReduxPresenter<LaunchState, LaunchReducer, LaunchAction, LaunchEvent>() {
 
     override fun onViewAttached(view: BaseContract.View<LaunchState, LaunchAction>): Observable<LaunchReducer> {
         return sessionRepository.canLogin().flatMapObservable { canLogin ->
@@ -29,7 +25,7 @@ class LaunchPresenter @Inject constructor(
                     val event = when (result) {
                         LoginResult.Requires2FA -> LaunchEvent.ToLogin(true)
                         is LoginResult.Error -> LaunchEvent.ToLogin(false)
-                        LoginResult.Success ->  LaunchEvent.ToSession
+                        LoginResult.Success -> LaunchEvent.ToSession
                     }
                     sendEvent(event)
                 }

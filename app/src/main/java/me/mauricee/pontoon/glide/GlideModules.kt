@@ -13,10 +13,10 @@ import java.io.InputStream
 
 @GlideModule
 class PontoonGlideModule : AppGlideModule() {
-    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        super.registerComponents(context, glide, registry)
-        val factory = OkHttpUrlLoader.Factory((context.applicationContext as Pontoon).client)
-        glide.registry.replace(GlideUrl::class.java, InputStream::class.java, factory)
-    }
+//    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+//        super.registerComponents(context, glide, registry)
+//        val factory = OkHttpUrlLoader.Factory((context.applicationContext as Pontoon).client)
+//        glide.registry.replace(GlideUrl::class.java, InputStream::class.java, factory)
+//    }
 }
 

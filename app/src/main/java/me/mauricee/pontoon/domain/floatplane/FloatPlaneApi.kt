@@ -21,7 +21,7 @@ interface FloatPlaneApi {
     val edges: Observable<Edge.Response>
 
     @get:GET("user/self")
-    val self: Observable<UserJson>
+    val self: Single<UserJson>
 
     @POST("auth/logout")
     fun logout(): Completable
@@ -33,7 +33,7 @@ interface FloatPlaneApi {
     fun login(@Body loginCredentials: LoginRequest): Single<UserJson.Container>
 
     @POST("auth/checkFor2faLogin")
-    fun login(@Body token: LoginAuthToken): Observable<UserJson.Container>
+    fun login(@Body token: LoginAuthToken): Single<UserJson.Container>
 
     @GET("user/info")
     fun getUsers(@Query("id") vararg id: String): Single<UserJson.Response>

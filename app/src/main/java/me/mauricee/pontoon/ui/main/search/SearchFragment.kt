@@ -6,6 +6,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.support.v7.widget.queryTextChanges
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.databinding.FragmentSearchBinding
@@ -19,16 +20,14 @@ import me.mauricee.pontoon.ui.main.VideoPageAdapter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class SearchFragment : NewBaseFragment(R.layout.fragment_search) {
 
     @Inject
     lateinit var adapter: VideoPageAdapter
 
-    @Inject
-    lateinit var factory: SearchViewModel.Factory
-
-    private val viewModel: SearchViewModel by viewModels { factory }
-    private val binding: FragmentSearchBinding by viewBinding(FragmentSearchBinding::bind)
+    private val viewModel: SearchViewModel by viewModels()
+    private val binding by viewBinding(FragmentSearchBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

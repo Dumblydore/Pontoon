@@ -5,10 +5,8 @@ import io.reactivex.Observable
 import me.mauricee.pontoon.ext.getAndFetch
 import me.mauricee.pontoon.ext.getAsDataModel
 import me.mauricee.pontoon.model.DataModel
-import me.mauricee.pontoon.ui.main.MainScope
 import javax.inject.Inject
 
-@MainScope
 class CreatorRepository @Inject constructor(private val allCreatorStore: StoreRoom<List<Creator>, Unit>, private val creatorStore: StoreRoom<Creator, String>) {
     val allCreators: DataModel<List<Creator>>
         get() = allCreatorStore.getAsDataModel(Unit)

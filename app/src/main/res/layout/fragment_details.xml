@@ -6,16 +6,23 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
 
-<!--    <me.mauricee.pontoon.common.LazyLayout-->
-<!--        android:id="@+id/details"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        tools:lazy_state="success">-->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/details.content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-<!--    </me.mauricee.pontoon.common.LazyLayout>-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/details.content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <ProgressBar
+        android:id="@+id/details.progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="-6dp"
+        android:indeterminate="true"
+        android:indeterminateBehavior="repeat"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -3,7 +3,6 @@ package me.mauricee.pontoon.ui.main.player.playback
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Animatable
-import android.graphics.drawable.AnimatedImageDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.media2.common.MediaItem
 import androidx.media2.common.MediaMetadata
 import androidx.media2.common.SessionPlayer
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.media2.SessionPlayerConnector
 import com.google.android.exoplayer2.video.VideoListener
 import com.jakewharton.rxbinding2.view.clicks
@@ -196,6 +194,9 @@ class NewPlayerView @JvmOverloads constructor(context: Context, attrs: Attribute
             (icon as? Animatable)?.start()
         }
     }
+
+    fun fullscreenClicked(): Observable<Unit> = player_controls_fullscreen.clicks()
+            .map { Unit }
 
 //    private val controlsRunnable: Runnable = Runnable { controlsVisible = !controlsVisible }
 //    private val borderRunnable: Runnable = Runnable { hideBorder() }

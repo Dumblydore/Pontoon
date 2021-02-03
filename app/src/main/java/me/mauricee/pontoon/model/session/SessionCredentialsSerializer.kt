@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class SessionCredentialsSerializer @Inject constructor() : Serializer<SessionCredentials> {
     override val defaultValue: SessionCredentials
-        get() = SessionCredentials(cfduid = UUID.randomUUID().toString())
+        get() = SessionCredentials(cfuId = UUID.randomUUID().toString())
 
     override fun readFrom(input: InputStream): SessionCredentials {
         return SessionCredentials.ADAPTER.decode(input)

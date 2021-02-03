@@ -22,6 +22,8 @@ sealed class UiState {
     }
 
     fun isRefreshing(): Boolean = this is Refreshing
+
+    fun isLoading(): Boolean = this is Loading
 }
 
 data class UiError(@StringRes val message: Int? = null,

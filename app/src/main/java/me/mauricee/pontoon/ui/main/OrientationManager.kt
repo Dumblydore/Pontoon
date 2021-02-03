@@ -1,10 +1,10 @@
 package me.mauricee.pontoon.ui.main
 
+import android.app.Activity
 import android.content.pm.ActivityInfo
-import androidx.appcompat.app.AppCompatActivity
 import javax.inject.Inject
 
-class OrientationManager @Inject constructor(private val activity: AppCompatActivity) {
+class OrientationManager @Inject constructor(private val activity: Activity) {
 
     var isFullscreen: Boolean = false
         set(value) {

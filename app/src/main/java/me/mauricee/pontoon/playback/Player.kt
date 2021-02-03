@@ -1,40 +1,21 @@
 package me.mauricee.pontoon.playback
 
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
-import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleObserver
-import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ext.cast.CastPlayer
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.gms.cast.MediaInfo
-import com.google.android.gms.cast.MediaMetadata
-import com.google.android.gms.cast.MediaQueueItem
-import com.google.android.gms.common.images.WebImage
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import me.mauricee.pontoon.common.playback.PlayerFactory
-import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.domain.floatplane.VideoContentJson
-import me.mauricee.pontoon.ext.just
-import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.video.Playback
 import me.mauricee.pontoon.model.video.Stream
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.model.video.get
-import me.mauricee.pontoon.rx.context.BroadcastEvent
-import me.mauricee.pontoon.rx.context.registerReceiver
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class Player @Inject constructor(/*preferences: Preferences,

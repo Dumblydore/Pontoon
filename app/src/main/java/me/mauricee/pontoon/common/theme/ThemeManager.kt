@@ -40,7 +40,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
         set(value) {
             style = when (value) {
                 BaseTheme.Light -> Style.Light(style.primary, style.accent)
-                BaseTheme.Black -> Style.Black(style.primary, style.accent)
+                BaseTheme.Light -> Style.Light(style.primary, style.accent)
             }
         }
         get() = style.theme
@@ -49,7 +49,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
         set(value) {
             style = when (style.theme) {
                 BaseTheme.Light -> Style.Light(style.primary, value)
-                BaseTheme.Black -> Style.Black(style.primary, value)
+                BaseTheme.Light -> Style.Light(style.primary, value)
             }
         }
         get() = style.accent
@@ -58,7 +58,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
         set(value) {
             style = when (style.theme) {
                 BaseTheme.Light -> Style.Light(value, style.accent)
-                BaseTheme.Black -> Style.Black(value, style.accent)
+                BaseTheme.Light -> Style.Light(value, style.accent)
             }
         }
         get() = style.primary
@@ -82,8 +82,8 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
         get() = preferences.getInt(DayNightModeKey, AppCompatDelegate.MODE_NIGHT_NO)
         set(value) {
             preferences.edit(true) { putInt(DayNightModeKey, value) }
-            AppCompatDelegate.setDefaultNightMode(value)
-            activity.overridePendingTransition(0,0)
+//            AppCompatDelegate.setDefaultNightMode(value)
+//            activity.overridePendingTransition(0,0)
         }
 
     init {
@@ -110,10 +110,11 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
             ?: Palette.Swatch(activity.primaryColor, 1)
 
     fun toggleNightMode() {
-        mode = if (isInNightMode) AppCompatDelegate.MODE_NIGHT_NO
-        else AppCompatDelegate.MODE_NIGHT_YES
-        if (BuildConfig.DEBUG)
-            Toast.makeText(activity, "Switching to mode: $mode", Toast.LENGTH_LONG).show()
+
+//        mode = if (isInNightMode) AppCompatDelegate.MODE_NIGHT_NO
+//        else AppCompatDelegate.MODE_NIGHT_YES
+//        if (BuildConfig.DEBUG)
+//            Toast.makeText(activity, "Switching to mode: $mode", Toast.LENGTH_LONG).show()
     }
 
     private fun setDayNightBehavior(behavior: DayNightBehavior) = when (behavior) {
@@ -125,7 +126,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     }
 
     private fun setAmoledMode(isAmoledMode: Boolean) {
-        baseTheme = if (isAmoledMode) BaseTheme.Black else BaseTheme.Light
+        baseTheme = if (isAmoledMode) BaseTheme.Light else BaseTheme.Light
         commit()
     }
 
@@ -139,7 +140,7 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
 
     private fun convertToStyle(base: BaseTheme, primary: PrimaryColor, accent: AccentColor): Style = when (base) {
         BaseTheme.Light -> Style.Light(primary, accent)
-        BaseTheme.Black -> Style.Black(primary, accent)
+        BaseTheme.Light -> Style.Light(primary, accent)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

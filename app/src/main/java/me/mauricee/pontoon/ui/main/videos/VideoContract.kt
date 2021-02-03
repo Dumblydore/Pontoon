@@ -2,11 +2,11 @@ package me.mauricee.pontoon.ui.main.videos
 
 import androidx.annotation.StringRes
 import androidx.paging.PagedList
+import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.EventViewModel
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
@@ -43,8 +43,10 @@ enum class VideoErrors(@StringRes val msg: Int) {
     Unknown(R.string.subscriptions_error_general)
 }
 
-typealias VideoEvent = Nothing
-
-class VideoViewModel(p: VideoPresenter) : EventViewModel<VideoState, VideoAction, VideoEvent>(VideoState(), p) {
-    class Factory @Inject constructor(p: VideoPresenter) : BaseViewModel.Factory<VideoViewModel>({ VideoViewModel(p) })
+sealed class VideoEvent {
+    object NavigateToAllCreators : VideoEvent()
+    data class NavigateToCreator(val creatorId: String) : VideoEvent()
 }
+
+@HiltViewModel
+class VideoViewModel @Inject constructor(p: VideoPresenter) : EventViewModel<VideoState, VideoAction, VideoEvent>(VideoState(), p)

@@ -2,7 +2,6 @@ package me.mauricee.pontoon.ui.main.videos
 
 import com.jakewharton.rx.replayingShare
 import io.reactivex.Observable
-import me.mauricee.pontoon.common.ShareManager
 import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.preferences.Preferences
@@ -12,14 +11,15 @@ import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.ReduxPresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
-import me.mauricee.pontoon.ui.main.MainContract
 import javax.inject.Inject
 
-class VideoPresenter @Inject constructor(private val subscriptionRepository: SubscriptionRepository,
-                                         private val videoRepository: VideoRepository,
-                                         private val mainNavigator: MainContract.Navigator,
-                                         private val preferences: Preferences,
-                                         private val sharedManager: ShareManager) : ReduxPresenter<VideoState, VideoReducer, VideoAction, VideoEvent>() {
+class VideoPresenter @Inject constructor(
+        private val subscriptionRepository: SubscriptionRepository,
+        private val videoRepository: VideoRepository,
+//        private val mainNavigator: MainContract.Navigator,
+        private val preferences: Preferences,
+//                                         private val sharedManager: ShareManager
+) : ReduxPresenter<VideoState, VideoReducer, VideoAction, VideoEvent>() {
 
     override fun onViewAttached(view: BaseContract.View<VideoState, VideoAction>): Observable<VideoReducer> {
         return preferences.displayUnwatchedVideos.switchMap { displayUnwatchedVideos ->
@@ -57,12 +57,12 @@ class VideoPresenter @Inject constructor(private val subscriptionRepository: Sub
 
     private fun handleAction(action: VideoAction): Observable<VideoReducer> {
         return when (action) {
-            is VideoAction.Subscription -> noReduce { mainNavigator.toCreator(action.creator.id) }
-            is VideoAction.PlayVideo -> noReduce { mainNavigator.playVideo(action.video.id) }
-            is VideoAction.Share -> noReduce { sharedManager.shareVideo(action.video) }
+            is VideoAction.Subscription -> noReduce { sendEvent(VideoEvent.NavigateToCreator(action.creator.id)) }
+            is VideoAction.PlayVideo -> noReduce { /*mainNavigator.playVideo(action.video.id) */ }
+            is VideoAction.Share -> noReduce { /*sharedManager.shareVideo(action.video) */ }
             is VideoAction.Download -> noReduce { }
-            VideoAction.Creators -> noReduce { mainNavigator.toCreatorsList() }
-            VideoAction.NavMenu -> noReduce { mainNavigator.setMenuExpanded(true) }
+            VideoAction.Creators -> noReduce { sendEvent(VideoEvent.NavigateToAllCreators) }
+            VideoAction.NavMenu -> noReduce { /*mainNavigator.setMenuExpanded(true) */ }
             VideoAction.Refresh -> throw RuntimeException("Should not enter branch! (VideoAction.Refresh)")
         }
     }

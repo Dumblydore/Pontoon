@@ -1,93 +1,89 @@
 package me.mauricee.pontoon.ui.login
 
 import io.reactivex.Observable
-import io.reactivex.functions.Function
-import me.mauricee.pontoon.domain.account.AccountManagerHelper
-import me.mauricee.pontoon.domain.floatplane.*
+import io.reactivex.Single
+import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.ext.toObservable
+import me.mauricee.pontoon.model.session.LoginResult
+import me.mauricee.pontoon.model.session.SessionRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.StatefulPresenter
+import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.UiError
+import me.mauricee.pontoon.ui.UiState
 import retrofit2.HttpException
-import java.net.URLDecoder
 import javax.inject.Inject
 
-class LoginPresenter @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
-                                         private val manager: AccountManagerHelper,
-                                         private val navigator: LoginNavigator) : StatefulPresenter<LoginState, LoginAction>() {
+class LoginPresenter @Inject constructor(private val sessionRepository: SessionRepository) : ReduxPresenter<LoginState, LoginReducer, LoginAction, LoginEvent>() {
 
-    private val codeRegex = Regex("[0-9]+")
+    private val codeRegex by lazy { Regex("[0-9]+") }
 
-    override fun onViewAttached(view: BaseContract.View<LoginState, LoginAction>): Observable<LoginState> {
-        return view.actions.flatMap(::onAction)
+    override fun onViewAttached(view: BaseContract.View<LoginState, LoginAction>): Observable<LoginReducer> {
+        return view.actions.flatMap { action ->
+            when (action) {
+                is LoginAction.Login -> attemptLogin(action.username, action.password)
+                is LoginAction.LoginWithCookie -> loginWithCookie(action.cookie)
+                is LoginAction.Activate -> attemptActivation(action.code, action.username)
+                is LoginAction.Authenticate -> attemptAuthentication(action.authCode)
+                LoginAction.LttLogin -> noReduce { sendEvent(LoginEvent.NavigateToLttLogin) }
+                LoginAction.DiscordLogin -> noReduce { sendEvent(LoginEvent.NavigateToDiscordLogin) }
+                LoginAction.SignUp -> noReduce { sendEvent(LoginEvent.NavigateToSignUp) }
+                LoginAction.PrivacyPolicy -> noReduce { sendEvent(LoginEvent.NavigateToPrivacyPolicy) }
+            }
+        }
     }
 
-    private fun onAction(action: LoginAction): Observable<LoginState> = when (action) {
-        is LoginAction.Login -> attemptLogin(action.username, action.password)
-        is LoginAction.LoginWithCookie -> attemptLogin(action.cookie)
-        is LoginAction.Activate -> attemptActivation(action.code, action.username)
-        is LoginAction.Authenticate -> attemptAuthentication(action.authCode)
-        LoginAction.LttLogin -> stateless(navigator::toLttLogin)
-        LoginAction.DiscordLogin -> stateless(navigator::toDiscordLogin)
-        LoginAction.SignUp -> stateless(navigator::toSignUp)
-        LoginAction.PrivacyPolicy -> stateless(navigator::toPrivacyPolicy)
+    override fun onReduce(state: LoginState, reducer: LoginReducer): LoginState = when (reducer) {
+        LoginReducer.Loading -> state.copy(uiState = UiState.Loading)
+        LoginReducer.Requires2Fa -> state.copy(uiState = UiState.Success, prompt2FaCode = true)
+        is LoginReducer.DisplayError -> state.copy(uiState = UiState.Failed(UiError(reducer.error.msg)))
     }
 
-    private fun attemptAuthentication(code: String): Observable<LoginState> = if (code.matches(codeRegex)) {
-        floatPlaneApi.login(LoginAuthToken(code)).map(UserJson.Container::user)
-                .flatMap(this::navigateToMain)
-                .startWith(state.copy(isLoading = true))
-                .onErrorReturn(::processError)
-    } else state.copy(isLoading = false, error = LoginError.InvalidAuthCode).toObservable()
-
-    private fun attemptActivation(code: String, username: String): Observable<LoginState> =
-            floatPlaneApi.confirmEmail(ConfirmationRequest(code, username)).andThen(floatPlaneApi.self)
-                    .flatMap(this::navigateToMain)
-                    .startWith(state.copy(isLoading = true))
-                    .onErrorReturnItem(state.copy(isLoading = false, error = LoginError.Activation))
-
-    private fun attemptLogin(username: String, password: String): Observable<LoginState> = when {
-        username.isEmpty() -> state.copy(isLoading = false, error = LoginError.MissingUsername).toObservable()
-        password.isEmpty() -> state.copy(isLoading = false, error = LoginError.MissingPassword).toObservable()
-        else -> login(LoginRequest(username, password))
+    private fun attemptLogin(username: String, password: String): Observable<LoginReducer> = Observable.defer {
+        when {
+            username.isEmpty() -> LoginReducer.DisplayError(LoginError.MissingUsername).toObservable()
+            password.isEmpty() -> LoginReducer.DisplayError(LoginError.MissingUsername).toObservable()
+            else -> loginWithCredentials(username, password)
+        }
     }
 
-    private fun attemptLogin(cookieStr: String): Observable<LoginState> {
+    private fun loginWithCredentials(username: String, password: String): Observable<LoginReducer> {
+        return sessionRepository.loginWithCredentials(username, password)
+                .flatMapObservable(::processLoginResult)
+                .startWith(LoginReducer.Loading)
+    }
+
+    private fun loginWithCookie(cookieStr: String) = Single.defer {
         val cookies = cookieStr.split(";").associate { cookie ->
             cookie.split("=").let { it.first() to it.last() }
         }
         val cfuIdKey = cookies.keys.first { it.contains(AuthInterceptor.CfDuid) }
         val sailsKey = cookies.keys.first { it.contains(AuthInterceptor.SailsSid) }
+        sessionRepository.loginWithCookie(cfuIdKey, sailsKey)
+    }.flatMapObservable(::processLoginResult).startWith(LoginReducer.Loading)
 
-        manager.login(cookies[cfuIdKey]
-                ?: "", URLDecoder.decode(cookies[sailsKey], "UTF-8")!!)
+    private fun attemptAuthentication(code: String): Observable<LoginReducer> = if (code.matches(codeRegex)) {
+        sessionRepository.authenticate(code).flatMapObservable(::processLoginResult).startWith(LoginReducer.Loading)
+    } else Observable.just(LoginReducer.DisplayError(LoginError.InvalidAuthCode))
 
-        return floatPlaneApi.self.flatMap(::navigateToMain).onErrorResumeNext(Function {
-            stateless {
-                if ((it as? HttpException)?.code() in 400..499) stateless { LoginState(prompt2FaCode = true) }
-                else Observable.just(processError(it))
-            }
-        })
+    private fun attemptActivation(code: String, username: String): Observable<LoginReducer> {
+        return sessionRepository.activate(username, code).flatMapObservable(::processLoginResult)
+                .startWith(LoginReducer.Loading)
     }
 
-    private fun login(request: LoginRequest): Observable<LoginState> = floatPlaneApi.login(request).flatMapObservable {
-        if (it.needs2Fa) state.copy(isLoading = false, prompt2FaCode = true).toObservable()
-        else navigateToMain(it.user!!)
-    }.startWith(state.copy(isLoading = true, error = null)).onErrorReturn(::processError)
-
-
-    private fun navigateToMain(user: UserJson) = stateless {
-        manager.account = user
-        navigator.onSuccessfulLogin()
+    private fun processLoginResult(result: LoginResult): Observable<LoginReducer> = when (result) {
+        LoginResult.Requires2FA -> LoginReducer.Requires2Fa.toObservable()
+        LoginResult.Success -> noReduce { sendEvent(LoginEvent.NavigateToSession) }
+        is LoginResult.Error -> processError(result.exception).toObservable()
     }
 
-    private fun processError(error: Throwable): LoginState = when (error) {
+    private fun processError(error: Throwable): LoginReducer = when (error) {
         is HttpException -> processHttpCode(error.code())
-        else -> LoginState(error = LoginError.General)
+        else -> LoginReducer.DisplayError(LoginError.General)
     }
 
-    private fun processHttpCode(code: Int): LoginState = when (code) {
+    private fun processHttpCode(code: Int): LoginReducer = when (code) {
         in 400..499 -> LoginError.NetworkCredentials
         in 500..599 -> LoginError.NetworkService
         else -> LoginError.NetworkUnknown
-    }.let { LoginState(error = LoginError.General) }
+    }.let(LoginReducer::DisplayError)
 }

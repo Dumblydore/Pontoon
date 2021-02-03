@@ -2,6 +2,7 @@ package me.mauricee.pontoon.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import com.jakewharton.rxrelay2.PublishRelay
@@ -35,10 +36,6 @@ abstract class BaseViewModel<S : Any, A : EventTracker.Action> : ViewModel, Base
 
     constructor() : super()
 
-    constructor(initialState: S, presenter: StatefulPresenter<S, A>) : super() {
-        subs += presenter.attachView(this, initialState).subscribe(::updateState)
-    }
-
     constructor(initialState: S, presenter: ReduxPresenter<S, *, A, *>) : super() {
         subs += presenter.attachView(this, initialState).subscribe(::updateState)
     }
@@ -64,5 +61,14 @@ abstract class BaseViewModel<S : Any, A : EventTracker.Action> : ViewModel, Base
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T = creator(handle) as T
+    }
+}
+
+inline fun <reified T : ViewModel> Fragment.assistedViewModel(
+        crossinline viewModelProducer: (SavedStateHandle) -> T
+) = viewModels<T> {
+    object : AbstractSavedStateViewModelFactory(this, arguments) {
+        override fun <T : ViewModel> create(key: String, modelClass: Class<T>, handle: SavedStateHandle) =
+                viewModelProducer(handle) as T
     }
 }

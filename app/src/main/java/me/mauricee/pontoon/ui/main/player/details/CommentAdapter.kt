@@ -22,9 +22,10 @@ import me.mauricee.pontoon.common.SimpleListAdapter
 import me.mauricee.pontoon.domain.floatplane.CommentInteraction
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.comment.Comment
+import me.mauricee.pontoon.ui.main.player.PlayerAction
 import javax.inject.Inject
 
-class CommentAdapter @Inject constructor(context: Context) : BaseListAdapter<DetailsContract.Action, Comment, CommentAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()) {
+class CommentAdapter @Inject constructor(context: Context) : BaseListAdapter<PlayerAction, Comment, CommentAdapter.ViewHolder>(SimpleListAdapter.ItemCallback()) {
     private val primaryColor = ContextCompat.getColor(context, R.color.md_grey_600)
     private val positiveColor = ContextCompat.getColor(context, R.color.colorPositive)
     private val negativeColor = ContextCompat.getColor(context, R.color.colorNegative)
@@ -39,19 +40,19 @@ class CommentAdapter @Inject constructor(context: Context) : BaseListAdapter<Det
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         init {
             subscriptions += Observable.merge(view.item_icon_small.clicks(), view.item_title.clicks())
-                    .map { getItem(adapterPosition).user }
-                    .map(DetailsContract.Action::ViewUser)
+                    .map { getItem(bindingAdapterPosition).user }
+                    .map(PlayerAction::ViewUser)
                     .subscribe(relay::accept)
 
-            subscriptions += Observable.merge(view.item_thumb_up.clicks().map { getItem(adapterPosition) }.map(DetailsContract.Action::Like),
-                    view.item_thumb_down.clicks().map { getItem(adapterPosition) }.map(DetailsContract.Action::Dislike))
+            subscriptions += Observable.merge(view.item_thumb_up.clicks().map { getItem(bindingAdapterPosition) }.map(PlayerAction::Like),
+                    view.item_thumb_down.clicks().map { getItem(bindingAdapterPosition) }.map(PlayerAction::Dislike))
                     .subscribe(relay::accept)
 
-            subscriptions += view.item_comment.clicks().map { getItem(adapterPosition) }
-                    .map(DetailsContract.Action::Reply).subscribe(relay::accept)
+            subscriptions += view.item_comment.clicks().map { getItem(bindingAdapterPosition) }
+                    .map(PlayerAction::Reply).subscribe(relay::accept)
 
-            subscriptions += view.item_viewReplies.clicks().map { getItem(adapterPosition) }
-                    .map(DetailsContract.Action::ViewReplies).subscribe(relay::accept)
+            subscriptions += view.item_viewReplies.clicks().map { getItem(bindingAdapterPosition) }
+                    .map(PlayerAction::ViewReplies).subscribe(relay::accept)
         }
 
         fun bind(comment: Comment) {

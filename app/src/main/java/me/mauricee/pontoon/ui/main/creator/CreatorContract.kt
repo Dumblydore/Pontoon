@@ -2,13 +2,15 @@ package me.mauricee.pontoon.ui.main.creator
 
 import androidx.annotation.StringRes
 import androidx.paging.PagedList
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.UiState
-import javax.inject.Inject
 
 interface CreatorContract {
 
@@ -31,8 +33,12 @@ interface CreatorContract {
 
     sealed class Event
 
-    class ViewModel(p: CreatorPresenter) : BaseViewModel<State, Action>(State(), p) {
-        class Factory @Inject constructor(p: CreatorPresenter) : BaseViewModel.Factory<ViewModel>({ ViewModel(p) })
+
+    class ViewModel @AssistedInject constructor(@Assisted p: CreatorPresenter) : BaseViewModel<State, Action>(State(), p) {
+        @AssistedFactory
+        interface Factory {
+            fun create(p: CreatorPresenter): ViewModel
+        }
     }
 
     enum class Errors(@StringRes val msg: Int) {

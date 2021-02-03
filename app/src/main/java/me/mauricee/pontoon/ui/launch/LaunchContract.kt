@@ -1,6 +1,6 @@
 package me.mauricee.pontoon.ui.launch
 
-import me.mauricee.pontoon.ui.BaseViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.ui.EventViewModel
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
@@ -18,6 +18,6 @@ sealed class LaunchReducer {
     object LoggingIn : LaunchReducer()
 }
 
-class LaunchViewModel(p: LaunchPresenter) : EventViewModel<LaunchState, LaunchAction, LaunchEvent>(LaunchState(), p) {
-    class Factory @Inject constructor(p: LaunchPresenter) : BaseViewModel.Factory<LaunchViewModel>({ LaunchViewModel(p) })
-}
+
+@HiltViewModel
+class LaunchViewModel @Inject constructor(p: LaunchPresenter) : EventViewModel<LaunchState, LaunchAction, LaunchEvent>(LaunchState(), p)

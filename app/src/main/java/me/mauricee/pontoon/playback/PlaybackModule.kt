@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.playback
 
+import android.content.Context
 import androidx.media2.session.MediaController
 import androidx.media2.session.MediaSession
 import com.google.android.exoplayer2.C
@@ -14,60 +15,62 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.gms.cast.framework.CastContext
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityRetainedComponent
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.lindstrom.m3u8.parser.MasterPlaylistParser
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.playback.converters.HlsMediaItemConverter
 import me.mauricee.pontoon.playback.providers.MediaItemProvider
 import me.mauricee.pontoon.rx.Optional
-import me.mauricee.pontoon.ui.main.MainActivity
-import me.mauricee.pontoon.ui.main.MainScope
 import okhttp3.OkHttpClient
 import java.util.concurrent.Executors
 
 @Module
+@InstallIn(ActivityRetainedComponent::class)
 object PlaybackModule {
 
     @Provides
-    @MainScope
+    @ActivityRetainedScoped
     fun providesPlaylistParser() = MasterPlaylistParser()
 
     @Provides
-    @MainScope
+    @ActivityRetainedScoped
     fun providesAudioAttributes(): AudioAttributes = AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.CONTENT_TYPE_MOVIE)
             .build()
 
     @Provides
-    @MainScope
+    @ActivityRetainedScoped
     fun providesHlsFactory(okHttpClient: OkHttpClient, authInterceptor: AuthInterceptor, agent: String): HlsMediaSource.Factory =
             HlsMediaSource.Factory(OkHttpDataSourceFactory(okHttpClient.newBuilder().addInterceptor(authInterceptor).build(), agent))
 
 
     @Provides
-    @MainScope
+    @ActivityRetainedScoped
     fun SimpleExoPlayer.providesSessionPlayerConnector(converter: HlsMediaItemConverter): SessionPlayerConnector = SessionPlayerConnector(this, converter)
 
     @Provides
-    @MainScope
-    fun MainActivity.providesCastPlayer(): Optional<CastPlayer> = try {
+    @ActivityRetainedScoped
+    fun Context.providesCastPlayer(): Optional<CastPlayer> = try {
         Optional.of(CastPlayer(CastContext.getSharedInstance(this)))
     } catch (e: Exception) {
         Optional.empty()
     }
 
     @Provides
-    @MainScope
-    fun MainActivity.providesLocalExoPlayer(audioAttributes: AudioAttributes, hlsFactory: HlsMediaSource.Factory): SimpleExoPlayer = SimpleExoPlayer.Builder(this)
+    @ActivityRetainedScoped
+    fun Context.providesLocalExoPlayer(audioAttributes: AudioAttributes, hlsFactory: HlsMediaSource.Factory): SimpleExoPlayer = SimpleExoPlayer.Builder(this)
             .setVideoScalingMode(Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT)
             .setAudioAttributes(audioAttributes, true)
             .setMediaSourceFactory(hlsFactory)
             .build()
 
     @Provides
-    @MainScope
-    fun MainActivity.providesMediaSessionSessionCallback(sessionPlayerConnector: SessionPlayerConnector,
-                                                         mediaItemProvider: MediaItemProvider): MediaSession.SessionCallback {
+    @ActivityRetainedScoped
+    fun Context.providesMediaSessionSessionCallback(sessionPlayerConnector: SessionPlayerConnector,
+                                                    mediaItemProvider: MediaItemProvider): MediaSession.SessionCallback {
         return SessionCallbackBuilder(this, sessionPlayerConnector)
                 .setFastForwardIncrementMs(500)
                 .setRewindIncrementMs(500)
@@ -76,16 +79,17 @@ object PlaybackModule {
     }
 
     @Provides
-    @MainScope
-    fun MainActivity.providesMediaSession(player: SessionPlayerConnector, sessionCallback: MediaSession.SessionCallback): MediaSession {
+    @ActivityRetainedScoped
+    fun Context.providesMediaSession(player: SessionPlayerConnector, sessionCallback: MediaSession.SessionCallback): MediaSession {
         return MediaSession.Builder(this, player)
+                .setId("PontoonPlayer")
                 .setSessionCallback(Executors.newSingleThreadExecutor(), sessionCallback)
                 .build()
     }
 
     @Provides
-    @MainScope
-    fun MainActivity.providesMediaController(session: MediaSession): MediaController = MediaController.Builder(this)
+    @ActivityRetainedScoped
+    fun Context.providesMediaController(session: MediaSession): MediaController = MediaController.Builder(this)
             .setSessionToken(session.token)
             .build()
 

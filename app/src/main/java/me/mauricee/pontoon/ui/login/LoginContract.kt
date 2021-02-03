@@ -1,13 +1,24 @@
 package me.mauricee.pontoon.ui.login
 
 import androidx.annotation.StringRes
+import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ui.BaseViewModel
+import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
-class LoginViewModel(p: LoginPresenter) : BaseViewModel<LoginState, LoginAction>(LoginState(), p) {
-    class Factory @Inject constructor(p: LoginPresenter) : BaseViewModel.Factory<LoginViewModel>({ LoginViewModel(p) })
+@HiltViewModel
+class LoginViewModel @Inject constructor(p: LoginPresenter) : EventViewModel<LoginState, LoginAction, LoginEvent>(LoginState(), p)
+
+data class LoginState(val uiState: UiState = UiState.Empty,
+                      val prompt2FaCode: Boolean = false)
+
+
+sealed class LoginReducer {
+    object Loading : LoginReducer()
+    object Requires2Fa : LoginReducer()
+    data class DisplayError(val error: LoginError) : LoginReducer()
 }
 
 sealed class LoginAction : EventTracker.Action {
@@ -21,9 +32,14 @@ sealed class LoginAction : EventTracker.Action {
     object PrivacyPolicy : LoginAction()
 }
 
-data class LoginState(val isLoading: Boolean = false,
-                      val prompt2FaCode: Boolean = false,
-                      val error: LoginError? = null)
+sealed class LoginEvent {
+    object NavigateToSession : LoginEvent()
+    object NavigateToLttLogin : LoginEvent()
+    object NavigateToDiscordLogin : LoginEvent()
+    object NavigateToSignUp : LoginEvent()
+    object NavigateToPrivacyPolicy : LoginEvent()
+}
+
 
 enum class LoginError(@StringRes val msg: Int) {
     MissingUsername(R.string.login_error_missingUsername),
@@ -35,4 +51,11 @@ enum class LoginError(@StringRes val msg: Int) {
     NetworkCredentials(R.string.login_error_network_credentials),
     NetworkService(R.string.login_error_network_service),
     NetworkUnknown(R.string.login_error_network_unknown)
+}
+
+private const val CallbackPath = "/connect/login/callback"
+
+enum class LoginWebsites(val url: String) {
+    Ltt("https://www.floatplane.com/api/connect/ltt?redirect=$CallbackPath&create=true&login=true"),
+    Discord("https://www.floatplane.com/api/connect/discord?redirect=$CallbackPath&create=true&login=true")
 }

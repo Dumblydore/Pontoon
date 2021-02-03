@@ -8,13 +8,14 @@ import com.google.android.gms.cast.framework.media.CastMediaOptions
 import com.google.android.gms.cast.framework.media.MediaIntentReceiver
 import com.google.android.gms.cast.framework.media.NotificationOptions
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.ui.NewMainActivity
 import me.mauricee.pontoon.ui.main.MainActivity
 
 class OptionProvider : OptionsProvider {
     override fun getCastOptions(context: Context): CastOptions {
         return NotificationOptions.Builder()
                 .setActions(listOf(MediaIntentReceiver.ACTION_TOGGLE_PLAYBACK, MediaIntentReceiver.ACTION_STOP_CASTING), intArrayOf(0, 1))
-                .setTargetActivityClassName(MainActivity.javaClass.name)
+                .setTargetActivityClassName(NewMainActivity::class.java.simpleName)
                 .build()
                 .run {
                     CastMediaOptions.Builder()

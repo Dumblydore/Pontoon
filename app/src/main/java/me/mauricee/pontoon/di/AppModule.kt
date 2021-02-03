@@ -9,8 +9,6 @@ import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
-import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -20,23 +18,12 @@ import com.vanniktech.rxpermission.RxPermission
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.android.ContributesAndroidInjector
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.analytics.FirebaseNetworkInterceptor
 import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.playback.PlaybackModule
-import me.mauricee.pontoon.preferences.PreferenceModule
-import me.mauricee.pontoon.preferences.PreferencesActivity
-import me.mauricee.pontoon.preferences.PreferencesScope
-import me.mauricee.pontoon.ui.launch.LaunchActivity
-import me.mauricee.pontoon.ui.launch.LaunchScope
-import me.mauricee.pontoon.ui.login.LoginActivity
-import me.mauricee.pontoon.ui.login.LoginModule
-import me.mauricee.pontoon.ui.login.LoginScope
-import me.mauricee.pontoon.ui.main.MainActivity
-import me.mauricee.pontoon.ui.main.MainModule
-import me.mauricee.pontoon.ui.main.MainScope
 import okhttp3.OkHttpClient
 import org.aaronhe.threetengson.ThreeTenGsonAdapter
 import org.threeten.bp.ZoneId
@@ -50,68 +37,23 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 @Module
-abstract class AppModule {
-
+@InstallIn(SingletonComponent::class)
+interface AppModule {
     @Binds
-    abstract fun bindContext(application: Application): Context
-
-    @LaunchScope
-    @ContributesAndroidInjector
-    abstract fun contributeLaunchActivity(): LaunchActivity
-
-    @LoginScope
-    @ContributesAndroidInjector(modules = [LoginModule::class])
-    abstract fun contributeLoginActivity(): LoginActivity
-
-    @MainScope
-    @ContributesAndroidInjector(modules = [MainModule::class, PlaybackModule::class])
-    abstract fun contributeMainActivity(): MainActivity
-
-    @PreferencesScope
-    @ContributesAndroidInjector(modules = [PreferenceModule::class])
-    abstract fun contributePreferenceActivity(): PreferencesActivity
+    fun bindContext(application: Application): Context
 
     companion object {
-
-        @AppScope
-        @Provides
-        fun providesSharedPreferences(context: Context): SharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(context)
-
-        @AppScope
-        @Provides
-        fun providesAccountManager(context: Context) = AccountManager.get(context)
-
-        @Provides
-        @AppScope
-        fun providesWifiManager(context: Context): WifiManager =
-                context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-
-        @Provides
-        @AppScope
-        fun providesPowerManager(context: Context): PowerManager =
-                context.getSystemService(Context.POWER_SERVICE) as PowerManager
-
-        @Provides
-        @AppScope
-        fun providesUserAgent(context: Context): String =
-                Util.getUserAgent(context, BuildConfig.APPLICATION_ID)
-
-        @AppScope
         @Provides
         fun providesGson(): Gson = ThreeTenGsonAdapter.registerAll(GsonBuilder().setLenient()).create()
 
-        @AppScope
         @Provides
         fun providesRxJavaCallAdapterFactory(): RxJava2CallAdapterFactory =
                 RxJava2CallAdapterFactory.createAsync()
 
-        @AppScope
         @Provides
         fun providesGsonConverterFactory(gson: Gson): GsonConverterFactory =
                 GsonConverterFactory.create(gson)
 
-        @AppScope
         @Provides
         fun providesHttpClient(): OkHttpClient = OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
@@ -119,13 +61,11 @@ abstract class AppModule {
                 .writeTimeout(15, TimeUnit.SECONDS)
                 .build()
 
-        @AppScope
         @Provides
         fun providesFloatPlaneApi(converterFactory: GsonConverterFactory,
                                   authInterceptor: AuthInterceptor,
                                   firebaseNetworkInterceptor: FirebaseNetworkInterceptor,
-                                  callFactory: RxJava2CallAdapterFactory, client: OkHttpClient):
-                FloatPlaneApi = client.newBuilder().addInterceptor(authInterceptor)
+                                  callFactory: RxJava2CallAdapterFactory, client: OkHttpClient): FloatPlaneApi = client.newBuilder().addInterceptor(authInterceptor)
                 .addInterceptor(firebaseNetworkInterceptor).build()
                 .let { Retrofit.Builder().client(it) }
                 .addConverterFactory(converterFactory)
@@ -134,13 +74,31 @@ abstract class AppModule {
                 .baseUrl("https://www.floatplane.com/api/")
                 .build().create(FloatPlaneApi::class.java)
 
-        @AppScope
+        @Provides
+        fun providesSharedPreferences(context: Context): SharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(context)
+
+        @Provides
+        fun providesAccountManager(context: Context) = AccountManager.get(context)
+
+        @Provides
+        fun providesWifiManager(context: Context): WifiManager =
+                context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+        @Provides
+        fun providesPowerManager(context: Context): PowerManager =
+                context.getSystemService(Context.POWER_SERVICE) as PowerManager
+
+        @Provides
+        fun providesUserAgent(context: Context): String =
+                Util.getUserAgent(context, BuildConfig.APPLICATION_ID)
+
+
         @Provides
         fun providesDateFormatter() = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault())
 
-        @AppScope
         @Provides
         fun providesPageConfig() = PagedList.Config.Builder().setPageSize(20)
                 .setEnablePlaceholders(false)
@@ -148,17 +106,42 @@ abstract class AppModule {
                 .build()
 
         @Provides
-        @AppScope
         fun providesSession(context: Context): MediaSessionCompat =
                 MediaSessionCompat(context, "Pontoon")
 
         @Provides
-        @AppScope
         fun providesWiseFy(context: Context): WiseFy = WiseFy.Brains(context).getSmarts()
 
         @Provides
-        @AppScope
         fun providesRxPermission(context: Context): RxPermission = RealRxPermission.getInstance(context)
 
     }
 }
+//    @Binds
+//    abstract fun bindContext(application: Application): Context
+//
+//
+//    @ContributesAndroidInjector
+//    abstract fun contributesNewMainActivity()
+//
+//    @LaunchScope
+//    @ContributesAndroidInjector
+//    abstract fun contributeLaunchActivity(): LaunchActivity
+//
+//    @LoginScope
+//    @ContributesAndroidInjector(modules = [LoginModule::class])
+//    abstract fun contributeLoginActivity(): LoginActivity
+//
+//    @MainScope
+//    @ContributesAndroidInjector(modules = [MainModule::class, PlaybackModule::class])
+//    abstract fun contributeMainActivity(): MainActivity
+//
+//    @PreferencesScope
+//    @ContributesAndroidInjector(modules = [PreferenceModule::class])
+//    abstract fun contributePreferenceActivity(): PreferencesActivity
+//
+//    companion object {
+//
+
+//
+

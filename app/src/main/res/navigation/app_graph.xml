@@ -10,14 +10,26 @@
         android:label="LaunchFragment">
         <action
             android:id="@+id/action_launchFragment_to_login_graph"
-            app:destination="@id/login_graph">
+            app:destination="@id/login_graph"
+            app:enterAnim="@anim/nav_fade_enter"
+            app:exitAnim="@anim/nav_fade_exit"
+            app:popEnterAnim="@anim/nav_fade_pop_enter"
+            app:popExitAnim="@anim/nav_fade_pop_exit"
+            app:popUpTo="@id/app_graph"
+            app:popUpToInclusive="true">
             <argument
                 android:name="initWith2FA"
                 app:argType="boolean" />
         </action>
         <action
-            android:id="@+id/action_launchFragment_to_main_graph"
-            app:destination="@id/main_graph" />
+            android:id="@+id/action_launchFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@id/app_graph"
+            app:popUpToInclusive="true" />
     </fragment>
     <navigation
         android:id="@+id/login_graph"
@@ -32,25 +44,33 @@
                 app:argType="boolean" />
             <action
                 android:id="@+id/action_loginFragment_to_webLoginFragment"
-                app:destination="@id/webLoginFragment" />
+                app:destination="@id/webLoginFragment"
+                app:enterAnim="@anim/nav_default_enter_anim"
+                app:exitAnim="@anim/nav_default_exit_anim"
+                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+                app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         </fragment>
-        <action
-            android:id="@+id/action_global_main_graph"
-            app:destination="@id/main_graph" />
         <fragment
             android:id="@+id/webLoginFragment"
             android:name="me.mauricee.pontoon.ui.login.webLogin.WebLoginFragment"
-            android:label="WebLoginFragment" />
-    </navigation>
-    <navigation
-        android:id="@+id/main_graph"
-        app:startDestination="@id/videoFragment">
-        <fragment
-            android:id="@+id/videoFragment"
-            android:name="me.mauricee.pontoon.ui.main.videos.VideoFragment"
-            android:label="VideoFragment" />
+            android:label="WebLoginFragment" >
+            <argument
+                android:name="site"
+                app:argType="me.mauricee.pontoon.ui.login.LoginWebsites" />
+        </fragment>
         <action
-            android:id="@+id/action_global_login_graph"
-            app:destination="@id/login_graph" />
+            android:id="@+id/action_global_mainFragment"
+            app:destination="@id/mainFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@id/app_graph"
+            app:popUpToInclusive="true" />
     </navigation>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="me.mauricee.pontoon.ui.main.MainFragment"
+        android:label="MainFragment" />
+
 </navigation>

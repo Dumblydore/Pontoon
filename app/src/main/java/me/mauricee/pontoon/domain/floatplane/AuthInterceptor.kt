@@ -1,30 +1,36 @@
 package me.mauricee.pontoon.domain.floatplane
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.rxjava2.data
+import androidx.datastore.rxjava2.updateDataAsync
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
-import me.mauricee.pontoon.di.AppScope
-import me.mauricee.pontoon.domain.account.AccountManagerHelper
+import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.plusAssign
+import me.mauricee.pontoon.model.session.SessionCredentials
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import javax.inject.Inject
 
-@AppScope
-class AuthInterceptor @Inject constructor(private val accountManager: AccountManagerHelper) : Interceptor {
+class AuthInterceptor @Inject constructor(private val credentials: DataStore<SessionCredentials>) : Interceptor {
 
-    private var sid
-        get() = accountManager.sid
-        set(value) {
-            accountManager.sid = value
-        }
+    private var sid: String = ""
+    private var cfduid: String = ""
+    private val sessionRelay: Relay<Unit> = PublishRelay.create()
+    private val subs = CompositeDisposable()
 
-    private val cfduid
-        get() = accountManager.cfduid
-
-    private val sessionRelay: Relay<Boolean> = PublishRelay.create()
-    val sessionExpired: Observable<Boolean>
+    val sessionExpired: Observable<Unit>
         get() = sessionRelay.hide()
+
+    init {
+        subs += credentials.data().subscribe {
+            sid = it.sid
+            cfduid = it.cfuId
+        }
+    }
 
     override fun intercept(chain: Interceptor.Chain): Response {
         return chain.request().newBuilder()
@@ -37,7 +43,10 @@ class AuthInterceptor @Inject constructor(private val accountManager: AccountMan
         try {
             response.header("set-cookie")?.split("; ")
                     ?.firstOrNull { it.contains(SailsSid) }?.split("$SailsSid=")
-                    ?.let { it[1] }?.also { sid = it }
+                    ?.let { it[1] }?.also { newSid ->
+                        subs += credentials.updateDataAsync { Single.fromCallable { it.copy(sid = newSid) } }
+                                .ignoreElement().onErrorComplete().subscribe()
+                    }
         } catch (e: Exception) {
 
         }
@@ -45,7 +54,7 @@ class AuthInterceptor @Inject constructor(private val accountManager: AccountMan
 
     private fun checkIf403(response: Response) {
         if (!response.isSuccessful && response.code == HTTP_FORBIDDEN) {
-            sessionRelay.accept(true)
+            sessionRelay.accept(Unit)
         }
     }
 

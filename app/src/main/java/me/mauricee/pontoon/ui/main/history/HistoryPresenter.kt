@@ -12,8 +12,7 @@ import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.main.MainContract
 import javax.inject.Inject
 
-class HistoryPresenter @Inject constructor(private val videoRepository: VideoRepository,
-                                           private val navigator: MainContract.Navigator) : ReduxPresenter<HistoryContract.State, HistoryContract.Reducer, HistoryContract.Action, Nothing>() {
+class HistoryPresenter @Inject constructor(private val videoRepository: VideoRepository) : ReduxPresenter<HistoryContract.State, HistoryContract.Reducer, HistoryContract.Action, Nothing>() {
 
 
     override fun onViewAttached(view: BaseContract.View<HistoryContract.State, HistoryContract.Action>): Observable<HistoryContract.Reducer> {
@@ -33,7 +32,7 @@ class HistoryPresenter @Inject constructor(private val videoRepository: VideoRep
 
     private fun handleAction(action: HistoryContract.Action): ObservableSource<HistoryContract.Reducer> {
         return when (action) {
-            is HistoryContract.Action.PlayVideo -> noReduce { navigator.playVideo(action.video.id) }
+            is HistoryContract.Action.PlayVideo -> noReduce { /*navigator.playVideo(action.video.id) */}
         }
     }
 
