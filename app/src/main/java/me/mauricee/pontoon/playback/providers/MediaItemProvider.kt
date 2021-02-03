@@ -8,7 +8,6 @@ import androidx.media2.common.MediaMetadata
 import androidx.media2.common.UriMediaItem
 import androidx.media2.session.MediaSession
 import com.google.android.exoplayer2.ext.media2.SessionCallbackBuilder
-import me.mauricee.pontoon.model.session.PlaybackQuality
 import me.mauricee.pontoon.model.video.Stream
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository

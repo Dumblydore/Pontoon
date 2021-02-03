@@ -12,16 +12,16 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class NewMainActivity : AppCompatActivity() {
-//
-//    @Inject
-//    lateinit var themeManager: ThemeManager
+
+    @Inject
+    lateinit var themeManager: ThemeManager
 
     private val binding by viewBinding(ActivityMainNewBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
-//        themeManager.onCreate()
+        themeManager.onCreate(this)
         setContentView(binding.root)
     }
 }

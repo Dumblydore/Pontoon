@@ -64,7 +64,7 @@ class UserFragment : NewBaseFragment(R.layout.fragment_user) {
 
     private fun displayUser(user: UserEntity) {
         subscriptions += GlideApp.with(this).asBitmap().load(user.profileImage).toPalette().subscribe { paletteEvent ->
-            themeManager.getVibrantSwatch(paletteEvent.palette).apply {
+            themeManager.getVibrantSwatch(paletteEvent.palette)?.apply {
                 AnimatorSet().apply {
                     playTogether(
                             setStatusBarColor(rgb.darken(.7f)),
@@ -87,7 +87,7 @@ class UserFragment : NewBaseFragment(R.layout.fragment_user) {
     }
 
     private fun bind(view: ItemActivityCommentBinding, activity: ActivityEntity) {
-        view.itemTitle.text = getString(R.string.activity_comment_context, activity.postId)
+        view.itemTitle.text = getString(R.string.activity_comment_context)
         view.itemComment.text = activity.comment
     }
 

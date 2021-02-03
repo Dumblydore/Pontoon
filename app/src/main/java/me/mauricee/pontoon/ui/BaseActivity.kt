@@ -20,7 +20,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), EventTracker.Page {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        themeManager.onCreate()
+//        themeManager.onCreate()
     }
 
     override fun onDestroy() {

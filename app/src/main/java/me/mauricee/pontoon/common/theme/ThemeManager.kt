@@ -1,10 +1,8 @@
 package me.mauricee.pontoon.common.theme
 
+import android.app.Activity
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.content.res.Resources
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
@@ -13,28 +11,25 @@ import androidx.lifecycle.OnLifecycleEvent
 import androidx.palette.graphics.Palette
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
-import dagger.Reusable
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function3
 import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.subjects.Subject
-import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.rx.preferences.watchString
 import javax.inject.Inject
 
 
-@Reusable
+@ActivityRetainedScoped
 class ThemeManager @Inject constructor(private val prefs: Preferences,
-                                       private val preferences: SharedPreferences,
-                                       private val activity: AppCompatActivity) : LifecycleObserver {
+                                       private val preferences: SharedPreferences) : LifecycleObserver {
 
     private val subs = CompositeDisposable()
 
-    val isInNightMode: Boolean
-        get() = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+//    val isInNightMode: Boolean
+//        get() = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
     var baseTheme: BaseTheme
         set(value) {
@@ -91,23 +86,22 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreate() {
-        subs += prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
+    fun onCreate(activity: Activity) {
         activity.setStyle(style)
-        subs += sylePreference.subscribe {
-            activity.setStyle(it)
-            activity.recreate()
-            style = it
-        }
-        subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
+//        subs += prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
+//        activity.setStyle(style)
+//        subs += sylePreference.subscribe {
+//            activity.setStyle(it)
+//            activity.recreate()
+//            style = it
+//        }
+//        subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
 
     }
 
-    fun getVibrantSwatch(palette: Palette) = (if (isInNightMode) palette.darkVibrantSwatch else palette.vibrantSwatch)
-            ?: Palette.Swatch(activity.primaryColor, 1)
+    fun getVibrantSwatch(palette: Palette) = palette.vibrantSwatch
 
-    fun getMutedSwatch(palette: Palette) = (if (isInNightMode) palette.darkMutedSwatch else palette.mutedSwatch)
-            ?: Palette.Swatch(activity.primaryColor, 1)
+    fun getMutedSwatch(palette: Palette) = palette.mutedSwatch
 
     fun toggleNightMode() {
 
