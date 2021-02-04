@@ -1,45 +1,32 @@
 package me.mauricee.pontoon.ui.preferences.settings
 
-import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
-import com.jakewharton.rxrelay2.PublishRelay
-import com.jakewharton.rxrelay2.Relay
-import dagger.android.support.AndroidSupportInjection
-import io.reactivex.Observable
+import dagger.hilt.android.AndroidEntryPoint
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.analytics.PrivacyManager
 import me.mauricee.pontoon.ext.hasNotch
-import me.mauricee.pontoon.ext.toast
 import me.mauricee.pontoon.ui.preferences.accentColor.AccentColorPreference
 import me.mauricee.pontoon.ui.preferences.primaryColor.PrimaryColorPreference
-import java.lang.RuntimeException
-import javax.inject.Inject
+import me.mauricee.pontoon.ui.preferences.settings.SettingsFragmentDirections.actionSettingsFragmentToAboutFragment
 
-class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
-
-    override val actions: Observable<SettingsContract.Action>
-        get() = actionRelay
-
-    @Inject
-    lateinit var presenter: SettingsPresenter
-
-    private val actionRelay: Relay<SettingsContract.Action> = PublishRelay.create()
-
-    override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-    }
+@AndroidEntryPoint
+class SettingsFragment : PreferenceFragmentCompat() {
+    private val viewModel: SettingsContract.ViewModel by viewModels()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings)
 
         findPreference<Preference>("settings_about")?.setOnPreferenceClickListener { push(SettingsContract.Action.SelectedAbout) }
         findPreference<Preference>("settings_privacy_policy")?.setOnPreferenceClickListener { push(SettingsContract.Action.SelectedPrivacyPolicy) }
-        findPreference<Preference>("settings_refresh_edges")?.setOnPreferenceClickListener { push(SettingsContract.Action.SelectedRefreshEdges) }
+//        findPreference<Preference>("settings_refresh_edges")?.setOnPreferenceClickListener { push(SettingsContract.Action.SelectedRefreshEdges) }
         if (!requireActivity().hasNotch()) {
             (findPreference<PreferenceCategory>("settings_general"))?.removePreference(findPreference("settings_notch"))
         }
@@ -48,8 +35,26 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
         } else {
             findPreference<Preference>("settings_test_crash")?.setOnPreferenceClickListener { throw RuntimeException("Test!"); }
         }
+    }
 
-        presenter.attachView(this)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.events.observe(viewLifecycleOwner) { event ->
+            when (event) {
+                SettingsContract.Event.NavigateToAbout -> findNavController().navigate(actionSettingsFragmentToAboutFragment())
+                SettingsContract.Event.NavigateToPrivacyPolicy -> requireActivity().startActivity(Intent(Intent.ACTION_VIEW, PrivacyManager.privacyPolicyUri))
+                is SettingsContract.Event.DisplayAccentColorPreference -> {
+                    AccentColorPreference.Fragment.newInstance(event.key).also {
+                        it.setTargetFragment(this, 0)
+                    }.showNow(parentFragmentManager, "")
+                }
+                is SettingsContract.Event.DisplayPrimaryColorPreference -> {
+                    PrimaryColorPreference.Fragment.newInstance(event.key).also {
+                        it.setTargetFragment(this, 0)
+                    }.showNow(parentFragmentManager, "")
+                }
+            }
+        }
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
@@ -60,29 +65,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SettingsContract.View {
         }
     }
 
-    override fun updateState(state: SettingsContract.State) = when (state) {
-        SettingsContract.State.RefreshingEdges -> toast("Refreshing...")
-        SettingsContract.State.RefreshedEdges -> toast("Edges Refreshed!")
-        SettingsContract.State.ErrorRefreshingEdges -> toast("Error Refreshing Edges!")
-        is SettingsContract.State.DisplayAccentColorPreference -> bindFragment(AccentColorPreference.Fragment.newInstance(state.key))
-        is SettingsContract.State.DisplayPrimaryColorPreference -> bindFragment(PrimaryColorPreference.Fragment.newInstance(state.key))
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        presenter.detachView()
-    }
-
-    private fun bindFragment(fragment: PreferenceDialogFragmentCompat) = fragment
-            .also { it.setTargetFragment(this, 0) }
-            .show(requireFragmentManager(), "$DialogPrefix.ThemePreference")
-
-    companion object {
-        const val DialogPrefix = "androidx.preference.PreferenceCategory"
-    }
-
     private fun push(action: SettingsContract.Action): Boolean {
-        actionRelay.accept(action)
+        viewModel.sendAction(action)
         return true
     }
 }

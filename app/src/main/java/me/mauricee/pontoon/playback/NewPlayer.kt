@@ -84,7 +84,9 @@ class NewPlayer @Inject constructor(private val exoPlayer: WrappedExoPlayer,
 
     fun pause(): Completable = Completable.fromAction { controller.pause() }
 
-    fun stop(): Completable = Completable.fromAction { controller.pause() }
+    fun stop(): Completable = Completable.fromAction {
+        controller.pause()
+    }
 
     fun bindToPlayer(view: NewPlayerView) {
         view.setSession(playerConnector, exoPlayer)

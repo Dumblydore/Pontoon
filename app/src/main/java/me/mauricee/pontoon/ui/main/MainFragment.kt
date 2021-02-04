@@ -20,15 +20,14 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.SessionGraphDirections.*
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.databinding.FragmentMainBinding
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.playback.NewPlayer
 import me.mauricee.pontoon.ui.NewBaseFragment
-import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToAboutFragment2
 import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToLoginGraph
+import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToSettingsFragment
 import me.mauricee.pontoon.ui.main.player.*
 import javax.inject.Inject
 
@@ -138,7 +137,7 @@ class MainFragment : NewBaseFragment(R.layout.fragment_main), MotionLayout.Trans
             is MainContract.Event.TriggerNightMode -> themeManager.toggleNightMode()
             is MainContract.Event.NavigateToUser -> childNavController.navigate(actionGlobalUserFragment(event.user.id))
             MainContract.Event.ToggleMenu -> toggleDrawer()
-            MainContract.Event.NavigateToPreferences -> findNavController().navigate(actionMainFragmentToAboutFragment2())
+            MainContract.Event.NavigateToPreferences -> findNavController().navigate(actionMainFragmentToSettingsFragment())
             MainContract.Event.NavigateToLoginScreen -> findNavController().navigate(actionMainFragmentToLoginGraph())
             MainContract.Event.SessionExpired -> TODO()
             MainContract.Event.CloseMenu -> binding.root.closeDrawer(binding.mainDrawer)
@@ -189,14 +188,11 @@ class MainFragment : NewBaseFragment(R.layout.fragment_main), MotionLayout.Trans
         }
     }
 
-    override fun onTransitionStarted(p0: MotionLayout, p1: Int, p2: Int) {
-        logd("On Transition started")
-    }
+    override fun onTransitionStarted(p0: MotionLayout, p1: Int, p2: Int) {}
 
     override fun onTransitionChange(p0: MotionLayout, p1: Int, p2: Int, p3: Float) {}
 
     override fun onTransitionCompleted(p0: MotionLayout, p1: Int) {
-        logd("On Transition completed")
         val currentState = p0.currentState
         handleExpanded(p0.currentState == R.id.expanded)
 

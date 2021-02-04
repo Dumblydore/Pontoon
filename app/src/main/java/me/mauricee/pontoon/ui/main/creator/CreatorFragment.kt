@@ -75,11 +75,4 @@ class CreatorFragment : NewBaseFragment(R.layout.fragment_creator) {
     private fun displayCreator(creator: Creator) {
         binding.creatorToolbar.title = creator.entity.name
     }
-
-    companion object {
-        internal const val CreatorIdKey = "CreatorId"
-        fun newInstance(creatorId: String): Fragment = CreatorFragment().apply {
-            arguments = bundleOf(CreatorIdKey to creatorId)
-        }
-    }
 }

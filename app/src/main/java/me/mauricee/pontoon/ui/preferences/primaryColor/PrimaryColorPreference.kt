@@ -8,7 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.preference.DialogPreference
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import dagger.android.support.AndroidSupportInjection
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.preference_base_theme.view.*
 import me.mauricee.pontoon.R
@@ -43,6 +43,7 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
         theme = (defaultValue as? String)?.let { PrimaryColor.fromString(it) } ?: PrimaryColor.Default
     }
 
+    @AndroidEntryPoint
     class Fragment : PreferenceDialogFragmentCompat() {
         @Inject
         lateinit var adapter: PrimaryColorAdapter
@@ -64,7 +65,6 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
         }
 
         override fun onBindDialogView(view: View) {
-            AndroidSupportInjection.inject(this)
             super.onBindDialogView(view)
             view.preference_base_themes.adapter = adapter
             view.preference_base_themes.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL, false)

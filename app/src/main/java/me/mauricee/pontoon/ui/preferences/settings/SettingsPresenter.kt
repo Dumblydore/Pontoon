@@ -1,31 +1,24 @@
 package me.mauricee.pontoon.ui.preferences.settings
 
 import io.reactivex.Observable
-import me.mauricee.pontoon.ui.BasePresenter
-import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.model.edge.EdgeRepository
-import me.mauricee.pontoon.ui.preferences.PreferencesNavigator
+import me.mauricee.pontoon.ui.BaseContract
+import me.mauricee.pontoon.ui.ReduxPresenter
 import javax.inject.Inject
 
-class SettingsPresenter @Inject constructor(private val navigator: PreferencesNavigator,
-                                            private val edgeRepository: EdgeRepository,
-                                            eventTracker: EventTracker) :
-        BasePresenter<SettingsContract.State, SettingsContract.View>(eventTracker) {
+class SettingsPresenter @Inject constructor() : ReduxPresenter<SettingsContract.State, SettingsContract.Reducer, SettingsContract.Action, SettingsContract.Event>() {
 
-    override fun onViewAttached(view: SettingsContract.View): Observable<SettingsContract.State> = view.actions.doOnNext { eventTracker.trackAction(it, view) }
-            .flatMap(this::handleActions)
-            .onErrorResumeNext(Observable.empty())
+    override fun onViewAttached(view: BaseContract.View<SettingsContract.State, SettingsContract.Action>): Observable<SettingsContract.Reducer> {
+        return view.actions.flatMap { action ->
+            when (action) {
+                SettingsContract.Action.SelectedAbout -> noReduce { sendEvent(SettingsContract.Event.NavigateToAbout) }
+                SettingsContract.Action.SelectedPrivacyPolicy -> noReduce { sendEvent(SettingsContract.Event.NavigateToPrivacyPolicy) }
+                is SettingsContract.Action.OpenAccentColorPreference -> noReduce { sendEvent(SettingsContract.Event.DisplayAccentColorPreference(action.key)) }
+                is SettingsContract.Action.OpenPrimaryColorPreference -> noReduce { sendEvent(SettingsContract.Event.DisplayPrimaryColorPreference(action.key)) }
+            }
 
-    private fun handleActions(action: SettingsContract.Action): Observable<SettingsContract.State> = when (action) {
-        is SettingsContract.Action.OpenAccentColorPreference -> SettingsContract.State.DisplayAccentColorPreference(action.key).toObservable()
-        is SettingsContract.Action.OpenPrimaryColorPreference -> SettingsContract.State.DisplayPrimaryColorPreference(action.key).toObservable()
-        SettingsContract.Action.SelectedAbout -> stateless { navigator.toAbout() }
-        SettingsContract.Action.SelectedPrivacyPolicy -> stateless { navigator.toPrivacyPolicy() }
-        SettingsContract.Action.SelectedRefreshEdges -> edgeRepository.refresh()
-                .andThen(Observable.just<SettingsContract.State>(SettingsContract.State.RefreshedEdges))
-                .onErrorReturnItem(SettingsContract.State.ErrorRefreshingEdges)
-                .startWith(SettingsContract.State.RefreshingEdges)
+        }
     }
+
+    override fun onReduce(state: SettingsContract.State, reducer: SettingsContract.Reducer): SettingsContract.State = state
 
 }

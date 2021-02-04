@@ -29,7 +29,6 @@ class UserActivityAdapter @Inject constructor() : BaseListAdapter<UserAction, Ac
             }
         }
 
-        //TODO
         fun bind(activity: ActivityEntity) {
 //            itemView.item_title.text = itemView.context.getString(R.string.activity_comment_context, activity.)
             itemView.item_comment.text = activity.comment

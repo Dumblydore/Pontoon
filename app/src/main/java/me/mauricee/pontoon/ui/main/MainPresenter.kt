@@ -12,6 +12,7 @@ import me.mauricee.pontoon.model.session.SessionRepository
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.user.User
 import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.playback.NewPlayer
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.ReduxPresenter
 import javax.inject.Inject
@@ -20,6 +21,7 @@ class MainPresenter @Inject constructor(private val sessionRepository: SessionRe
                                         private val userRepository: UserRepository,
                                         private val subscriptionRepository: SubscriptionRepository,
                                         private val floatPlaneApi: FloatPlaneApi,
+                                        private val player: NewPlayer,
                                         private val pontoonDatabase: PontoonDatabase,
                                         private val authInterceptor: AuthInterceptor) : ReduxPresenter<MainContract.State, MainContract.Reducer, MainContract.Action, MainContract.Event>() {
 
@@ -38,7 +40,7 @@ class MainPresenter @Inject constructor(private val sessionRepository: SessionRe
     private fun handleActions(user: User, action: MainContract.Action): Observable<MainContract.Reducer> = when (action) {
         MainContract.Action.Expired -> logout()
         MainContract.Action.SuccessfulLogout -> floatPlaneApi.logout().onErrorComplete().andThen(logout())
-        MainContract.Action.Preferences -> noReduce { sendEvent(MainContract.Event.NavigateToPreferences) }
+        MainContract.Action.Preferences -> player.pause().andThen(noReduce { sendEvent(MainContract.Event.NavigateToPreferences) })
         MainContract.Action.Profile -> noReduce { sendEvent(MainContract.Event.NavigateToUser(user)) }
         MainContract.Action.NightMode -> noReduce { sendEvent(MainContract.Event.TriggerNightMode(AppCompatDelegate.MODE_NIGHT_YES)) }
         MainContract.Action.PlayerClicked -> noReduce { }

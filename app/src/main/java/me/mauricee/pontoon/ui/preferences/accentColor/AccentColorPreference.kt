@@ -9,6 +9,7 @@ import androidx.preference.DialogPreference
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.android.support.AndroidSupportInjection
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.preference_base_theme.view.*
 import me.mauricee.pontoon.R
@@ -43,6 +44,7 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
         theme = (defaultValue as? String)?.let { AccentColor.fromString(it) } ?: AccentColor.Default
     }
 
+    @AndroidEntryPoint
     class Fragment : PreferenceDialogFragmentCompat() {
         @Inject
         lateinit var adapter: AccentColorAdapter
@@ -64,7 +66,6 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
         }
 
         override fun onBindDialogView(view: View) {
-            AndroidSupportInjection.inject(this)
             super.onBindDialogView(view)
             view.preference_base_themes.adapter = adapter
             view.preference_base_themes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)

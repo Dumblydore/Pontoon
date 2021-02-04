@@ -3,7 +3,6 @@ package me.mauricee.pontoon.common.theme
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
@@ -15,6 +14,7 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function3
 import me.mauricee.pontoon.BuildConfig
@@ -32,7 +32,7 @@ class ThemeManager @Inject constructor(private val context: Context,
     private val subs = CompositeDisposable()
 
     val isInNightMode: Boolean
-        get() = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        get() = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
 
     var baseTheme: BaseTheme
         set(value) {
@@ -80,7 +80,7 @@ class ThemeManager @Inject constructor(private val context: Context,
         get() = preferences.getInt(DayNightModeKey, AppCompatDelegate.MODE_NIGHT_NO)
         set(value) {
             preferences.edit(true) { putInt(DayNightModeKey, value) }
-//            AppCompatDelegate.setDefaultNightMode(value)
+            AppCompatDelegate.setDefaultNightMode(value)
 //            activity.overridePendingTransition(0,0)
         }
 
@@ -91,14 +91,13 @@ class ThemeManager @Inject constructor(private val context: Context,
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun onCreate(activity: Activity) {
         activity.setStyle(style)
-//        subs += prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
-//        activity.setStyle(style)
-//        subs += sylePreference.subscribe {
-//            activity.setStyle(it)
-//            activity.recreate()
-//            style = it
-//        }
-//        subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
+        subs += prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
+        subs += sylePreference.subscribe {
+            activity.setStyle(it)
+            activity.recreate()
+            style = it
+        }
+        subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
 
     }
 

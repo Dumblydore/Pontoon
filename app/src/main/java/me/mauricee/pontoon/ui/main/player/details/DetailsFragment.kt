@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.text.format.DateUtils
 import android.text.util.Linkify
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -94,14 +93,6 @@ class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
         }
     }
 
-    private fun scrollToSelectedComment() {
-        arguments?.getString(CommentKey, "")?.apply {
-            if (isNotBlank()) {
-                binding.detailsContent.smoothScrollToPosition(commentsAdapter.indexOf(this))
-            }
-        }
-    }
-
     private fun displayCurrentUser(view: ItemDetailsPostCommentBinding, user: UserEntity) {
         GlideApp.with(this).load(user.profileImage).circleCrop()
                 .placeholder(R.drawable.ic_default_thumbnail)
@@ -143,15 +134,5 @@ class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
             PlayerEvent.OnCommentSuccess -> Snackbar.make(requireView(), R.string.details_commentPosted, Snackbar.LENGTH_LONG).show()
             PlayerEvent.OnCommentError -> Snackbar.make(requireView(), R.string.details_error_commentPost, Snackbar.LENGTH_LONG).show()
         }
-    }
-
-    companion object {
-        private const val VideoKey = "VideoKey"
-        private const val CommentKey = "CommentKey"
-
-        fun newInstance(videoId: String, commentId: String = ""): DetailsFragment =
-                DetailsFragment().also {
-                    it.arguments = bundleOf(VideoKey to videoId, CommentKey to commentId)
-                }
     }
 }

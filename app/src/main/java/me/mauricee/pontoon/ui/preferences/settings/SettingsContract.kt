@@ -1,25 +1,29 @@
 package me.mauricee.pontoon.ui.preferences.settings
 
-import me.mauricee.pontoon.ui.BaseContract
+import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.analytics.EventTracker
+import me.mauricee.pontoon.ui.EventViewModel
+import javax.inject.Inject
 
 interface SettingsContract {
+     class State
 
-    interface View : BaseContract.View<State, Action>
-    interface Presenter : BaseContract.Presenter<View>
-
-    sealed class State : EventTracker.State {
-        object RefreshingEdges : State()
-        object RefreshedEdges : State()
-        object ErrorRefreshingEdges : State()
-        data class DisplayAccentColorPreference(val key: String): State()
-        data class DisplayPrimaryColorPreference(val key: String): State()
+    sealed class Event {
+        object NavigateToAbout : Event()
+        object NavigateToPrivacyPolicy : Event()
+        data class DisplayAccentColorPreference(val key: String) : Event()
+        data class DisplayPrimaryColorPreference(val key: String) : Event()
     }
+
+    sealed class Reducer
+
     sealed class Action : EventTracker.Action {
         object SelectedAbout : Action()
         object SelectedPrivacyPolicy : Action()
-        object SelectedRefreshEdges : Action()
         data class OpenAccentColorPreference(val key: String) : Action()
         data class OpenPrimaryColorPreference(val key: String) : Action()
     }
+
+    @HiltViewModel
+    class ViewModel @Inject constructor(p: SettingsPresenter) : EventViewModel<State, Action, Event>(State(), p)
 }

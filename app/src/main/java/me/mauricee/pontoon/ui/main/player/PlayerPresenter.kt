@@ -67,7 +67,12 @@ class PlayerPresenter @Inject constructor(private val player: NewPlayer,
         is PlayerAction.ToggleFullscreen -> Observable.just(PlayerReducer.ToggleFullScreen)
         PlayerAction.PostComment -> noReduce { sendEvent(PlayerEvent.PostComment(video.id)) }
         is PlayerAction.SetQuality -> noReduce { player.setQuality(action.quality) }
-        is PlayerAction.SetViewMode -> Observable.just(PlayerReducer.SetViewMode(action.viewMode))
+        is PlayerAction.SetViewMode -> {
+            if (action.viewMode == ViewMode.Dismissed)
+                player.stop().andThen(Observable.just(PlayerReducer.SetViewMode(action.viewMode)))
+            else
+                Observable.just(PlayerReducer.SetViewMode(action.viewMode))
+        }
         is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(PlayerAction.PlayVideo)")
     }
 
