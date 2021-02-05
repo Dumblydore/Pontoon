@@ -4,13 +4,13 @@ import io.reactivex.Observable
 import me.mauricee.pontoon.model.session.LoginResult
 import me.mauricee.pontoon.model.session.SessionRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
-class LaunchPresenter @Inject constructor(private val sessionRepository: SessionRepository) : ReduxPresenter<LaunchState, LaunchReducer, LaunchAction, LaunchEvent>() {
+class LaunchPresenter @Inject constructor(private val sessionRepository: SessionRepository) : BasePresenter<LaunchState, LaunchReducer, LaunchAction, LaunchEvent>() {
 
-    override fun onViewAttached(view: BaseContract.View<LaunchState, LaunchAction>): Observable<LaunchReducer> {
+    override fun onViewAttached(view: BaseContract.View<LaunchAction>): Observable<LaunchReducer> {
         return sessionRepository.canLogin().flatMapObservable { canLogin ->
             if (canLogin)
                 attemptLogin()

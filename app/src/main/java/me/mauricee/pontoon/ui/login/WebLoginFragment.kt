@@ -18,11 +18,11 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.with
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 
 
 @AndroidEntryPoint
-class WebLoginFragment : NewBaseFragment(R.layout.fragment_web_login) {
+class WebLoginFragment : BaseFragment(R.layout.fragment_web_login) {
 
     private val args: WebLoginFragmentArgs by navArgs()
     private val viewModel: LoginViewModel by hiltNavGraphViewModels(R.id.login_graph)

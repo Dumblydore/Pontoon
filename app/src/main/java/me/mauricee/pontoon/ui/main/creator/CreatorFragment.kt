@@ -2,8 +2,6 @@ package me.mauricee.pontoon.ui.main.creator
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
@@ -17,13 +15,13 @@ import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.model.creator.Creator
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.assistedViewModel
 import me.mauricee.pontoon.ui.main.VideoPageAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CreatorFragment : NewBaseFragment(R.layout.fragment_creator) {
+class CreatorFragment : BaseFragment(R.layout.fragment_creator) {
 
     @Inject
     lateinit var videoAdapter: VideoPageAdapter

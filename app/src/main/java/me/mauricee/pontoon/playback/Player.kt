@@ -1,15 +1,15 @@
 package me.mauricee.pontoon.playback
 
-import android.media.session.PlaybackState
 import android.os.Parcelable
+import android.view.TextureView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.media2.common.MediaItem
 import androidx.media2.common.MediaMetadata
+import androidx.media2.common.SessionPlayer
 import androidx.media2.session.MediaController
 import androidx.media2.session.MediaSession
-
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.google.android.exoplayer2.ext.media2.SessionPlayerConnector
@@ -18,24 +18,25 @@ import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.parcel.Parcelize
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.Diffable
+import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.rx.Optional
 import me.mauricee.pontoon.rx.media.SessionPlayerEvent
 import me.mauricee.pontoon.rx.media.playerCallbackEvents
-import me.mauricee.pontoon.ui.main.player.playback.NewPlayerView
-import java.lang.RuntimeException
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @ActivityRetainedScoped
-class NewPlayer @Inject constructor(private val exoPlayer: WrappedExoPlayer,
-                                    private val playerConnector: SessionPlayerConnector,
-                                    private val session: MediaSession,
-                                    private val controller: MediaController,
-                                    private val castPlayer: Optional<CastPlayer>) : LifecycleObserver {
+class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
+                                 private val playerConnector: SessionPlayerConnector,
+                                 private val session: MediaSession,
+                                 private val controller: MediaController,
+                                 private val castPlayer: Optional<CastPlayer>,
+                                 prefs: Preferences) : LifecycleObserver {
 
+    private var qualityLevel: String = prefs.defaultQualityLevel
     private val callbackEvents: Observable<SessionPlayerEvent> by lazy {
         session.player.playerCallbackEvents()
                 .doOnNext { logd("SessionPlayer event: ${it.javaClass.simpleName}") }
@@ -61,19 +62,40 @@ class NewPlayer @Inject constructor(private val exoPlayer: WrappedExoPlayer,
             it.metadata?.extras?.getParcelableArrayList<Quality>(PontoonMetadata.QualityLevelsKey)?.toSet()
                     ?: emptySet()
         }
+    val selectedQualityLevel: Observable<Quality>
+        get() = activeMediaItem.map { it.metadata?.extras?.getParcelable<Quality>(PontoonMetadata.CurrentQualityLevelKey)!! }
+                .doOnNext { logd("activeMediaItem: $it") }
 
-    val isPlayingLocally: Boolean
+    val timelinePreviewUrl: Observable<String>
+        get() = activeMediaItem.map { it.metadata?.extras?.getString(PontoonMetadata.TimeLineUri)!! }
+                .doOnNext { logd("timelinePreviewUrl: $it") }
+
+    val isLocalPlayer: Boolean
         get() = exoPlayer.activePlayer is SimpleExoPlayer
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    private fun onCreate() {
-    }
+    val isReadyForPiP
+        get() = isLocalPlayer && exoPlayer.isPlaying
+
+    val isPlaying: Observable<Boolean>
+        get() = callbackEvents.filter { it is SessionPlayerEvent.PlayerStateChangedEvent }
+                .cast(SessionPlayerEvent.PlayerStateChangedEvent::class.java)
+                .map { it.playerState == SessionPlayer.PLAYER_STATE_PLAYING }
+    val duration: Observable<Long>
+        get() = activeMediaItem.map { it.endPosition }
+    val currentPosition: Observable<Long>
+        get() = isPlaying.switchMap { isPlaying ->
+            val pos = playerConnector.currentPosition
+            if (!isPlaying) Observable.just(pos)
+            else Observable.interval(1, TimeUnit.SECONDS)
+                    .map { count -> pos + (1000 * count) }
+                    .startWith(pos)
+        }
 
     fun playItem(videoId: String): Completable = Completable.fromAction {
-        controller.setMediaItem(videoId).get()
+        controller.setMediaItem("$videoId:$qualityLevel")
         controller.seekTo(0)
         controller.play()
-    }.subscribeOn(Schedulers.computation())
+    }
 
     fun togglePlayPause(): Completable = Completable.fromAction {
         if (exoPlayer.isPlaying)
@@ -88,12 +110,15 @@ class NewPlayer @Inject constructor(private val exoPlayer: WrappedExoPlayer,
         controller.pause()
     }
 
-    fun bindToPlayer(view: NewPlayerView) {
-        view.setSession(playerConnector, exoPlayer)
+    fun bindToTexture(view: TextureView) {
+        exoPlayer.setVideoTextureView(view)
     }
 
-    fun setQuality(quality: Quality) {
-        exoPlayer.setMediaItem(com.google.android.exoplayer2.MediaItem.fromUri(quality.url), false)
+    fun setQuality(quality: Quality): Completable = Completable.fromAction {
+        val mediaId = controller.currentMediaItem?.metadata?.mediaId?.split(":")?.firstOrNull()
+                ?: ""
+        controller.setMediaItem("$mediaId:${quality.label}")
+        qualityLevel = quality.label
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -112,7 +137,6 @@ class NewPlayer @Inject constructor(private val exoPlayer: WrappedExoPlayer,
         override val id: String
             get() = label
 
+        override fun toString(): String = label
     }
-
-
 }

@@ -7,17 +7,17 @@ import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.model.session.LoginResult
 import me.mauricee.pontoon.model.session.SessionRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 import retrofit2.HttpException
 import javax.inject.Inject
 
-class LoginPresenter @Inject constructor(private val sessionRepository: SessionRepository) : ReduxPresenter<LoginState, LoginReducer, LoginAction, LoginEvent>() {
+class LoginPresenter @Inject constructor(private val sessionRepository: SessionRepository) : BasePresenter<LoginState, LoginReducer, LoginAction, LoginEvent>() {
 
     private val codeRegex by lazy { Regex("[0-9]+") }
 
-    override fun onViewAttached(view: BaseContract.View<LoginState, LoginAction>): Observable<LoginReducer> {
+    override fun onViewAttached(view: BaseContract.View<LoginAction>): Observable<LoginReducer> {
         return view.actions.flatMap { action ->
             when (action) {
                 is LoginAction.Login -> attemptLogin(action.username, action.password)

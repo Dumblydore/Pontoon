@@ -8,14 +8,14 @@ import me.mauricee.pontoon.model.DataModel
 import me.mauricee.pontoon.model.user.User
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 
 class UserPresenter @AssistedInject constructor(@Assisted private val args: UserArgs,
-                                                private val userRepository: UserRepository) : ReduxPresenter<UserState, UserReducer, UserAction, UserEvent>() {
+                                                private val userRepository: UserRepository) : BasePresenter<UserState, UserReducer, UserAction, UserEvent>() {
 
-    override fun onViewAttached(view: BaseContract.View<UserState, UserAction>): Observable<UserReducer> {
+    override fun onViewAttached(view: BaseContract.View<UserAction>): Observable<UserReducer> {
         val user = userRepository.getUser(args.userId)
         return user.get().map<UserReducer>(UserReducer::UserLoaded)
                 .startWith(UserReducer.Loading)
@@ -31,7 +31,7 @@ class UserPresenter @AssistedInject constructor(@Assisted private val args: User
     private fun handleAction(user: DataModel<User>, action: UserAction): Observable<UserReducer> {
         return when (action) {
             UserAction.Refresh -> user.fetch().map<UserReducer>(UserReducer::UserLoaded).toObservable()
-            is UserAction.ActivityClicked -> noReduce { /*action.activity.postId?.let(navigator::playVideo) */}
+            is UserAction.ActivityClicked -> noReduce { /*action.activity.postId?.let(navigator::playVideo) */ }
         }
     }
 

@@ -8,15 +8,15 @@ import me.mauricee.pontoon.common.StateBoundaryCallback
 import me.mauricee.pontoon.model.creator.CreatorRepository
 import me.mauricee.pontoon.model.video.VideoRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 
 class CreatorPresenter @AssistedInject constructor(@Assisted private val args: CreatorContract.Args,
                                                    private val creatorRepository: CreatorRepository,
-                                                   private val videoRepository: VideoRepository) : ReduxPresenter<CreatorContract.State, CreatorContract.Reducer, CreatorContract.Action, CreatorContract.Event>() {
+                                                   private val videoRepository: VideoRepository) : BasePresenter<CreatorContract.State, CreatorContract.Reducer, CreatorContract.Action, CreatorContract.Event>() {
 
-    override fun onViewAttached(view: BaseContract.View<CreatorContract.State, CreatorContract.Action>): Observable<CreatorContract.Reducer> {
+    override fun onViewAttached(view: BaseContract.View<CreatorContract.Action>): Observable<CreatorContract.Reducer> {
         val (pages, states, refresh) = videoRepository.getVideos(false, args.creator)
         val creator = creatorRepository.getCreator(args.creator)
                 .map<CreatorContract.Reducer>(CreatorContract.Reducer::DisplayCreator)
@@ -51,8 +51,9 @@ class CreatorPresenter @AssistedInject constructor(@Assisted private val args: C
         StateBoundaryCallback.State.Finished -> CreatorContract.Reducer.Error(CreatorContract.Errors.NoVideos)
         StateBoundaryCallback.State.Fetched -> CreatorContract.Reducer.Fetched
     }
+
     @AssistedFactory
-    interface Factory{
+    interface Factory {
         fun create(args: CreatorContract.Args): CreatorPresenter
     }
 }

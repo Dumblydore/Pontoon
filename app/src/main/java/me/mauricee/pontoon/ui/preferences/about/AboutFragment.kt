@@ -8,10 +8,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.databinding.FragmentAboutBinding
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 
 @AndroidEntryPoint
-class AboutFragment : NewBaseFragment(R.layout.fragment_about) {
+class AboutFragment : BaseFragment(R.layout.fragment_about) {
     private val binding by viewBinding(FragmentAboutBinding::bind)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

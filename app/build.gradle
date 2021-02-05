@@ -39,7 +39,7 @@ android {
     compileSdkVersion 30
     defaultConfig {
         applicationId "me.mauricee.pontoon"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 30
         versionCode((major * 100) + (minor * 100) + patch)
         versionName "$major.$minor.$patch"

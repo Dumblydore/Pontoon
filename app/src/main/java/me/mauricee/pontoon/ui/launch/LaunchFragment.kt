@@ -9,13 +9,13 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.databinding.FragmentLaunchBinding
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.launch.LaunchFragmentDirections.actionLaunchFragmentToLoginGraph
 import me.mauricee.pontoon.ui.launch.LaunchFragmentDirections.actionLaunchFragmentToMainFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LaunchFragment @Inject constructor() : NewBaseFragment(R.layout.fragment_launch) {
+class LaunchFragment @Inject constructor() : BaseFragment(R.layout.fragment_launch) {
 
     private val viewModel: LaunchViewModel by viewModels()
     private val binding by viewBinding(FragmentLaunchBinding::bind)

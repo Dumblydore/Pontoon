@@ -7,18 +7,16 @@ import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.video.VideoRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
-import me.mauricee.pontoon.ui.main.MainContract
 import javax.inject.Inject
 
-class SearchPresenter @Inject constructor(/*private val navigator: MainContract.Navigator,*/
-                                          private val subscriptionRepository: SubscriptionRepository,
-                                          private val videoRepository: VideoRepository) : ReduxPresenter<SearchState, SearchReducer, SearchAction, SearchEvent>() {
+class SearchPresenter @Inject constructor(private val subscriptionRepository: SubscriptionRepository,
+                                          private val videoRepository: VideoRepository) : BasePresenter<SearchState, SearchReducer, SearchAction, SearchEvent>() {
 
 
-    override fun onViewAttached(view: BaseContract.View<SearchState, SearchAction>): Observable<SearchReducer> {
+    override fun onViewAttached(view: BaseContract.View<SearchAction>): Observable<SearchReducer> {
         return subscriptionRepository.subscriptions.get().map { it.map(Creator::id) }
                 .switchMap { creators -> view.actions.switchMap { handleActions(creators, it) } }
                 .doOnNext { logd("Reducer: ${it::class.java.simpleName}") }
@@ -39,7 +37,6 @@ class SearchPresenter @Inject constructor(/*private val navigator: MainContract.
     private fun handleActions(creators: List<String>, action: SearchAction): Observable<SearchReducer> {
         return when (action) {
             is SearchAction.Query -> query(creators, action.query)
-            is SearchAction.VideoClicked -> noReduce { /*navigator.playVideo(action.video.id) */}
         }
     }
 

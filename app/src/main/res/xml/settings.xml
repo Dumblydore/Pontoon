@@ -41,13 +41,13 @@
             android:key="settings_picture"
             android:title="@string/settings_pip" />
         <androidx.preference.ListPreference
-            android:defaultValue="p360"
+            android:defaultValue="360p"
             android:entries="@array/settings_quality"
             android:entryValues="@array/settings_quality_values"
             android:key="settings_quality_cell"
             android:title="@string/settings_quality_cell" />
         <androidx.preference.ListPreference
-            android:defaultValue="p1080"
+            android:defaultValue="1080p"
             android:entries="@array/settings_quality"
             android:entryValues="@array/settings_quality_values"
             android:key="settings_quality_wifi"

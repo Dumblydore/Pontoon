@@ -185,10 +185,10 @@
         <item>@string/quality_360</item>
     </string-array>
     <string-array name="settings_quality_values">
-        <item>p1080</item>
-        <item>p720</item>
-        <item>p480</item>
-        <item>p360</item>
+        <item>1080p</item>
+        <item>720p</item>
+        <item>480p</item>
+        <item>360p</item>
     </string-array>
 
     <!-- Download -->

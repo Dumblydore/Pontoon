@@ -18,7 +18,7 @@ import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.main.MainContract
 import me.mauricee.pontoon.ui.main.player.PlayerAction
@@ -28,7 +28,7 @@ import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionVideoFra
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class VideoFragment : NewBaseFragment(R.layout.fragment_videos) {
+class VideoFragment : BaseFragment(R.layout.fragment_videos) {
 
     @Inject
     lateinit var videoAdapter: SubscriptionVideoAdapter

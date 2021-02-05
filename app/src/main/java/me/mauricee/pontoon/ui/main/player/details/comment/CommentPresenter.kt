@@ -7,15 +7,15 @@ import io.reactivex.Observable
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiState
 
 class CommentPresenter @AssistedInject constructor(@Assisted private val args: CommentContract.Args,
                                                    private val commentRepository: CommentRepository,
-                                                   private val userRepository: UserRepository) : ReduxPresenter<CommentContract.State, CommentContract.Reducer, CommentContract.Action, CommentContract.Event>() {
+                                                   private val userRepository: UserRepository) : BasePresenter<CommentContract.State, CommentContract.Reducer, CommentContract.Action, CommentContract.Event>() {
 
 
-    override fun onViewAttached(view: BaseContract.View<CommentContract.State, CommentContract.Action>): Observable<CommentContract.Reducer> {
+    override fun onViewAttached(view: BaseContract.View<CommentContract.Action>): Observable<CommentContract.Reducer> {
         return Observable.merge(userRepository.activeUser.map(CommentContract.Reducer::CurrentUser),
                 view.actions.flatMap(::handleActions),
                 loadReplyingData()

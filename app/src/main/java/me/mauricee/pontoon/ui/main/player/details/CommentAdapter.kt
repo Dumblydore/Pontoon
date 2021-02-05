@@ -72,8 +72,8 @@ class CommentAdapter @Inject constructor(context: Context) : BaseListAdapter<Pla
                     null -> primaryColor to primaryColor
                 }
 
-                DrawableCompat.setTint(itemView.item_thumb_up.drawable.mutate(), likeTint)
-                DrawableCompat.setTint(itemView.item_thumb_down.drawable.mutate(), dislikeTint)
+                DrawableCompat.setTint(itemView.item_thumb_up.icon.mutate(), likeTint)
+                DrawableCompat.setTint(itemView.item_thumb_down.icon.mutate(), dislikeTint)
 
                 GlideApp.with(itemView).load(comment.user.profileImage)
                         .circleCrop()

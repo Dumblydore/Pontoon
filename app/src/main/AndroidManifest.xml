@@ -24,7 +24,9 @@
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
-            android:theme="@style/AppTheme.Launcher">
+            android:supportsPictureInPicture="true"
+            android:theme="@style/AppTheme.Launcher"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -40,72 +42,6 @@
         <meta-data
             android:name="me.mauricee.pontoon.ui.start.FirebaseInitializer"
             android:value="androidx.startup" />
-        <!--        <activity-->
-        <!--            android:name="me.mauricee.pontoon.ui.launch.LaunchActivity"-->
-        <!--            android:clearTaskOnLaunch="true"-->
-        <!--            android:noHistory="true"-->
-        <!--            android:theme="@style/AppTheme.Launcher">-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.MAIN" />-->
-        <!--                <action android:name="android.intent.action.VIEW" />-->
-
-        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-
-        <!--            </intent-filter>-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.VIEW" />-->
-
-        <!--                <category android:name="android.intent.category.DEFAULT" />-->
-        <!--                <category android:name="android.intent.category.BROWSABLE" />-->
-
-        <!--                <data-->
-        <!--                    android:host="www.floatplane.com"-->
-        <!--                    android:pathPrefix="/activate-account"-->
-        <!--                    android:scheme="http" />-->
-
-        <!--                <data-->
-        <!--                    android:host="www.floatplane.com"-->
-        <!--                    android:pathPrefix="/activate-account"-->
-        <!--                    android:scheme="https" />-->
-
-        <!--            </intent-filter>-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.VIEW" />-->
-
-        <!--                <category android:name="android.intent.category.DEFAULT" />-->
-        <!--                <category android:name="android.intent.category.BROWSABLE" />-->
-
-        <!--                <data-->
-        <!--                    android:host="www.floatplane.com"-->
-        <!--                    android:pathPrefix="/video"-->
-        <!--                    android:scheme="http" />-->
-
-        <!--                <data-->
-        <!--                    android:host="www.floatplane.com"-->
-        <!--                    android:pathPrefix="/video"-->
-        <!--                    android:scheme="https" />-->
-        <!--            </intent-filter>-->
-        <!--        </activity>-->
-        <!--        <activity android:name="me.mauricee.pontoon.ui.login.LoginActivity" />-->
-        <!--        <activity-->
-        <!--            android:name="me.mauricee.pontoon.ui.main.MainActivity"-->
-        <!--            android:allowTaskReparenting="true"-->
-        <!--            android:hardwareAccelerated="true"-->
-        <!--            android:autoRemoveFromRecents="true"-->
-        <!--            android:windowSoftInputMode="adjustPan"-->
-
-        <!--            android:excludeFromRecents="true"-->
-        <!--            android:launchMode="singleTask"-->
-        <!--            android:resizeableActivity="true"-->
-        <!--            android:screenOrientation="portrait"-->
-        <!--            android:supportsPictureInPicture="true" />-->
-        <!--        <activity android:name=".preferences.PreferencesActivity" />-->
-        <!--        <service android:name=".playback.PlayerService"-->
-        <!--            android:exported="false">-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="androidx.media2.session.MediaSessionService" />-->
-        <!--            </intent-filter>-->
-        <!--        </service>-->
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="me.mauricee.pontoon.cast.OptionProvider" />
@@ -113,5 +49,4 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
     </application>
-
 </manifest>

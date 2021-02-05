@@ -30,11 +30,9 @@ sealed class VideoReducer {
 sealed class VideoAction : EventTracker.Action {
     object Refresh : VideoAction()
     class Subscription(val creator: Creator) : VideoAction()
-    class PlayVideo(val video: Video) : VideoAction()
     class Share(val video: Video) : VideoAction()
     class Download(val video: Video) : VideoAction()
     object Creators : VideoAction()
-    object NavMenu : VideoAction()
 }
 
 enum class VideoErrors(@StringRes val msg: Int) {

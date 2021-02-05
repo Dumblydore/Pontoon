@@ -8,6 +8,8 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.widget.editorActionEvents
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,14 +23,14 @@ import me.mauricee.pontoon.databinding.FragmentLoginBinding
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.view.hideKeyboard
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.login.LoginFragmentDirections.actionGlobalMainFragment
 import me.mauricee.pontoon.ui.login.LoginFragmentDirections.actionLoginFragmentToWebLoginFragment
 
 @AndroidEntryPoint
-class LoginFragment : NewBaseFragment(R.layout.fragment_login) {
+class LoginFragment : BaseFragment(R.layout.fragment_login) {
 
     private val viewModel: LoginViewModel by hiltNavGraphViewModels(R.id.login_graph)
     private val binding by viewBinding(FragmentLoginBinding::bind)
@@ -42,10 +44,16 @@ class LoginFragment : NewBaseFragment(R.layout.fragment_login) {
         get() = if (binding.loginToken.isVisible) LoginAction.Authenticate(binding.loginTokenEdit.text.toString()) else
             LoginAction.Login(binding.loginUsernameEdit.text.toString(), binding.loginPasswordEdit.text.toString())
 
+    private val loadingDrawable by lazy {
+        CircularProgressDrawable(requireContext()).apply {
+            setColorSchemeColors(binding.loginLogin.currentTextColor)
+            strokeWidth = 4f
+        }
+    }
+
     private val actions: Observable<LoginAction>
         get() = Observable.merge(listOf(binding.loginLttForum.clicks().map { LoginAction.LttLogin },
                 binding.loginDiscord.clicks().map { LoginAction.DiscordLogin },
-                binding.loginSignUp.clicks().map { LoginAction.SignUp },
                 binding.loginLogin.clicks().map { loginAction },
                 binding.loginPasswordEdit.editorActionEvents().map { loginAction },
                 binding.loginTokenEdit.editorActionEvents().map { loginAction },
@@ -96,15 +104,22 @@ class LoginFragment : NewBaseFragment(R.layout.fragment_login) {
 
     private fun displayLoadingState(isLoading: Boolean) {
         binding.loginLogin.isEnabled = !isLoading
-        binding.loginLogin.text = if (isLoading) "" else getText(R.string.login_login)
-        binding.loginProgress.isVisible = isLoading
         binding.loginError.isVisible = false
-
+        if (isLoading) {
+            binding.loginLogin.icon = loadingDrawable
+            binding.loginLogin.iconGravity = ExtendedFloatingActionButton.ICON_GRAVITY_END
+            loadingDrawable.start()
+            binding.loginLogin.shrink()
+        } else {
+            loadingDrawable.stop()
+            binding.loginLogin.extend(listener)
+        }
     }
 
     private fun handleError(error: UiError) {
         binding.loginError.isVisible = true
         binding.loginError.text = error.text(requireContext())
+        displayLoadingState(false)
     }
 
     private fun emitActivationArgs(): ObservableTransformer<in LoginAction, out LoginAction> = ObservableTransformer {
@@ -117,6 +132,12 @@ class LoginFragment : NewBaseFragment(R.layout.fragment_login) {
     private fun toSignUp() = requireActivity().startActivity(Intent(Intent.ACTION_VIEW, SignupUrl.toUri()))
 
     private fun toPrivacyPolicy() = requireActivity().startActivity(Intent(Intent.ACTION_VIEW, PrivacyManager.privacyPolicyUri))
+
+    private val listener = object : ExtendedFloatingActionButton.OnChangedCallback() {
+        override fun onExtended(extendedFab: ExtendedFloatingActionButton) {
+            extendedFab.icon = null
+        }
+    }
 
     companion object {
         private const val SignupUrl = "https://www.floatplane.com/signup"

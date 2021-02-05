@@ -4,23 +4,24 @@ import com.jakewharton.rx.replayingShare
 import io.reactivex.Observable
 import io.reactivex.Single
 import me.mauricee.pontoon.common.PagingState
+import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
-import me.mauricee.pontoon.playback.NewPlayer
+import me.mauricee.pontoon.playback.Player
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
-class PlayerPresenter @Inject constructor(private val player: NewPlayer,
+class PlayerPresenter @Inject constructor(private val player: Player,
                                           private val userRepo: UserRepository,
                                           private val videoRepo: VideoRepository,
-                                          private val commentRepo: CommentRepository) : ReduxPresenter<PlayerState, PlayerReducer, PlayerAction, PlayerEvent>() {
+                                          private val commentRepo: CommentRepository) : BasePresenter<PlayerState, PlayerReducer, PlayerAction, PlayerEvent>() {
 
-    override fun onViewAttached(view: BaseContract.View<PlayerState, PlayerAction>): Observable<PlayerReducer> {
+    override fun onViewAttached(view: BaseContract.View<PlayerAction>): Observable<PlayerReducer> {
         val actions = view.actions.replayingShare()
         val playVideo = actions.filter { it is PlayerAction.PlayVideo }
                 .cast(PlayerAction.PlayVideo::class.java)
@@ -51,7 +52,22 @@ class PlayerPresenter @Inject constructor(private val player: NewPlayer,
         PlayerReducer.CommentsFetched -> state.copy(commentState = UiState.Success)
         PlayerReducer.ToggleFullScreen -> state.copy(viewMode = handleClick(state.viewMode))
         is PlayerReducer.DisplayUser -> state.copy(user = reducer.user)
-        is PlayerReducer.SetViewMode -> if (state.viewMode == reducer.viewMode) state else state.copy(viewMode = reducer.viewMode)
+        is PlayerReducer.SetViewMode -> handleSetViewMode(state, reducer.viewMode)
+        is PlayerReducer.DisplayTimelinePreview -> state.copy(timelineUrl = reducer.previewUrl)
+        is PlayerReducer.DisplayCurrentQualityLevel -> state.copy(currentQualityLevel = reducer.qualityLevel)
+        is PlayerReducer.UpdatePlayingState -> state.copy(isPlaying = reducer.isPlaying)
+        is PlayerReducer.UpdatePosition -> state.copy(position = reducer.position, timestamp = "${reducer.position.toDuration()}:${state.duration?.toDuration()}")
+        is PlayerReducer.updateDuration -> state.copy(duration = reducer.duration, timestamp = "${state.position?.toDuration()}:${reducer.duration.toDuration()}")
+    }
+
+
+    private fun handleSetViewMode(state: PlayerState, newViewMode: ViewMode): PlayerState {
+        return when {
+            state.viewMode == newViewMode -> state
+            //  To prevent going from pip into fullscreen
+            state.viewMode == ViewMode.PictureInPicture && newViewMode == ViewMode.Fullscreen -> state
+            else -> state.copy(viewMode = newViewMode)
+        }
     }
 
     private fun handleOtherActions(video: Video, action: PlayerAction): Observable<PlayerReducer> = when (action) {
@@ -66,20 +82,27 @@ class PlayerPresenter @Inject constructor(private val player: NewPlayer,
         }
         is PlayerAction.ToggleFullscreen -> Observable.just(PlayerReducer.ToggleFullScreen)
         PlayerAction.PostComment -> noReduce { sendEvent(PlayerEvent.PostComment(video.id)) }
-        is PlayerAction.SetQuality -> noReduce { player.setQuality(action.quality) }
+        is PlayerAction.SetQuality -> noReduce(player.setQuality(action.quality))
         is PlayerAction.SetViewMode -> {
             if (action.viewMode == ViewMode.Dismissed)
                 player.stop().andThen(Observable.just(PlayerReducer.SetViewMode(action.viewMode)))
             else
                 Observable.just(PlayerReducer.SetViewMode(action.viewMode))
         }
+        PlayerAction.Pause -> noReduce(player.pause())
+        PlayerAction.TogglePlayPause -> noReduce(player.togglePlayPause())
         is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(PlayerAction.PlayVideo)")
     }
 
     private fun loadVideoContents(video: Video): Observable<PlayerReducer> {
         val (commentPages, commentStates) = commentRepo.getComments(video.id)
         return Observable.merge(listOf(videoRepo.getRelatedVideos(video.id).map<PlayerReducer>(PlayerReducer::DisplayRelatedVideo).onErrorReturnItem(PlayerReducer.DisplayRelatedVideosError(UiError(PlayerErrors.General.message))),
+                player.currentPosition.map<PlayerReducer>(PlayerReducer::UpdatePosition),
+                player.duration.map<PlayerReducer>(PlayerReducer::updateDuration),
                 player.supportedQuality.map<PlayerReducer>(PlayerReducer::DisplayQualityLevels),
+                player.selectedQualityLevel.map<PlayerReducer>(PlayerReducer::DisplayCurrentQualityLevel),
+                player.timelinePreviewUrl.map<PlayerReducer>(PlayerReducer::DisplayTimelinePreview),
+                player.isPlaying.map(PlayerReducer::UpdatePlayingState),
                 commentPages.map<PlayerReducer>(PlayerReducer::DisplayComments),
                 commentStates.map(::mapCommentStates)
         ))

@@ -8,7 +8,7 @@ import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.video.VideoRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
@@ -16,12 +16,11 @@ import javax.inject.Inject
 class VideoPresenter @Inject constructor(
         private val subscriptionRepository: SubscriptionRepository,
         private val videoRepository: VideoRepository,
-//        private val mainNavigator: MainContract.Navigator,
         private val preferences: Preferences,
 //                                         private val sharedManager: ShareManager
-) : ReduxPresenter<VideoState, VideoReducer, VideoAction, VideoEvent>() {
+) : BasePresenter<VideoState, VideoReducer, VideoAction, VideoEvent>() {
 
-    override fun onViewAttached(view: BaseContract.View<VideoState, VideoAction>): Observable<VideoReducer> {
+    override fun onViewAttached(view: BaseContract.View<VideoAction>): Observable<VideoReducer> {
         return preferences.displayUnwatchedVideos.switchMap { displayUnwatchedVideos ->
             val actions = view.actions.replayingShare()
             val subscriptions = subscriptionRepository.subscriptions
@@ -58,11 +57,9 @@ class VideoPresenter @Inject constructor(
     private fun handleAction(action: VideoAction): Observable<VideoReducer> {
         return when (action) {
             is VideoAction.Subscription -> noReduce { sendEvent(VideoEvent.NavigateToCreator(action.creator.id)) }
-            is VideoAction.PlayVideo -> noReduce { /*mainNavigator.playVideo(action.video.id) */ }
             is VideoAction.Share -> noReduce { /*sharedManager.shareVideo(action.video) */ }
             is VideoAction.Download -> noReduce { }
             VideoAction.Creators -> noReduce { sendEvent(VideoEvent.NavigateToAllCreators) }
-            VideoAction.NavMenu -> noReduce { /*mainNavigator.setMenuExpanded(true) */ }
             VideoAction.Refresh -> throw RuntimeException("Should not enter branch! (VideoAction.Refresh)")
         }
     }

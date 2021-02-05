@@ -12,20 +12,20 @@ import me.mauricee.pontoon.model.session.SessionRepository
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.model.user.User
 import me.mauricee.pontoon.model.user.UserRepository
-import me.mauricee.pontoon.playback.NewPlayer
+import me.mauricee.pontoon.playback.Player
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(private val sessionRepository: SessionRepository,
                                         private val userRepository: UserRepository,
                                         private val subscriptionRepository: SubscriptionRepository,
                                         private val floatPlaneApi: FloatPlaneApi,
-                                        private val player: NewPlayer,
+                                        private val player: Player,
                                         private val pontoonDatabase: PontoonDatabase,
-                                        private val authInterceptor: AuthInterceptor) : ReduxPresenter<MainContract.State, MainContract.Reducer, MainContract.Action, MainContract.Event>() {
+                                        private val authInterceptor: AuthInterceptor) : BasePresenter<MainContract.State, MainContract.Reducer, MainContract.Action, MainContract.Event>() {
 
-    override fun onViewAttached(view: BaseContract.View<MainContract.State, MainContract.Action>): Observable<MainContract.Reducer> {
+    override fun onViewAttached(view: BaseContract.View<MainContract.Action>): Observable<MainContract.Reducer> {
         return userRepository.activeUser.switchMap { user ->
             Observable.merge(getUser(user), view.actions.flatMap { handleActions(user, it) })
         }.mergeWith(sessionExpirations())

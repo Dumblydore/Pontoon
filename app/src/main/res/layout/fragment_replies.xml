@@ -13,11 +13,12 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/replies.header.icon"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/AppTheme.Button.Icon"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            app:icon="@drawable/ic_close" />
+            app:icon="@drawable/ic_close"
+            app:iconTint="?colorOnSurface" />
 
         <TextView
             android:id="@+id/replies.header.text"
@@ -25,8 +26,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="8dp"
-
-
             tools:text="medwar40's replies" />
     </LinearLayout>
 

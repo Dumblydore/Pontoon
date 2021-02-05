@@ -16,12 +16,12 @@ import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.main.creatorList.CreatorListFragmentDirections.actionGlobalCreatorFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CreatorListFragment : NewBaseFragment(R.layout.fragment_creator_list) {
+class CreatorListFragment : BaseFragment(R.layout.fragment_creator_list) {
 
     @Inject
     lateinit var creatorAdapter: CreatorListAdapter

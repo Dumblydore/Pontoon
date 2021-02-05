@@ -18,7 +18,7 @@ interface RepliesContract {
     data class Args(val commentId: String)
 
     data class State(val uiState: UiState = UiState.Empty,
-                     val parentComment: CommentEntity? = null,
+                     val parentComment: Comment? = null,
                      val comments: List<ChildComment> = emptyList(),
                      val user: User? = null)
 
@@ -26,7 +26,7 @@ interface RepliesContract {
         object Loading : Reducer()
         data class Error(val type: ErrorType = ErrorType.General) : Reducer()
         data class CurrentUser(val user: User) : Reducer()
-        data class Replies(val parent: CommentEntity, val comments: List<ChildComment>) : Reducer()
+        data class Replies(val parent: Comment, val comments: List<ChildComment>) : Reducer()
     }
 
     sealed class Action : EventTracker.Action {

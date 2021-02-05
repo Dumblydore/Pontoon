@@ -26,8 +26,7 @@ import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.playback.NewPlayer
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.main.player.PlayerAction
 import me.mauricee.pontoon.ui.main.player.PlayerEvent
 import me.mauricee.pontoon.ui.main.player.PlayerState
@@ -36,7 +35,7 @@ import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
+class DetailsFragment : BaseFragment(R.layout.fragment_details) {
 
     @Inject
     lateinit var commentsAdapter: CommentAdapter
@@ -49,11 +48,8 @@ class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
     private val detailsAdapter = SimpleBindingAdapter(ItemDetailsVideoBinding::inflate, ::displayVideoInfo)
     private val relatedVideosAdapter = SimpleBindingAdapter(ItemVideoListBinding::inflate, ::bindRelatedVideo)
     private val postCommentAdapter = SimpleBindingAdapter(ItemDetailsPostCommentBinding::inflate, ::displayCurrentUser)
-    private val qualityAdapter = SimpleBindingAdapter(ItemDetailsVideoBinding::inflate, ::displayQuality)
-
-    private val contentAdapter by lazy { ConcatAdapter(qualityAdapter, detailsAdapter, relatedVideosAdapter, postCommentAdapter, commentsAdapter) }
+    private val contentAdapter by lazy { ConcatAdapter(detailsAdapter, relatedVideosAdapter, postCommentAdapter, commentsAdapter) }
     private val binding by viewBinding(FragmentDetailsBinding::bind)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         postponeEnterTransition()
@@ -64,9 +60,6 @@ class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.detailsContent.adapter = contentAdapter
-
-        subscriptions += qualityAdapter.clicks.map { PlayerAction.SetQuality(it.model) }
-                .subscribe(viewModel::sendAction)
         subscriptions += relatedVideosAdapter.clicks.map { PlayerAction.PlayVideo(it.model.id) }
                 .subscribe(viewModel::sendAction)
         subscriptions += postCommentAdapter.clicks.subscribe { viewModel.sendAction(PlayerAction.PostComment) }
@@ -80,8 +73,6 @@ class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
         }
 
         viewModel.events.observe(viewLifecycleOwner, ::handleEvents)
-
-        viewModel.state.mapDistinct { it.qualityLevels.toList() }.observe(viewLifecycleOwner, qualityAdapter::submitList)
         viewModel.state.map { it.commentState.isLoading() }.observe(viewLifecycleOwner) {
             binding.detailsProgress.isVisible = it
         }
@@ -123,10 +114,6 @@ class DetailsFragment : NewBaseFragment(R.layout.fragment_details) {
                 .placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
                 .into(itemView.itemIconBig)
-    }
-
-    private fun displayQuality(itemBinding: ItemDetailsVideoBinding, item: NewPlayer.Quality) {
-        itemBinding.playerTitle.text = item.label
     }
 
     private fun handleEvents(playerEvent: PlayerEvent) {

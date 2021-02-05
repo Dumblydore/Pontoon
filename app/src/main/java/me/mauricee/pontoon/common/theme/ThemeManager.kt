@@ -14,9 +14,9 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Observable
-import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function3
+import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.model.preferences.Preferences
@@ -81,7 +81,6 @@ class ThemeManager @Inject constructor(private val context: Context,
         set(value) {
             preferences.edit(true) { putInt(DayNightModeKey, value) }
             AppCompatDelegate.setDefaultNightMode(value)
-//            activity.overridePendingTransition(0,0)
         }
 
     init {
@@ -91,14 +90,12 @@ class ThemeManager @Inject constructor(private val context: Context,
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun onCreate(activity: Activity) {
         activity.setStyle(style)
-        subs += prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
         subs += sylePreference.subscribe {
             activity.setStyle(it)
             activity.recreate()
             style = it
         }
         subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
-
     }
 
     fun getVibrantSwatch(palette: Palette) = palette.vibrantSwatch

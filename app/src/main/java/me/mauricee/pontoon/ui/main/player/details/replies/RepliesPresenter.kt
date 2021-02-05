@@ -7,14 +7,14 @@ import io.reactivex.Observable
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 
 class RepliesPresenter @AssistedInject constructor(@Assisted private val args: RepliesContract.Args,
                                                    private val commentRepository: CommentRepository,
-                                                   private val userRepository: UserRepository) : ReduxPresenter<RepliesContract.State, RepliesContract.Reducer, RepliesContract.Action, RepliesContract.Event>() {
-    override fun onViewAttached(view: BaseContract.View<RepliesContract.State, RepliesContract.Action>): Observable<RepliesContract.Reducer> {
+                                                   private val userRepository: UserRepository) : BasePresenter<RepliesContract.State, RepliesContract.Reducer, RepliesContract.Action, RepliesContract.Event>() {
+    override fun onViewAttached(view: BaseContract.View<RepliesContract.Action>): Observable<RepliesContract.Reducer> {
         return Observable.merge(userRepository.activeUser.map(RepliesContract.Reducer::CurrentUser),
                 loadReplies()
         )
@@ -30,7 +30,7 @@ class RepliesPresenter @AssistedInject constructor(@Assisted private val args: R
     }
 
     private fun loadReplies() = commentRepository.getComment(args.commentId)
-            .map<RepliesContract.Reducer> { RepliesContract.Reducer.Replies(it.entity, it.replies) }
+            .map<RepliesContract.Reducer> { RepliesContract.Reducer.Replies(it, it.replies) }
             .onErrorReturnItem(RepliesContract.Reducer.Error())
 
     //    override fun onViewAttached(view: RepliesContract.View): Observable<RepliesContract.State> = view.actions.flatMap(::handleActions)
@@ -50,7 +50,7 @@ class RepliesPresenter @AssistedInject constructor(@Assisted private val args: R
         RepliesContract.Reducer.Loading -> state.copy(uiState = UiState.Loading)
         is RepliesContract.Reducer.Error -> state.copy(uiState = UiState.Failed(UiError(reducer.type.msg)))
         is RepliesContract.Reducer.CurrentUser -> state.copy(user = reducer.user)
-        is RepliesContract.Reducer.Replies -> state.copy(uiState = UiState.Success, comments = reducer.comments)
+        is RepliesContract.Reducer.Replies -> state.copy(uiState = UiState.Success, parentComment = reducer.parent, comments = reducer.comments)
     }
 
     @AssistedFactory

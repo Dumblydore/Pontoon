@@ -24,9 +24,12 @@ import me.mauricee.pontoon.databinding.FragmentRepliesBinding
 import me.mauricee.pontoon.databinding.ItemCommentBinding
 import me.mauricee.pontoon.domain.floatplane.CommentInteraction
 import me.mauricee.pontoon.ext.mapDistinct
+import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.comment.ChildComment
+import me.mauricee.pontoon.model.comment.Comment
+import me.mauricee.pontoon.model.comment.CommentEntity
 import me.mauricee.pontoon.ui.assistedViewModel
 import javax.inject.Inject
 import kotlin.reflect.KFunction3
@@ -40,7 +43,6 @@ class RepliesDialogFragment : BottomSheetDialogFragment() {
     @Inject
     lateinit var viewModelFactory: RepliesContract.ViewModel.Factory
 
-    private val subscriptions = CompositeDisposable()
     private val commentAdapter = SimpleBindingAdapter(::createCommentItem, ::bindComment)
 
     private val primaryColor by lazy { ContextCompat.getColor(requireContext(), R.color.md_grey_600) }
@@ -64,7 +66,12 @@ class RepliesDialogFragment : BottomSheetDialogFragment() {
         viewModel.state.mapDistinct { it.uiState.lazyState() }.observe(viewLifecycleOwner) {
             binding.repliesLazy.state = it
         }
+        viewModel.state.mapDistinct(RepliesContract.State::parentComment).notNull().observe(viewLifecycleOwner, ::displayParentComment)
         viewModel.state.mapDistinct(RepliesContract.State::comments).observe(viewLifecycleOwner, commentAdapter::submitList)
+    }
+
+    private fun displayParentComment(comment: Comment) {
+        binding.repliesHeaderText.text = getString(R.string.replies_header, comment.user.username)
     }
 
 
@@ -83,8 +90,8 @@ class RepliesDialogFragment : BottomSheetDialogFragment() {
             null -> primaryColor to primaryColor
         }
 
-        DrawableCompat.setTint(it.itemThumbUp.drawable.mutate(), likeTint)
-        DrawableCompat.setTint(it.itemThumbDown.drawable.mutate(), dislikeTint)
+        DrawableCompat.setTint(it.itemThumbUp.icon.mutate(), likeTint)
+        DrawableCompat.setTint(it.itemThumbDown.icon.mutate(), dislikeTint)
 
         GlideApp.with(it.root).load(comment.user.profileImage)
                 .circleCrop()
@@ -109,9 +116,7 @@ class RepliesDialogFragment : BottomSheetDialogFragment() {
 //    override fun updateState(state: RepliesContract.State) = when (state) {
 //        RepliesContract.State.Loading -> replies_lazy.state = LazyLayout.LOADING
 //        is RepliesContract.State.Replies -> {
-//            replies_header_text.text = getString(R.string.replies_header, state.parent.user.username)
-////            adapter.submitList(state.comments)
-//            replies_lazy.state = LazyLayout.SUCCESS
+
 //        }
 //        is RepliesContract.State.Liked -> {
 //            adapter.submitList(listOf(state.comment))

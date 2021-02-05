@@ -24,18 +24,14 @@ import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.playback.NewPlayer
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToLoginGraph
 import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToSettingsFragment
 import me.mauricee.pontoon.ui.main.player.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainFragment : NewBaseFragment(R.layout.fragment_main), MotionLayout.TransitionListener {
-
-    @Inject
-    lateinit var player: NewPlayer
+class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.TransitionListener {
 
     @Inject
     lateinit var orientationManager: OrientationManager
@@ -57,8 +53,8 @@ class MainFragment : NewBaseFragment(R.layout.fragment_main), MotionLayout.Trans
         binding.main.addTransitionListener(this)
 
         subscriptions += binding.collapsedDetailsPlayPause.clicks()
-                .flatMapCompletable { player.togglePlayPause() }
-                .subscribe()
+                .map { PlayerAction.TogglePlayPause }
+                .subscribe(playerViewModel::sendAction)
 
         subscriptions += binding.mainDrawer.itemSelections()
                 .map { MainContract.Action.fromNavDrawer(it.itemId) }
@@ -87,6 +83,19 @@ class MainFragment : NewBaseFragment(R.layout.fragment_main), MotionLayout.Trans
         playerViewModel.state.mapDistinct { it.video?.creator?.entity?.name }.notNull().observe(viewLifecycleOwner) {
             binding.collapsedDetailsSubtitle.text = it
         }
+        playerViewModel.state.mapDistinct { it.isPlaying }.notNull()
+                .map { if (it) R.drawable.ic_pause else R.drawable.ic_play }
+                .observe(viewLifecycleOwner, binding.collapsedDetailsPlayPause::setIconResource)
+    }
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
+        val action = if (isInPictureInPictureMode) {
+            PlayerAction.SetViewMode(ViewMode.PictureInPicture)
+        } else {
+            playerViewModel.sendAction(PlayerAction.Pause)
+            PlayerAction.SetViewMode(ViewMode.Expanded)
+        }
+        playerViewModel.sendAction(action)
     }
 
     private fun handlePlayerViewMode(it: ViewMode) {
@@ -116,6 +125,12 @@ class MainFragment : NewBaseFragment(R.layout.fragment_main), MotionLayout.Trans
                 binding.mainContainer.isGone = false
                 binding.main.setTransition(R.id.transition_active)
                 binding.main.transitionToEnd()
+            }
+            ViewMode.PictureInPicture -> {
+                binding.mainContainerPreview.isGone = true
+                binding.mainContainer.isGone = true
+                setWindowVisibility(false)
+                binding.main.transitionToState(R.id.fullscreen)
             }
         }
     }

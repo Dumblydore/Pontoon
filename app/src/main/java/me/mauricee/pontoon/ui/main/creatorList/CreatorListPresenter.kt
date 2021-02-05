@@ -8,15 +8,15 @@ import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.creator.CreatorRepository
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
 class CreatorListPresenter @Inject constructor(private val creatorRepository: CreatorRepository,
-                                               private val subscriptionRepository: SubscriptionRepository) : ReduxPresenter<CreatorListContract.State, CreatorListContract.Reducer, CreatorListContract.Action, CreatorListContract.Event>() {
+                                               private val subscriptionRepository: SubscriptionRepository) : BasePresenter<CreatorListContract.State, CreatorListContract.Reducer, CreatorListContract.Action, CreatorListContract.Event>() {
 
-    override fun onViewAttached(view: BaseContract.View<CreatorListContract.State, CreatorListContract.Action>): Observable<CreatorListContract.Reducer> {
+    override fun onViewAttached(view: BaseContract.View<CreatorListContract.Action>): Observable<CreatorListContract.Reducer> {
         val model = creatorRepository.allCreators
         return Observable.merge(loadSubscriptions(model), view.actions.flatMap { handleActions(model, it) })
     }

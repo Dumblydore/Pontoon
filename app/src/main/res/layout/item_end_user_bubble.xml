@@ -16,12 +16,12 @@
         android:paddingBottom="8dp"
         tools:src="@mipmap/ic_launcher_round" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/item.icon.viewAll"
-        style="?android:attr/borderlessButtonStyle"
-        android:textColor="?android:attr/colorAccent"
+        style="@style/AppTheme.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/item_view_all" />
+        android:text="@string/item_view_all"
+        android:textColor="?android:attr/colorAccent" />
 
 </LinearLayout>

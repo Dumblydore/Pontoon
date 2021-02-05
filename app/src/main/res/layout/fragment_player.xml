@@ -1,12 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:layoutDescription="@xml/scene_player_controls">
 
-    <me.mauricee.pontoon.ui.main.player.playback.NewPlayerView
-        android:id="@+id/player.display"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:enableControlView="true" />
-</FrameLayout>
+    <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+        android:id="@+id/playerContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:resize_mode="fixed_height"
+        tools:background="@color/md_red_50">
+
+        <TextureView
+            android:id="@+id/playerSurface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
+
+    <View
+        android:id="@+id/playerControlsBackground"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#55000000" />
+
+    <me.mauricee.pontoon.common.TimeBarView
+        android:id="@+id/playerProgress"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:progress="50"
+        android:secondaryProgress="60"
+        android:splitTrack="true" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playerControlPlayPause"
+        style="@style/AppTheme.Button.Icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:icon="@drawable/ic_play"
+        app:iconTint="?colorOnPrimarySurface" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playerControlQuality"
+        style="@style/AppTheme.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?colorOnPrimarySurface"
+        tools:text="1080p" />
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playerControlsFullscreen"
+        style="@style/AppTheme.Button.Icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:icon="@drawable/ic_fullscreen"
+        app:iconTint="?colorOnPrimarySurface" />
+
+    <TextView
+        android:id="@+id/playerControlsTimestamp"
+        style="@style/AppTheme.Text.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?colorOnPrimarySurface"
+        tools:text="10:10/11:11" />
+</androidx.constraintlayout.motion.widget.MotionLayout>

@@ -6,16 +6,15 @@ import io.reactivex.ObservableSource
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.model.video.VideoRepository
 import me.mauricee.pontoon.ui.BaseContract
-import me.mauricee.pontoon.ui.ReduxPresenter
+import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
-import me.mauricee.pontoon.ui.main.MainContract
 import javax.inject.Inject
 
-class HistoryPresenter @Inject constructor(private val videoRepository: VideoRepository) : ReduxPresenter<HistoryContract.State, HistoryContract.Reducer, HistoryContract.Action, Nothing>() {
+class HistoryPresenter @Inject constructor(private val videoRepository: VideoRepository) : BasePresenter<HistoryContract.State, HistoryContract.Reducer, HistoryContract.Action, Nothing>() {
 
 
-    override fun onViewAttached(view: BaseContract.View<HistoryContract.State, HistoryContract.Action>): Observable<HistoryContract.Reducer> {
+    override fun onViewAttached(view: BaseContract.View<HistoryContract.Action>): Observable<HistoryContract.Reducer> {
         return videoRepository.watchHistory()
                 .map(::checkForEmptyList)
                 .onErrorReturnItem(HistoryContract.Reducer.Error(HistoryContract.Errors.Unknown))

@@ -14,19 +14,22 @@ import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.main.VideoPageAdapter
+import me.mauricee.pontoon.ui.main.player.PlayerAction
+import me.mauricee.pontoon.ui.main.player.PlayerViewModel
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SearchFragment : NewBaseFragment(R.layout.fragment_search) {
+class SearchFragment : BaseFragment(R.layout.fragment_search) {
 
     @Inject
     lateinit var adapter: VideoPageAdapter
 
     private val viewModel: SearchViewModel by viewModels()
+    private val playerViewModel: PlayerViewModel by viewModels({ requireActivity() })
     private val binding by viewBinding(FragmentSearchBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -34,8 +37,8 @@ class SearchFragment : NewBaseFragment(R.layout.fragment_search) {
 
         binding.searchList.adapter = adapter
 
-        subscriptions += adapter.actions.map(SearchAction::VideoClicked)
-                .subscribe(viewModel::sendAction)
+        subscriptions += adapter.actions.map { PlayerAction.PlayVideo(it.id) }
+                .subscribe(playerViewModel::sendAction)
         subscriptions += binding.searchView.queryTextChanges()
                 .filter(CharSequence::isNotBlank)
                 .map(CharSequence::toString)

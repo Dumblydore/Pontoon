@@ -5,7 +5,7 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import io.reactivex.disposables.CompositeDisposable
 
-abstract class NewBaseFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
+abstract class BaseFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
 
     protected val subscriptions = CompositeDisposable()
     protected val animations = mutableListOf<Animator>()

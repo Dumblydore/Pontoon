@@ -28,7 +28,6 @@ sealed class SearchReducer {
 
 sealed class SearchAction : EventTracker.Action {
     data class Query(val query: String) : SearchAction()
-    data class VideoClicked(val video: Video) : SearchAction()
 }
 
 typealias SearchEvent = Nothing

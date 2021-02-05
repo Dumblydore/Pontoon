@@ -23,13 +23,13 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.user.activity.ActivityEntity
 import me.mauricee.pontoon.rx.glide.toPalette
-import me.mauricee.pontoon.ui.NewBaseFragment
+import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.assistedViewModel
 import me.mauricee.pontoon.ui.preferences.darken
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UserFragment : NewBaseFragment(R.layout.fragment_user) {
+class UserFragment : BaseFragment(R.layout.fragment_user) {
 
 
     @Inject
