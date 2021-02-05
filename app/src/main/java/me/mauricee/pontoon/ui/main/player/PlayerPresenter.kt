@@ -57,7 +57,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         is PlayerReducer.DisplayCurrentQualityLevel -> state.copy(currentQualityLevel = reducer.qualityLevel)
         is PlayerReducer.UpdatePlayingState -> state.copy(isPlaying = reducer.isPlaying)
         is PlayerReducer.UpdatePosition -> state.copy(position = reducer.position, timestamp = "${reducer.position.toDuration()}:${state.duration?.toDuration()}")
-        is PlayerReducer.updateDuration -> state.copy(duration = reducer.duration, timestamp = "${state.position?.toDuration()}:${reducer.duration.toDuration()}")
+        is PlayerReducer.UpdateDuration -> state.copy(duration = reducer.duration, timestamp = "${state.position?.toDuration()}:${reducer.duration.toDuration()}")
     }
 
 
@@ -92,13 +92,14 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         PlayerAction.Pause -> noReduce(player.pause())
         PlayerAction.TogglePlayPause -> noReduce(player.togglePlayPause())
         is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(PlayerAction.PlayVideo)")
+        is PlayerAction.SeekTo -> noReduce(player.seekTo(action.position))
     }
 
     private fun loadVideoContents(video: Video): Observable<PlayerReducer> {
         val (commentPages, commentStates) = commentRepo.getComments(video.id)
         return Observable.merge(listOf(videoRepo.getRelatedVideos(video.id).map<PlayerReducer>(PlayerReducer::DisplayRelatedVideo).onErrorReturnItem(PlayerReducer.DisplayRelatedVideosError(UiError(PlayerErrors.General.message))),
                 player.currentPosition.map<PlayerReducer>(PlayerReducer::UpdatePosition),
-                player.duration.map<PlayerReducer>(PlayerReducer::updateDuration),
+                player.duration.map<PlayerReducer>(PlayerReducer::UpdateDuration),
                 player.supportedQuality.map<PlayerReducer>(PlayerReducer::DisplayQualityLevels),
                 player.selectedQualityLevel.map<PlayerReducer>(PlayerReducer::DisplayCurrentQualityLevel),
                 player.timelinePreviewUrl.map<PlayerReducer>(PlayerReducer::DisplayTimelinePreview),

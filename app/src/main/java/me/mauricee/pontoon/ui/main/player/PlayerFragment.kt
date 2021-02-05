@@ -9,6 +9,9 @@ import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
 import androidx.transition.TransitionInflater
 import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding2.widget.SeekBarProgressChangeEvent
+import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
+import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
@@ -21,6 +24,7 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.playback.Player
 import me.mauricee.pontoon.rx.glide.toSingle
 import me.mauricee.pontoon.ui.BaseFragment
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,8 +36,8 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
     private val binding by viewBinding(FragmentPlayerBinding::bind)
 
     private var isSeeking: Boolean = false
+    private var pendingSeek: Long = 0L
     private lateinit var mediaRouteMenuItem: MenuItem
-
 
     private val qualityAdapter by lazy { ArrayAdapter<Player.Quality>(requireContext(), R.layout.item_popup) }
     private val popupWindow by lazy { ListPopupWindow(requireContext(), null, R.attr.listPopupWindowStyle).apply { setAdapter(qualityAdapter) } }
@@ -49,7 +53,7 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
 
         popupWindow.anchorView = binding.playerControlQuality
 
-        popupWindow.setOnItemClickListener { parent, view, position, id ->
+        popupWindow.setOnItemClickListener { _, _, position, _ ->
             qualityAdapter.getItem(position)?.let {
                 viewModel.sendAction(PlayerAction.SetQuality(it))
             }
@@ -60,14 +64,30 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
         subscriptions += binding.playerControlPlayPause.clicks()
                 .map { PlayerAction.TogglePlayPause }
                 .subscribe(viewModel::sendAction)
-        subscriptions += binding.playerControlQuality.clicks().subscribe {
-            popupWindow.show()
+        subscriptions += binding.playerControlQuality.clicks().subscribe { popupWindow.show() }
+        subscriptions += binding.playerProgress.seekBarChanges.sample(125, TimeUnit.MILLISECONDS)
+                .filter { it is SeekBarProgressChangeEvent }
+                .cast(SeekBarProgressChangeEvent::class.java)
+                .filter(SeekBarProgressChangeEvent::fromUser)
+                .map { it.progress() * 1000L }
+                .subscribe { pendingSeek = it }
+        subscriptions += binding.playerProgress.seekBarChanges.subscribe {
+            when (it) {
+                is SeekBarStartChangeEvent -> isSeeking = true
+                is SeekBarStopChangeEvent -> {
+                    isSeeking = false
+                    viewModel.sendAction(PlayerAction.SeekTo(pendingSeek))
+                }
+
+            }
         }
         viewModel.state.mapDistinct(PlayerState::duration).notNull().observe(viewLifecycleOwner) {
-            binding.playerProgress.duration = it
+            if (!isSeeking)
+                binding.playerProgress.duration = it
         }
         viewModel.state.mapDistinct(PlayerState::position).notNull().observe(viewLifecycleOwner) {
-            binding.playerProgress.progress = it
+            if (!isSeeking)
+                binding.playerProgress.progress = it
         }
         viewModel.state.mapDistinct(PlayerState::currentQualityLevel).observe(viewLifecycleOwner) {
             binding.playerControlQuality.apply {

@@ -132,6 +132,8 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
         }
     }
 
+    fun seekTo(position: Long): Completable = Completable.fromAction { controller.seekTo(position) }
+
     @Parcelize
     data class Quality(val label: String, val url: String) : Parcelable, Diffable<String> {
         override val id: String
