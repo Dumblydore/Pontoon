@@ -81,11 +81,11 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
 
             }
         }
-        viewModel.state.mapDistinct(PlayerState::duration).notNull().observe(viewLifecycleOwner) {
+        viewModel.state.mapDistinct(PlayerState::duration).observe(viewLifecycleOwner) {
             if (!isSeeking)
                 binding.playerProgress.duration = it
         }
-        viewModel.state.mapDistinct(PlayerState::position).notNull().observe(viewLifecycleOwner) {
+        viewModel.state.mapDistinct(PlayerState::position).observe(viewLifecycleOwner) {
             if (!isSeeking)
                 binding.playerProgress.progress = it
         }

@@ -82,18 +82,22 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
                 .map { it.playerState == SessionPlayer.PLAYER_STATE_PLAYING }
     val duration: Observable<Long>
         get() = activeMediaItem.map { it.endPosition }
+    private val seeks: Observable<Long>
+        get() = callbackEvents.filter { it is SessionPlayerEvent.SeekCompletedEvent }
+                .cast(SessionPlayerEvent.SeekCompletedEvent::class.java)
+                .map { it.position }
     val currentPosition: Observable<Long>
         get() = isPlaying.switchMap { isPlaying ->
-            val pos = playerConnector.currentPosition
-            if (!isPlaying) Observable.just(pos)
-            else Observable.interval(1, TimeUnit.SECONDS)
-                    .map { count -> pos + (1000 * count) }
-                    .startWith(pos)
+            if (!isPlaying) Observable.just(playerConnector.currentPosition)
+            else Observable.combineLatest(Observable.interval(1, TimeUnit.SECONDS),
+                    seeks.startWith(playerConnector.currentPosition)) {
+                count, pos -> pos + (1000 * count)
+            }
         }
 
     fun playItem(videoId: String): Completable = Completable.fromAction {
-        controller.setMediaItem("$videoId:$qualityLevel")
         controller.seekTo(0)
+        controller.setMediaItem("$videoId:$qualityLevel")
         controller.play()
     }
 
