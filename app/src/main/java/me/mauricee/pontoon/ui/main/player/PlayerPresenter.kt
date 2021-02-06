@@ -6,7 +6,6 @@ import com.jakewharton.rx.replayingShare
 import io.reactivex.Observable
 import io.reactivex.Single
 import me.mauricee.pontoon.common.PagingState
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
@@ -30,7 +29,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         val playVideo = actions.filter { it is PlayerAction.PlayVideo }
                 .cast(PlayerAction.PlayVideo::class.java)
                 .concatMapSingle { player.playItem(it.videoId).andThen(Single.just(it.videoId)) }
-                .switchMap(videoRepo::getVideo)
+                .switchMap { videoRepo.addToWatchHistory(it).andThen(videoRepo.getVideo(it)) }
                 .switchMap { video ->
                     val otherActions = view.actions.filter { it !is PlayerAction.PlayVideo }
                             .flatMap { handleOtherActions(video, it) }

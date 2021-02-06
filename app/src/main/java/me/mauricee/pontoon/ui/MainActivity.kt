@@ -1,6 +1,8 @@
 package me.mauricee.pontoon.ui
 
+import android.app.Activity
 import android.app.PictureInPictureParams
+import android.content.Intent
 import android.os.Bundle
 import android.util.Rational
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +13,8 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.databinding.ActivityMainNewBinding
 import me.mauricee.pontoon.ext.view.viewBinding
+import me.mauricee.pontoon.model.preferences.Preferences
+import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.playback.Player
 import javax.inject.Inject
 
@@ -27,6 +31,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var wiseFy: WiseFy
 
+    @Inject
+    lateinit var prefs: Preferences
+
     private val binding by viewBinding(ActivityMainNewBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,15 +45,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (player.isReadyForPiP) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                val params = PictureInPictureParams.Builder()
-                        .setAspectRatio(Rational(16, 9))
-                        .build()
-                enterPictureInPictureMode(params)
-            } else {
-                enterPictureInPictureMode()
-            }
+        when (prefs.pictureInPicture) {
+            Preferences.PictureInPicture.Always -> goIntoPip()
+            Preferences.PictureInPicture.OnlyWhenPlaying -> if (player.isReadyForPiP) goIntoPip()
+            Preferences.PictureInPicture.Never -> player.pause()
+        }
+    }
+
+    private fun goIntoPip() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val params = PictureInPictureParams.Builder()
+                    .setAspectRatio(Rational(16, 9))
+                    .build()
+            enterPictureInPictureMode(params)
+        } else {
+            enterPictureInPictureMode()
         }
     }
 
@@ -54,4 +67,13 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         wiseFy.dump()
     }
+}
+
+fun Activity.shareVideo(video: Video) {
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, video.entity.title)
+        putExtra(Intent.EXTRA_TEXT, video.toBrowsableUrl())
+    }
+    startActivity(Intent.createChooser(shareIntent, getString(R.string.player_share)))
 }

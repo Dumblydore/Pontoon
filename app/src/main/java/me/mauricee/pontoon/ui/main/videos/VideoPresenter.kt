@@ -16,9 +16,7 @@ import javax.inject.Inject
 class VideoPresenter @Inject constructor(
         private val subscriptionRepository: SubscriptionRepository,
         private val videoRepository: VideoRepository,
-        private val preferences: Preferences,
-//                                         private val sharedManager: ShareManager
-) : BasePresenter<VideoState, VideoReducer, VideoAction, VideoEvent>() {
+        private val preferences: Preferences) : BasePresenter<VideoState, VideoReducer, VideoAction, VideoEvent>() {
 
     override fun onViewAttached(view: BaseContract.View<VideoAction>): Observable<VideoReducer> {
         return preferences.displayUnwatchedVideos.switchMap { displayUnwatchedVideos ->
@@ -57,7 +55,6 @@ class VideoPresenter @Inject constructor(
     private fun handleAction(action: VideoAction): Observable<VideoReducer> {
         return when (action) {
             is VideoAction.Subscription -> noReduce { sendEvent(VideoEvent.NavigateToCreator(action.creator.id)) }
-            is VideoAction.Share -> noReduce { /*sharedManager.shareVideo(action.video) */ }
             is VideoAction.Download -> noReduce { }
             VideoAction.Creators -> noReduce { sendEvent(VideoEvent.NavigateToAllCreators) }
             VideoAction.Refresh -> throw RuntimeException("Should not enter branch! (VideoAction.Refresh)")

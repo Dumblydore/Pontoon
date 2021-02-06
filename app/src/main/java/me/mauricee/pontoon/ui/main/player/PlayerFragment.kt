@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
 import androidx.transition.TransitionInflater
@@ -96,10 +97,12 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
                 ViewMode.Expanded -> {
                     binding.root.transitionToStart()
                     binding.playerControlsExpand.isGone = false
+                    binding.playerControlsFullscreen.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_fullscreen)
                 }
                 ViewMode.Fullscreen -> {
                     binding.root.transitionToStart()
                     binding.playerControlsExpand.isGone = true
+                    binding.playerControlsFullscreen.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_fullscreen_exit)
                 }
                 ViewMode.Dismissed -> binding.root.transitionToEnd()
                 ViewMode.Collapsed -> binding.root.transitionToEnd()

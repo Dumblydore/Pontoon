@@ -2,6 +2,7 @@ package me.mauricee.pontoon.ui.main.videos
 
 import android.content.Context
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -18,6 +19,7 @@ import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
+import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.main.MainContract
@@ -25,6 +27,7 @@ import me.mauricee.pontoon.ui.main.player.PlayerAction
 import me.mauricee.pontoon.ui.main.player.PlayerViewModel
 import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionGlobalCreatorFragment
 import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionVideoFragmentToCreatorListFragment
+import me.mauricee.pontoon.ui.shareVideo
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -84,6 +87,16 @@ class VideoFragment : BaseFragment(R.layout.fragment_videos) {
                 .subscribe(playerViewModel::sendAction)
         subscriptions += videoAdapter.subscriptionAdapter.actions
                 .subscribe(viewModel::sendAction)
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        videoAdapter.contextVideo?.let { video: Video ->
+            when (item.itemId) {
+                R.id.action_share -> requireActivity().shareVideo(video)
+                else -> null
+            }
+        }
+        return true
     }
 
     private class LayoutManager(context: Context) : LinearLayoutManager(context) {

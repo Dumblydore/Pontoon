@@ -30,7 +30,6 @@ sealed class VideoReducer {
 sealed class VideoAction : EventTracker.Action {
     object Refresh : VideoAction()
     class Subscription(val creator: Creator) : VideoAction()
-    class Share(val video: Video) : VideoAction()
     class Download(val video: Video) : VideoAction()
     object Creators : VideoAction()
 }
