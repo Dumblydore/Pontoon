@@ -69,6 +69,8 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
     val timelinePreviewUrl: Observable<String>
         get() = activeMediaItem.map { it.metadata?.extras?.getString(PontoonMetadata.TimeLineUri)!! }
                 .doOnNext { logd("timelinePreviewUrl: $it") }
+    val previewUrl: Observable<String>
+        get() = activeMediaItem.map { it.metadata?.getString(MediaMetadata.METADATA_KEY_ART_URI) }
 
     val isLocalPlayer: Boolean
         get() = exoPlayer.activePlayer is SimpleExoPlayer
@@ -90,8 +92,8 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
         get() = isPlaying.switchMap { isPlaying ->
             if (!isPlaying) Observable.just(playerConnector.currentPosition)
             else Observable.combineLatest(Observable.interval(1, TimeUnit.SECONDS),
-                    seeks.startWith(playerConnector.currentPosition)) {
-                count, pos -> pos + (1000 * count)
+                    seeks.startWith(playerConnector.currentPosition)) { count, pos ->
+                pos + (1000 * count)
             }
         }
 

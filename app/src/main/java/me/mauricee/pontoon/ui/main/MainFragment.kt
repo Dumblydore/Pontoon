@@ -12,10 +12,17 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
+import com.jakewharton.rx.replayingShare
 import com.jakewharton.rxbinding2.support.design.widget.itemSelections
 import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding2.widget.SeekBarProgressChangeEvent
+import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
+import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
+import com.jakewharton.rxbinding2.widget.changeEvents
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
+import kotlinx.android.synthetic.main.fragment_main.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.SessionGraphDirections.*
 import me.mauricee.pontoon.common.theme.ThemeManager
@@ -28,6 +35,7 @@ import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToLoginGraph
 import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToSettingsFragment
 import me.mauricee.pontoon.ui.main.player.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -46,6 +54,9 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
     private val childNavController: NavController
         get() = (childFragmentManager.findFragmentById(binding.mainContainer.id) as NavHostFragment).navController
 
+    private var isSeeking: Boolean = false
+    private var pendingSeek: Long = 0L
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -59,6 +70,28 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
         subscriptions += binding.mainDrawer.itemSelections()
                 .map { MainContract.Action.fromNavDrawer(it.itemId) }
                 .subscribe(viewModel::sendAction)
+
+        val progressChangeEvents = binding.playerProgress.changeEvents().skipInitialValue().replayingShare()
+
+        subscriptions += progressChangeEvents
+                .filter { it is SeekBarProgressChangeEvent }
+                .cast(SeekBarProgressChangeEvent::class.java)
+                .filter(SeekBarProgressChangeEvent::fromUser)
+                .map { it.progress() }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    binding.expandedPreview.progress = it
+                    pendingSeek = it * 1000L
+                }
+        subscriptions += progressChangeEvents.subscribe {
+            when (it) {
+                is SeekBarStartChangeEvent -> isSeeking = true
+                is SeekBarStopChangeEvent -> {
+                    isSeeking = false
+                    playerViewModel.sendAction(PlayerAction.SeekTo(pendingSeek))
+                }
+            }
+        }
 
         viewModel.events.observe(viewLifecycleOwner, ::handleEvents)
         playerViewModel.events.observe(viewLifecycleOwner) {
@@ -75,7 +108,18 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 is PlayerEvent.DisplayReplies -> childNavController.navigate(actionGlobalRepliesDialogFragment(it.commentId))
             }
         }
-
+        playerViewModel.state.mapDistinct(PlayerState::controlsVisible).observe(viewLifecycleOwner) {
+            binding.playerProgress.thumb.alpha = if (it) 255 else 0
+        }
+        playerViewModel.state.mapDistinct(PlayerState::duration).map { (it / 1000).toInt() }.observe(viewLifecycleOwner) {
+            binding.playerProgress.max = it
+            binding.collapsedProgress.max = it
+            binding.expandedPreview.duration = it
+        }
+        playerViewModel.state.mapDistinct(PlayerState::position).map { (it / 1000).toInt() }.observe(viewLifecycleOwner) {
+            binding.playerProgress.progress = it
+            binding.collapsedProgress.progress = it
+        }
         playerViewModel.state.map(PlayerState::viewMode).observe(viewLifecycleOwner, ::handlePlayerViewMode)
         playerViewModel.state.mapDistinct { it.video?.entity?.title }.notNull().observe(viewLifecycleOwner) {
             binding.collapsedDetailsTitle.text = it

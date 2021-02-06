@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
-    tools:context=".ui.main.MainActivity">
+    tools:context=".ui.MainActivity">
 
     <ImageView
         android:id="@+id/reveal"
@@ -49,13 +49,15 @@
             android:id="@+id/player"
             android:name="me.mauricee.pontoon.ui.main.player.PlayerFragment"
             android:layout_width="0dp"
-            android:layout_height="0dp" />
+            android:layout_height="0dp"
+            tools:background="@color/black" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/expandedDetails"
             android:name="me.mauricee.pontoon.ui.main.player.details.DetailsFragment"
             android:layout_width="0dp"
-            android:layout_height="0dp" />
+            android:layout_height="0dp"
+            tools:background="@color/md_blue_300" />
 
         <View
             android:id="@+id/collapsedDetails"
@@ -116,6 +118,37 @@
             app:layout_constraintEnd_toEndOf="@id/collapsedDetails"
             app:layout_constraintStart_toEndOf="@id/collapsedDetailsPlayPause"
             tools:text="Test Creator" />
+
+        <SeekBar
+            android:id="@+id/playerProgress"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:progress="50"
+            android:secondaryProgress="60"
+            android:splitTrack="true"
+            app:labelBehavior="gone" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/collapsedProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:progress="50"
+            android:secondaryProgress="60"
+            app:indicatorColor="?colorAccent"
+            app:trackColor="?colorSurface" />
+
+        <me.mauricee.pontoon.common.TimelinePreviewView
+            android:id="@+id/expandedPreview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/player"
+            app:layout_constraintBottom_toBottomOf="@id/player"
+            app:layout_constraintEnd_toEndOf="@id/player"/>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/mainNav"

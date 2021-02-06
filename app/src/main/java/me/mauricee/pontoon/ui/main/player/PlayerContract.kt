@@ -23,7 +23,8 @@ sealed class PlayerAction : EventTracker.Action {
     object ToggleFullscreen : PlayerAction()
     object TogglePlayPause : PlayerAction()
     object Pause : PlayerAction()
-    data class SeekTo(val position: Long): PlayerAction()
+    data class SeekTo(val position: Long) : PlayerAction()
+    data class SetControlVisibility(val controlsVisible: Boolean) : PlayerAction()
     data class SetViewMode(val viewMode: ViewMode) : PlayerAction()
     data class PlayVideo(val videoId: String, val commentId: String? = null) : PlayerAction()
     data class Like(val comment: Comment) : PlayerAction()
@@ -38,9 +39,11 @@ data class PlayerState(val videoState: UiState = UiState.Empty,
                        val user: UserEntity? = null,
                        val video: Video? = null,
                        val isPlaying: Boolean? = null,
-                       val timestamp: String? = null,
+                       val controlsVisible: Boolean = false,
+                       val timestamp: CharSequence? = null,
                        val position: Long = 0,
                        val duration: Long = 0,
+                       val previewImage: String? = null,
                        val relatedVideosState: UiState = UiState.Empty,
                        val relatedVideos: List<Video> = emptyList(),
                        val commentState: UiState = UiState.Empty,
@@ -55,6 +58,7 @@ sealed class PlayerReducer {
     object FetchingComments : PlayerReducer()
     object CommentsFetched : PlayerReducer()
     object ToggleFullScreen : PlayerReducer()
+    data class ControlsVisible(val controlsVisible: Boolean) : PlayerReducer()
     data class UpdatePosition(val position: Long) : PlayerReducer()
     data class UpdateDuration(val duration: Long) : PlayerReducer()
     data class UpdatePlayingState(val isPlaying: Boolean) : PlayerReducer()
@@ -62,6 +66,7 @@ sealed class PlayerReducer {
     data class DisplayTimelinePreview(val previewUrl: String) : PlayerReducer()
     data class DisplayCurrentQualityLevel(val qualityLevel: Player.Quality) : PlayerReducer()
     data class DisplayQualityLevels(val qualityLevels: Set<Player.Quality>) : PlayerReducer()
+    data class DisplayPreview(val previewUrl: String) : PlayerReducer()
     data class DisplayComments(val comments: List<Comment>) : PlayerReducer()
     data class DisplayVideo(val video: Video) : PlayerReducer()
     data class DisplayRelatedVideo(val videos: List<Video>) : PlayerReducer()

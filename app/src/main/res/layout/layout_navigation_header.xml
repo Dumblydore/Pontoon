@@ -34,7 +34,7 @@
             tools:src="@color/colorAccent" />
 
         <TextView
-            android:id="@+id/header.title"
+            android:id="@+id/header.name"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_gravity="bottom"

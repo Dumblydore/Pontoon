@@ -1,5 +1,7 @@
 package me.mauricee.pontoon.ui.main.player
 
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
 import com.jakewharton.rx.replayingShare
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -14,6 +16,7 @@ import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
@@ -56,8 +59,10 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         is PlayerReducer.DisplayTimelinePreview -> state.copy(timelineUrl = reducer.previewUrl)
         is PlayerReducer.DisplayCurrentQualityLevel -> state.copy(currentQualityLevel = reducer.qualityLevel)
         is PlayerReducer.UpdatePlayingState -> state.copy(isPlaying = reducer.isPlaying)
-        is PlayerReducer.UpdatePosition -> state.copy(position = reducer.position, timestamp = "${reducer.position.toDuration()}:${state.duration?.toDuration()}")
-        is PlayerReducer.UpdateDuration -> state.copy(duration = reducer.duration, timestamp = "${state.position?.toDuration()}:${reducer.duration.toDuration()}")
+        is PlayerReducer.UpdatePosition -> state.copy(position = reducer.position, timestamp = buildTimestamp(reducer.position, state.duration))
+        is PlayerReducer.UpdateDuration -> state.copy(duration = reducer.duration, timestamp = buildTimestamp(state.position, state.duration))
+        is PlayerReducer.DisplayPreview -> state.copy(previewImage = reducer.previewUrl)
+        is PlayerReducer.ControlsVisible -> state.copy(controlsVisible = reducer.controlsVisible)
     }
 
 
@@ -93,6 +98,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         PlayerAction.TogglePlayPause -> noReduce(player.togglePlayPause())
         is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(PlayerAction.PlayVideo)")
         is PlayerAction.SeekTo -> noReduce(player.seekTo(action.position))
+        is PlayerAction.SetControlVisibility -> setControls(action.controlsVisible)
     }
 
     private fun loadVideoContents(video: Video): Observable<PlayerReducer> {
@@ -104,6 +110,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                 player.selectedQualityLevel.map<PlayerReducer>(PlayerReducer::DisplayCurrentQualityLevel),
                 player.timelinePreviewUrl.map<PlayerReducer>(PlayerReducer::DisplayTimelinePreview),
                 player.isPlaying.map(PlayerReducer::UpdatePlayingState),
+                player.previewUrl.map(PlayerReducer::DisplayPreview),
                 commentPages.map<PlayerReducer>(PlayerReducer::DisplayComments),
                 commentStates.map(::mapCommentStates)
         ))
@@ -123,6 +130,17 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         ViewMode.Fullscreen -> ViewMode.Expanded
         else -> viewMode
     }
+
+    private fun buildTimestamp(progress: Long, duration: Long): CharSequence = buildSpannedString {
+        append(progress.toDuration())
+        append(" / ")
+        bold { append(duration.toDuration()) }
+    }
+
+    private fun setControls(isVisible: Boolean): Observable<PlayerReducer> = (if (isVisible)
+        Observable.concat(Observable.just(isVisible), Observable.timer(5000, TimeUnit.MILLISECONDS).map { false })
+    else
+        Observable.just(isVisible)).map(PlayerReducer::ControlsVisible)
 
     private fun loadUser(): Observable<PlayerReducer> = userRepo.activeUser
             .map { PlayerReducer.DisplayUser(it.entity) }

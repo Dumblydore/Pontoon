@@ -4,9 +4,14 @@ import android.app.Application
 import com.google.firebase.FirebaseApp
 import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.hilt.android.HiltAndroidApp
+import okhttp3.OkHttpClient
+import javax.inject.Inject
 
 @HiltAndroidApp
 class Pontoon : Application() {
+    @Inject
+    lateinit var client: OkHttpClient
+
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)

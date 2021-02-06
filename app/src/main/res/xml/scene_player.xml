@@ -39,6 +39,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
         <Constraint
+            android:id="@+id/playerProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            app:layout_constraintTop_toTopOf="@id/expandedDetails"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:visibilityMode="ignore" />
+        <Constraint
+            android:id="@+id/collapsedProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            app:layout_constraintEnd_toEndOf="@id/collapsedDetails"
+            app:layout_constraintStart_toStartOf="@id/collapsedDetails"
+            app:layout_constraintTop_toTopOf="@id/collapsedDetails"
+            app:visibilityMode="ignore" />
+        <Constraint
             android:id="@+id/expandedDetails"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -99,6 +117,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
         <Constraint
+            android:id="@+id/playerProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            app:layout_constraintTop_toTopOf="@id/expandedDetails"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/expandedDetails"
+            app:visibilityMode="ignore" />
+        <Constraint
+            android:id="@+id/collapsedProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            app:layout_constraintEnd_toEndOf="@id/collapsedDetails"
+            app:layout_constraintStart_toStartOf="@id/collapsedDetails"
+            app:layout_constraintTop_toTopOf="@id/collapsedDetails"
+            app:visibilityMode="ignore" />
+        <Constraint
             android:id="@+id/expandedDetails"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -131,6 +168,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
         <Constraint
+            android:id="@+id/playerProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            app:layout_constraintTop_toTopOf="@id/expandedDetails"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/expandedDetails"
+            app:visibilityMode="ignore" />
+        <Constraint
             android:id="@+id/expandedDetails"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -138,6 +185,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/player" />
+        <Constraint
+            android:id="@+id/collapsedProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/collapsedDetails"
+            app:layout_constraintStart_toStartOf="@id/collapsedDetails"
+            app:layout_constraintTop_toTopOf="@id/collapsedDetails"
+            app:visibilityMode="ignore" />
         <Constraint
             android:id="@+id/collapsedDetails"
             android:layout_width="0dp"
@@ -168,6 +223,17 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <Constraint
+            android:id="@+id/playerProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            app:layout_constraintTop_toTopOf="@id/expandedDetails"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/expandedDetails"
+            app:visibilityMode="ignore" />
+
+        <Constraint
             android:id="@+id/expandedDetails"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -175,6 +241,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
+
+        <Constraint
+            android:id="@+id/collapsedProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            app:layout_constraintEnd_toEndOf="@id/collapsedDetails"
+            app:layout_constraintStart_toStartOf="@id/collapsedDetails"
+            app:layout_constraintTop_toTopOf="@id/collapsedDetails"
+            app:visibilityMode="ignore" />
 
         <Constraint
             android:id="@+id/collapsedDetails"
@@ -216,6 +292,18 @@
             app:layout_constraintBottom_toTopOf="@id/mainNav"
             app:layout_constraintDimensionRatio="16:9"
             app:layout_constraintEnd_toStartOf="parent" />
+
+        <Constraint
+            android:id="@+id/playerProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            app:layout_constraintTop_toTopOf="@id/expandedDetails"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/expandedDetails"
+            app:visibilityMode="ignore" />
+
         <Constraint
             android:id="@+id/expandedDetails"
             android:layout_width="0dp"
@@ -224,6 +312,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
+
+        <Constraint
+            android:id="@+id/collapsedProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            app:layout_constraintTop_toTopOf="@id/collapsedDetails"
+            app:layout_constraintEnd_toEndOf="@id/collapsedDetails"
+            app:layout_constraintStart_toStartOf="@id/collapsedDetails"
+            app:visibilityMode="ignore" />
 
         <Constraint
             android:id="@+id/collapsedDetails"

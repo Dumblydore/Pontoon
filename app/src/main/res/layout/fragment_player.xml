@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     app:layoutDescription="@xml/scene_player_controls">
 
     <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
@@ -12,6 +13,11 @@
         android:layout_height="0dp"
         app:resize_mode="fixed_height"
         tools:background="@color/md_red_50">
+
+        <ImageView
+            android:id="@+id/playerPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
         <TextureView
             android:id="@+id/playerSurface"
@@ -25,14 +31,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#55000000" />
-
-    <me.mauricee.pontoon.common.TimeBarView
-        android:id="@+id/playerProgress"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:progress="50"
-        android:secondaryProgress="60"
-        android:splitTrack="true" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/playerControlPlayPause"
@@ -50,6 +48,13 @@
         android:textColor="?colorOnPrimarySurface"
         tools:text="1080p" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playerControlsExpand"
+        style="@style/AppTheme.Button.Icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:icon="@drawable/ic_close"
+        app:iconTint="?colorOnPrimarySurface" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/playerControlsFullscreen"
