@@ -127,8 +127,7 @@
             android:paddingEnd="0dp"
             android:progress="50"
             android:secondaryProgress="60"
-            android:splitTrack="true"
-            app:labelBehavior="gone" />
+            android:splitTrack="false" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/collapsedProgress"
@@ -146,9 +145,9 @@
             android:id="@+id/expandedPreview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@id/player"
             app:layout_constraintBottom_toBottomOf="@id/player"
-            app:layout_constraintEnd_toEndOf="@id/player"/>
+            app:layout_constraintEnd_toEndOf="@id/player"
+            app:layout_constraintStart_toStartOf="@id/player" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/mainNav"

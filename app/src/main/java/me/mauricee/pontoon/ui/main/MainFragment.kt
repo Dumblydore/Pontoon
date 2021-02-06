@@ -1,10 +1,12 @@
 package me.mauricee.pontoon.ui.main
 
+import android.animation.ValueAnimator
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
 import android.view.View
 import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.core.animation.doOnStart
 import androidx.core.view.isGone
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.viewModels
@@ -22,7 +24,6 @@ import com.jakewharton.rxbinding2.widget.changeEvents
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
-import kotlinx.android.synthetic.main.fragment_main.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.SessionGraphDirections.*
 import me.mauricee.pontoon.common.theme.ThemeManager
@@ -35,7 +36,6 @@ import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToLoginGraph
 import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToSettingsFragment
 import me.mauricee.pontoon.ui.main.player.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -56,6 +56,12 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
 
     private var isSeeking: Boolean = false
     private var pendingSeek: Long = 0L
+    private var currentThumbAnimation: ValueAnimator? = null
+        set(value) {
+            field?.cancel()
+            field = value?.also { animations += it }
+        }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -109,7 +115,11 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             }
         }
         playerViewModel.state.mapDistinct(PlayerState::controlsVisible).observe(viewLifecycleOwner) {
-            binding.playerProgress.thumb.alpha = if (it) 255 else 0
+            currentThumbAnimation = if (binding.main.currentState == R.id.fullscreen)
+                animateProgress(if (it) 1f else 0f)
+            else
+                animateThumb(if (it) 255 else 0)
+            currentThumbAnimation?.start()
         }
         playerViewModel.state.mapDistinct(PlayerState::duration).map { (it / 1000).toInt() }.observe(viewLifecycleOwner) {
             binding.playerProgress.max = it
@@ -120,7 +130,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             binding.playerProgress.progress = it
             binding.collapsedProgress.progress = it
         }
-        playerViewModel.state.map(PlayerState::viewMode).observe(viewLifecycleOwner, ::handlePlayerViewMode)
+        playerViewModel.state.mapDistinct(PlayerState::viewMode).observe(viewLifecycleOwner, ::handlePlayerViewMode)
         playerViewModel.state.mapDistinct { it.video?.entity?.title }.notNull().observe(viewLifecycleOwner) {
             binding.collapsedDetailsTitle.text = it
         }
@@ -247,15 +257,40 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
         }
     }
 
+    private fun animateProgress(to: Float): ValueAnimator {
+        return ValueAnimator.ofFloat(binding.playerProgress.alpha, to).apply {
+            addUpdateListener {
+                val value = it.animatedValue as Float
+                binding.playerProgress.alpha = value
+            }
+            doOnStart { binding.playerProgress.thumb.mutate().alpha = 255 }
+        }
+    }
+
+    private fun animateThumb(to: Int): ValueAnimator {
+        return ValueAnimator.ofInt(binding.playerProgress.thumb.alpha, to).apply {
+            addUpdateListener {
+                val thumb = binding.playerProgress.thumb.mutate()
+                val value = it.animatedValue as Int
+                thumb.alpha = value
+                doOnStart {
+                    binding.playerProgress.apply {
+                        isGone = false
+                        alpha = 1f
+                    }
+                }
+            }
+        }
+    }
+
     override fun onTransitionStarted(p0: MotionLayout, p1: Int, p2: Int) {}
 
     override fun onTransitionChange(p0: MotionLayout, p1: Int, p2: Int, p3: Float) {}
 
     override fun onTransitionCompleted(p0: MotionLayout, p1: Int) {
-        val currentState = p0.currentState
-        handleExpanded(p0.currentState == R.id.expanded)
+        handleExpanded(p1 == R.id.expanded)
 
-        val newViewMode = when (currentState) {
+        val newViewMode = when (p1) {
             R.id.fullscreen -> ViewMode.Fullscreen
             R.id.expanded -> ViewMode.Expanded
             R.id.collapsed -> ViewMode.Collapsed

@@ -7,6 +7,12 @@
     android:background="@color/black"
     app:layoutDescription="@xml/scene_player_controls">
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/controlsGroup"
+        app:constraint_referenced_ids="playerControlPlayPause,playerControlQuality,playerControlsFullscreen,playerControlsTimestamp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
         android:id="@+id/playerContent"
         android:layout_width="0dp"
@@ -53,7 +59,7 @@
         style="@style/AppTheme.Button.Icon"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:icon="@drawable/ic_close"
+        app:icon="@drawable/ic_arrow_down"
         app:iconTint="?colorOnPrimarySurface" />
 
     <com.google.android.material.button.MaterialButton

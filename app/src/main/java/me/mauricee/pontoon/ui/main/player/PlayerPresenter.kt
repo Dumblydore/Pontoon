@@ -6,6 +6,7 @@ import com.jakewharton.rx.replayingShare
 import io.reactivex.Observable
 import io.reactivex.Single
 import me.mauricee.pontoon.common.PagingState
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
@@ -68,7 +69,6 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     private fun handleSetViewMode(state: PlayerState, newViewMode: ViewMode): PlayerState {
         return when {
-            state.viewMode == newViewMode -> state
             //  To prevent going from pip into fullscreen
             state.viewMode == ViewMode.PictureInPicture && newViewMode == ViewMode.Fullscreen -> state
             else -> state.copy(viewMode = newViewMode)

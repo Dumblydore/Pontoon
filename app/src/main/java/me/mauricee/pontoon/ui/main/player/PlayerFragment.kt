@@ -93,8 +93,14 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
         }
         viewModel.state.mapDistinct(PlayerState::viewMode).observe(viewLifecycleOwner) {
             when (it) {
-                ViewMode.Expanded -> binding.root.transitionToStart()
-                ViewMode.Fullscreen -> binding.root.transitionToStart()
+                ViewMode.Expanded -> {
+                    binding.root.transitionToStart()
+                    binding.playerControlsExpand.isGone = false
+                }
+                ViewMode.Fullscreen -> {
+                    binding.root.transitionToStart()
+                    binding.playerControlsExpand.isGone = true
+                }
                 ViewMode.Dismissed -> binding.root.transitionToEnd()
                 ViewMode.Collapsed -> binding.root.transitionToEnd()
                 ViewMode.PictureInPicture -> binding.root.transitionToEnd()
@@ -103,12 +109,14 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
     }
 
     override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
-
+        binding.controlsGroup.isGone = false
     }
 
     override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {}
 
     override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+        if (p1 == R.id.hideControls)
+            binding.controlsGroup.isGone = true
         viewModel.sendAction(PlayerAction.SetControlVisibility(p1 == R.id.showControls))
     }
 

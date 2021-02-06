@@ -129,7 +129,6 @@
             android:id="@+id/playerControlsTimestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:alpha="0"
             app:layout_constraintBottom_toBottomOf="@id/playerControlQuality"
             app:layout_constraintTop_toTopOf="@id/playerControlQuality" />

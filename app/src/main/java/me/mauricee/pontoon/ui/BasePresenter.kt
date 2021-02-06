@@ -22,7 +22,7 @@ abstract class BasePresenter<S : Any, R : Any, A : EventTracker.Action, E : Any>
         state = initialState
         return onViewAttached(view)
                 .doOnNext { logd("Reducer: ${it.javaClass.simpleName}") }
-                .concatMapSingle { reduce(state, it) }
+                .concatMapSingle { reduce(it) }
                 .startWith(initialState)
                 .doOnDispose { onDetach() }
     }
@@ -43,9 +43,8 @@ abstract class BasePresenter<S : Any, R : Any, A : EventTracker.Action, E : Any>
 
     }
 
-    private fun reduce(oldState: S, reducer: R): Single<S> = Single.fromCallable {
-        val newState = onReduce(oldState, reducer)
-        state = newState
-        newState
+    private fun reduce(reducer: R): Single<S> = Single.fromCallable {
+        state = onReduce(state, reducer)
+        state
     }
 }
