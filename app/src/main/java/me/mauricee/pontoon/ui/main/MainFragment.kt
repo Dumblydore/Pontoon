@@ -94,6 +94,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 is SeekBarStartChangeEvent -> isSeeking = true
                 is SeekBarStopChangeEvent -> {
                     isSeeking = false
+                    binding.expandedPreview.hide()
                     playerViewModel.sendAction(PlayerAction.SeekTo(pendingSeek))
                 }
             }

@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <me.mauricee.pontoon.common.LazyLayout
+        <me.mauricee.lazyLayout.LazyLayout
             android:id="@+id/user.container.lazy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -81,7 +81,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.core.widget.NestedScrollView>
 
-        </me.mauricee.pontoon.common.LazyLayout>
+        </me.mauricee.lazyLayout.LazyLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.appbar.AppBarLayout

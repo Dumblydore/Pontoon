@@ -74,7 +74,7 @@ class VideoFragment : BaseFragment(R.layout.fragment_videos) {
         viewModel.state.map { it.screenState.isRefreshing() }.observe(viewLifecycleOwner) {
             binding.videosContainer.isRefreshing = it
         }
-        viewModel.state.map { it.pageState == UiState.Loading }.observe(viewLifecycleOwner) {
+        viewModel.state.map { it.pageState.isLoading() }.observe(viewLifecycleOwner) {
             binding.videosPageProgress.isVisible = it
         }
 

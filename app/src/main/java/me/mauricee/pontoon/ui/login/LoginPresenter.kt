@@ -41,7 +41,7 @@ class LoginPresenter @Inject constructor(private val sessionRepository: SessionR
     private fun attemptLogin(username: String, password: String): Observable<LoginReducer> = Observable.defer {
         when {
             username.isEmpty() -> LoginReducer.DisplayError(LoginError.MissingUsername).toObservable()
-            password.isEmpty() -> LoginReducer.DisplayError(LoginError.MissingUsername).toObservable()
+            password.isEmpty() -> LoginReducer.DisplayError(LoginError.MissingPassword).toObservable()
             else -> loginWithCredentials(username, password)
         }
     }

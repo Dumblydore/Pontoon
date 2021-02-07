@@ -14,10 +14,14 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AuthInterceptor @Inject constructor(private val credentials: DataStore<SessionCredentials>) : Interceptor {
 
+    @Volatile
     private var sid: String = ""
+    @Volatile
     private var cfduid: String = ""
     private val sessionRelay: Relay<Unit> = PublishRelay.create()
     private val subs = CompositeDisposable()

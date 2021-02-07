@@ -13,15 +13,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?colorOnPrimarySurface" />
 
-    <androidx.core.widget.ContentLoadingProgressBar
+    <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/launchProgress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:indeterminateTint="@color/white"
+        android:indeterminate="true"
+        app:indicatorColor="?colorOnPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/launchBg" />

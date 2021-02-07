@@ -3,7 +3,7 @@ package me.mauricee.pontoon.rx.lazylayout
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.MainThreadDisposable
-import me.mauricee.pontoon.common.LazyLayout
+import me.mauricee.lazyLayout.LazyLayout
 
 class RetryObservable internal constructor(private val lazyLayout: LazyLayout) : Observable<Boolean>() {
 

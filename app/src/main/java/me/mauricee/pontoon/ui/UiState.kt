@@ -2,7 +2,7 @@ package me.mauricee.pontoon.ui
 
 import android.content.Context
 import androidx.annotation.StringRes
-import me.mauricee.pontoon.common.LazyLayout
+import me.mauricee.lazyLayout.LazyLayout
 import java.lang.Exception
 
 sealed class UiState {

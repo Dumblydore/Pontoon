@@ -28,7 +28,7 @@ class VideoPresenter @Inject constructor(
                     .switchMap { fresh ->
                         if (fresh) subscriptions.fetch().toObservable()
                         else subscriptions.get()
-                    }.switchMap { load(displayUnwatchedVideos, it) }
+                    }.switchMap { load(displayUnwatchedVideos, it) }.onErrorReturnItem(VideoReducer.ScreenError(UiError(VideoErrors.Network.msg)))
             val otherActions = actions.filter { it !is VideoAction.Refresh }
                     .flatMap { handleAction(it) }
             Observable.merge(refreshes, otherActions)
@@ -38,7 +38,7 @@ class VideoPresenter @Inject constructor(
     override fun onReduce(state: VideoState, reducer: VideoReducer): VideoState = when (reducer) {
         VideoReducer.Loading -> state.copy(screenState = UiState.Loading, pageState = UiState.Empty)
         VideoReducer.Fetching -> state.copy(pageState = UiState.Loading)
-        VideoReducer.Fetched -> state.copy(pageState = UiState.Success)
+        VideoReducer.Fetched -> state.copy(screenState = UiState.Success, pageState = UiState.Success)
         is VideoReducer.FetchedVideos -> state.copy(videos = reducer.videos)
         is VideoReducer.FetchedSubscriptions -> state.copy(subscriptions = reducer.subscriptions)
         is VideoReducer.ScreenError -> state.copy(screenState = UiState.Failed(reducer.error))

@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewPropertyAnimator
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.isVisible
+import androidx.core.view.isGone
 import me.mauricee.pontoon.databinding.ViewTimebarBinding
 import me.mauricee.pontoon.ext.toDuration
 import kotlin.math.max
@@ -46,9 +46,13 @@ class TimelinePreviewView : ConstraintLayout {
         previewParams = binding.previewGuideline.layoutParams as LayoutParams
     }
 
+    fun hide() {
+        binding.preview.isGone = true
+    }
+
     private fun onProgressChanged(progress: Int) {
         val progressPercentage = (progress.toFloat() / duration.toFloat())
-        binding.preview.isVisible = true
+        binding.preview.isGone = false
         previewParams.guidePercent = min(maxGuidePercentage, max(minGuidePercentage, progressPercentage))
 
         binding.previewGuideline.layoutParams = previewParams

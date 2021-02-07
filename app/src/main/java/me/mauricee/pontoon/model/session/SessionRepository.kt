@@ -23,7 +23,9 @@ class SessionRepository @Inject constructor(private val floatPlaneApi: FloatPlan
             .flatMap { loginWithCredentials(it.username, it.password) }
 
     fun loginWithCredentials(username: String, password: String): Single<LoginResult> {
-        return Single.defer { floatPlaneApi.login(LoginRequest(username, password)) }.compose(processLogin())
+        return Single.defer { floatPlaneApi.login(LoginRequest(username, password)) }
+                .flatMap { storeCredentials(username, password).map { _ -> it } }
+                .compose(processLogin())
     }
 
     fun loginWithCookie(cfuId: String, sid: String): Single<LoginResult> = credentialStore.updateDataAsync {
@@ -51,13 +53,15 @@ class SessionRepository @Inject constructor(private val floatPlaneApi: FloatPlan
     }
 
     private fun processAuthentication() = SingleTransformer<UserJson, LoginResult> { stream ->
-        stream.map<LoginResult> { LoginResult.Success }.onErrorReturn {
+        stream.map<LoginResult> {
+            LoginResult.Success
+        }.onErrorReturn {
             if ((it as? HttpException)?.code() in 400..499) LoginResult.Requires2FA
             else LoginResult.Error(it)
         }
     }
 
-    private fun storeCredentials(username: String, password: String, user: UserJson) = credentialStore.updateDataAsync { credentials ->
+    private fun storeCredentials(username: String, password: String) = credentialStore.updateDataAsync { credentials ->
         Single.fromCallable { credentials.copy(username = username, password = password) }
     }
 

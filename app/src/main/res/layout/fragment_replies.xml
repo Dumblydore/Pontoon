@@ -30,7 +30,7 @@
     </LinearLayout>
 
 
-    <me.mauricee.pontoon.common.LazyLayout
+    <me.mauricee.lazyLayout.LazyLayout
         android:id="@+id/replies.lazy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -44,6 +44,6 @@
             android:orientation="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_comment" />
-    </me.mauricee.pontoon.common.LazyLayout>
+    </me.mauricee.lazyLayout.LazyLayout>
 
 </LinearLayout>

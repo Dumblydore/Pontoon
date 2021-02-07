@@ -11,6 +11,7 @@ import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.Glide
+import com.google.android.gms.cast.framework.CastButtonFactory
 import com.jakewharton.rxbinding2.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
@@ -45,6 +46,8 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         newPlayer.bindToTexture(binding.playerSurface)
+
+        CastButtonFactory.setUpMediaRouteButton(requireContext(), binding.playerControlCast)
 
         binding.root.addTransitionListener(this)
         popupWindow.anchorView = binding.playerControlQuality

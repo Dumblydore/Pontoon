@@ -46,7 +46,7 @@
             android:inputType="textEmailAddress"
             android:maxLines="1"
             android:nextFocusDown="@id/login.password.edit"
-            android:textColor="?android:textColorPrimaryInverse"
+            android:textColor="?android:textColorPrimary"
             tools:text="@string/default_user"
             tools:textColor="@color/md_white_1000" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -72,7 +72,7 @@
             android:inputType="textPassword"
             android:maxLines="1"
             android:nextFocusDown="@id/login.password.edit"
-            android:textColor="?android:textColorPrimaryInverse"
+            android:textColor="?android:textColorPrimary"
             tools:text="@string/default_pass"
             tools:textColor="@color/md_white_1000" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -108,11 +108,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:text="@string/login_error_network_credentials"
         android:textAlignment="center"
         android:textColor="@color/colorError"
-        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/inputFields"
-        tools:text="@string/login_error_network_credentials"
         tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton

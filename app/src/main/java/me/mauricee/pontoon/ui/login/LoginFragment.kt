@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
@@ -62,6 +63,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requireActivity().viewModelStore.clear()
         viewModel.events.observe(this) {
             binding.root.hideKeyboard()
             when (it) {
@@ -90,6 +92,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
             }
         }
         viewModel.state.mapDistinct(LoginState::uiState).observe(viewLifecycleOwner) {
+            binding.loginError.isGone = it !is UiState.Failed
             when (it) {
                 UiState.Loading -> displayLoadingState(true)
                 UiState.Refreshing -> displayLoadingState(true)
@@ -104,7 +107,6 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
 
     private fun displayLoadingState(isLoading: Boolean) {
         binding.loginLogin.isEnabled = !isLoading
-        binding.loginError.isVisible = false
         if (isLoading) {
             binding.loginLogin.icon = loadingDrawable
             binding.loginLogin.iconGravity = ExtendedFloatingActionButton.ICON_GRAVITY_END
@@ -117,7 +119,6 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
     }
 
     private fun handleError(error: UiError) {
-        binding.loginError.isVisible = true
         binding.loginError.text = error.text(requireContext())
         displayLoadingState(false)
     }
