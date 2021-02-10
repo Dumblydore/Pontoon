@@ -22,6 +22,14 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup local.properties file
         run:  touch local.properties
+      - name: Pull google services json
+        uses: keithweaver/aws-s3-github-action@master
+        with:
+          command: cp
+          source: ${{ secret.DEBUG_GOOGLE_SERVICES_JSON }}
+          destination: ./app/google-services.json
+          aws_access_key_id: ${{ secret.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secret.AWS_SECRET_ACCESS_KEY }}
       - name: Build the app
         run: ./gradlew build test
       - name: Build apk
