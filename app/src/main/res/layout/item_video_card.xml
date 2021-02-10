@@ -29,14 +29,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item.icon.big" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/item.menu"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/AppTheme.Button.Icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="8dp"
-        android:src="@drawable/ic_overflow"
-        android:tint="?android:attr/textColorSecondary"
+        app:icon="@drawable/ic_overflow"
+        app:iconTint="?android:attr/textColorPrimary"
         app:layout_constraintBottom_toBottomOf="@id/item.description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/item.title" />

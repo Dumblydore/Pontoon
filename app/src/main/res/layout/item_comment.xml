@@ -45,27 +45,29 @@
         app:layout_constraintTop_toBottomOf="@+id/item.title"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vitae consectetur enim, vulputate fermentum odio. Morbi vitae tristique elit, sit amet fermentum purus. Curabitur luctus porta massa. Cras nisl mi, condimentum nec rutrum et, iaculis nec urna. Nullam id molestie sem. Fusce lobortis justo est, ut vehicula augue fringilla sit amet. Donec feugiat nunc dolor, ac rutrum nulla sollicitudin eu. Donec diam magna, luctus et ultricies in, aliquam a justo." />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/item.thumb.up"
+        style="@style/AppTheme.Button.Icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_thumb_up"
-        android:tintMode="multiply"
+        app:icon="@drawable/ic_thumb_up"
+        app:iconTint="@color/md_grey_600"
+        app:iconTintMode="multiply"
         app:layout_constraintStart_toEndOf="@+id/item.icon.small"
         app:layout_constraintTop_toBottomOf="@+id/item.comment" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/item.thumb.down"
+        style="@style/AppTheme.Button.Icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_thumb_down"
-        android:tintMode="multiply"
+        app:icon="@drawable/ic_thumb_down"
+        app:iconTint="@color/md_grey_600"
+        app:iconTintMode="multiply"
         app:layout_constraintStart_toEndOf="@+id/item.thumb.up"
         app:layout_constraintTop_toBottomOf="@+id/item.comment" />
 
@@ -81,9 +83,9 @@
         app:layout_constraintTop_toBottomOf="@+id/item.icon.small"
         tools:text="2k" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/item.viewReplies"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/AppTheme.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

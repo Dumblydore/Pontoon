@@ -15,8 +15,8 @@ enum class BaseTheme(@StyleRes val style: Int) {
     companion object {
         fun fromString(value: String) = when {
             value.equals("light", true) -> Light
-            value.equals("dark", true) -> Black
-            value.equals("black", true) -> Black
+            value.equals("dark", true) -> Light
+            value.equals("black", true) -> Light
             else -> Light
         }
     }

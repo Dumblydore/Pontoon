@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/session_graph"
+    app:startDestination="@id/videoFragment">
+    <fragment
+        android:id="@+id/videoFragment"
+        android:name="me.mauricee.pontoon.ui.main.videos.VideoFragment"
+        android:label="@string/videos_toolbar_title"
+        tools:layout="@layout/fragment_videos">
+        <action
+            android:id="@+id/action_videoFragment_to_creatorListFragment"
+            app:destination="@id/creatorListFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="me.mauricee.pontoon.ui.main.search.SearchFragment"
+        tools:layout="@layout/fragment_search" />
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="me.mauricee.pontoon.ui.main.history.HistoryFragment"
+        android:label="@string/history_title"
+        tools:layout="@layout/fragment_history" />
+    <fragment
+        android:id="@+id/creatorListFragment"
+        android:label="@string/creators_title"
+        android:name="me.mauricee.pontoon.ui.main.creatorList.CreatorListFragment"
+        tools:layout="@layout/fragment_creator_list" />
+    <fragment
+        android:id="@+id/creatorFragment"
+        android:name="me.mauricee.pontoon.ui.main.creator.CreatorFragment"
+        tools:layout="@layout/fragment_creator">
+        <argument
+            android:name="creatorId"
+            app:argType="string" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_creatorFragment"
+        app:destination="@id/creatorFragment"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    <fragment
+        android:id="@+id/userFragment"
+        android:name="me.mauricee.pontoon.ui.main.user.UserFragment"
+        tools:layout="@layout/fragment_user">
+        <argument
+            android:name="userId"
+            app:argType="string" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_userFragment"
+        app:destination="@id/userFragment"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    <dialog
+        android:id="@+id/repliesDialogFragment"
+        android:name="me.mauricee.pontoon.ui.main.player.details.replies.RepliesDialogFragment"
+        tools:layout="@layout/fragment_replies">
+        <argument
+            android:name="commentId"
+            app:argType="string" />
+    </dialog>
+    <dialog
+        android:id="@+id/commentDialogFragment"
+        android:name="me.mauricee.pontoon.ui.main.player.details.comment.CommentDialogFragment"
+        tools:layout="@layout/fragment_comment">
+        <argument
+            android:name="videoId"
+            app:argType="string" />
+        <argument
+            android:name="commentId"
+            app:argType="string"
+            app:nullable="true" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_repliesDialogFragment"
+        app:destination="@id/repliesDialogFragment" />
+    <action
+        android:id="@+id/action_global_commentDialogFragment"
+        app:destination="@id/commentDialogFragment" />
+
+
+</navigation>

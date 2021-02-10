@@ -1,16 +1,18 @@
 package me.mauricee.pontoon.common.theme
 
+import android.app.Activity
+import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.palette.graphics.Palette
-import dagger.Reusable
+import com.jakewharton.rxrelay2.BehaviorRelay
+import com.jakewharton.rxrelay2.Relay
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function3
@@ -22,20 +24,21 @@ import me.mauricee.pontoon.rx.preferences.watchString
 import javax.inject.Inject
 
 
-@Reusable
-class ThemeManager @Inject constructor(private val prefs: Preferences,
-                                       private val preferences: SharedPreferences,
-                                       private val activity: AppCompatActivity) : LifecycleObserver {
+@ActivityRetainedScoped
+class ThemeManager @Inject constructor(private val context: Context,
+                                       private val prefs: Preferences,
+                                       private val preferences: SharedPreferences) : LifecycleObserver {
+
     private val subs = CompositeDisposable()
 
     val isInNightMode: Boolean
-        get() = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        get() = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
 
     var baseTheme: BaseTheme
         set(value) {
             style = when (value) {
                 BaseTheme.Light -> Style.Light(style.primary, style.accent)
-                BaseTheme.Black -> Style.Black(style.primary, style.accent)
+                BaseTheme.Black-> Style.Black(style.primary, style.accent)
             }
         }
         get() = style.theme
@@ -58,10 +61,13 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
         }
         get() = style.primary
 
-    var style: Style = convertToStyle(
-            BaseTheme.fromString(preferences.getString(ThemeKey, BaseTheme.Light.toString())!!),
+    var style: Style = convertToStyle(BaseTheme.fromString(preferences.getString(ThemeKey, BaseTheme.Light.toString())!!),
             PrimaryColor.fromString(preferences.getString(PrimaryColorKey, PrimaryColor.Default.toString())!!),
             AccentColor.fromString(preferences.getString(AccentColorKey, AccentColor.Default.toString())!!))
+        set(value) {
+            field = value
+            subject.accept(value)
+        }
 
     private val sylePreference
         get() = Observable.combineLatest<BaseTheme, PrimaryColor, AccentColor, Style>(
@@ -73,18 +79,16 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
     private var mode
         get() = preferences.getInt(DayNightModeKey, AppCompatDelegate.MODE_NIGHT_NO)
         set(value) {
-            val isDifferent = mode != value
-            activity.delegate.setLocalNightMode(value)
-            AppCompatDelegate.setDefaultNightMode(value)
             preferences.edit(true) { putInt(DayNightModeKey, value) }
-            if (isDifferent) {
-                activity.recreate()
-            }
+            AppCompatDelegate.setDefaultNightMode(value)
         }
 
+    init {
+        subject.accept(style)
+    }
+
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreate() {
-        subs += prefs.dayNightMode.map(DayNightBehavior::valueOf).subscribe(::setDayNightBehavior)
+    fun onCreate(activity: Activity) {
         activity.setStyle(style)
         subs += sylePreference.subscribe {
             activity.setStyle(it)
@@ -92,32 +96,29 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
             style = it
         }
         subs += prefs.amoledNightMode.subscribe(::setAmoledMode)
-
     }
 
-    fun getVibrantSwatch(palette: Palette) = (if (isInNightMode) palette.darkVibrantSwatch else palette.vibrantSwatch)
-            ?: Palette.Swatch(activity.primaryColor, 1)
+    fun getVibrantSwatch(palette: Palette) = palette.vibrantSwatch
 
-    fun getMutedSwatch(palette: Palette) = (if (isInNightMode) palette.darkMutedSwatch else palette.mutedSwatch)
-            ?: Palette.Swatch(activity.primaryColor, 1)
+    fun getMutedSwatch(palette: Palette) = palette.mutedSwatch
 
     fun toggleNightMode() {
         mode = if (isInNightMode) AppCompatDelegate.MODE_NIGHT_NO
         else AppCompatDelegate.MODE_NIGHT_YES
         if (BuildConfig.DEBUG)
-            Toast.makeText(activity, "Switching to mode: $mode", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Switching to mode: $mode", Toast.LENGTH_LONG).show()
     }
 
     private fun setDayNightBehavior(behavior: DayNightBehavior) = when (behavior) {
         DayNightBehavior.User -> mode
         DayNightBehavior.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        DayNightBehavior.Automatic -> AppCompatDelegate.MODE_NIGHT_AUTO
+        DayNightBehavior.Automatic -> AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
     }.with {
         mode = it
     }
 
     private fun setAmoledMode(isAmoledMode: Boolean) {
-        baseTheme = if (isAmoledMode) BaseTheme.Black else BaseTheme.Light
+        baseTheme = if (isAmoledMode) BaseTheme.Light else BaseTheme.Light
         commit()
     }
 
@@ -144,6 +145,9 @@ class ThemeManager @Inject constructor(private val prefs: Preferences,
         const val PrimaryColorKey = "settings_primary"
         const val AccentColorKey = "settings_accent"
         const val DayNightModeKey = "DayNightMode"
+
+        private val subject: Relay<Style> = BehaviorRelay.create()
+        val activeTheme: Observable<Style> = subject.hide()
     }
 
     enum class DayNightBehavior {

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.MainActivity">
+    tools:context=".ui.MainActivity">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/user.container"
@@ -12,11 +12,11 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <me.mauricee.pontoon.common.LazyLayout
+        <me.mauricee.lazyLayout.LazyLayout
             android:id="@+id/user.container.lazy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:lazy_state="success">
+            tools:state="success">
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
@@ -52,19 +52,19 @@
                         android:layout_width="0dp"
                         android:layout_height="64dp"
                         android:gravity="center"
-                        android:text="@string/user_container_subtitle"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/user.container.header" />
+                        app:layout_constraintTop_toBottomOf="@id/user.container.header"
+                        tools:text="@string/user_container_subtitle" />
 
                     <View
                         android:id="@+id/divider"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/user.container.subtitle"
                         android:layout_width="0dp"
                         android:layout_height="1dp"
                         android:background="?android:attr/dividerHorizontal"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/user.container.subtitle"
                         tools:background="@color/textLightSecondary" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -72,6 +72,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
+                        android:orientation="vertical"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/divider"
@@ -79,7 +81,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.core.widget.NestedScrollView>
 
-        </me.mauricee.pontoon.common.LazyLayout>
+        </me.mauricee.lazyLayout.LazyLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.appbar.AppBarLayout

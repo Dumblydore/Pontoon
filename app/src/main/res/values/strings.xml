@@ -75,9 +75,10 @@
 
     <!-- All Creators -->
     <string name="creators_title">Creators</string>
+    <string name="creators_list_error_noCreators">Could not load creators</string>
+    <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
 
     <!-- Creator -->
-    <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
     <string name="creator_error_noCreator">Couldn\'t load creator.</string>
     <string name="creator_error_noVideos">This creator has no videos.</string>
     <string name="creator_error_general">@string/error_general</string>
@@ -184,10 +185,10 @@
         <item>@string/quality_360</item>
     </string-array>
     <string-array name="settings_quality_values">
-        <item>p1080</item>
-        <item>p720</item>
-        <item>p480</item>
-        <item>p360</item>
+        <item>1080p</item>
+        <item>720p</item>
+        <item>480p</item>
+        <item>360p</item>
     </string-array>
 
     <!-- Download -->
@@ -195,7 +196,7 @@
     <string name="download_error">Error Downloading video</string>
 
     <!-- User -->
-    <string name="activity_comment_context">Posed a comment on %s:</string>
+    <string name="activity_comment_context">Posed a comment</string>
 
     <!-- Play Icon -->
     <string name="play_icon_upper_path_data">M 44 32 L 44 64 L 100 64 L 100 64 Z</string>
@@ -231,6 +232,6 @@
     <string name="main_session_expired_title">Session Expired</string>
     <string name="player_share">Share Video</string>
     <string name="download_notification">Downloading %s</string>
-    <string name="user_container_subtitle">Activity</string>
+    <string name="user_container_subtitle">%s\'s Activity</string>
 
 </resources>

@@ -1,5 +1,8 @@
 package me.mauricee.pontoon.ext
 
+import io.reactivex.Single
+import java.lang.IllegalStateException
+
 inline fun <T> T.just(crossinline block: T.() -> Unit): Unit = block()
 inline fun <T> T.with(crossinline block: (it: T) -> Unit): Unit = block(this)
 

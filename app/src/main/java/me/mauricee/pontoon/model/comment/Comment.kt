@@ -1,84 +1,61 @@
 package me.mauricee.pontoon.model.comment
 
-import androidx.annotation.Keep
-import androidx.recyclerview.widget.DiffUtil
+import androidx.paging.DataSource
 import androidx.room.*
-import io.reactivex.Single
-import me.mauricee.pontoon.model.user.UserRepository
+import io.reactivex.Completable
+import io.reactivex.Observable
+import me.mauricee.pontoon.domain.floatplane.CommentInteraction
+import me.mauricee.pontoon.domain.floatplane.CommentJson
+import me.mauricee.pontoon.model.BaseDao
+import me.mauricee.pontoon.model.Diffable
+import me.mauricee.pontoon.model.user.UserEntity
+import me.mauricee.pontoon.model.video.Video
 import org.threeten.bp.Instant
 
-@Entity(tableName = "Comment")
-data class CommentEntity(
-        @PrimaryKey val id: String,
-        val video: String,
-        val parent: String,
-        val user: String,
-        val editDate: Instant,
-        val likes: Int,
-        val dislikes: Int,
-        val postDate: Instant,
-        val text: String)
-
-//TODO store user interactions
-@Dao
-interface CommentDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg creatorEntity: CommentEntity)
-
-    @Update
-    fun update(vararg creatorEntity: CommentEntity)
-
-    @Query("SELECT * FROM Comment WHERE video IS :videoId AND parent IS :videoId")
-    fun getCommentsOfVideo(videoId: String): Single<List<CommentEntity>>
-
-    @Query("SELECT * FROM Comment WHERE parent IS :commentId")
-    fun getCommentsOfParent(commentId: String): Single<List<CommentEntity>>
-
-    @Query("SELECT * FROM Comment Where id IS :commentId")
-    fun getComment(commentId: String): Single<CommentEntity>
-
+@Entity(tableName = "Comments")
+data class CommentEntity(@PrimaryKey val id: String,
+                         val video: String,
+                         val parent: String?,
+                         val user: String,
+                         val editDate: Instant,
+                         val likes: Int,
+                         val dislikes: Int,
+                         val postDate: Instant,
+                         val text: String,
+                         val userInteraction: CommentInteraction.Type?) {
+    @Ignore
+    val score: Int = likes - dislikes
 }
 
-@Keep
-class Comment(val id: String, val parent: String, val video: String, val text: String,
-              val editDate: Instant, val postDate: Instant,
-              val likes: Int, val dislikes: Int, val replies: List<Comment>,
-              val user: UserRepository.User, val userInteraction: List<Interaction> = emptyList()) {
+fun CommentJson.toEntity(userInteraction: CommentInteraction.Type?): CommentEntity = CommentEntity(id, video, replying, user, editDate, interactionCounts.like, interactionCounts.dislike, postDate, text, userInteraction)
 
-    fun like(): Comment = Comment(id, parent, video, text, editDate, postDate, likes + 1, dislikes, replies, user, mutableListOf(Interaction.Like, *userInteraction.toTypedArray()))
-    fun dislike(): Comment = Comment(id, parent, video, text, editDate, postDate, likes, dislikes + 1, replies, user, mutableListOf(Interaction.Dislike, *userInteraction.toTypedArray()))
-    fun clear(): Comment {
-        val likeDelta = likes - userInteraction.filter { it == Comment.Interaction.Like }.size
-        val dislikeDelta = likes - userInteraction.filter { it == Comment.Interaction.Dislike }.size
-        return Comment(id, parent, video, text, editDate, postDate, likes - likeDelta,
-                dislikes - dislikeDelta, replies, user, emptyList())
-    }
+data class Comment(@Embedded val entity: CommentEntity,
+                   @Relation(parentColumn = "user", entityColumn = "id") val user: UserEntity,
+                   @Relation(parentColumn = "id", entityColumn = "parent", entity = CommentEntity::class) val replies: List<ChildComment>) : Diffable<String> {
+    @Ignore
+    override val id: String = entity.id
+}
 
-    fun toEntity(): CommentEntity = CommentEntity(id, video, parent, user.username, editDate, likes, dislikes, postDate, text)
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+data class ChildComment(@Embedded val entity: CommentEntity,
+                        @Relation(parentColumn = "user", entityColumn = "id") val user: UserEntity) : Diffable<String> {
+    @Ignore
+    override val id: String = entity.id
+}
 
-        other as Comment
+@Dao
+abstract class CommentDao : BaseDao<CommentEntity>() {
+    @Query("SELECT * FROM Comments WHERE video IS :videoId AND parent IS NULL")
+    abstract fun getCommentsOfVideo(videoId: String): DataSource.Factory<Int, Comment>
 
-        if (id != other.id) return false
+    @Query("SELECT * FROM Comments WHERE parent IS :commentId")
+    abstract fun getCommentsOfParent(commentId: String): Observable<List<ChildComment>>
 
-        return true
-    }
+    @Query("SELECT * FROM Comments Where id IS :commentId")
+    abstract fun getComment(commentId: String): Observable<Comment>
 
-    override fun hashCode(): Int {
-        return id.hashCode()
-    }
+    @Query("UPDATE Comments SET userInteraction=:interaction WHERE Comments.id=:commentId")
+    abstract fun setComment(commentId: String, interaction: CommentInteraction.Type?): Completable
 
-    enum class Interaction {
-        Like,
-        Dislike
-    }
-    companion object {
-        val ItemCallback = object : DiffUtil.ItemCallback<Comment>() {
-            override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean = oldItem.id == newItem.id
-
-            override fun areContentsTheSame(oldItem: Comment, newItem: Comment): Boolean = newItem == oldItem
-        }
-    }
+    @Query("DELETE FROM Comments WHERE video=:videoId")
+    abstract fun clearComments(videoId: String): Completable
 }

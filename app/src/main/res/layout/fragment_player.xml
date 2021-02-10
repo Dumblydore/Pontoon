@@ -1,24 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    app:layoutDescription="@xml/scene_player_controls">
 
-    <me.mauricee.pontoon.main.player.PlayerView
-        android:id="@+id/player.display"
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/controlsGroup"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:controller_layout_id="@layout/layout_player_controls"
-        app:player_layout_id="@layout/layout_player" />
+        app:constraint_referenced_ids="playerControlPlayPause,playerControlQuality,playerControlsFullscreen,playerControlsTimestamp,playerControlCast" />
 
-    <me.mauricee.pontoon.common.TimeBarView
-        android:id="@+id/player_controls_progress"
-        android:layout_width="match_parent"
+    <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+        android:id="@+id/playerContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:resize_mode="fixed_height"
+        tools:background="@color/md_red_50">
+
+        <ImageView
+            android:id="@+id/playerPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextureView
+            android:id="@+id/playerSurface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
+
+    <View
+        android:id="@+id/playerControlsBackground"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#55000000" />
+
+    <androidx.mediarouter.app.MediaRouteButton
+        android:id="@+id/playerControlCast"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:mediaRouteTypes="user"
+        app:mediaRouteButtonTint="?colorOnPrimarySurface" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playerControlPlayPause"
+        style="@style/AppTheme.Button.Icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:icon="@drawable/ic_play"
+        app:iconTint="?colorOnPrimarySurface" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playerControlQuality"
+        style="@style/AppTheme.Button.TextButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="-8dp"
-        android:progress="50"
-        android:secondaryProgress="60"
-        android:splitTrack="true" />
+        android:textColor="?colorOnPrimarySurface"
+        tools:text="1080p" />
 
-</FrameLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playerControlsExpand"
+        style="@style/AppTheme.Button.Icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:icon="@drawable/ic_arrow_down"
+        app:iconTint="?colorOnPrimarySurface" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playerControlsFullscreen"
+        style="@style/AppTheme.Button.Icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:icon="@drawable/ic_fullscreen"
+        app:iconTint="?colorOnPrimarySurface" />
+
+    <TextView
+        android:id="@+id/playerControlsTimestamp"
+        style="@style/AppTheme.Text.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?colorOnPrimarySurface"
+        tools:text="10:10/11:11" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/playerControlBuffering"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:indeterminate="true"
+        app:indicatorColor="?colorOnPrimarySurface"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.motion.widget.MotionLayout>

@@ -4,15 +4,14 @@ import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
 @Keep
-data class CreatorListItem(
-        @SerializedName("about") val about: String,
-        @SerializedName("cover") val cover: Image,
-        @SerializedName("description") val description: String,
-        @SerializedName("id") val id: String,
-        @SerializedName("title") val title: String,
-        @SerializedName("urlname") val urlname: String,
-        @SerializedName("owner") val owner: Owner,
-        @SerializedName("subscriptionPlans") val subscriptions: List<Any>) {
+data class CreatorListItem(@SerializedName("about") val about: String,
+                           @SerializedName("cover") val cover: Image,
+                           @SerializedName("description") val description: String,
+                           @SerializedName("id") val id: String,
+                           @SerializedName("title") val title: String,
+                           @SerializedName("urlname") val urlname: String,
+                           @SerializedName("owner") val owner: Owner,
+                           @SerializedName("subscriptionPlans") val subscriptions: List<Any>) {
 
 
     @Keep

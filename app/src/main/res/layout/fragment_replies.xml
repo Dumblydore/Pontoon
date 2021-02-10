@@ -8,16 +8,17 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/replies.header.icon"
-            style="?android:attr/borderlessButtonStyle"
+            style="@style/AppTheme.Button.Icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            android:layout_width="?android:attr/actionBarSize"
-            android:layout_height="?android:attr/actionBarSize"
-            android:src="@drawable/ic_close" />
+            app:icon="@drawable/ic_close"
+            app:iconTint="?colorOnSurface" />
 
         <TextView
             android:id="@+id/replies.header.text"
@@ -25,24 +26,24 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="8dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             tools:text="medwar40's replies" />
     </LinearLayout>
 
 
-    <me.mauricee.pontoon.common.LazyLayout
+    <me.mauricee.lazyLayout.LazyLayout
         android:id="@+id/replies.lazy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="256dp"
-        tools:lazy_state="success">
+        tools:state="success">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/replies.list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_comment" />
-    </me.mauricee.pontoon.common.LazyLayout>
+    </me.mauricee.lazyLayout.LazyLayout>
 
 </LinearLayout>

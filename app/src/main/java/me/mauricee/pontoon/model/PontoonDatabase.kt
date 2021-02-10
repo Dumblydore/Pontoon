@@ -4,16 +4,19 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import me.mauricee.pontoon.domain.floatplane.CommentInteraction
 import me.mauricee.pontoon.model.comment.CommentDao
 import me.mauricee.pontoon.model.comment.CommentEntity
-import me.mauricee.pontoon.model.edge.EdgeDao
-import me.mauricee.pontoon.model.edge.EdgeEntity
+import me.mauricee.pontoon.model.creator.CreatorDao
+import me.mauricee.pontoon.model.creator.CreatorEntity
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
-import me.mauricee.pontoon.model.user.CreatorDao
-import me.mauricee.pontoon.model.user.CreatorEntity
 import me.mauricee.pontoon.model.user.UserDao
 import me.mauricee.pontoon.model.user.UserEntity
+import me.mauricee.pontoon.model.user.activity.ActivityDao
+import me.mauricee.pontoon.model.user.activity.ActivityEntity
+import me.mauricee.pontoon.model.video.RelatedVideo
+import me.mauricee.pontoon.model.video.RelatedVideoDao
 import me.mauricee.pontoon.model.video.VideoDao
 import me.mauricee.pontoon.model.video.VideoEntity
 import org.threeten.bp.Instant
@@ -21,12 +24,13 @@ import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
 
 @TypeConverters(value = [InstantTypeConverter::class])
-@Database(entities = [UserEntity::class, EdgeEntity::class, CreatorEntity::class, VideoEntity::class,
-    CommentEntity::class, SubscriptionEntity::class], version = 1, exportSchema = false)
+@Database(entities = [UserEntity::class, ActivityEntity::class, CreatorEntity::class, VideoEntity::class, CommentEntity::class, SubscriptionEntity::class, RelatedVideo::class], version = 3, exportSchema = false)
 abstract class PontoonDatabase : RoomDatabase() {
+
     abstract val userDao: UserDao
-    abstract val edgeDao: EdgeDao
+    abstract val activityDao: ActivityDao
     abstract val videoDao: VideoDao
+    abstract val relatedVideoDao: RelatedVideoDao
     abstract val creatorDao: CreatorDao
     abstract val commentDao: CommentDao
     abstract val subscriptionDao: SubscriptionDao
@@ -47,4 +51,10 @@ class InstantTypeConverter {
     @TypeConverter
     fun toLong(value: LocalDateTime?): Long = (value
             ?: LocalDateTime.now()).toEpochSecond(ZoneOffset.UTC)
+
+    @TypeConverter
+    fun toCommentInteractionType(value: String?): CommentInteraction.Type? = value?.let(CommentInteraction.Type::valueOf)
+
+    @TypeConverter
+    fun toString(value: CommentInteraction.Type?): String? = value?.toString()
 }

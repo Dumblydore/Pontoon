@@ -3,6 +3,7 @@ package me.mauricee.pontoon.ext
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.lang.IllegalStateException
 
 class RxHelpers {
 
@@ -35,4 +36,12 @@ fun <T> Observable<T>.ioStream() = this.compose(RxHelpers.applyObservableSchedul
 fun Completable.doOnIo() = this.compose(RxHelpers.applyCompletableSchedulers())
 
 
-fun <T> T.toObservable() = Observable.just(this)!!
+fun <T> T.toObservable() = Observable.just(this)
+
+inline fun <reified T> Single<List<T>>.throwIfEmpty(): Single<List<T>> = flatMap {
+    if (it.isEmpty())
+        Single.error(IllegalStateException("List<${T::class.simpleName}> is empty!"))
+    else
+        Single.just(it)
+
+}

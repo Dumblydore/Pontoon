@@ -45,9 +45,9 @@ class PrivacyManager @Inject constructor(private val sharedPreferences: SharedPr
                     .setTitle(R.string.analytics_prompt_title)
                     .setMessage(R.string.analytics_prompt_message)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.analytics_prompt_positive) { a, b -> allowAnalytics() }
-                    .setNegativeButton(R.string.analytics_prompt_negative) { a, b -> revokeAnalytics() }
-                    .setNeutralButton(R.string.analytics_prompt_neutral) { a, b -> activity.startActivity(Intent(Intent.ACTION_VIEW, privacyPolicyUri)) }
+                    .setPositiveButton(R.string.analytics_prompt_positive) { _, _ -> allowAnalytics() }
+                    .setNegativeButton(R.string.analytics_prompt_negative) { _, _ -> revokeAnalytics() }
+                    .setNeutralButton(R.string.analytics_prompt_neutral) { _, _ -> activity.startActivity(Intent(Intent.ACTION_VIEW, privacyPolicyUri)) }
                     .create().apply { show() }
         }
     }

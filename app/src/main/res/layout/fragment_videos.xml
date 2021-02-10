@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.MainActivity">
+    tools:context=".ui.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -28,18 +28,19 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <me.mauricee.pontoon.common.LazyLayout
+        <me.mauricee.lazyLayout.LazyLayout
             android:id="@+id/videos.container.lazy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:display_retry="true">
+            app:display_retry="true"
+            app:state="success">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/videos.list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:listitem="@layout/item_video_card" />
-        </me.mauricee.pontoon.common.LazyLayout>
+        </me.mauricee.lazyLayout.LazyLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <ProgressBar

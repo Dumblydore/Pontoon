@@ -14,11 +14,11 @@
             android:key="settings_amoled_night_mode"
             android:summary="@string/settings_night_mode_amoled_summary"
             android:title="@string/settings_night_mode_amoled" />
-        <me.mauricee.pontoon.preferences.primaryColor.PrimaryColorPreference
+        <me.mauricee.pontoon.ui.preferences.primaryColor.PrimaryColorPreference
             android:defaultValue="Default"
             android:key="settings_primary"
             android:title="@string/settings_theme" />
-        <me.mauricee.pontoon.preferences.accentColor.AccentColorPreference
+        <me.mauricee.pontoon.ui.preferences.accentColor.AccentColorPreference
             android:defaultValue="Default"
             android:key="settings_accent"
             android:title="@string/settings_accent_color" />
@@ -41,13 +41,13 @@
             android:key="settings_picture"
             android:title="@string/settings_pip" />
         <androidx.preference.ListPreference
-            android:defaultValue="p360"
+            android:defaultValue="360p"
             android:entries="@array/settings_quality"
             android:entryValues="@array/settings_quality_values"
             android:key="settings_quality_cell"
             android:title="@string/settings_quality_cell" />
         <androidx.preference.ListPreference
-            android:defaultValue="p1080"
+            android:defaultValue="1080p"
             android:entries="@array/settings_quality"
             android:entryValues="@array/settings_quality_values"
             android:key="settings_quality_wifi"

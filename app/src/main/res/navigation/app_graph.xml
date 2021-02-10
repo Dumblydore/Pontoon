@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_graph"
+    app:startDestination="@id/launchFragment">
+
+    <fragment
+        android:id="@+id/launchFragment"
+        android:name="me.mauricee.pontoon.ui.launch.LaunchFragment"
+        android:label="LaunchFragment"
+        tools:layout="@layout/fragment_launch">
+        <action
+            android:id="@+id/action_launchFragment_to_login_graph"
+            app:destination="@id/login_graph"
+            app:enterAnim="@anim/nav_fade_enter"
+            app:exitAnim="@anim/nav_fade_exit"
+            app:popEnterAnim="@anim/nav_fade_pop_enter"
+            app:popExitAnim="@anim/nav_fade_pop_exit"
+            app:popUpTo="@id/app_graph"
+            app:popUpToInclusive="true">
+            <argument
+                android:name="initWith2FA"
+                app:argType="boolean" />
+        </action>
+        <action
+            android:id="@+id/action_launchFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@id/app_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <navigation
+        android:id="@+id/login_graph"
+        app:startDestination="@id/loginFragment">
+        <fragment
+            android:id="@+id/loginFragment"
+            android:name="me.mauricee.pontoon.ui.login.LoginFragment"
+            android:label="LoginFragment"
+            tools:layout="@layout/fragment_login">
+            <argument
+                android:name="initWith2FA"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <action
+                android:id="@+id/action_loginFragment_to_webLoginFragment"
+                app:destination="@id/webLoginFragment"
+                app:enterAnim="@anim/nav_default_enter_anim"
+                app:exitAnim="@anim/nav_default_exit_anim"
+                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+                app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        </fragment>
+        <fragment
+            android:id="@+id/webLoginFragment"
+            android:name="me.mauricee.pontoon.ui.login.WebLoginFragment"
+            android:label="WebLoginFragment"
+            tools:layout="@layout/fragment_web_login">
+            <argument
+                android:name="site"
+                app:argType="me.mauricee.pontoon.ui.login.LoginWebsites" />
+        </fragment>
+        <action
+            android:id="@+id/action_global_mainFragment"
+            app:destination="@id/mainFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@id/app_graph"
+            app:popUpToInclusive="true" />
+    </navigation>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="me.mauricee.pontoon.ui.main.MainFragment"
+        android:label="MainFragment"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_mainFragment_to_login_graph"
+            app:destination="@id/login_graph"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@id/app_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_mainFragment_to_settingsFragment"
+            app:destination="@id/settings_graph"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <navigation
+        android:id="@+id/settings_graph"
+        app:startDestination="@id/settingsFragment">
+        <fragment
+            android:id="@+id/settingsFragment"
+            android:name="me.mauricee.pontoon.ui.preferences.settings.SettingsFragment"
+            android:label="SettingsFragment"
+            tools:layout="@layout/preference_list_fragment">
+            <action
+                android:id="@+id/action_settingsFragment_to_aboutFragment"
+                app:destination="@id/aboutFragment"
+                app:enterAnim="@anim/nav_default_enter_anim"
+                app:exitAnim="@anim/nav_default_exit_anim"
+                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+                app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        </fragment>
+        <fragment
+            android:id="@+id/aboutFragment"
+            android:name="me.mauricee.pontoon.ui.preferences.about.AboutFragment"
+            android:label="AboutFragment"
+            tools:layout="@layout/fragment_about" />
+    </navigation>
+
+</navigation>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/player.info"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/player.small.icon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintBottom_toBottomOf="@+id/player.subtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/player.title"
+        style="?attr/titleTextAppearance"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/player.small.icon"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Lorem ipsum dolor sit amet." />
+
+    <TextView
+        android:id="@+id/player.subtitle"
+        style="?attr/subtitleTextAppearance"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/player.small.icon"
+        app:layout_constraintTop_toBottomOf="@+id/player.title"
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vitae consectetur enim, vulputate fermentum odio. Morbi vitae tristique elit, sit amet fermentum purus. Curabitur luctus porta massa. Cras nisl mi, condimentum nec rutrum et, iaculis nec urna. Nullam id molestie sem. Fusce lobortis justo est, ut vehicula augue fringilla sit amet. Donec feugiat nunc dolor, ac rutrum nulla sollicitudin eu. Donec diam magna, luctus et ultricies in, aliquam a justo." />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:background="?android:attr/dividerHorizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/player.subtitle" />
+
+    <TextView
+        android:id="@+id/player.description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="4dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/player.subtitle"
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vitae consectetur enim, vulputate fermentum odio. Morbi vitae tristique elit, sit amet fermentum purus. Curabitur luctus porta massa. Cras nisl mi, condimentum nec rutrum et, iaculis nec urna. Nullam id molestie sem. Fusce lobortis justo est, ut vehicula augue fringilla sit amet. Donec feugiat nunc dolor, ac rutrum nulla sollicitudin eu. Donec diam magna, luctus et ultricies in, aliquam a justo."
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/player.releaseDate"
+        style="?attr/subtitleTextAppearance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/player.description"
+        tools:text="Posted November 24th, 2018"
+        tools:visibility="visible" />
+
+    <View
+        android:id="@+id/player.description.divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/dividerHorizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

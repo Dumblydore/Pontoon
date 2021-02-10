@@ -1,39 +1,25 @@
 package me.mauricee.pontoon.model
 
 import android.content.Context
+import androidx.datastore.createDataStore
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
-import me.mauricee.pontoon.di.AppScope
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import me.mauricee.pontoon.model.session.SessionCredentialsSerializer
+import javax.inject.Singleton
 
 @Module
-class ModelModule {
-
-    @AppScope
+@InstallIn(SingletonComponent::class)
+object ModelModule {
     @Provides
-    fun providesDatabase(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb").build()
+    @Singleton
+    fun providesDatabase(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb")
+            .fallbackToDestructiveMigration()
+            .build()
 
-    @AppScope
     @Provides
-    fun providesUserDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.userDao
-
-    @AppScope
-    @Provides
-    fun providesCreatorDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.creatorDao
-
-    @AppScope
-    @Provides
-    fun providesVideoDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.videoDao
-
-    @AppScope
-    @Provides
-    fun providesCommentDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.commentDao
-
-    @AppScope
-    @Provides
-    fun providesSubscriptionDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.subscriptionDao
-
-    @AppScope
-    @Provides
-    fun providesEdgeDao(pontoonDatabase: PontoonDatabase) = pontoonDatabase.edgeDao
+    @Singleton
+    fun Context.providesSessionCredentialsDataStore(serializerFactory: SessionCredentialsSerializer) = createDataStore("credentials", serializerFactory)
 }

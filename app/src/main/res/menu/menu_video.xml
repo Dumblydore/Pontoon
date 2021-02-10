@@ -6,23 +6,23 @@
         android:icon="@drawable/ic_share"
         android:title="@string/action_share"
         app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/action_download"
-        android:icon="@drawable/ic_settings"
-        android:title="@string/action_download">
-        <menu>
-            <item
-                android:id="@+id/action_download_p1080"
-                android:title="@string/quality_1080" />
-            <item
-                android:id="@+id/action_download_p720"
-                android:title="@string/quality_720" />
-            <item
-                android:id="@+id/action_download_p480"
-                android:title="@string/quality_480" />
-            <item
-                android:id="@+id/action_download_p360"
-                android:title="@string/quality_360" />
-        </menu>
-    </item>
+<!--    <item-->
+<!--        android:id="@+id/action_download"-->
+<!--        android:icon="@drawable/ic_settings"-->
+<!--        android:title="@string/action_download">-->
+<!--        <menu>-->
+<!--            <item-->
+<!--                android:id="@+id/action_download_p1080"-->
+<!--                android:title="@string/quality_1080" />-->
+<!--            <item-->
+<!--                android:id="@+id/action_download_p720"-->
+<!--                android:title="@string/quality_720" />-->
+<!--            <item-->
+<!--                android:id="@+id/action_download_p480"-->
+<!--                android:title="@string/quality_480" />-->
+<!--            <item-->
+<!--                android:id="@+id/action_download_p360"-->
+<!--                android:title="@string/quality_360" />-->
+<!--        </menu>-->
+<!--    </item>-->
 </menu>

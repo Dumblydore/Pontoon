@@ -1,76 +1,50 @@
 package me.mauricee.pontoon.model.video
 
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.toObservable
-import io.reactivex.schedulers.Schedulers
-import me.mauricee.pontoon.common.StateBoundaryCallback
+import me.mauricee.pontoon.common.BaseBoundaryCallback
+import me.mauricee.pontoon.common.PagingState
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.ext.RxHelpers
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.model.user.UserRepository
 import javax.inject.Inject
-import kotlin.math.log
 
 class SearchBoundaryCallback(private val query: String,
                              private val api: FloatPlaneApi,
                              private val videoDao: VideoDao,
                              private val disposable: CompositeDisposable,
-                             private vararg val creators: UserRepository.Creator)
-    : StateBoundaryCallback<Video>(), Disposable {
+                             private vararg val creators: String) : BaseBoundaryCallback<Video>(), Disposable {
 
-    private var isLoading = false
+    override fun clearItems(): Completable = videoDao.clearCreatorVideos(*creators)
 
-    override fun onZeroItemsLoaded() {
-        super.onZeroItemsLoaded()
-        if (isLoading) return
-        isLoading = true
-        stateRelay.accept(State.Loading)
-        disposable += pullUntilHit().flatMapIterable { it }
-                .map { it.toEntity() }.toList()
-                .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
-                .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
-    }
-
-    override fun onItemAtEndLoaded(itemAtEnd: Video) {
-        super.onItemAtEndLoaded(itemAtEnd)
-        if (isLoading) return
-        isLoading = true
-        stateRelay.accept(State.Loading)
-        disposable += pullUntilHit().flatMapIterable { it }
-                .map { it.toEntity() }.toList()
-                .compose(RxHelpers.applySingleSchedulers(Schedulers.io()))
-                .subscribe({ it -> cacheVideos(it) }, { stateRelay.accept(State.Error) })
-    }
-
-
-    private fun pullUntilHit(startAt: Int = 0): Observable<List<me.mauricee.pontoon.domain.floatplane.Video>> = creators.toObservable()
-            .flatMap { api.getVideos(it.id, videoDao.getNumberOfVideosByCreator(it.id)) }
+    override fun noItemsLoaded(): Observable<PagingState> = creators.toObservable()
+            .flatMapSingle { api.searchVideos(it, query, 0) }
             .flatMapIterable { it }
-            .toList().flatMapObservable { videos ->
-                if (videos.any { it.title.contains(query, ignoreCase = true) }) Observable.just(videos)
-                else pullUntilHit(videos.size + startAt)
-            }.flatMapIterable { it }.toList().toObservable()
+            .map { it.toEntity() }
+            .toList()
+            .map(::cacheVideos)
+            .toObservable()
 
-    private fun cacheVideos(it: MutableList<VideoEntity>) {
-        when {
-            videoDao.cacheVideos(*it.toTypedArray()).isNotEmpty() -> stateRelay.accept(State.Fetched)
-            else -> stateRelay.accept(State.Finished)
+    override fun frontItemLoaded(itemAtFront: Video): Observable<PagingState> = Observable.just(PagingState.Completed)
+
+    override fun endItemLoaded(itemAtEnd: Video): Observable<PagingState> = creators.toObservable()
+            .flatMapSingle { api.searchVideos(it, query, videoDao.getNumberOfVideosByCreator(it)) }
+            .flatMapIterable { it }
+            .map { it.toEntity() }
+            .toList()
+            .map(::cacheVideos)
+            .toObservable()
+
+    private fun cacheVideos(it: List<VideoEntity>): PagingState {
+        return when {
+            videoDao.insert(it).isNotEmpty() -> PagingState.Fetched
+            else -> PagingState.Completed
         }
-        isLoading = false
     }
-
-    override fun isDisposed(): Boolean = disposable.isDisposed
-
-    override fun dispose() {
-        disposable.dispose()
-    }
-
 
     class Factory @Inject constructor(private val api: FloatPlaneApi, private val videoDao: VideoDao) {
-        fun newInstance(query: String, vararg creator: UserRepository.Creator) = SearchBoundaryCallback(query, api, videoDao, CompositeDisposable(), *creator)
+        fun newInstance(query: String, vararg creator: String) = SearchBoundaryCallback(query, api, videoDao, CompositeDisposable(), *creator)
     }
 
 }
