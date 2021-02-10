@@ -26,10 +26,10 @@ jobs:
         uses: keithweaver/aws-s3-github-action@master
         with:
           command: cp
-          source: ${{ secret.DEBUG_GOOGLE_SERVICES_JSON }}
+          source: ${{ secrets.DEBUG_GOOGLE_SERVICES_JSON }}
           destination: ./app/google-services.json
-          aws_access_key_id: ${{ secret.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secret.AWS_SECRET_ACCESS_KEY }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - name: Build the app
         run: ./gradlew build test
       - name: Build apk
