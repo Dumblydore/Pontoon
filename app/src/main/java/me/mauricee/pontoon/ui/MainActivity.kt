@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private val binding by viewBinding(ActivityMainNewBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         PreferenceManager.setDefaultValues(this, R.xml.settings, false)
         themeManager.onCreate(this)
@@ -45,11 +46,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        when (prefs.pictureInPicture) {
-            Preferences.PictureInPicture.Always -> goIntoPip()
-            Preferences.PictureInPicture.OnlyWhenPlaying -> if (player.isReadyForPiP) goIntoPip()
-            Preferences.PictureInPicture.Never -> player.pause()
-        }
+        if (player.isReadyForPiP) goIntoPip()
+        else player.pause().blockingAwait()
     }
 
     private fun goIntoPip() {
@@ -66,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         wiseFy.dump()
+        player.release()
     }
 }
 

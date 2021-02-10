@@ -31,7 +31,7 @@
             android:id="@+id/creatorList.container.lazy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:lazy_state="success">
+            tools:state="success">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/creatorList.list"

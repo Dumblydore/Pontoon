@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.model.subscription
 
+import com.nytimes.android.external.store3.base.impl.StalePolicy
 import com.nytimes.android.external.store3.base.impl.room.StoreRoom
 import dagger.Module
 import dagger.Provides
@@ -35,5 +36,5 @@ class SubscriptionModelModule {
                 }
             }
         }
-    }, subscriptionPersistor)
+    }, subscriptionPersistor, StalePolicy.NETWORK_BEFORE_STALE)
 }

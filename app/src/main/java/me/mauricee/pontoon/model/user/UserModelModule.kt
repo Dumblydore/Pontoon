@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.model.user
 
+import com.nytimes.android.external.store3.base.impl.StalePolicy
 import com.nytimes.android.external.store3.base.impl.room.StoreRoom
 import dagger.Module
 import dagger.Provides
@@ -25,5 +26,5 @@ object UserModelModule {
             val (user, activity) = pair
             UserPersistor.Raw(user.users.first().user!!, activity.activity)
         }
-    }, userPersistor)
+    }, userPersistor, StalePolicy.NETWORK_BEFORE_STALE)
 }

@@ -27,10 +27,7 @@ import me.mauricee.pontoon.glide.GlideApp
 import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.ui.BaseFragment
-import me.mauricee.pontoon.ui.main.player.PlayerAction
-import me.mauricee.pontoon.ui.main.player.PlayerEvent
-import me.mauricee.pontoon.ui.main.player.PlayerState
-import me.mauricee.pontoon.ui.main.player.PlayerViewModel
+import me.mauricee.pontoon.ui.main.player.*
 import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -76,6 +73,9 @@ class DetailsFragment : BaseFragment(R.layout.fragment_details) {
         viewModel.state.map { it.commentState.isLoading() }.observe(viewLifecycleOwner) {
             binding.detailsProgress.isVisible = it
         }
+        viewModel.state.mapDistinct(PlayerState::viewMode).observe(viewLifecycleOwner) {
+            if (it == ViewMode.Expanded) binding.detailsContent.scrollBy(0, 1)
+        }
         viewModel.state.mapDistinct(PlayerState::user).notNull().map(::listOf).observe(viewLifecycleOwner, postCommentAdapter::submitList)
         viewModel.state.mapDistinct(PlayerState::video).notNull().map(::listOf).observe(viewLifecycleOwner, detailsAdapter::submitList)
         viewModel.state.mapDistinct(PlayerState::relatedVideos).observe(viewLifecycleOwner, relatedVideosAdapter::submitList)
@@ -92,7 +92,6 @@ class DetailsFragment : BaseFragment(R.layout.fragment_details) {
     }
 
     private fun displayVideoInfo(view: ItemDetailsVideoBinding, info: Video) {
-        binding.detailsContent.scrollToPosition(0)
         info.entity.apply {
             view.playerTitle.text = title
             view.playerSubtitle.text = info.creator.entity.name

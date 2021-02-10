@@ -32,8 +32,8 @@ class HistoryFragment : BaseFragment(R.layout.fragment_history) {
             viewModel.sendAction(HistoryContract.Action.PlayVideo(it))
         }
 
-        viewModel.state.mapDistinct(HistoryContract.State::videos)
-                .observe(viewLifecycleOwner, videoAdapter::submitList)
+//        viewModel.state.mapDistinct(HistoryContract.State::videos)
+//                .observe(viewLifecycleOwner, videoAdapter::submitList)
         viewModel.state.mapDistinct { it.uiState.lazyState() }
                 .observe(viewLifecycleOwner) { binding.historyContainerLazy.state = it }
         viewModel.state.mapDistinct { it.uiState.error }.notNull()

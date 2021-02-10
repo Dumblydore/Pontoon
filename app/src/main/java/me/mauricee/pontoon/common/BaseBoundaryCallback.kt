@@ -10,10 +10,10 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import me.mauricee.pontoon.ext.loge
 
-abstract class BaseBoundaryCallback<T> : PagedList.BoundaryCallback<T>(), Disposable {
+abstract class BaseBoundaryCallback<T : Any> : PagedList.BoundaryCallback<T>(), Disposable {
     val pagingState: Observable<PagingState>
         get() = _pagingState.hide().distinctUntilChanged()
-    protected val isFetching: Boolean
+    private val isFetching: Boolean
         get() = _pagingState.value == PagingState.Fetching || _pagingState.value == PagingState.InitialFetch
     protected val subscriptions = CompositeDisposable()
     private val pagingSubscriptions = CompositeDisposable()

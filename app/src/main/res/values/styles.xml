@@ -4,22 +4,7 @@
 
     <style name="AppTheme.Night" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
 
-    <!--    <style name="AppTheme.Amoled" parent="AppTheme">-->
-    <!--        <item name="bottomSheetDialogTheme">@style/AppThemeOverlay.Amoled</item>-->
-    <!--    </style>-->
-
-    <style name="PlayerToolbar" parent="AppTheme">
-        <!--        <item name="android:actionOverflowButtonStyle">@style/ActionButton.Overflow.Icon</item>-->
-        <item name="mediaRouteTheme">@style/Theme.MediaRouter</item>
-    </style>
-
-    <!--    <style name="ActionButton.Overflow.Icon" parent="@style/Widget.AppCompat.ActionButton.Overflow">-->
-    <!--        <item name="android:tint">@color/white</item>-->
-    <!--    </style>-->
-
-    <!--    <style name="AppThemeOverlay" parent="ThemeOverlay.MaterialComponents.Light.BottomSheetDialog" />-->
-
-    <!--    <style name="AppThemeOverlay.Amoled" parent="ThemeOverlay.MaterialComponents.Light.BottomSheetDialog" />-->
+    <style name="AppTheme.Amoled" parent="AppTheme" />
 
     <style name="AppTheme.Launcher">
         <item name="android:colorPrimary">@color/colorPrimary</item>
@@ -86,17 +71,17 @@
         <item name="iconPadding">8dp</item>
     </style>
 
-<!--    <style name="AppTheme.Button.TextButton.Positive">-->
-<!--        <item name="android:textColor">@color/color_bg_button_positive</item>-->
-<!--        <item name="iconTint">@color/color_bg_button_positive</item>-->
-<!--        <item name="rippleColor">@color/azul</item>-->
-<!--    </style>-->
+    <!--    <style name="AppTheme.Button.TextButton.Positive">-->
+    <!--        <item name="android:textColor">@color/color_bg_button_positive</item>-->
+    <!--        <item name="iconTint">@color/color_bg_button_positive</item>-->
+    <!--        <item name="rippleColor">@color/azul</item>-->
+    <!--    </style>-->
 
-<!--    <style name="AppTheme.Button.TextButton.Negative">-->
-<!--        <item name="android:textColor">@color/color_bg_button_negative</item>-->
-<!--        <item name="iconTint">@color/color_bg_button_negative</item>-->
-<!--        <item name="rippleColor">@color/connectionRed</item>-->
-<!--    </style>-->
+    <!--    <style name="AppTheme.Button.TextButton.Negative">-->
+    <!--        <item name="android:textColor">@color/color_bg_button_negative</item>-->
+    <!--        <item name="iconTint">@color/color_bg_button_negative</item>-->
+    <!--        <item name="rippleColor">@color/connectionRed</item>-->
+    <!--    </style>-->
 
     <style name="AppTheme.Button.Icon" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:minWidth">0dp</item>
@@ -113,24 +98,24 @@
 
     <style name="Widget.AppTheme.Button.IconButton" parent="Widget.MaterialComponents.Button.TextButton" />
 
-<!--    <style name="AppTheme.Button.OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">-->
-<!--        <item name="android:textColor">@color/color_button_text_neutral</item>-->
-<!--        <item name="android:textAllCaps">false</item>-->
-<!--    </style>-->
+    <!--    <style name="AppTheme.Button.OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">-->
+    <!--        <item name="android:textColor">@color/color_button_text_neutral</item>-->
+    <!--        <item name="android:textAllCaps">false</item>-->
+    <!--    </style>-->
 
-<!--    <style name="AppTheme.Button.OutlinedButton.Positive">-->
-<!--        <item name="backgroundTint">@color/color_bg_outline_button_positive</item>-->
-<!--        <item name="android:textColor">@color/color_text_button_outline_positive</item>-->
-<!--        <item name="iconTint">@color/color_bg_button_positive</item>-->
-<!--        <item name="rippleColor">@color/azul</item>-->
-<!--    </style>-->
+    <!--    <style name="AppTheme.Button.OutlinedButton.Positive">-->
+    <!--        <item name="backgroundTint">@color/color_bg_outline_button_positive</item>-->
+    <!--        <item name="android:textColor">@color/color_text_button_outline_positive</item>-->
+    <!--        <item name="iconTint">@color/color_bg_button_positive</item>-->
+    <!--        <item name="rippleColor">@color/azul</item>-->
+    <!--    </style>-->
 
-<!--    <style name="AppTheme.Button.OutlinedButton.Negative">-->
-<!--        <item name="backgroundTint">@color/color_bg_outline_button_negative</item>-->
-<!--        <item name="android:textColor">@color/color_text_button_outline_negative</item>-->
-<!--        <item name="iconTint">@color/color_bg_button_negative</item>-->
-<!--        <item name="rippleColor">@color/connectionRed</item>-->
-<!--    </style>-->
+    <!--    <style name="AppTheme.Button.OutlinedButton.Negative">-->
+    <!--        <item name="backgroundTint">@color/color_bg_outline_button_negative</item>-->
+    <!--        <item name="android:textColor">@color/color_text_button_outline_negative</item>-->
+    <!--        <item name="iconTint">@color/color_bg_button_negative</item>-->
+    <!--        <item name="rippleColor">@color/connectionRed</item>-->
+    <!--    </style>-->
 
     <style name="AppTheme.Text.Body" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textColor">?android:textColorPrimary</item>

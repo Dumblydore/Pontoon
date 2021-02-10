@@ -16,16 +16,12 @@ import me.mauricee.pontoon.domain.floatplane.ContentType
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.ext.doOnIo
 import me.mauricee.pontoon.ext.getAndFetch
-import me.mauricee.pontoon.model.NewPagedModel
 import me.mauricee.pontoon.model.PagedModel
-import me.mauricee.pontoon.model.PagedResult
-import me.mauricee.pontoon.model.edge.EdgeRepository
 import okhttp3.ResponseBody
 import javax.inject.Inject
 
 class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Video, String>,
                                           private val relatedVideoStore: StoreRoom<List<Video>, String>,
-                                          private val edgeRepo: EdgeRepository,
                                           private val videoDao: VideoDao,
                                           private val floatPlaneApi: FloatPlaneApi,
                                           private val searchCallbackFactory: SearchBoundaryCallback.Factory,
@@ -45,7 +41,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                 .doOnDispose(callback::dispose)
                 .doOnTerminate(callback::dispose)
                 .let {
-                    PagedModel(it, callback.state, callback::refresh, callback::retry)
+                    PagedModel(it, callback.pagingState, callback::refresh)
                 }
     }
 
@@ -53,7 +49,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
 
     fun getRelatedVideos(video: String): Observable<List<Video>> = relatedVideoStore.get(video)
 
-    fun search(query: String, vararg filteredSubs: String): NewPagedModel<Video> {
+    fun search(query: String, vararg filteredSubs: String): PagedModel<Video> {
         val callback = searchCallbackFactory.newInstance(query, *filteredSubs)
         return RxPagedListBuilder(videoDao.search("%$query%", *filteredSubs), pageListConfig)
                 .setFetchScheduler(Schedulers.io())
@@ -61,7 +57,7 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
                 .setBoundaryCallback(callback)
                 .buildObservable()
                 .doOnDispose(callback::dispose)
-                .let { NewPagedModel(it, callback.pagingState, callback::refresh) }
+                .let { PagedModel(it, callback.pagingState, callback::refresh) }
     }
 
     fun getStream(videoId: String): Single<List<Stream>> = floatPlaneApi.getVideoContent(videoId, ContentType.vod).map { content ->

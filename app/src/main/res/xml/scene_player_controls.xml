@@ -5,11 +5,11 @@
         android:id="@+id/transition_controls_hide"
         app:constraintSetEnd="@id/hideControls"
         app:constraintSetStart="@id/showControls">
-        <OnClick
-            app:clickAction="toggle"
-            app:targetId="@id/playerContent" />
     </Transition>
     <ConstraintSet android:id="@+id/showControls">
+        <Constraint
+            android:id="@+id/controlsGroup"
+            app:visibilityMode="ignore"/>
         <Constraint
             android:id="@+id/playerContent"
             android:layout_width="0dp"
@@ -49,6 +49,15 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:alpha="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibilityMode="ignore" />
+        <Constraint
+            android:id="@+id/playerControlBuffering"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -82,6 +91,9 @@
 
     <ConstraintSet android:id="@+id/hideControls">
         <Constraint
+            android:id="@+id/controlsGroup"
+            app:visibilityMode="ignore"/>
+        <Constraint
             android:id="@+id/playerContent"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -120,6 +132,15 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:alpha="0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibilityMode="ignore" />
+        <Constraint
+            android:id="@+id/playerControlBuffering"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

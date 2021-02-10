@@ -47,7 +47,7 @@
             android:hint="@string/details_comment_hint"
             android:paddingStart="72dp"
             android:paddingEnd="72dp"
-            android:textColorHint="?android:attr/textColorSecondary"
+            android:textColorHint="?colorOnSurface"
             android:textSize="18sp"
             tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sodales, dui non faucibus commodo, tellus ex tristique ante, eu pharetra tellus quam eu ligula. In interdum velit ut lectus condimentum posuere."
             tools:textColorHint="@color/white" />

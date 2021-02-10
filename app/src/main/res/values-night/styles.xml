@@ -1,21 +1,9 @@
 <resources>
-
-<!--    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">-->
-<!--        <item name="bottomSheetDialogTheme">@style/AppThemeOverlay</item>-->
-<!--    </style>-->
-
-<!--    <style name="AppTheme.Amoled" parent="AppTheme">-->
-<!--        <item name="android:windowBackground">@color/md_black_1000</item>-->
-<!--        <item name="android:colorBackground">@color/md_black_1000</item>-->
-<!--        <item name="android:textColorPrimary">@color/textDarkPrimary</item>-->
-<!--        <item name="android:textColor">@color/textDarkPrimary</item>-->
-<!--        <item name="android:textColorSecondary">@color/textDarkSecondary</item>-->
-<!--        <item name="bottomSheetDialogTheme">@style/AppThemeOverlay.Amoled</item>-->
-<!--    </style>-->
-
-<!--    <style name="AppThemeOverlay" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog" />-->
-
-<!--    <style name="AppThemeOverlay.Amoled" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">-->
-<!--        <item name="android:colorBackground">@color/md_black_1000</item>-->
-<!--    </style>-->
+    <style name="AppTheme.Amoled" parent="AppTheme">
+        <item name="android:windowBackground">@color/md_black_1000</item>
+        <item name="android:colorBackground">@color/md_black_1000</item>
+        <item name="android:textColorPrimary">@color/textDarkPrimary</item>
+        <item name="android:textColor">@color/textDarkPrimary</item>
+        <item name="android:textColorSecondary">@color/textDarkSecondary</item>
+    </style>
 </resources>

@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/videoFragment"
         android:name="me.mauricee.pontoon.ui.main.videos.VideoFragment"
-        android:label="VideoFragment"
+        android:label="@string/videos_toolbar_title"
         tools:layout="@layout/fragment_videos">
         <action
             android:id="@+id/action_videoFragment_to_creatorListFragment"
@@ -20,22 +20,20 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="me.mauricee.pontoon.ui.main.search.SearchFragment"
-        android:label="SearchFragment"
         tools:layout="@layout/fragment_search" />
     <fragment
         android:id="@+id/historyFragment"
         android:name="me.mauricee.pontoon.ui.main.history.HistoryFragment"
-        android:label="HistoryFragment"
+        android:label="@string/history_title"
         tools:layout="@layout/fragment_history" />
     <fragment
         android:id="@+id/creatorListFragment"
+        android:label="@string/creators_title"
         android:name="me.mauricee.pontoon.ui.main.creatorList.CreatorListFragment"
-        android:label="CreatorListFragment"
         tools:layout="@layout/fragment_creator_list" />
     <fragment
         android:id="@+id/creatorFragment"
         android:name="me.mauricee.pontoon.ui.main.creator.CreatorFragment"
-        android:label="CreatorFragment"
         tools:layout="@layout/fragment_creator">
         <argument
             android:name="creatorId"
@@ -51,7 +49,6 @@
     <fragment
         android:id="@+id/userFragment"
         android:name="me.mauricee.pontoon.ui.main.user.UserFragment"
-        android:label="UserFragment"
         tools:layout="@layout/fragment_user">
         <argument
             android:name="userId"
@@ -67,7 +64,6 @@
     <dialog
         android:id="@+id/repliesDialogFragment"
         android:name="me.mauricee.pontoon.ui.main.player.details.replies.RepliesDialogFragment"
-        android:label="RepliesDialogFragment"
         tools:layout="@layout/fragment_replies">
         <argument
             android:name="commentId"
@@ -76,7 +72,6 @@
     <dialog
         android:id="@+id/commentDialogFragment"
         android:name="me.mauricee.pontoon.ui.main.player.details.comment.CommentDialogFragment"
-        android:label="CommentDialogFragment"
         tools:layout="@layout/fragment_comment">
         <argument
             android:name="videoId"

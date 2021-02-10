@@ -4,7 +4,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import io.reactivex.Observable
-import me.mauricee.pontoon.common.StateBoundaryCallback
+import me.mauricee.pontoon.common.PagingState
 import me.mauricee.pontoon.model.creator.CreatorRepository
 import me.mauricee.pontoon.model.video.VideoRepository
 import me.mauricee.pontoon.ui.BaseContract
@@ -45,11 +45,13 @@ class CreatorPresenter @AssistedInject constructor(@Assisted private val args: C
         }
     }
 
-    private fun processState(state: StateBoundaryCallback.State): CreatorContract.Reducer = when (state) {
-        StateBoundaryCallback.State.Loading -> CreatorContract.Reducer.Fetching
-        StateBoundaryCallback.State.Error -> CreatorContract.Reducer.Fetching
-        StateBoundaryCallback.State.Finished -> CreatorContract.Reducer.Error(CreatorContract.Errors.NoVideos)
-        StateBoundaryCallback.State.Fetched -> CreatorContract.Reducer.Fetched
+    private fun processState(state: PagingState): CreatorContract.Reducer = when (state) {
+        PagingState.InitialFetch -> CreatorContract.Reducer.Fetching
+        PagingState.Fetching -> CreatorContract.Reducer.Fetching
+        PagingState.Fetched -> CreatorContract.Reducer.Fetched
+        PagingState.Completed -> CreatorContract.Reducer.Fetched
+        PagingState.Empty -> CreatorContract.Reducer.Error(CreatorContract.Errors.NoVideos)
+        PagingState.Error -> CreatorContract.Reducer.Error(CreatorContract.Errors.Unknown)
     }
 
     @AssistedFactory

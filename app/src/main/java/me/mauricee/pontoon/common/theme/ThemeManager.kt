@@ -38,7 +38,7 @@ class ThemeManager @Inject constructor(private val context: Context,
         set(value) {
             style = when (value) {
                 BaseTheme.Light -> Style.Light(style.primary, style.accent)
-                BaseTheme.Light -> Style.Light(style.primary, style.accent)
+                BaseTheme.Black-> Style.Black(style.primary, style.accent)
             }
         }
         get() = style.theme
@@ -47,7 +47,7 @@ class ThemeManager @Inject constructor(private val context: Context,
         set(value) {
             style = when (style.theme) {
                 BaseTheme.Light -> Style.Light(style.primary, value)
-                BaseTheme.Light -> Style.Light(style.primary, value)
+                BaseTheme.Black -> Style.Black(style.primary, value)
             }
         }
         get() = style.accent
@@ -56,7 +56,7 @@ class ThemeManager @Inject constructor(private val context: Context,
         set(value) {
             style = when (style.theme) {
                 BaseTheme.Light -> Style.Light(value, style.accent)
-                BaseTheme.Light -> Style.Light(value, style.accent)
+                BaseTheme.Black -> Style.Black(value, style.accent)
             }
         }
         get() = style.primary
@@ -132,7 +132,7 @@ class ThemeManager @Inject constructor(private val context: Context,
 
     private fun convertToStyle(base: BaseTheme, primary: PrimaryColor, accent: AccentColor): Style = when (base) {
         BaseTheme.Light -> Style.Light(primary, accent)
-        BaseTheme.Light -> Style.Light(primary, accent)
+        BaseTheme.Black -> Style.Black(primary, accent)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

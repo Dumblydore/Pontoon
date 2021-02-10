@@ -7,7 +7,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.domain.floatplane.*
-import me.mauricee.pontoon.model.NewPagedModel
+import me.mauricee.pontoon.model.PagedModel
 import javax.inject.Inject
 
 class CommentRepository @Inject constructor(private val commentDao: CommentDao,
@@ -15,14 +15,14 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
                                             private val pageListConfig: PagedList.Config,
                                             private val commentBoundaryCallbackFactory: CommentBoundaryCallback.Factory) {
 
-    fun getComments(videoId: String): NewPagedModel<Comment> {
+    fun getComments(videoId: String): PagedModel<Comment> {
         val callback = commentBoundaryCallbackFactory.newInstance(videoId)
         val pagedList = RxPagedListBuilder(commentDao.getCommentsOfVideo(videoId), pageListConfig)
                 .setFetchScheduler(Schedulers.io())
                 .setNotifyScheduler(AndroidSchedulers.mainThread())
                 .setBoundaryCallback(callback)
                 .buildObservable()
-        return NewPagedModel(pagedList, callback.pagingState, callback::refresh)
+        return PagedModel(pagedList, callback.pagingState, callback::refresh)
     }
 
     fun getComment(commentId: String): Observable<Comment> = commentDao.getComment(commentId)

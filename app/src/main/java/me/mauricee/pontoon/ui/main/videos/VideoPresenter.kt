@@ -2,7 +2,7 @@ package me.mauricee.pontoon.ui.main.videos
 
 import com.jakewharton.rx.replayingShare
 import io.reactivex.Observable
-import me.mauricee.pontoon.common.StateBoundaryCallback
+import me.mauricee.pontoon.common.PagingState
 import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.model.subscription.SubscriptionRepository
@@ -13,10 +13,9 @@ import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
-class VideoPresenter @Inject constructor(
-        private val subscriptionRepository: SubscriptionRepository,
-        private val videoRepository: VideoRepository,
-        private val preferences: Preferences) : BasePresenter<VideoState, VideoReducer, VideoAction, VideoEvent>() {
+class VideoPresenter @Inject constructor(private val subscriptionRepository: SubscriptionRepository,
+                                         private val videoRepository: VideoRepository,
+                                         private val preferences: Preferences) : BasePresenter<VideoState, VideoReducer, VideoAction, VideoEvent>() {
 
     override fun onViewAttached(view: BaseContract.View<VideoAction>): Observable<VideoReducer> {
         return preferences.displayUnwatchedVideos.switchMap { displayUnwatchedVideos ->
@@ -61,12 +60,14 @@ class VideoPresenter @Inject constructor(
         }
     }
 
-    private fun mapPagingStates(state: StateBoundaryCallback.State): VideoReducer {
+    private fun mapPagingStates(state: PagingState): VideoReducer {
         return when (state) {
-            StateBoundaryCallback.State.Loading -> VideoReducer.Fetching
-            StateBoundaryCallback.State.Error -> VideoReducer.PageError(UiError(VideoErrors.Unknown.msg))
-            StateBoundaryCallback.State.Fetched -> VideoReducer.Fetched
-            StateBoundaryCallback.State.Finished -> VideoReducer.Fetched
+            PagingState.InitialFetch -> VideoReducer.Fetching
+            PagingState.Fetching -> VideoReducer.Fetching
+            PagingState.Fetched -> VideoReducer.Fetched
+            PagingState.Completed -> VideoReducer.Fetched
+            PagingState.Empty -> VideoReducer.PageError(UiError(VideoErrors.NoVideos.msg))
+            PagingState.Error -> VideoReducer.PageError(UiError(VideoErrors.Unknown.msg))
         }
     }
 }

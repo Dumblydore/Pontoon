@@ -12,7 +12,8 @@ import me.mauricee.pontoon.ext.logd
 abstract class BasePresenter<S : Any, R : Any, A : EventTracker.Action, E : Any> {
 
     @Volatile
-    private lateinit var state: S
+    protected lateinit var state: S
+        private set
     private val _events: Relay<E> = PublishRelay.create()
 
     val events: Observable<E>

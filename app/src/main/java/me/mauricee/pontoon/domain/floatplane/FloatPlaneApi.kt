@@ -42,7 +42,7 @@ interface FloatPlaneApi {
     fun getCreators(@Query("creatorGUID") vararg creatorId: String): Single<List<CreatorJson>>
 
     @GET("creator/videos")
-    fun getVideos(@Query("creatorGUID") creatorId: String, @Query("fetchAfter") startWith: Int = 0): Observable<List<VideoJson>>
+    fun getVideos(@Query("creatorGUID") creatorId: String, @Query("fetchAfter") startWith: Int = 0): Single<List<VideoJson>>
 
     @GET("creator/videos")
     fun searchVideos(@Query("creatorGUID") id: String, @Query("search") query: String, @Query("fetchAfter") startWith: Int = 0): Single<List<VideoJson>>

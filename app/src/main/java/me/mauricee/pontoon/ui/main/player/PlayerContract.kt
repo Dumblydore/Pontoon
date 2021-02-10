@@ -22,6 +22,7 @@ sealed class PlayerAction : EventTracker.Action {
     object PostComment : PlayerAction()
     object ToggleFullscreen : PlayerAction()
     object TogglePlayPause : PlayerAction()
+    object ToggleControls : PlayerAction()
     object Pause : PlayerAction()
     data class SeekTo(val position: Long) : PlayerAction()
     data class SetControlVisibility(val controlsVisible: Boolean) : PlayerAction()
@@ -39,7 +40,8 @@ data class PlayerState(val videoState: UiState = UiState.Empty,
                        val user: UserEntity? = null,
                        val video: Video? = null,
                        val isPlaying: Boolean? = null,
-                       val controlsVisible: Boolean = false,
+                       val controlsVisible: Boolean? = null,
+                       val isBuffering: Boolean? = null,
                        val timestamp: CharSequence? = null,
                        val position: Long = 0,
                        val duration: Long = 0,
@@ -67,6 +69,7 @@ sealed class PlayerReducer {
     data class DisplayCurrentQualityLevel(val qualityLevel: Player.Quality) : PlayerReducer()
     data class DisplayQualityLevels(val qualityLevels: Set<Player.Quality>) : PlayerReducer()
     data class DisplayPreview(val previewUrl: String) : PlayerReducer()
+    data class DisplayBuffer(val displayBuffer: Boolean) : PlayerReducer()
     data class DisplayComments(val comments: List<Comment>) : PlayerReducer()
     data class DisplayVideo(val video: Video) : PlayerReducer()
     data class DisplayRelatedVideo(val videos: List<Video>) : PlayerReducer()

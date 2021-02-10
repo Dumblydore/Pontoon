@@ -2,9 +2,6 @@ package me.mauricee.pontoon.playback
 
 import android.os.Parcelable
 import android.view.TextureView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import androidx.media2.common.MediaItem
 import androidx.media2.common.MediaMetadata
 import androidx.media2.common.SessionPlayer
@@ -18,6 +15,7 @@ import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.parcel.Parcelize
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.Diffable
@@ -34,7 +32,7 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
                                  private val session: MediaSession,
                                  private val controller: MediaController,
                                  private val castPlayer: Optional<CastPlayer>,
-                                 prefs: Preferences) : LifecycleObserver {
+                                 private val prefs: Preferences) {
 
     private var qualityLevel: String = prefs.defaultQualityLevel
     private val callbackEvents: Observable<SessionPlayerEvent> by lazy {
@@ -76,7 +74,11 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
         get() = exoPlayer.activePlayer is SimpleExoPlayer
 
     val isReadyForPiP
-        get() = isLocalPlayer && exoPlayer.isPlaying
+        get() = when (prefs.pictureInPicture) {
+            Preferences.PictureInPicture.Always -> isLocalPlayer && controller.currentMediaItem != null
+            Preferences.PictureInPicture.OnlyWhenPlaying -> isLocalPlayer && exoPlayer.isPlaying
+            Preferences.PictureInPicture.Never -> false
+        }
 
     val isPlaying: Observable<Boolean>
         get() = callbackEvents.filter { it is SessionPlayerEvent.PlayerStateChangedEvent }
@@ -84,18 +86,17 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
                 .map { it.playerState == SessionPlayer.PLAYER_STATE_PLAYING }
     val duration: Observable<Long>
         get() = activeMediaItem.map { it.endPosition }
-    private val seeks: Observable<Long>
-        get() = callbackEvents.filter { it is SessionPlayerEvent.SeekCompletedEvent }
-                .cast(SessionPlayerEvent.SeekCompletedEvent::class.java)
-                .map { it.position }
     val currentPosition: Observable<Long>
-        get() = isPlaying.switchMap { isPlaying ->
-            if (!isPlaying) Observable.just(playerConnector.currentPosition)
-            else Observable.combineLatest(Observable.interval(1, TimeUnit.SECONDS),
-                    seeks.startWith(playerConnector.currentPosition)) { count, pos ->
-                pos + (1000 * count)
-            }
-        }
+        get() = Observable.interval(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.from(exoPlayer.applicationLooper))
+                .map { exoPlayer.currentPosition }
+                .subscribeOn(AndroidSchedulers.from(exoPlayer.applicationLooper))
+                .startWith(exoPlayer.currentPosition)
+                .distinctUntilChanged()
+
+    val isBuffering: Observable<Boolean>
+        get() = callbackEvents.filter { it is SessionPlayerEvent.BufferingStateChangedEvent }
+                .cast(SessionPlayerEvent.BufferingStateChangedEvent::class.java)
+                .map { it.buffState == SessionPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED }
 
     fun playItem(videoId: String): Completable = Completable.fromAction {
         controller.seekTo(0)
@@ -127,8 +128,7 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
         qualityLevel = quality.label
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    private fun onDestroy() {
+    fun release() {
         playerConnector.close()
         controller.close()
         session.close()

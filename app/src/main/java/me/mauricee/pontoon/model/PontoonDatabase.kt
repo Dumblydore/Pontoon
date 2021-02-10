@@ -9,8 +9,6 @@ import me.mauricee.pontoon.model.comment.CommentDao
 import me.mauricee.pontoon.model.comment.CommentEntity
 import me.mauricee.pontoon.model.creator.CreatorDao
 import me.mauricee.pontoon.model.creator.CreatorEntity
-import me.mauricee.pontoon.model.edge.EdgeDao
-import me.mauricee.pontoon.model.edge.EdgeEntity
 import me.mauricee.pontoon.model.subscription.SubscriptionDao
 import me.mauricee.pontoon.model.subscription.SubscriptionEntity
 import me.mauricee.pontoon.model.user.UserDao
@@ -26,12 +24,11 @@ import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
 
 @TypeConverters(value = [InstantTypeConverter::class])
-@Database(entities = [UserEntity::class, ActivityEntity::class, EdgeEntity::class, CreatorEntity::class, VideoEntity::class, CommentEntity::class, SubscriptionEntity::class, RelatedVideo::class], version = 2, exportSchema = false)
+@Database(entities = [UserEntity::class, ActivityEntity::class, CreatorEntity::class, VideoEntity::class, CommentEntity::class, SubscriptionEntity::class, RelatedVideo::class], version = 3, exportSchema = false)
 abstract class PontoonDatabase : RoomDatabase() {
 
     abstract val userDao: UserDao
     abstract val activityDao: ActivityDao
-    abstract val edgeDao: EdgeDao
     abstract val videoDao: VideoDao
     abstract val relatedVideoDao: RelatedVideoDao
     abstract val creatorDao: CreatorDao

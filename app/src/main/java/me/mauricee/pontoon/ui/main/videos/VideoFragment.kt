@@ -15,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.databinding.FragmentVideosBinding
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull

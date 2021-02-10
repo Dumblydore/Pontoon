@@ -38,14 +38,12 @@
         android:layout_height="0dp"
         android:background="#55000000" />
 
-
     <androidx.mediarouter.app.MediaRouteButton
         android:id="@+id/playerControlCast"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:mediaRouteTypes="user"
         app:mediaRouteButtonTint="?colorOnPrimarySurface" />
-
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/playerControlPlayPause"
@@ -86,4 +84,15 @@
         android:layout_height="wrap_content"
         android:textColor="?colorOnPrimarySurface"
         tools:text="10:10/11:11" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/playerControlBuffering"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:indeterminate="true"
+        app:indicatorColor="?colorOnPrimarySurface"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.motion.widget.MotionLayout>

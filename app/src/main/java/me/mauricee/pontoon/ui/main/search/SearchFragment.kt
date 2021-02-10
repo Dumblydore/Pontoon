@@ -48,7 +48,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
 
 
         viewModel.state.apply {
-            mapDistinct(SearchState::videos).observe(viewLifecycleOwner, adapter::submitList)
+//            mapDistinct(SearchState::videos).observe(viewLifecycleOwner, adapter::submitList)
             map { it.screenState.lazyState() }.observe(viewLifecycleOwner) {
                 binding.searchContainerLazy.state = it
             }

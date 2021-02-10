@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.model.creator
 
+import com.nytimes.android.external.store3.base.impl.StalePolicy
 import com.nytimes.android.external.store3.base.impl.room.StoreRoom
 import dagger.Module
 import dagger.Provides
@@ -23,7 +24,7 @@ object CreatorModelModule {
                 CreatorPersistor.Raw(creator, owner.user!!)
             }
         }
-    }, persistor)
+    }, persistor, StalePolicy.NETWORK_BEFORE_STALE)
 
     @Provides
     fun providesAllCreatorsPersistor(api: FloatPlaneApi, persistor: AllCreatorPersistor): StoreRoom<List<Creator>, Unit> = StoreRoom.from({ key ->
@@ -32,9 +33,10 @@ object CreatorModelModule {
             api.getUsers(*ownerIds).map { it.users }.throwIfEmpty().map { ownerList ->
                 val owners = ownerList.map { it.user!!.id to it.user }.toMap()
                 creators.map {
-                    AllCreatorPersistor.Raw(it, owners[it.owner.id] ?: error("Couldn't find Creator"))
+                    AllCreatorPersistor.Raw(it, owners[it.owner.id]
+                            ?: error("Couldn't find Creator"))
                 }
             }
         }
-    }, persistor)
+    }, persistor, StalePolicy.NETWORK_BEFORE_STALE)
 }

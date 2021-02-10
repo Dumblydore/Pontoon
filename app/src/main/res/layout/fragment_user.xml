@@ -16,7 +16,7 @@
             android:id="@+id/user.container.lazy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:lazy_state="success">
+            tools:state="success">
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
@@ -52,10 +52,10 @@
                         android:layout_width="0dp"
                         android:layout_height="64dp"
                         android:gravity="center"
-                        android:text="@string/user_container_subtitle"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/user.container.header" />
+                        app:layout_constraintTop_toBottomOf="@id/user.container.header"
+                        tools:text="@string/user_container_subtitle" />
 
                     <View
                         android:id="@+id/divider"

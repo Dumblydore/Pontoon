@@ -6,6 +6,7 @@ import com.jakewharton.rx.replayingShare
 import io.reactivex.Observable
 import io.reactivex.Single
 import me.mauricee.pontoon.common.PagingState
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.toDuration
 import me.mauricee.pontoon.model.comment.CommentRepository
 import me.mauricee.pontoon.model.user.UserRepository
@@ -25,15 +26,19 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                                           private val commentRepo: CommentRepository) : BasePresenter<PlayerState, PlayerReducer, PlayerAction, PlayerEvent>() {
 
     override fun onViewAttached(view: BaseContract.View<PlayerAction>): Observable<PlayerReducer> {
-        val actions = view.actions.replayingShare()
+        val actions = view.actions.replayingShare().doOnNext { logd("action: ${it.javaClass.simpleName}") }
         val playVideo = actions.filter { it is PlayerAction.PlayVideo }
                 .cast(PlayerAction.PlayVideo::class.java)
                 .concatMapSingle { player.playItem(it.videoId).andThen(Single.just(it.videoId)) }
                 .switchMap { videoRepo.addToWatchHistory(it).andThen(videoRepo.getVideo(it)) }
                 .switchMap { video ->
-                    val otherActions = view.actions.filter { it !is PlayerAction.PlayVideo }
-                            .flatMap { handleOtherActions(video, it) }
-                    Observable.merge(loadVideoContents(video), otherActions)
+                    val controlActions = actions.filter {
+                        it is PlayerAction.SetControlVisibility || it is PlayerAction.ToggleControls
+                    }.switchMap(::handleControlVisibilityActions)
+                    val otherActions = actions.filter {
+                        it !is PlayerAction.PlayVideo && it !is PlayerAction.SetControlVisibility && it !is PlayerAction.ToggleControls
+                    }.flatMap { handleOtherActions(video, it) }
+                    Observable.merge(loadVideoContents(video), controlActions, otherActions)
                             .startWith(PlayerReducer.DisplayVideo(video))
                             .onErrorReturnItem(PlayerReducer.DisplayVideoError(UiError(PlayerErrors.General.message)))
                 }.startWith(PlayerReducer.Loading)
@@ -63,8 +68,8 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         is PlayerReducer.UpdateDuration -> state.copy(duration = reducer.duration, timestamp = buildTimestamp(state.position, state.duration))
         is PlayerReducer.DisplayPreview -> state.copy(previewImage = reducer.previewUrl)
         is PlayerReducer.ControlsVisible -> state.copy(controlsVisible = reducer.controlsVisible)
+        is PlayerReducer.DisplayBuffer -> state.copy(isBuffering = reducer.displayBuffer)
     }
-
 
     private fun handleSetViewMode(state: PlayerState, newViewMode: ViewMode): PlayerState {
         return when {
@@ -72,6 +77,12 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             state.viewMode == ViewMode.PictureInPicture && newViewMode == ViewMode.Fullscreen -> state
             else -> state.copy(viewMode = newViewMode)
         }
+    }
+
+    private fun handleControlVisibilityActions(action: PlayerAction) = when (action) {
+        is PlayerAction.SetControlVisibility -> setControls(action.controlsVisible)
+        PlayerAction.ToggleControls -> setControls(state.controlsVisible?.let { !it } ?: true)
+        else -> throw RuntimeException("Should not reach this branch !(${action.javaClass.simpleName}))")
     }
 
     private fun handleOtherActions(video: Video, action: PlayerAction): Observable<PlayerReducer> = when (action) {
@@ -95,9 +106,10 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         }
         PlayerAction.Pause -> noReduce(player.pause())
         PlayerAction.TogglePlayPause -> noReduce(player.togglePlayPause())
-        is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(PlayerAction.PlayVideo)")
         is PlayerAction.SeekTo -> noReduce(player.seekTo(action.position))
-        is PlayerAction.SetControlVisibility -> setControls(action.controlsVisible)
+        PlayerAction.ToggleControls,
+        is PlayerAction.SetControlVisibility,
+        is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(${action.javaClass.simpleName}))")
     }
 
     private fun loadVideoContents(video: Video): Observable<PlayerReducer> {
@@ -110,6 +122,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                 player.timelinePreviewUrl.map<PlayerReducer>(PlayerReducer::DisplayTimelinePreview),
                 player.isPlaying.map(PlayerReducer::UpdatePlayingState),
                 player.previewUrl.map(PlayerReducer::DisplayPreview),
+                player.isBuffering.map(PlayerReducer::DisplayBuffer),
                 commentPages.map<PlayerReducer>(PlayerReducer::DisplayComments),
                 commentStates.map(::mapCommentStates)
         ))

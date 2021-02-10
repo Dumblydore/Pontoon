@@ -2,25 +2,26 @@ package me.mauricee.pontoon.ui.main.user
 
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.navArgs
+import androidx.palette.graphics.Palette
+import com.bumptech.glide.Glide
 import com.jakewharton.rxbinding2.support.v4.widget.refreshes
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.SimpleBindingAdapter
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.common.theme.primaryDarkColor
 import me.mauricee.pontoon.databinding.FragmentUserBinding
 import me.mauricee.pontoon.databinding.ItemActivityCommentBinding
-import me.mauricee.pontoon.ext.map
-import me.mauricee.pontoon.ext.mapDistinct
-import me.mauricee.pontoon.ext.notNull
-import me.mauricee.pontoon.ext.setStatusBarColor
+import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.glide.GlideApp
-import me.mauricee.pontoon.model.user.UserEntity
 import me.mauricee.pontoon.model.user.activity.ActivityEntity
 import me.mauricee.pontoon.rx.glide.toPalette
 import me.mauricee.pontoon.ui.BaseFragment
@@ -67,30 +68,31 @@ class UserFragment : BaseFragment(R.layout.fragment_user) {
             binding.userContainer.isRefreshing = it
         }
         viewModel.state.mapDistinct(UserState::activity).observe(viewLifecycleOwner, adapter::submitList)
-        viewModel.state.mapDistinct(UserState::user).notNull().observe(viewLifecycleOwner, ::displayUser)
+
+        viewModel.state.mapDistinct { it.user?.username }.notNull().observe(viewLifecycleOwner) {
+            binding.userContainerSubtitle.text = getString(R.string.user_container_subtitle, it)
+        }
+        viewModel.state.mapDistinct { it.user?.profileImage }.notNull().observe(viewLifecycleOwner) { url ->
+            subscriptions += Glide.with(this).asBitmap().load(url).toPalette()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { event ->
+                        themeManager.getVibrantSwatch(event.palette)?.let { setUserTheme(event.bitmap, it) }
+                        GlideApp.with(this).load(event.bitmap).circleCrop().into(binding.userContainerUserIcon)
+                    }
+        }
     }
 
-    private fun displayUser(user: UserEntity) {
-        subscriptions += GlideApp.with(this).asBitmap().load(user.profileImage).toPalette().subscribe { paletteEvent ->
-            themeManager.getVibrantSwatch(paletteEvent.palette)?.apply {
-                AnimatorSet().apply {
-                    playTogether(
-                            setStatusBarColor(rgb.darken(.7f)),
-                            ValueAnimator.ofArgb(rgb).apply { addUpdateListener { binding.userToolbar.setBackgroundColor(it.animatedValue as Int) } },
-                            ValueAnimator.ofArgb(rgb.darken(.5f)).apply { addUpdateListener { binding.userContainerHeader.setBackgroundColor(it.animatedValue as Int) } },
-                            ValueAnimator.ofArgb(titleTextColor).apply {
-                                addUpdateListener {
-                                    val value = it.animatedValue as Int
-                                    binding.userToolbar.setTitleTextColor(value)
-                                    binding.userToolbar.navigationIcon?.mutate()?.setTint(value)
-                                }
-                            }
-                    )
-                }.start()
-            }
-            GlideApp.with(this)
-                    .load(paletteEvent.bitmap)
-                    .circleCrop().into(binding.userContainerUserIcon)
+    private fun setUserTheme(icon: Bitmap, swatch: Palette.Swatch) {
+        animations += AnimatorSet().apply {
+            playTogether(requireActivity().animateStatusBarColor(swatch.rgb.darken(.7f)),
+                    ValueAnimator.ofArgb(swatch.rgb).updateAsInt(binding.userToolbar::setBackgroundColor),
+                    ValueAnimator.ofArgb(swatch.rgb.darken(.5f)).updateAsInt(binding.userContainerHeader::setBackgroundColor),
+                    ValueAnimator.ofArgb(swatch.titleTextColor).updateAsInt {
+                        binding.userToolbar.setTitleTextColor(it)
+                        binding.userToolbar.navigationIcon?.mutate()?.setTint(it)
+                    })
+            start()
         }
     }
 

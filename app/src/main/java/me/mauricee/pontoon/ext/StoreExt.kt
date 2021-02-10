@@ -11,10 +11,10 @@ fun <T : Any, V : Any> StoreRoom<T, V>.getAsDataModel(id: V): DataModel<T> = Dat
         { fetch(id).firstOrError() }
 )
 
-fun <T, V> StoreRoom<T, V>.getAndFetch(id: V): Observable<T> = get(id)
+fun <T : Any, V : Any> StoreRoom<T, V>.getAndFetch(id: V): Observable<T> = get(id)
         .firstElement().toObservable().mergeWith(fetch(id)).distinctUntilChanged()
         .doOnError(::loge)
 
-fun <T, V> Store<T, V>.getAndFetch(id: V): Flowable<T> = get(id)
+fun <T : Any, V : Any> Store<T, V>.getAndFetch(id: V): Flowable<T> = get(id)
         .mergeWith(fetch(id)).distinctUntilChanged()
         .doOnError(::loge)

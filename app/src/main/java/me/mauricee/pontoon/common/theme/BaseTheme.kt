@@ -6,9 +6,8 @@ import androidx.annotation.StyleRes
 import me.mauricee.pontoon.R
 
 enum class BaseTheme(@StyleRes val style: Int) {
-    Light(R.style.AppTheme);
-//    ,
-//    Black(R.style.AppTheme_Amoled);
+    Light(R.style.AppTheme),
+    Black(R.style.AppTheme_Amoled);
 
     fun theme(context: Context): Resources.Theme = context.resources.newTheme()
             .apply { applyStyle(style, true) }

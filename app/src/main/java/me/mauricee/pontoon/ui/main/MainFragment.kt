@@ -3,8 +3,10 @@ package me.mauricee.pontoon.ui.main
 import android.animation.ValueAnimator
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.animation.doOnStart
 import androidx.core.view.isGone
@@ -14,7 +16,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.jakewharton.rx.replayingShare
 import com.jakewharton.rxbinding2.support.design.widget.itemSelections
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.widget.SeekBarProgressChangeEvent
@@ -22,15 +23,12 @@ import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
 import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
 import com.jakewharton.rxbinding2.widget.changeEvents
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.SessionGraphDirections.*
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.databinding.FragmentMainBinding
-import me.mauricee.pontoon.ext.map
-import me.mauricee.pontoon.ext.mapDistinct
-import me.mauricee.pontoon.ext.notNull
+import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.main.MainFragmentDirections.actionMainFragmentToLoginGraph
@@ -61,6 +59,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             field?.cancel()
             field = value?.also { animations += it }
         }
+    private var oldStatusBarColor = Color.BLACK
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -77,21 +76,15 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 .map { MainContract.Action.fromNavDrawer(it.itemId) }
                 .subscribe(viewModel::sendAction)
 
-        val progressChangeEvents = binding.playerProgress.changeEvents().skipInitialValue().replayingShare()
-
-        subscriptions += progressChangeEvents
-                .filter { it is SeekBarProgressChangeEvent }
-                .cast(SeekBarProgressChangeEvent::class.java)
-                .filter(SeekBarProgressChangeEvent::fromUser)
-                .map { it.progress() }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    binding.expandedPreview.progress = it
-                    pendingSeek = it * 1000L
-                }
-        subscriptions += progressChangeEvents.subscribe {
+        subscriptions += binding.playerProgress.changeEvents().skipInitialValue().subscribe {
             when (it) {
                 is SeekBarStartChangeEvent -> isSeeking = true
+                is SeekBarProgressChangeEvent -> {
+                    if (it.fromUser()) {
+                        binding.expandedPreview.progress = it.progress()
+                        pendingSeek = it.progress() * 1000L
+                    }
+                }
                 is SeekBarStopChangeEvent -> {
                     isSeeking = false
                     binding.expandedPreview.hide()
@@ -99,6 +92,9 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 }
             }
         }
+
+        subscriptions += binding.main.playerClicks.map { PlayerAction.ToggleControls }
+                .subscribe(playerViewModel::sendAction)
 
         viewModel.events.observe(viewLifecycleOwner, ::handleEvents)
         playerViewModel.events.observe(viewLifecycleOwner) {
@@ -115,12 +111,13 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 is PlayerEvent.DisplayReplies -> childNavController.navigate(actionGlobalRepliesDialogFragment(it.commentId))
             }
         }
-        playerViewModel.state.mapDistinct(PlayerState::controlsVisible).observe(viewLifecycleOwner) {
+        playerViewModel.state.mapDistinct(PlayerState::controlsVisible).notNull().observe(viewLifecycleOwner) {
             currentThumbAnimation = if (binding.main.currentState == R.id.fullscreen)
                 animateProgress(if (it) 1f else 0f)
             else
                 animateThumb(if (it) 255 else 0)
             currentThumbAnimation?.start()
+            binding.main.allowPlayerClick = it
         }
         playerViewModel.state.mapDistinct(PlayerState::duration).map { (it / 1000).toInt() }.observe(viewLifecycleOwner) {
             binding.playerProgress.max = it
@@ -147,24 +144,36 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
         val action = if (isInPictureInPictureMode) {
             PlayerAction.SetViewMode(ViewMode.PictureInPicture)
         } else {
-            playerViewModel.sendAction(PlayerAction.Pause)
             PlayerAction.SetViewMode(ViewMode.Expanded)
         }
         playerViewModel.sendAction(action)
     }
 
     private fun handlePlayerViewMode(it: ViewMode) {
+        val currentMode = when (binding.main.currentState) {
+            R.id.expanded -> ViewMode.Expanded
+            R.id.fullscreen -> ViewMode.Fullscreen
+            R.id.collapsed -> ViewMode.Collapsed
+            R.id.dismissed,
+            R.id.dismissing -> ViewMode.Dismissed
+            else -> null
+        }
+        logd("currentMode: $currentMode , newMode: $it")
         when (it) {
             ViewMode.Dismissed -> {
                 setWindowVisibility(true)
                 binding.mainContainerPreview.isGone = true
                 binding.mainContainer.isGone = false
+                binding.playerProgress.isGone = false
             }
             ViewMode.Expanded -> {
                 copyContentForSlideGesture()
+                oldStatusBarColor = requireActivity().statusBarColor
+                animations += requireActivity().animateStatusBarColor(Color.BLACK).apply { start() }
                 binding.mainContainerPreview.isGone = false
                 binding.mainContainer.isGone = true
                 orientationManager.isFullscreen = false
+                binding.playerProgress.isGone = false
                 setWindowVisibility(true)
                 playVideo()
             }
@@ -172,18 +181,22 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 binding.mainContainerPreview.isGone = true
                 binding.mainContainer.isGone = true
                 orientationManager.isFullscreen = true
+                binding.playerProgress.isGone = false
                 setWindowVisibility(false)
                 binding.main.transitionToState(R.id.fullscreen)
             }
             ViewMode.Collapsed -> {
                 binding.mainContainerPreview.isGone = true
                 binding.mainContainer.isGone = false
+                binding.playerProgress.isGone = false
                 binding.main.setTransition(R.id.transition_active)
                 binding.main.transitionToEnd()
+                animations += requireActivity().animateStatusBarColor(oldStatusBarColor).apply { start() }
             }
             ViewMode.PictureInPicture -> {
                 binding.mainContainerPreview.isGone = true
                 binding.mainContainer.isGone = true
+                binding.playerProgress.isGone = true
                 setWindowVisibility(false)
                 binding.main.transitionToState(R.id.fullscreen)
             }
@@ -209,9 +222,18 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             MainContract.Event.ToggleMenu -> toggleDrawer()
             MainContract.Event.NavigateToPreferences -> findNavController().navigate(actionMainFragmentToSettingsFragment())
             MainContract.Event.NavigateToLoginScreen -> findNavController().navigate(actionMainFragmentToLoginGraph())
-            MainContract.Event.SessionExpired -> TODO()
             MainContract.Event.CloseMenu -> binding.root.closeDrawer(binding.mainDrawer)
+            MainContract.Event.SessionExpired -> onSessionExpired()
         }
+    }
+
+    private fun onSessionExpired() {
+        AlertDialog.Builder(requireContext())
+                .setTitle(R.string.main_session_expired_title)
+                .setMessage(R.string.main_session_expired_body)
+                .setPositiveButton(android.R.string.ok) { _, _ -> viewModel.sendAction(MainContract.Action.Expired) }
+                .setCancelable(false)
+                .create().show()
     }
 
     private fun toggleDrawer() {

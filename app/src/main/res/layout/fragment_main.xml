@@ -15,7 +15,7 @@
         android:visibility="gone"
         tools:src="@color/colorAccent" />
 
-    <androidx.constraintlayout.motion.widget.MotionLayout
+    <me.mauricee.pontoon.ui.main.ClickThroughMotionLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -44,6 +44,12 @@
             app:layout_constraintTop_toTopOf="parent"
             app:navGraph="@navigation/main_graph"
             tools:background="@color/colorPrimary" />
+
+        <View
+            android:id="@+id/playerTouchBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignoreViewBinding="true" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/player"
@@ -149,6 +155,7 @@
             app:layout_constraintEnd_toEndOf="@id/player"
             app:layout_constraintStart_toStartOf="@id/player" />
 
+
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/mainNav"
             android:layout_width="0dp"
@@ -158,7 +165,7 @@
             app:itemTextColor="@drawable/color_bottom_nav"
             app:menu="@menu/main_bottom" />
 
-    </androidx.constraintlayout.motion.widget.MotionLayout>
+    </me.mauricee.pontoon.ui.main.ClickThroughMotionLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/main.drawer"

@@ -11,7 +11,9 @@
         app:constraintSetEnd="@id/collapsed"
         app:constraintSetStart="@id/expanded"
         app:duration="250">
-        <OnSwipe app:touchAnchorId="@+id/player" />
+        <OnSwipe
+            app:touchAnchorId="@+id/playerTouchBox"
+            app:touchRegionId="@id/playerTouchBox" />
     </Transition>
     <Transition
         app:constraintSetEnd="@id/dismissing"
@@ -38,6 +40,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
+        <Constraint
+            android:id="@+id/playerTouchBox"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/player"
+            app:layout_constraintEnd_toEndOf="@id/player"
+            app:layout_constraintStart_toStartOf="@id/player"
+            app:layout_constraintTop_toTopOf="@id/player" />
         <Constraint
             android:id="@+id/playerProgress"
             android:layout_width="0dp"
@@ -94,6 +104,14 @@
             app:visibilityMode="ignore" />
     </ConstraintSet>
     <ConstraintSet android:id="@+id/expanded">
+        <Constraint
+            android:id="@+id/playerTouchBox"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/player"
+            app:layout_constraintEnd_toEndOf="@id/player"
+            app:layout_constraintStart_toStartOf="@id/player"
+            app:layout_constraintTop_toTopOf="@id/player" />
         <Constraint
             android:id="@+id/main.container"
             app:layout_constraintBottom_toTopOf="@id/mainNav"
@@ -160,6 +178,10 @@
     </ConstraintSet>
     <ConstraintSet android:id="@+id/fullscreen">
         <Constraint
+            android:id="@+id/playerTouchBox"
+            android:layout_width="0dp"
+            android:layout_height="0dp" />
+        <Constraint
             android:id="@+id/player"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -217,13 +239,20 @@
     </ConstraintSet>
     <ConstraintSet android:id="@+id/collapsed">
         <Constraint
+            android:id="@+id/playerTouchBox"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/player"
+            app:layout_constraintEnd_toEndOf="@id/player"
+            app:layout_constraintStart_toEndOf="@id/collapsedDetailsPlayPause"
+            app:layout_constraintTop_toTopOf="@id/player" />
+        <Constraint
             android:id="@+id/player"
             android:layout_width="0dp"
             android:layout_height="72dp"
             app:layout_constraintBottom_toTopOf="@id/mainNav"
             app:layout_constraintDimensionRatio="16:9"
             app:layout_constraintEnd_toEndOf="parent" />
-
         <Constraint
             android:id="@+id/playerProgress"
             android:layout_width="0dp"
@@ -234,7 +263,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/expandedDetails"
             app:visibilityMode="ignore" />
-
         <Constraint
             android:id="@+id/expandedDetails"
             android:layout_width="0dp"
@@ -243,7 +271,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
-
         <Constraint
             android:id="@+id/collapsedProgress"
             android:layout_width="0dp"
@@ -253,7 +280,6 @@
             app:layout_constraintStart_toStartOf="@id/collapsedDetails"
             app:layout_constraintTop_toTopOf="@id/collapsedDetails"
             app:visibilityMode="ignore" />
-
         <Constraint
             android:id="@+id/collapsedDetails"
             android:layout_width="0dp"
@@ -262,8 +288,6 @@
             app:layout_constraintBottom_toTopOf="@id/mainNav"
             app:layout_constraintEnd_toStartOf="@id/player"
             app:layout_constraintStart_toStartOf="parent" />
-
-
         <Constraint
             android:id="@id/mainNav"
             android:layout_height="wrap_content"
@@ -287,6 +311,14 @@
     </ConstraintSet>
     <ConstraintSet android:id="@+id/dismissing">
         <Constraint
+            android:id="@+id/playerTouchBox"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/player"
+            app:layout_constraintEnd_toEndOf="@id/player"
+            app:layout_constraintStart_toStartOf="@id/player"
+            app:layout_constraintTop_toTopOf="@id/player" />
+        <Constraint
             android:id="@+id/player"
             android:layout_width="0dp"
             android:layout_height="72dp"
@@ -294,7 +326,6 @@
             app:layout_constraintBottom_toTopOf="@id/mainNav"
             app:layout_constraintDimensionRatio="16:9"
             app:layout_constraintEnd_toStartOf="parent" />
-
         <Constraint
             android:id="@+id/playerProgress"
             android:layout_width="0dp"
@@ -305,7 +336,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/expandedDetails"
             app:visibilityMode="ignore" />
-
         <Constraint
             android:id="@+id/expandedDetails"
             android:layout_width="0dp"
@@ -314,7 +344,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
-
         <Constraint
             android:id="@+id/collapsedProgress"
             android:layout_width="0dp"
@@ -324,7 +353,6 @@
             app:layout_constraintStart_toStartOf="@id/collapsedDetails"
             app:layout_constraintTop_toTopOf="@id/collapsedDetails"
             app:visibilityMode="ignore" />
-
         <Constraint
             android:id="@+id/collapsedDetails"
             android:layout_width="0dp"
