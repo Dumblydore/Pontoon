@@ -36,11 +36,11 @@ jobs:
       - name: Setup local.properties file
         run: |
           touch local.properties
-          echo "pontoon.castId=${PONTOON_CAST_ID}" >> local.properties
-          echo "release.keyAlias=${SIGNING_RELEASE_KEY_ALIAS}" >> local.properties
-          echo "release.keyPassword=${SIGNING_RELEASE_KEY_PASSWORD}" >> local.properties
-          echo "release.storeFile=${{ github.workspace }/keystore/Pontoon.jks" >> local.properties
-          echo "release.storePassword=${SIGNING_RELEASE_STORE_PASSWORD}" >> local.properties
+          echo "pontoon.castId=${{PONTOON_CAST_ID}}" >> local.properties
+          echo "release.keyAlias=${{SIGNING_RELEASE_KEY_ALIAS}}" >> local.properties
+          echo "release.keyPassword=${{SIGNING_RELEASE_KEY_PASSWORD}}" >> local.properties
+          echo "release.storeFile=${{ github.workspace }}/keystore/Pontoon.jks" >> local.properties
+          echo "release.storePassword=${{SIGNING_RELEASE_STORE_PASSWORD}}" >> local.properties
       - name: Build the app
         run: ./gradlew test
       - name: Build apk
