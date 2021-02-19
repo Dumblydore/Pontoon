@@ -32,7 +32,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-west-2'
           SOURCE: '${{ secrets.KEYSTORE_LOCATION }}'
-          DEST: '.'
+          DEST: './Pontoon.jks'
       - name: Setup local.properties file
         run: |
           touch local.properties
