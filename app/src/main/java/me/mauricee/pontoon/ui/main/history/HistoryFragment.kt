@@ -3,6 +3,7 @@ package me.mauricee.pontoon.ui.main.history
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import com.jakewharton.rxbinding2.support.v7.widget.navigationClicks
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
@@ -11,6 +12,7 @@ import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.ui.BaseFragment
+import me.mauricee.pontoon.ui.main.MainContract
 import me.mauricee.pontoon.ui.main.VideoPageAdapter
 import javax.inject.Inject
 
@@ -20,6 +22,7 @@ class HistoryFragment : BaseFragment(R.layout.fragment_history) {
     @Inject
     lateinit var videoAdapter: VideoPageAdapter
     private val viewModel: HistoryContract.ViewModel by viewModels()
+    private val mainViewModel: MainContract.ViewModel by viewModels({ requireActivity() })
 
     private val binding by viewBinding(FragmentHistoryBinding::bind)
 
@@ -31,9 +34,12 @@ class HistoryFragment : BaseFragment(R.layout.fragment_history) {
         subscriptions += videoAdapter.actions.subscribe {
             viewModel.sendAction(HistoryContract.Action.PlayVideo(it))
         }
-
-//        viewModel.state.mapDistinct(HistoryContract.State::videos)
-//                .observe(viewLifecycleOwner, videoAdapter::submitList)
+        subscriptions += binding.historyToolbar.navigationClicks()
+                .map { MainContract.Action.ToggleMenu }
+                .subscribe(mainViewModel::sendAction)
+        
+        viewModel.state.mapDistinct(HistoryContract.State::videos)
+                .observe(viewLifecycleOwner, videoAdapter::submitList)
         viewModel.state.mapDistinct { it.uiState.lazyState() }
                 .observe(viewLifecycleOwner) { binding.historyContainerLazy.state = it }
         viewModel.state.mapDistinct { it.uiState.error }.notNull()

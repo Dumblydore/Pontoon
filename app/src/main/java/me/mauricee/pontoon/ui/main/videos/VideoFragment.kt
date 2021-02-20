@@ -1,41 +1,40 @@
 package me.mauricee.pontoon.ui.main.videos
 
-import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxbinding2.support.v4.widget.refreshes
 import com.jakewharton.rxbinding2.support.v7.widget.navigationClicks
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.databinding.FragmentVideosBinding
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.ui.BaseFragment
-import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.main.MainContract
+import me.mauricee.pontoon.ui.main.VideoPageAdapter
 import me.mauricee.pontoon.ui.main.player.PlayerAction
 import me.mauricee.pontoon.ui.main.player.PlayerViewModel
 import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionGlobalCreatorFragment
 import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionVideoFragmentToCreatorListFragment
 import me.mauricee.pontoon.ui.shareVideo
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class VideoFragment : BaseFragment(R.layout.fragment_videos) {
 
-    @Inject
-    lateinit var videoAdapter: SubscriptionVideoAdapter
+    private val videoAdapter = VideoPageAdapter()
+    private val subscriptionAdapter = SubscriptionAdapter()
+    private val headerAdapter = VideoHeaderAdapter(subscriptionAdapter)
+    private val pageAdapter = ConcatAdapter(headerAdapter, videoAdapter)
 
     private val mainViewModel: MainContract.ViewModel by viewModels({ requireActivity() })
     private val playerViewModel: PlayerViewModel by viewModels({ requireActivity() })
@@ -56,14 +55,11 @@ class VideoFragment : BaseFragment(R.layout.fragment_videos) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.videosList.apply {
-            adapter = videoAdapter
-            layoutManager = LayoutManager(requireContext())
+            adapter = pageAdapter
             addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         }
-
-        viewModel.state.mapDistinct(VideoState::subscriptions).observe(viewLifecycleOwner, videoAdapter.subscriptionAdapter::submitList)
+        viewModel.state.mapDistinct(VideoState::subscriptions).observe(viewLifecycleOwner, subscriptionAdapter::submitList)
         viewModel.state.mapDistinct(VideoState::videos).observe(viewLifecycleOwner, videoAdapter::submitList)
 
         viewModel.state.mapDistinct { it.screenState.error }.notNull().observe(viewLifecycleOwner) {
@@ -86,7 +82,7 @@ class VideoFragment : BaseFragment(R.layout.fragment_videos) {
                 .subscribe(viewModel::sendAction)
         subscriptions += videoAdapter.actions.map { PlayerAction.PlayVideo(it.id) }
                 .subscribe(playerViewModel::sendAction)
-        subscriptions += videoAdapter.subscriptionAdapter.actions
+        subscriptions += subscriptionAdapter.actions
                 .subscribe(viewModel::sendAction)
     }
 
@@ -98,9 +94,5 @@ class VideoFragment : BaseFragment(R.layout.fragment_videos) {
             }
         }
         return true
-    }
-
-    private class LayoutManager(context: Context) : LinearLayoutManager(context) {
-        override fun isAutoMeasureEnabled(): Boolean = true
     }
 }

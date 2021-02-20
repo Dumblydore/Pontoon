@@ -18,84 +18,29 @@
             android:layout_height="match_parent"
             tools:state="success">
 
-            <androidx.core.widget.NestedScrollView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/user.container.activity"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/user.container.header"
-                        android:layout_width="match_parent"
-                        android:layout_height="128dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:background="@color/colorPrimaryDark" />
-
-                    <ImageView
-                        android:id="@+id/user.container.userIcon"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_marginStart="8dp"
-                        app:layout_constraintBottom_toBottomOf="@id/user.container.header"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/user.container.header"
-                        tools:src="@drawable/ic_color"
-                        tools:tint="@color/colorAccent" />
-
-                    <TextView
-                        android:id="@+id/user.container.subtitle"
-                        style="?android:attr/textAppearanceLarge"
-                        android:layout_width="0dp"
-                        android:layout_height="64dp"
-                        android:gravity="center"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/user.container.header"
-                        tools:text="@string/user_container_subtitle" />
-
-                    <View
-                        android:id="@+id/divider"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:background="?android:attr/dividerHorizontal"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/user.container.subtitle"
-                        tools:background="@color/textLightSecondary" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/user.container.activity"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"
-                        android:orientation="vertical"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/divider"
-                        tools:listitem="@layout/item_activity_comment" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.core.widget.NestedScrollView>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_activity_comment" />
 
         </me.mauricee.lazyLayout.LazyLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.google.android.material.appbar.AppBarLayout
+    <com.google.android.material.appbar.CollapsingToolbarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/user.toolbar"
             android:layout_width="match_parent"
             android:layout_height="?android:attr/actionBarSize"
             android:transitionName="toolbar"
             app:layout_scrollFlags="scroll|enterAlways"
+            app:navigationIcon="@drawable/ic_back"
             app:titleTextColor="@color/white"
             tools:background="@color/colorPrimary" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    </com.google.android.material.appbar.CollapsingToolbarLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

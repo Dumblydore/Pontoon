@@ -4,7 +4,7 @@ apply plugin: 'dagger.hilt.android.plugin'
 def applyAnalytics = true// (project.findProperty('enableAnalytics') ?: "false").equalsIgnoreCase("true")
 
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'de.jjohannes.missing-metadata-guava'
 apply plugin: 'com.squareup.wire'

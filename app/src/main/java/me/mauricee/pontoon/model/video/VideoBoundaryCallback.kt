@@ -6,7 +6,6 @@ import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.common.BaseBoundaryCallback
 import me.mauricee.pontoon.common.PagingState
 import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.ext.logd
 import javax.inject.Inject
 
 class VideoBoundaryCallback(private val api: FloatPlaneApi,
@@ -21,12 +20,11 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
             .map { it.toEntity() }
             .toList().toObservable()
             .map {
-                logd("Paging: inserting -> ${it.size}")
                 if (videoDao.insert(it).isEmpty()) PagingState.Completed
                 else PagingState.Fetched
             }
 
-    override fun frontItemLoaded(itemAtFront: Video): Observable<PagingState> = Observable.just(PagingState.Fetched)
+    override fun frontItemLoaded(itemAtFront: Video): Observable<PagingState> = noItemsLoaded()
 
     override fun endItemLoaded(itemAtEnd: Video): Observable<PagingState> = Observable.fromArray(*creatorIds)
             .flatMapSingle { api.getVideos(it, videoDao.getNumberOfVideosByCreator(it)) }
@@ -34,7 +32,6 @@ class VideoBoundaryCallback(private val api: FloatPlaneApi,
             .map { it.toEntity() }
             .toList().toObservable()
             .map {
-                logd("Paging: inserting -> ${it.size}")
                 if (videoDao.insert(it).isEmpty()) PagingState.Completed
                 else PagingState.Fetched
             }

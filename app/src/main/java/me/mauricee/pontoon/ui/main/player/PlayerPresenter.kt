@@ -3,6 +3,7 @@ package me.mauricee.pontoon.ui.main.player
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import com.jakewharton.rx.replayingShare
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import me.mauricee.pontoon.common.PagingState
@@ -29,8 +30,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         val actions = view.actions.replayingShare().doOnNext { logd("action: ${it.javaClass.simpleName}") }
         val playVideo = actions.filter { it is PlayerAction.PlayVideo }
                 .cast(PlayerAction.PlayVideo::class.java)
-                .concatMapSingle { player.playItem(it.videoId).andThen(Single.just(it.videoId)) }
-                .switchMap { videoRepo.addToWatchHistory(it).andThen(videoRepo.getVideo(it)) }
+                .concatMapSingle { setupVideo(it.videoId) }
                 .switchMap { video ->
                     val controlActions = actions.filter {
                         it is PlayerAction.SetControlVisibility || it is PlayerAction.ToggleControls
@@ -71,8 +71,13 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         is PlayerReducer.DisplayBuffer -> state.copy(isBuffering = reducer.displayBuffer)
     }
 
+    private fun setupVideo(videoId: String): Single<Video> = Completable.merge(
+            listOf(player.playItem(videoId), videoRepo.addToWatchHistory(videoId)))
+            .andThen(videoRepo.getVideo(videoId).firstOrError())
+
     private fun handleSetViewMode(state: PlayerState, newViewMode: ViewMode): PlayerState {
         return when {
+            state.viewMode == newViewMode -> state
             //  To prevent going from pip into fullscreen
             state.viewMode == ViewMode.PictureInPicture && newViewMode == ViewMode.Fullscreen -> state
             else -> state.copy(viewMode = newViewMode)

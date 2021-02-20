@@ -55,6 +55,7 @@ class MainPresenter @Inject constructor(private val sessionRepository: SessionRe
             .concatMap { noReduce { sendEvent(MainContract.Event.SessionExpired) } }
 
     private fun logout() = Completable.merge(listOf(
+            player.stop(),
             sessionRepository.logout(),
             Completable.fromAction { pontoonDatabase.clearAllTables() }
     )).andThen(noReduce { sendEvent(MainContract.Event.NavigateToLoginScreen) }).subscribeOn(Schedulers.io())

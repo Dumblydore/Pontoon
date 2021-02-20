@@ -1,18 +1,17 @@
 package me.mauricee.pontoon.ui.preferences.accentColor
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.rxkotlin.plusAssign
-import kotlinx.android.synthetic.main.item_color_list.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.common.theme.AccentColor
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.common.theme.accentColor
+import me.mauricee.pontoon.databinding.ItemColorListBinding
 import me.mauricee.pontoon.ui.preferences.CircleHelper
 import me.mauricee.pontoon.ui.preferences.darken
 import javax.inject.Inject
@@ -26,8 +25,8 @@ class AccentColorAdapter @Inject constructor(private val circleHelper: CircleHel
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_color_list, parent, false)
-                    .let(this::ViewHolder)
+            ItemColorListBinding.inflate(LayoutInflater.from(parent.context), parent, false).let(this::ViewHolder)
+
 
     override fun getItemId(position: Int): Long = colors[position].ordinal.toLong()
 
@@ -43,19 +42,19 @@ class AccentColorAdapter @Inject constructor(private val circleHelper: CircleHel
             isChecked -> circleHelper.buildSelectedCircle(color, color.darken(.7f))
             else -> circleHelper.buildCircle(color)
         }
-        holder.itemView.color.setImageDrawable(drawable)
+        holder.binding.color.setImageDrawable(drawable)
     }
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(val binding: ItemColorListBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            subscriptions += itemView.clicks().map { colors[adapterPosition] }
+            subscriptions += itemView.clicks().map { colors[bindingAdapterPosition] }
                     .subscribe { accent ->
                         newSelectedColor?.let {
                             notifyItemChanged(colors.indexOf(it))
                         }
                         newSelectedColor = accent
                         relay.accept(accent)
-                        notifyItemChanged(adapterPosition)
+                        notifyItemChanged(bindingAdapterPosition)
                     }
         }
     }

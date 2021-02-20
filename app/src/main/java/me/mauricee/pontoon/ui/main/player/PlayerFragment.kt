@@ -1,22 +1,17 @@
 package me.mauricee.pontoon.ui.main.player
 
 import android.os.Bundle
-import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
-import android.view.ViewConfiguration
 import android.widget.ArrayAdapter
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.doOnNextLayout
 import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.Glide
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.view.touches
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
@@ -89,8 +84,12 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
             else binding.playerControlBuffering.hide()
         }
         viewModel.state.mapDistinct(PlayerState::controlsVisible).notNull().observe(viewLifecycleOwner) {
-            if (it) binding.root.transitionToStart()
-            else binding.root.transitionToEnd()
+            binding.root.post {
+                if (it) {
+                    binding.controlsGroup.isGone = false
+                    binding.root.transitionToStart()
+                } else binding.root.transitionToEnd()
+            }
         }
         viewModel.state.mapDistinct { it.isPlaying }.notNull()
                 .map { if (it) R.drawable.ic_pause else R.drawable.ic_play }
@@ -105,20 +104,16 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
         viewModel.state.mapDistinct(PlayerState::viewMode).observe(viewLifecycleOwner) {
             when (it) {
                 ViewMode.Expanded -> {
-                    binding.controlsGroup.isGone = false
-                    binding.controlsGroup.doOnNextLayout { binding.root.transitionToStart() }
                     binding.playerControlsExpand.isGone = false
                     binding.playerControlsFullscreen.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_fullscreen)
+                    viewModel.sendAction(PlayerAction.SetControlVisibility(true))
                 }
                 ViewMode.Fullscreen -> {
-                    binding.controlsGroup.isGone = false
-                    binding.controlsGroup.doOnNextLayout { binding.root.transitionToStart() }
                     binding.playerControlsExpand.isGone = true
                     binding.playerControlsFullscreen.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_fullscreen_exit)
+                    viewModel.sendAction(PlayerAction.SetControlVisibility(true))
                 }
-                ViewMode.Dismissed -> binding.root.transitionToEnd()
-                ViewMode.Collapsed -> binding.root.transitionToEnd()
-                ViewMode.PictureInPicture -> binding.root.transitionToEnd()
+                else -> viewModel.sendAction(PlayerAction.SetControlVisibility(false))
             }
         }
     }
@@ -129,6 +124,8 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
     override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {}
 
     override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+        if (p1 == R.id.hideControls)
+            binding.controlsGroup.isGone = true
     }
 
     override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {}

@@ -87,7 +87,7 @@ class CreatorFragment : BaseFragment(R.layout.fragment_creator) {
         viewModel.state.mapDistinct { it.screenState.error }.notNull().observe(viewLifecycleOwner) {
             binding.creatorContainerLazy.errorText = it.text(requireContext())
         }
-//        viewModel.state.mapDistinct { it.videos }.observe(viewLifecycleOwner, videoAdapter::submitList)
+        viewModel.state.mapDistinct { it.videos }.observe(viewLifecycleOwner, videoAdapter::submitList)
 
         subscriptions += binding.creatorContainer.refreshes().subscribe {
             viewModel.sendAction(CreatorContract.Action.Refresh)

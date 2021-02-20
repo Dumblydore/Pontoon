@@ -13,10 +13,11 @@ import androidx.navigation.fragment.navArgs
 import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
-import kotlinx.android.synthetic.main.fragment_web_login.*
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.databinding.FragmentWebLoginBinding
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
+import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.ext.with
 import me.mauricee.pontoon.ui.BaseFragment
 
@@ -26,24 +27,24 @@ class WebLoginFragment : BaseFragment(R.layout.fragment_web_login) {
 
     private val args: WebLoginFragmentArgs by navArgs()
     private val viewModel: LoginViewModel by hiltNavGraphViewModels(R.id.login_graph)
-
+    private val binding by viewBinding(FragmentWebLoginBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupWebview()
-        login_webview.loadUrl(args.site.url)
-        subscriptions += RxToolbar.navigationClicks(login_toolbar).subscribe { requireActivity().onBackPressed() }
+        binding.loginWebview.loadUrl(args.site.url)
+        subscriptions += RxToolbar.navigationClicks(binding.loginToolbar).subscribe { requireActivity().onBackPressed() }
     }
 
     private fun setupWebview() {
         CookieManager.getInstance().apply {
-            setAcceptThirdPartyCookies(login_webview, true)
+            setAcceptThirdPartyCookies(binding.loginWebview, true)
         }
-        login_webview.settings.apply {
+        binding.loginWebview.settings.apply {
             javaScriptEnabled = true
             loadWithOverviewMode = true
         }
-        login_webview.webViewClient = Webclient()
+        binding.loginWebview.webViewClient = Webclient()
         viewModel.state.mapDistinct { it.uiState.error }.notNull().observe(viewLifecycleOwner) {
             Toast.makeText(requireContext(), it.text(requireContext()), Toast.LENGTH_LONG).show()
             requireActivity().onBackPressed()

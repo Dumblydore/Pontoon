@@ -6,7 +6,8 @@ import okhttp3.Response
 import java.util.*
 import javax.inject.Inject
 
-class FirebaseNetworkInterceptor @Inject constructor(private val perf: FirebasePerformance) : Interceptor {
+class FirebaseNetworkInterceptor @Inject constructor() : Interceptor {
+    private val perf: FirebasePerformance by lazy { FirebasePerformance.getInstance() }
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         val metric = perf.newHttpMetric(request.url.toString(),

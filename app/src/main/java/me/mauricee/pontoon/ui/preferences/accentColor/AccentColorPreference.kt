@@ -8,13 +8,13 @@ import androidx.core.os.bundleOf
 import androidx.preference.DialogPreference
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import dagger.android.support.AndroidSupportInjection
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.preference_base_theme.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.theme.AccentColor
 import me.mauricee.pontoon.common.theme.ThemeManager
+import me.mauricee.pontoon.databinding.PreferenceBaseThemeBinding
+import me.mauricee.pontoon.ext.view.viewBinding
 import javax.inject.Inject
 
 class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
@@ -51,6 +51,7 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
         @Inject
         lateinit var themeManager: ThemeManager
 
+        private val binding by viewBinding(PreferenceBaseThemeBinding::bind)
         private lateinit var selectedAccentColor: AccentColor
         private lateinit var selection: Disposable
 
@@ -67,8 +68,8 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
 
         override fun onBindDialogView(view: View) {
             super.onBindDialogView(view)
-            view.preference_base_themes.adapter = adapter
-            view.preference_base_themes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            binding.preferenceBaseThemes.adapter = adapter
+            binding.preferenceBaseThemes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             selection = adapter.actions.subscribe { selectedAccentColor = it }
             selectedAccentColor = themeManager.accentColor
         }

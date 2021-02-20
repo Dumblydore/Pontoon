@@ -7,8 +7,8 @@ import io.reactivex.disposables.CompositeDisposable
 
 abstract class BaseFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
 
-    protected val subscriptions = CompositeDisposable()
-    protected val animations = mutableListOf<Animator>()
+    val subscriptions = CompositeDisposable()
+    val animations = mutableListOf<Animator>()
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -16,7 +16,7 @@ import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.Diffable
 import me.mauricee.pontoon.model.preferences.Preferences

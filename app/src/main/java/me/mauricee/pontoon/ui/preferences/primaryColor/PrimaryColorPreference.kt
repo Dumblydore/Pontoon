@@ -10,10 +10,11 @@ import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.preference_base_theme.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.theme.PrimaryColor
 import me.mauricee.pontoon.common.theme.ThemeManager
+import me.mauricee.pontoon.databinding.PreferenceBaseThemeBinding
+import me.mauricee.pontoon.ext.view.viewBinding
 import javax.inject.Inject
 
 class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
@@ -53,6 +54,8 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
         private lateinit var selectedPrimaryColor: PrimaryColor
         private lateinit var selection: Disposable
 
+        private val binding by viewBinding(PreferenceBaseThemeBinding::bind)
+
         override fun onDialogClosed(positiveResult: Boolean) {
             if (positiveResult) {
                 (preference as? PrimaryColorPreference)?.let {
@@ -66,8 +69,8 @@ class PrimaryColorPreference(context: Context, attrs: AttributeSet?, defStyleAtt
 
         override fun onBindDialogView(view: View) {
             super.onBindDialogView(view)
-            view.preference_base_themes.adapter = adapter
-            view.preference_base_themes.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL, false)
+            binding.preferenceBaseThemes.adapter = adapter
+            binding.preferenceBaseThemes.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL, false)
             selection = adapter.actions.subscribe { selectedPrimaryColor = it }
             selectedPrimaryColor = themeManager.primaryColor
         }

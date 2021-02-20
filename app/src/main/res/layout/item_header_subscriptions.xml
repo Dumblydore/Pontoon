@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,11 +10,11 @@
         android:id="@+id/item.subscriptions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:paddingStart="4dp"
         android:paddingEnd="4dp"
-        tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_user_bubble"
-        tools:orientation="horizontal" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_user_bubble" />
 
     <View
         android:layout_width="match_parent"
@@ -24,15 +25,13 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
         android:paddingStart="12dp"
+        android:paddingTop="8dp"
         android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
         android:text="@string/subscriptions_videos_subhead"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="12sp"
         tools:textColor="@color/md_black_1000" />
-
-    <include layout="@layout/item_video_card" />
 
 </LinearLayout>
