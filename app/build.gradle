@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'dagger.hilt.android.plugin'
 
-def applyAnalytics = true// (project.findProperty('enableAnalytics') ?: "false").equalsIgnoreCase("true")
+def applyAnalytics = (project.findProperty('enableAnalytics') ?: "false").equalsIgnoreCase("true")
 
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'

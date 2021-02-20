@@ -35,7 +35,7 @@ class Pontoon : Application() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
         AndroidThreeTen.init(this)
-        sub = privacyManager.isAnalyticsEnabled.subscribe {
+        sub = privacyManager.isAnalyticsEnabledChanges().subscribe {
             if (it) {
                 EventTracker.trackers += fireBaseTracker
             } else EventTracker.trackers -= fireBaseTracker
