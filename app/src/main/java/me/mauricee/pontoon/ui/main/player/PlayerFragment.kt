@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.databinding.FragmentPlayerBinding
+import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
@@ -48,6 +49,10 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
 
         binding.root.addTransitionListener(this)
         popupWindow.anchorView = binding.playerControlQuality
+
+        binding.playerContent.setAspectRatioListener { targetAspectRatio, naturalAspectRatio, aspectRatioMismatch ->
+            logd("target: $targetAspectRatio, natural: $naturalAspectRatio mismatch: $aspectRatioMismatch")
+        }
 
         popupWindow.setOnItemClickListener { _, _, position, _ ->
             qualityAdapter.getItem(position)?.let {

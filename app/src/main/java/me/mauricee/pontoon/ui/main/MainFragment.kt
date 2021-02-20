@@ -9,6 +9,8 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.animation.doOnStart
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isGone
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.viewModels
@@ -60,12 +62,14 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             field = value?.also { animations += it }
         }
     private var oldStatusBarColor = Color.BLACK
+    private lateinit var windowController: WindowInsetsControllerCompat
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         NavigationUI.setupWithNavController(binding.mainNav, childNavController)
+        windowController = WindowInsetsControllerCompat(requireActivity().window, view)
         binding.main.addTransitionListener(this)
 
         subscriptions += binding.collapsedDetailsPlayPause.clicks()
@@ -109,6 +113,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 }
                 is PlayerEvent.PostComment -> childNavController.navigate(actionGlobalCommentDialogFragment(it.videoId, it.comment))
                 is PlayerEvent.DisplayReplies -> childNavController.navigate(actionGlobalRepliesDialogFragment(it.commentId))
+                else -> logd("Unhandled: ${it::class.java.simpleName}")
             }
         }
         playerViewModel.state.mapDistinct(PlayerState::controlsVisible).notNull().observe(viewLifecycleOwner) {
@@ -270,12 +275,11 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
 
     private fun setWindowVisibility(isVisible: Boolean) {
         if (isVisible) {
+            windowController.show(WindowInsetsCompat.Type.systemBars())
             binding.root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            requireActivity().window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         } else {
-            requireActivity().window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            windowController.hide(WindowInsetsCompat.Type.systemBars())
+            windowController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             binding.root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
     }

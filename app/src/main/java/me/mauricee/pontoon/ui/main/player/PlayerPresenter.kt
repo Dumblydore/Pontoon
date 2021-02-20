@@ -69,6 +69,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         is PlayerReducer.DisplayPreview -> state.copy(previewImage = reducer.previewUrl)
         is PlayerReducer.ControlsVisible -> state.copy(controlsVisible = reducer.controlsVisible)
         is PlayerReducer.DisplayBuffer -> state.copy(isBuffering = reducer.displayBuffer)
+        is PlayerReducer.SetPlayerRatio -> state.copy(playerRatio = "${reducer.playerRatio.numerator}:${reducer.playerRatio.denominator}")
     }
 
     private fun setupVideo(videoId: String): Single<Video> = Completable.merge(
@@ -128,6 +129,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                 player.isPlaying.map(PlayerReducer::UpdatePlayingState),
                 player.previewUrl.map(PlayerReducer::DisplayPreview),
                 player.isBuffering.map(PlayerReducer::DisplayBuffer),
+                player.contentRatio.map(PlayerReducer::SetPlayerRatio),
                 commentPages.map<PlayerReducer>(PlayerReducer::DisplayComments),
                 commentStates.map(::mapCommentStates)
         ))
