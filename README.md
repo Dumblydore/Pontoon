@@ -1,6 +1,6 @@
 # Pontoon: Unofficial Floatplane Android App
 
-[![CircleCI](https://circleci.com/gh/Dumblydore/Pontoon/tree/master.svg?style=shield&circle-token=e8244f8d38776f64138c691abfabc51682ebf562)](https://circleci.com/gh/Dumblydore/Pontoon/tree/master) [![](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
+[![Pontoon Beta Workflow](https://github.com/Dumblydore/Pontoon/actions/workflows/beta-workflow.yml/badge.svg)](https://github.com/Dumblydore/Pontoon/actions/workflows/beta-workflow.yml) [![](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
 <img src="assets/screenshots/player.png" width="200"> <img src="assets/screenshots/subscriptions.png" width="200"> <img src="assets/screenshots/subscriptions_pip.png" width="200">
 

@@ -20,7 +20,7 @@ jobs:
       - name: Setup local.properties file
         run: |
           touch local.properties
-      - name: Build apk
+      - name: Test & build apk
         run: ./gradlew clean test assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v2

@@ -20,7 +20,7 @@ class PrivacyManager @Inject constructor(private val sharedPreferences: SharedPr
     private var hasUserBeenPrompted: Boolean
         get() = sharedPreferences.getBoolean(AnalyticsPromptKey, false)
         set(value) = sharedPreferences.edit(true)
-        { putBoolean(AnalyticsPromptKey, true) }
+        { putBoolean(AnalyticsPromptKey, value) }
 
     private fun revokeAnalytics() {
         sharedPreferences.edit {
