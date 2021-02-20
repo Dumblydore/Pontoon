@@ -4,12 +4,11 @@
     <Transition
         android:id="@+id/transition_controls_hide"
         app:constraintSetEnd="@id/hideControls"
-        app:constraintSetStart="@id/showControls">
-    </Transition>
+        app:constraintSetStart="@id/showControls" />
     <ConstraintSet android:id="@+id/showControls">
         <Constraint
             android:id="@+id/controlsGroup"
-            app:visibilityMode="ignore"/>
+            app:visibilityMode="ignore" />
         <Constraint
             android:id="@+id/playerContent"
             android:layout_width="0dp"
@@ -88,11 +87,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/playerControlQuality" />
     </ConstraintSet>
-
     <ConstraintSet android:id="@+id/hideControls">
         <Constraint
             android:id="@+id/controlsGroup"
-            app:visibilityMode="ignore"/>
+            app:visibilityMode="ignore" />
         <Constraint
             android:id="@+id/playerContent"
             android:layout_width="0dp"

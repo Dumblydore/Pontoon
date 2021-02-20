@@ -180,7 +180,11 @@
         <Constraint
             android:id="@+id/playerTouchBox"
             android:layout_width="0dp"
-            android:layout_height="0dp" />
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/player"
+            app:layout_constraintEnd_toEndOf="@id/player"
+            app:layout_constraintStart_toStartOf="@id/player"
+            app:layout_constraintTop_toTopOf="@id/player" />
         <Constraint
             android:id="@+id/player"
             android:layout_width="0dp"
@@ -249,10 +253,11 @@
         <Constraint
             android:id="@+id/player"
             android:layout_width="0dp"
-            android:layout_height="72dp"
+            android:layout_height="00dp"
             app:layout_constraintBottom_toTopOf="@id/mainNav"
             app:layout_constraintDimensionRatio="16:9"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/collapsedDetails" />
         <Constraint
             android:id="@+id/playerProgress"
             android:layout_width="0dp"
@@ -321,11 +326,12 @@
         <Constraint
             android:id="@+id/player"
             android:layout_width="0dp"
-            android:layout_height="72dp"
+            android:layout_height="0dp"
             android:alpha="0"
             app:layout_constraintBottom_toTopOf="@id/mainNav"
             app:layout_constraintDimensionRatio="16:9"
-            app:layout_constraintEnd_toStartOf="parent" />
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/collapsedDetails" />
         <Constraint
             android:id="@+id/playerProgress"
             android:layout_width="0dp"

@@ -10,7 +10,9 @@ import com.google.android.exoplayer2.source.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.trackselection.TrackSelector
-import com.google.android.exoplayer2.video.VideoListener
+import com.jakewharton.rxrelay2.PublishRelay
+import com.jakewharton.rxrelay2.Relay
+import io.reactivex.Observable
 import me.mauricee.pontoon.ext.loge
 import java.io.IOException
 import javax.inject.Inject
@@ -18,8 +20,14 @@ import javax.inject.Inject
 class WrappedExoPlayer @Inject constructor(localExoPlayer: SimpleExoPlayer, private val playerFactory: PlayerFactory) : Player {
     private val disposable = playerFactory.playback.subscribe { activePlayer = it }
 
+    private val _activePlayerEvents: Relay<Unit> = PublishRelay.create()
+    val activePlayerChanged: Observable<Unit>
+        get() = _activePlayerEvents.hide()
     var activePlayer: Player = localExoPlayer
-        private set
+        private set(value) {
+            field = value
+            _activePlayerEvents.accept(Unit)
+        }
 
     init {
         localExoPlayer.addAnalyticsListener(object : AnalyticsListener {
@@ -31,14 +39,6 @@ class WrappedExoPlayer @Inject constructor(localExoPlayer: SimpleExoPlayer, priv
                 loge(error)
             }
         })
-    }
-
-    fun addVideoListener(listener: VideoListener) {
-        (activePlayer as? SimpleExoPlayer)?.addVideoListener(listener)
-    }
-
-    fun removeVideoListener(listener: VideoListener) {
-        (activePlayer as? SimpleExoPlayer)?.removeVideoListener(listener)
     }
 
     fun setVideoTextureView(textureView: TextureView) {

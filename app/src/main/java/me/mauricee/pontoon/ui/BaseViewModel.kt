@@ -9,14 +9,13 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ext.livedata.LiveEvent
-import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.referentialDistinctUntilChanged
 
 abstract class EventViewModel<S : Any, A : EventTracker.Action, E : Any>(initialState: S, presenter: BasePresenter<S, *, A, E>) : ViewModel(), BaseContract.View<A> {
     private val _actions = PublishRelay.create<A>()
     override val actions: Observable<A>
         get() = _actions.hide()
-    protected open val _state = MutableLiveData<S>()
+    private val _state = MutableLiveData<S>()
     val state: LiveData<S>
         get() = _state.referentialDistinctUntilChanged()
     private val subs = CompositeDisposable()
@@ -30,8 +29,6 @@ abstract class EventViewModel<S : Any, A : EventTracker.Action, E : Any>(initial
     }
 
     fun sendAction(action: A) = _actions.accept(action)
-
-    fun <V> watchStateValue(diff: S.() -> V): LiveData<V> = _state.map(diff).referentialDistinctUntilChanged()
 
     private fun updateState(state: S) = _state.postValue(state)
 

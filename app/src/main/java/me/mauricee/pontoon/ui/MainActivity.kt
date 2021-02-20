@@ -64,7 +64,8 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         wiseFy.dump()
-        player.release()
+        if (isFinishing)
+            player.release()
     }
 }
 

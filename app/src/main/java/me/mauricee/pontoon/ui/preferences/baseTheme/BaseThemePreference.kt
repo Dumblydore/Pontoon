@@ -8,13 +8,13 @@ import androidx.core.os.bundleOf
 import androidx.preference.DialogPreference
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import dagger.android.support.AndroidSupportInjection
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.preference_base_theme.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.theme.BaseTheme
 import me.mauricee.pontoon.common.theme.ThemeManager
+import me.mauricee.pontoon.databinding.PreferenceBaseThemeBinding
+import me.mauricee.pontoon.ext.view.viewBinding
 import javax.inject.Inject
 
 class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
@@ -53,6 +53,7 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
 
         private lateinit var selectedTheme: BaseTheme
         private lateinit var selection: Disposable
+        private val binding by viewBinding(PreferenceBaseThemeBinding::bind)
 
         override fun onDialogClosed(positiveResult: Boolean) {
             if (positiveResult) {
@@ -67,8 +68,8 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
 
         override fun onBindDialogView(view: View) {
             super.onBindDialogView(view)
-            view.preference_base_themes.adapter = adapter
-            view.preference_base_themes.layoutManager = GridLayoutManager(requireContext(), 3)
+            binding.preferenceBaseThemes.adapter = adapter
+            binding.preferenceBaseThemes.layoutManager = GridLayoutManager(requireContext(), 3)
             selection = adapter.actions.subscribe { selectedTheme = it }
             selectedTheme = themeManager.baseTheme
         }

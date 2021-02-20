@@ -83,7 +83,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
             binding.loginPasswordEdit.setText(R.string.default_pass)
         }
 
-        viewModel.watchStateValue { prompt2FaCode }.observe(viewLifecycleOwner) {
+        viewModel.state.mapDistinct(LoginState::prompt2FaCode).observe(viewLifecycleOwner) {
             if (it) {
                 binding.loginToken.isVisible = true
                 binding.loginUsername.isVisible = false

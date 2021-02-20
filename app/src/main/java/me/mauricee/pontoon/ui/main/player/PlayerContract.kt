@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.ui.main.player
 
+import android.util.Rational
 import androidx.annotation.StringRes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
@@ -53,7 +54,8 @@ data class PlayerState(val videoState: UiState = UiState.Empty,
                        val currentQualityLevel: Player.Quality? = null,
                        val timelineUrl: String? = null,
                        val qualityLevels: Set<Player.Quality> = emptySet(),
-                       val viewMode: ViewMode = ViewMode.Dismissed)
+                       val viewMode: ViewMode = ViewMode.Dismissed,
+                       val playerRatio: String = "16:9")
 
 sealed class PlayerReducer {
     object Loading : PlayerReducer()
@@ -78,6 +80,7 @@ sealed class PlayerReducer {
     data class DisplayRelatedVideosError(val error: UiError) : PlayerReducer()
     data class DisplayCommentError(val error: UiError) : PlayerReducer()
     data class SetViewMode(val viewMode: ViewMode) : PlayerReducer()
+    data class SetPlayerRatio(val playerRatio: Rational) : PlayerReducer()
 }
 
 sealed class PlayerEvent {

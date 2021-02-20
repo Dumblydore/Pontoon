@@ -14,13 +14,13 @@ import javax.inject.Inject
 
 class PrivacyManager @Inject constructor(private val sharedPreferences: SharedPreferences) : LifecycleObserver {
 
-    val isAnalyticsEnabled: Observable<Boolean>
-        get() = sharedPreferences.watchBoolean(AnalyticsEnabledKey, false)
-                .startWith(sharedPreferences.getBoolean(AnalyticsEnabledKey, false))
+    val isAnalyticsEnabled: Boolean
+        get() = sharedPreferences.getBoolean(AnalyticsEnabledKey, false)
 
     private var hasUserBeenPrompted: Boolean
         get() = sharedPreferences.getBoolean(AnalyticsPromptKey, false)
-        set(value) = sharedPreferences.edit(true) { putBoolean(AnalyticsPromptKey, true) }
+        set(value) = sharedPreferences.edit(true)
+        { putBoolean(AnalyticsPromptKey, true) }
 
     private fun revokeAnalytics() {
         sharedPreferences.edit {
@@ -55,6 +55,9 @@ class PrivacyManager @Inject constructor(private val sharedPreferences: SharedPr
     fun hidePromptIfOpen() {
         dialog?.hide()
     }
+
+    fun isAnalyticsEnabledChanges(): Observable<Boolean> = sharedPreferences.watchBoolean(AnalyticsEnabledKey, false)
+            .startWith(sharedPreferences.getBoolean(AnalyticsEnabledKey, false))
 
     companion object {
         private const val AnalyticsEnabledKey = "settings_analytics"

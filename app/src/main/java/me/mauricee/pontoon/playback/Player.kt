@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.playback
 
 import android.os.Parcelable
+import android.util.Rational
 import android.view.TextureView
 import androidx.media2.common.MediaItem
 import androidx.media2.common.MediaMetadata
@@ -10,17 +11,20 @@ import androidx.media2.session.MediaSession
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.google.android.exoplayer2.ext.media2.SessionPlayerConnector
+import com.google.android.exoplayer2.video.VideoListener
 import com.jakewharton.rx.replayingShare
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.model.Diffable
 import me.mauricee.pontoon.model.preferences.Preferences
 import me.mauricee.pontoon.rx.Optional
+import me.mauricee.pontoon.rx.exoplayer.VideoEvent
+import me.mauricee.pontoon.rx.exoplayer.observe
 import me.mauricee.pontoon.rx.media.SessionPlayerEvent
 import me.mauricee.pontoon.rx.media.playerCallbackEvents
 import java.util.concurrent.TimeUnit
@@ -97,6 +101,17 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
         get() = callbackEvents.filter { it is SessionPlayerEvent.BufferingStateChangedEvent }
                 .cast(SessionPlayerEvent.BufferingStateChangedEvent::class.java)
                 .map { it.buffState == SessionPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED }
+
+    val contentRatio: Observable<Rational>
+        get() = exoPlayer.activePlayerChanged
+                .map { exoPlayer.activePlayer }
+                .startWith(exoPlayer.activePlayer)
+                .filter { isLocalPlayer }
+                .cast(SimpleExoPlayer::class.java)
+                .switchMap { it.observe() }
+                .filter { it is VideoEvent.OnVideoSizeChanged }
+                .cast(VideoEvent.OnVideoSizeChanged::class.java)
+                .map { Rational(it.width, it.height) }
 
     fun playItem(videoId: String): Completable = Completable.fromAction {
         controller.seekTo(0)

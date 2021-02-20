@@ -1,17 +1,16 @@
 package me.mauricee.pontoon.ui.preferences.baseTheme
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding2.view.clicks
 import io.reactivex.rxkotlin.plusAssign
-import kotlinx.android.synthetic.main.item_color_list.view.*
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseAdapter
 import me.mauricee.pontoon.common.theme.BaseTheme
 import me.mauricee.pontoon.common.theme.ThemeManager
+import me.mauricee.pontoon.databinding.ItemColorGridBinding
 import me.mauricee.pontoon.ui.preferences.CircleHelper
 import javax.inject.Inject
 
@@ -23,9 +22,8 @@ class BaseThemeAdapter @Inject constructor(private val circleHelper: CircleHelpe
         setHasStableIds(true)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_color_grid, parent, false)
-                    .let(this::ViewHolder)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ItemColorGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            .let(this::ViewHolder)
 
     override fun getItemId(position: Int): Long = themes[position].ordinal.toLong()
 
@@ -45,19 +43,19 @@ class BaseThemeAdapter @Inject constructor(private val circleHelper: CircleHelpe
             isChecked -> circleHelper.buildSelectedCircle(color, ContextCompat.getColor(context, R.color.md_green_A400))
             else -> circleHelper.buildCircle(color)
         }
-        holder.itemView.color.setImageDrawable(drawable)
+        holder.binding.color.setImageDrawable(drawable)
     }
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(val binding: ItemColorGridBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            subscriptions += itemView.clicks().map { themes[adapterPosition] }
-                    .subscribe {
+            subscriptions += itemView.clicks().map { themes[bindingAdapterPosition] }
+                    .subscribe { theme ->
                         newSelectedTheme?.let {
                             notifyItemChanged(themes.indexOf(it))
                         }
-                        newSelectedTheme = it
-                        relay.accept(it)
-                        notifyItemChanged(adapterPosition)
+                        newSelectedTheme = theme
+                        relay.accept(theme)
+                        notifyItemChanged(bindingAdapterPosition)
                     }
         }
     }

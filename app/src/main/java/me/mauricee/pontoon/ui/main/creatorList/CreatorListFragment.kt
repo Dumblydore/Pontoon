@@ -5,29 +5,31 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.support.v4.widget.refreshes
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.SimpleBindingAdapter
 import me.mauricee.pontoon.common.SpaceItemDecoration
 import me.mauricee.pontoon.databinding.FragmentCreatorListBinding
+import me.mauricee.pontoon.databinding.ItemCreatorCardBinding
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
+import me.mauricee.pontoon.glide.GlideApp
+import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.main.creatorList.CreatorListFragmentDirections.actionGlobalCreatorFragment
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class CreatorListFragment : BaseFragment(R.layout.fragment_creator_list) {
 
-    @Inject
-    lateinit var creatorAdapter: CreatorListAdapter
-
     private val viewModel: CreatorListContract.ViewModel by viewModels()
     private val binding by viewBinding(FragmentCreatorListBinding::bind)
+    private val creatorAdapter = SimpleBindingAdapter(ItemCreatorCardBinding::inflate, ::bindCreator)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -39,7 +41,8 @@ class CreatorListFragment : BaseFragment(R.layout.fragment_creator_list) {
             addItemDecoration(SpaceItemDecoration(resources.getDimensionPixelSize(R.dimen.grid_spacing)))
         }
 
-        subscriptions += creatorAdapter.actions.subscribe { viewModel.sendAction(it) }
+        subscriptions += creatorAdapter.clicks.map { CreatorListContract.Action.CreatorSelected(it.model) }
+                .subscribe { viewModel.sendAction(it) }
         subscriptions += binding.creatorListContainer.refreshes().subscribe {
             viewModel.sendAction(CreatorListContract.Action.Refresh)
         }
@@ -63,6 +66,16 @@ class CreatorListFragment : BaseFragment(R.layout.fragment_creator_list) {
             binding.creatorListContainer.isRefreshing = it
         }
     }
+
+    private fun bindCreator(binding: ItemCreatorCardBinding, creator: Creator) {
+        binding.itemTitle.text = creator.entity.name
+        GlideApp.with(binding.root).load(creator.user.profileImage)
+                .placeholder(R.drawable.ic_default_thumbnail)
+                .error(R.drawable.ic_default_thumbnail)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(binding.itemIconBig)
+    }
+
 
     companion object {
         fun newInstance() = CreatorListFragment()
