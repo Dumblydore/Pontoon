@@ -1,14 +1,14 @@
 package me.mauricee.pontoon.repository.subscription
 
-import com.nytimes.android.external.store3.base.impl.StalePolicy
-import com.nytimes.android.external.store3.base.impl.room.StoreRoom
+import com.dropbox.android.external.store4.Store
+import com.dropbox.android.external.store4.StoreBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
 import me.mauricee.pontoon.data.local.PontoonDatabase
-import me.mauricee.pontoon.data.local.creator.Creator
+import me.mauricee.pontoon.data.local.subscription.SubscriptionDao
+import me.mauricee.pontoon.repository.creator.Creator
 import javax.inject.Named
 
 @Module
@@ -20,21 +20,7 @@ class SubscriptionModelModule {
 
     @Provides
     @Named("Subscriptions")
-    fun providesSubscriptionStoreRoom(api: FloatPlaneApi, subscriptionPersistor: SubscriptionPersistor): StoreRoom<List<Creator>, Unit> = StoreRoom.from({
-        api.subscriptions.flatMap { subscriptions ->
-            val creatorIds = subscriptions.map { it.creatorId }.distinct().toTypedArray()
-            api.getCreators(*creatorIds).flatMap { creators ->
-                val creatorMap = creators.map { it.id to it }.toMap()
-                val userIds = creators.map { it.owner }.distinct().toTypedArray()
-                api.getUsers(*userIds).map { users ->
-                    val userMap = users.users.map { it.id to it }.toMap()
-                    subscriptions.map {
-                        val creator = creatorMap[it.creatorId] ?: error("")
-                        val user = userMap[creator.owner]?.user ?: error("")
-                        SubscriptionPersistor.Raw(it, creator, user)
-                    }
-                }
-            }
-        }
-    }, subscriptionPersistor, StalePolicy.NETWORK_BEFORE_STALE)
+    fun providesSubscriptionStoreRoom(fetcher: SubscriptionFetcher, subscriptionTruth: SubscriptionSourceOfTruth): Store<Unit, List<Creator>> {
+        return StoreBuilder.from(fetcher, subscriptionTruth).build()
+    }
 }

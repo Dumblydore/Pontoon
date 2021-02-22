@@ -2,36 +2,15 @@ package me.mauricee.pontoon.tv
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
-import androidx.leanback.app.DetailsFragment
-import androidx.leanback.app.DetailsFragmentBackgroundController
-import androidx.leanback.widget.Action
-import androidx.leanback.widget.ArrayObjectAdapter
-import androidx.leanback.widget.ClassPresenterSelector
-import androidx.leanback.widget.DetailsOverviewRow
-import androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter
-import androidx.leanback.widget.FullWidthDetailsOverviewSharedElementHelper
-import androidx.leanback.widget.HeaderItem
-import androidx.leanback.widget.ImageCardView
-import androidx.leanback.widget.ListRow
-import androidx.leanback.widget.ListRowPresenter
-import androidx.leanback.widget.OnActionClickedListener
-import androidx.leanback.widget.OnItemViewClickedListener
-import androidx.leanback.widget.Presenter
-import androidx.leanback.widget.Row
-import androidx.leanback.widget.RowPresenter
-import androidx.core.app.ActivityOptionsCompat
-import androidx.core.content.ContextCompat
 import android.util.Log
 import android.widget.Toast
-
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.GlideDrawable
-import com.bumptech.glide.request.animation.GlideAnimation
-import com.bumptech.glide.request.target.SimpleTarget
-
-import java.util.Collections
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
+import androidx.leanback.app.DetailsFragment
+import androidx.leanback.app.DetailsFragmentBackgroundController
+import androidx.leanback.widget.*
+import java.util.*
 
 /**
  * A wrapper fragment for leanback details screens.
@@ -69,18 +48,18 @@ class VideoDetailsFragment : DetailsFragment() {
 
     private fun initializeBackground(movie: Movie?) {
         mDetailsBackground.enableParallax()
-        Glide.with(context)
-                .load(movie?.backgroundImageUrl)
-                .asBitmap()
-                .centerCrop()
-                .error(R.drawable.default_background)
-                .into<SimpleTarget<Bitmap>>(object : SimpleTarget<Bitmap>() {
-                    override fun onResourceReady(bitmap: Bitmap,
-                                                 glideAnimation: GlideAnimation<in Bitmap>) {
-                        mDetailsBackground.coverBitmap = bitmap
-                        mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size())
-                    }
-                })
+//        Glide.with(context)
+//                .load(movie?.backgroundImageUrl)
+//                .asBitmap()
+//                .centerCrop()
+//                .error(R.drawable.default_background)
+//                .into<SimpleTarget<Bitmap>>(object : SimpleTarget<Bitmap>() {
+//                    override fun onResourceReady(bitmap: Bitmap,
+//                                                 glideAnimation: GlideAnimation<in Bitmap>) {
+//                        mDetailsBackground.coverBitmap = bitmap
+//                        mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size())
+//                    }
+//                })
     }
 
     private fun setupDetailsOverviewRow() {
@@ -89,18 +68,18 @@ class VideoDetailsFragment : DetailsFragment() {
         row.imageDrawable = ContextCompat.getDrawable(context, R.drawable.default_background)
         val width = convertDpToPixel(context, DETAIL_THUMB_WIDTH)
         val height = convertDpToPixel(context, DETAIL_THUMB_HEIGHT)
-        Glide.with(context)
-                .load(mSelectedMovie?.cardImageUrl)
-                .centerCrop()
-                .error(R.drawable.default_background)
-                .into<SimpleTarget<GlideDrawable>>(object : SimpleTarget<GlideDrawable>(width, height) {
-                    override fun onResourceReady(resource: GlideDrawable,
-                                                 glideAnimation: GlideAnimation<in GlideDrawable>) {
-                        Log.d(TAG, "details overview card image url ready: " + resource)
-                        row.imageDrawable = resource
-                        mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size())
-                    }
-                })
+//        Glide.with(context)
+//                .load(mSelectedMovie?.cardImageUrl)
+//                .centerCrop()
+//                .error(R.drawable.default_background)
+//                .into<SimpleTarget<GlideDrawable>>(object : SimpleTarget<GlideDrawable>(width, height) {
+//                    override fun onResourceReady(resource: GlideDrawable,
+//                                                 glideAnimation: GlideAnimation<in GlideDrawable>) {
+//                        Log.d(TAG, "details overview card image url ready: " + resource)
+//                        row.imageDrawable = resource
+//                        mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size())
+//                    }
+//                })
 
         val actionAdapter = ArrayObjectAdapter()
 

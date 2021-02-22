@@ -1,40 +1,38 @@
 package me.mauricee.pontoon.repository.video
 
 import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
-import me.mauricee.pontoon.common.BaseBoundaryCallback
-import me.mauricee.pontoon.common.PagingState
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.data.local.video.VideoDao
+import me.mauricee.pontoon.data.local.video.VideoEntity
+import me.mauricee.pontoon.data.network.FloatPlaneApi
+import me.mauricee.pontoon.repository.util.paging.BaseBoundaryCallback
+import me.mauricee.pontoon.repository.util.paging.PagingState
 import javax.inject.Inject
 
 class SearchBoundaryCallback(private val query: String,
                              private val api: FloatPlaneApi,
                              private val videoDao: VideoDao,
-                             private val disposable: CompositeDisposable,
-                             private vararg val creators: String) : BaseBoundaryCallback<Video>(), Disposable {
+                             private vararg val creators: String) : BaseBoundaryCallback<Video>() {
 
     override fun clearItems(): Completable = videoDao.clearCreatorVideos(*creators)
 
-    override fun noItemsLoaded(): Observable<PagingState> = creators.toObservable()
+    override fun noItemsLoaded(): Single<PagingState> = creators.toObservable()
             .flatMapSingle { api.searchVideos(it, query, 0) }
             .flatMapIterable { it }
             .map { it.toEntity() }
             .toList()
             .map(::cacheVideos)
-            .toObservable()
 
-    override fun frontItemLoaded(itemAtFront: Video): Observable<PagingState> = Observable.just(PagingState.Completed)
 
-    override fun endItemLoaded(itemAtEnd: Video): Observable<PagingState> = creators.toObservable()
+    override fun frontItemLoaded(itemAtFront: Video): Single<PagingState> = Single.just(PagingState.Completed)
+
+    override fun endItemLoaded(itemAtEnd: Video): Single<PagingState> = creators.toObservable()
             .flatMapSingle { api.searchVideos(it, query, videoDao.getNumberOfVideosByCreator(it)) }
             .flatMapIterable { it }
             .map { it.toEntity() }
             .toList()
             .map(::cacheVideos)
-            .toObservable()
 
     private fun cacheVideos(it: List<VideoEntity>): PagingState {
         return when {
@@ -44,7 +42,7 @@ class SearchBoundaryCallback(private val query: String,
     }
 
     class Factory @Inject constructor(private val api: FloatPlaneApi, private val videoDao: VideoDao) {
-        fun newInstance(query: String, vararg creator: String) = SearchBoundaryCallback(query, api, videoDao, CompositeDisposable(), *creator)
+        fun newInstance(query: String, vararg creator: String) = SearchBoundaryCallback(query, api, videoDao, *creator)
     }
 
 }

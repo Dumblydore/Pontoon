@@ -4,13 +4,12 @@ import androidx.paging.DataSource
 import androidx.room.*
 import io.reactivex.Completable
 import io.reactivex.Observable
-import mauricee.me.pontoon.data.common.Diffable
 import me.mauricee.pontoon.data.local.BaseDao
 import me.mauricee.pontoon.data.local.user.UserEntity
 import org.threeten.bp.Instant
 
 @Entity(tableName = "Comments")
-data class CommentEntity( val id: String,
+data class CommentEntity(@PrimaryKey val id: String,
                          val video: String,
                          val parent: String?,
                          val user: String,
@@ -31,16 +30,10 @@ enum class CommentInteractionType {
 
 data class CommentUserReplyJoin(@Embedded val entity: CommentEntity,
                                 @Relation(parentColumn = "user", entityColumn = "id") val user: UserEntity,
-                                @Relation(parentColumn = "id", entityColumn = "parent", entity = CommentEntity::class) val replies: List<ChildComment>) : Diffable<String> {
-    @Ignore
-    override val id: String = entity.id
-}
+                                @Relation(parentColumn = "id", entityColumn = "parent", entity = CommentEntity::class) val replies: List<ChildComment>)
 
 data class ChildComment(@Embedded val entity: CommentEntity,
-                        @Relation(parentColumn = "user", entityColumn = "id") val user: UserEntity) : Diffable<String> {
-    @Ignore
-    override val id: String = entity.id
-}
+                        @Relation(parentColumn = "user", entityColumn = "id") val user: UserEntity)
 
 @Dao
 abstract class CommentDao : BaseDao<CommentEntity>() {

@@ -5,7 +5,6 @@ import me.mauricee.pontoon.repository.user.User
 import org.threeten.bp.Instant
 
 data class Comment(val id: String,
-                   val video: String,
                    val editDate: Instant,
                    val likes: Int,
                    val dislikes: Int,

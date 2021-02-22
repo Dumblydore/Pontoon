@@ -10,7 +10,7 @@ import dagger.hilt.android.components.ActivityRetainedComponent
 import io.reactivex.Completable
 import io.reactivex.rxkotlin.toObservable
 import me.mauricee.pontoon.data.local.PontoonDatabase
-import me.mauricee.pontoon.data.local.creator.Creator
+import me.mauricee.pontoon.data.local.creator.CreatorUserJoin
 import me.mauricee.pontoon.data.local.creator.CreatorDao
 import me.mauricee.pontoon.data.network.FloatPlaneApi
 import me.mauricee.pontoon.data.network.creator.info.CreatorJson
@@ -24,7 +24,7 @@ object CreatorModelModule {
     fun PontoonDatabase.providesCreatorDao() = creatorDao
 
     fun providesCreatorStore(floatPlaneApi: FloatPlaneApi,
-                             creatorDao: CreatorDao): Store<String, Creator> {
+                             creatorDao: CreatorDao): Store<String, CreatorUserJoin> {
         return StoreBuilder.from(Fetcher.ofSingle { key -> floatPlaneApi.getCreators(key).map(List<CreatorJson>::first).map(CreatorJson::toEntity) },
                 SourceOfTruth.ofFlowable(
                         reader = creatorDao::getCreator,
@@ -36,7 +36,7 @@ object CreatorModelModule {
     }
 
     fun providesAllCreatorStore(floatPlaneApi: FloatPlaneApi,
-                                creatorDao: CreatorDao): Store<Unit, List<Creator>> {
+                                creatorDao: CreatorDao): Store<Unit, List<CreatorUserJoin>> {
         return StoreBuilder.from(Fetcher.ofSingle { _: Unit ->
             floatPlaneApi.allCreators
                     .flatMapObservable(List<CreatorListItem>::toObservable)

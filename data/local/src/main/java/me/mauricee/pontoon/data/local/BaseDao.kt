@@ -4,6 +4,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Transaction
 import androidx.room.Update
+import io.reactivex.Completable
 
 abstract class BaseDao<T> {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -26,6 +27,22 @@ abstract class BaseDao<T> {
 
     @Transaction
     inline fun <reified A : T> upsert(entities: List<A>) {
+        val existingEntites = insert(entities).mapIndexed { index, l -> l to entities[index] }
+                .filter { it.first == -1L }
+                .map { it.second }
+        if (existingEntites.isNotEmpty())
+            update(existingEntites)
+    }
+
+    @Transaction
+    inline fun <reified A : T> upsertAsync(entity: A) = Completable.fromAction {
+        if (insert(entity) == -1L)
+            update(entity)
+    }
+
+
+    @Transaction
+    inline fun <reified A : T> upsertAsync(entities: List<A>) = Completable.fromAction {
         val existingEntites = insert(entities).mapIndexed { index, l -> l to entities[index] }
                 .filter { it.first == -1L }
                 .map { it.second }

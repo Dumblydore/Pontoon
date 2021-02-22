@@ -2,19 +2,16 @@ package me.mauricee.pontoon.repository.comment
 
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import me.mauricee.pontoon.data.local.comment.CommentUserReplyJoin
-import me.mauricee.pontoon.data.local.comment.CommentDao
-import me.mauricee.pontoon.data.local.comment.CommentInteractionType
+import me.mauricee.pontoon.data.local.comment.*
 import me.mauricee.pontoon.data.network.FloatPlaneApi
-import me.mauricee.pontoon.data.network.video.comment.ClearInteraction
-import me.mauricee.pontoon.data.network.video.comment.CommentInteraction
-import me.mauricee.pontoon.data.network.video.comment.CommentPost
-import me.mauricee.pontoon.data.network.video.comment.Reply
+import me.mauricee.pontoon.data.network.video.comment.*
 import me.mauricee.pontoon.repository.PagedModel
+import me.mauricee.pontoon.repository.user.toModel
 import javax.inject.Inject
 
 class CommentRepository @Inject constructor(private val commentDao: CommentDao,
@@ -24,12 +21,12 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
 
     fun getComments(videoId: String): PagedModel<Comment> {
         val callback = commentBoundaryCallbackFactory.newInstance(videoId)
-        val pagedList = RxPagedListBuilder(commentDao.getCommentsOfVideo(videoId), pageListConfig)
+        val pagedList = RxPagedListBuilder(commentDao.getCommentsOfVideo(videoId).map { it.toModel() }, pageListConfig)
                 .setFetchScheduler(Schedulers.io())
                 .setNotifyScheduler(AndroidSchedulers.mainThread())
                 .setBoundaryCallback(callback)
-                .buildObservable()
-        return PagedModel(pagedList, callback.pagingState, callback::refresh)
+                .buildFlowable(BackpressureStrategy.LATEST)
+        return PagedModel(pagedList, callback.pagingState.toFlowable(BackpressureStrategy.LATEST), callback::refresh)
     }
 
     fun getComment(commentId: String): Observable<CommentUserReplyJoin> = commentDao.getComment(commentId)
@@ -64,4 +61,37 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
         else floatPlaneApi.setComment(CommentInteraction(commentId, interactionJson!!)).andThen(commentDao.setComment(commentId, interaction))
     }
 }
+
+internal fun ChildComment.toModel(): Comment {
+    return Comment(
+            entity.id,
+            entity.editDate,
+            entity.likes,
+            entity.dislikes,
+            entity.postDate,
+            entity.text,
+            entity.userInteraction,
+            user.toModel(),
+            emptyList()
+    )
+}
+
+internal fun CommentUserReplyJoin.toModel(): Comment {
+    return Comment(entity.id,
+            entity.editDate,
+            entity.likes,
+            entity.dislikes,
+            entity.postDate,
+            entity.text,
+            entity.userInteraction,
+            user.toModel(),
+            replies.map(ChildComment::toModel))
+}
+
+internal fun CommentInteraction.Type.toEntity() = when (this) {
+    CommentInteraction.Type.Like -> CommentInteractionType.Like
+    CommentInteraction.Type.Dislike -> CommentInteractionType.Dislike
+}
+
+internal fun CommentJson.toEntity(userInteraction: CommentInteraction.Type?): CommentEntity = CommentEntity(id, video, replying, user, editDate, interactionCounts.like, interactionCounts.dislike, postDate, text, userInteraction?.toEntity())
 

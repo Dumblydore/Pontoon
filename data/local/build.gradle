@@ -37,8 +37,6 @@ android {
 }
 
 dependencies {
-    implementation project(":data:common")
-
     implementation deps.kotlin
 
     implementation deps.rx.rx_java

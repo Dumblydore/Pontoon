@@ -6,7 +6,12 @@ import androidx.datastore.rxjava2.updateDataAsync
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.SingleTransformer
-import me.mauricee.pontoon.domain.floatplane.*
+import me.mauricee.pontoon.data.network.FloatPlaneApi
+import me.mauricee.pontoon.data.network.LoginAuthToken
+import me.mauricee.pontoon.data.network.LoginRequest
+import me.mauricee.pontoon.data.network.activation.email.confirm.ConfirmationRequest
+import me.mauricee.pontoon.data.network.user.UserJson
+import me.mauricee.pontoon.model.session.SessionCredentials
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton

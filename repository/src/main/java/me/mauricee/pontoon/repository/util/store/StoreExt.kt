@@ -8,7 +8,7 @@ import io.reactivex.Flowable
 import me.mauricee.pontoon.repository.DataModel
 
 fun <T : Any, V : Any> Store<T, V>.getAsDataModel(id: T): DataModel<V> = DataModel(
-        { observe(StoreRequest.cached(id, false)).toObservable().map { it.requireData() } },
+        { observe(StoreRequest.cached(id, false)).map { it.requireData() } },
         { this.freshSingle(id) }
 )
 

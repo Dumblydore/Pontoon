@@ -7,6 +7,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import me.mauricee.pontoon.data.local.PontoonDatabase
 import me.mauricee.pontoon.data.local.session.SessionCredentialsSerializer
 import javax.inject.Singleton
 

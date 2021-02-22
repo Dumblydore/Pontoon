@@ -9,6 +9,8 @@ import me.mauricee.pontoon.data.network.creator.list.CreatorListItem
 import me.mauricee.pontoon.data.network.user.ActivityJson
 import me.mauricee.pontoon.data.network.user.UserJson
 import me.mauricee.pontoon.data.network.user.subscription.SubscriptionJson
+import me.mauricee.pontoon.data.network.video.ContentType
+import me.mauricee.pontoon.data.network.video.VideoContentJson
 import me.mauricee.pontoon.data.network.video.VideoJson
 import me.mauricee.pontoon.data.network.video.comment.*
 import okhttp3.ResponseBody

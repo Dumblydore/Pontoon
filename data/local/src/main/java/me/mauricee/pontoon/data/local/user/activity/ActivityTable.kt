@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import mauricee.me.pontoon.data.common.Diffable
 import me.mauricee.pontoon.data.local.BaseDao
 import me.mauricee.pontoon.data.local.user.UserEntity
 import org.threeten.bp.Instant
@@ -13,10 +12,10 @@ import org.threeten.bp.Instant
 data class ActivityEntity(val userId: String,
                           val comment: String,
                           val date: Instant,
-                          val postId: String?) : Diffable<Long> {
+                          val postId: String?) {
 
     @PrimaryKey(autoGenerate = true)
-    override var id: Long = 0L
+    var id: Long = 0L
 }
 
 @Dao

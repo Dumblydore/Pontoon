@@ -1,20 +1,20 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.0"
+    compileSdkVersion build_versions.compile_sdk
+    buildToolsVersion build_versions.tools_version
 
     defaultConfig {
-        applicationId "me.mauricee.pontoon.tv"
-        minSdkVersion 26
-        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
-
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
@@ -33,14 +33,32 @@ android {
 }
 
 dependencies {
+    implementation project(":common:log")
+    implementation project(":repository")
+    implementation project(":ui")
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.3.0'
-    implementation 'androidx.leanback:leanback:1.0.0'
-    implementation 'com.github.bumptech.glide:glide:3.8.0'
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation deps.kotlin
+
+    implementation deps.androidx.leanback
+
+    implementation deps.glide.core
+    implementation deps.glide.okhttp
+    implementation deps.glide.recyclerview
+    kapt deps.glide.compiler
+
+    implementation deps.dagger.core
+    kapt deps.dagger.compiler
+
+    implementation deps.dagger.hilt.core
+    implementation deps.dagger.hilt.navigation
+    kapt deps.dagger.hilt.compiler
+    kapt deps.dagger.hilt.android_compiler
+
+    implementation deps.rx.rx_java
+    implementation deps.rx.rx_kotlin
+    implementation deps.rx.android
+    implementation deps.rx.relay
+    implementation deps.rx.bindings.material
+
+    implementation deps.material
 }

@@ -7,7 +7,6 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import me.mauricee.pontoon.domain.floatplane.VideoJson
 import me.mauricee.pontoon.model.BaseDao
-import me.mauricee.pontoon.model.Diffable
 import me.mauricee.pontoon.model.creator.Creator
 import me.mauricee.pontoon.model.creator.CreatorEntity
 import org.threeten.bp.Instant
@@ -32,13 +31,7 @@ data class RelatedVideo(val originalVideoId: String, val relatedVideoId: String)
 data class Video(@Embedded
                  val entity: VideoEntity,
                  @Relation(parentColumn = "creator", entityColumn = "id", entity = CreatorEntity::class)
-                 val creator: Creator) : Diffable<String> {
-
-    @Ignore
-    override val id: String = entity.id
-
-    fun toBrowsableUrl(): String = "https://www.floatplane.com/video/$id"
-}
+                 val creator: Creator)
 
 @Dao
 abstract class VideoDao : BaseDao<VideoEntity>() {
@@ -67,7 +60,7 @@ abstract class VideoDao : BaseDao<VideoEntity>() {
     abstract fun setWatched(id: String, watched: Instant = Instant.now()): Completable
 
     @Query("DELETE From Videos WHERE creator IN (:creators)")
-    abstract fun clearCreatorVideos(vararg creators: String) : Completable
+    abstract fun clearCreatorVideos(vararg creators: String): Completable
 
     @Query("SELECT * FROM Videos INNER JOIN RelatedVideos ON Videos.id=RelatedVideos.relatedVideoId WHERE RelatedVideos.originalVideoId=:videoId LIMIT 5")
     abstract fun getRelatedVideos(videoId: String): Observable<List<Video>>

@@ -13,30 +13,31 @@ def androidx_versions = [
 ]
 
 def versions = [
-        kotlin    : "1.4.30",
-        androidx  : androidx_versions,
-        paging    : "2.1.2",
-        dagger    : "2.30.1",
-        room      : "2.3.0-alpha04",
-        lifecycle : "2.2.0",
-        glide     : "4.11.0",
-        camerax   : "1.0.0-beta12",
-        work      : "2.3.4",
-        beagle    : "2.3.6",
-        okhttp    : "4.9.1",
-        retrofit  : "2.9.0",
-        exoplayer : "2.2.19",
-        moshi     : "1.11.0",
-        nav       : "2.3.2",
-        rx_java   : "2.2.21",
-        rx_kotlin : "2.4.0",
-        rx_binding: "3.1.0",
-        rx_android: "2.1.1",
-        store     : "4.0.0",
-        threeten  : "1.1.1",
-        junit     : "4.13.1",
-        pusher    : "2.2.1",
-        wire      : "3.4.0",
+        kotlin             : "1.4.30",
+        androidx           : androidx_versions,
+        paging             : "2.1.2",
+        dagger             : "2.31.2-alpha",
+        room               : "2.3.0-alpha04",
+        lifecycle          : "2.2.0",
+        glide              : "4.11.0",
+        camerax            : "1.0.0-beta12",
+        work               : "2.3.4",
+        beagle             : "2.3.6",
+        okhttp             : "4.9.1",
+        retrofit           : "2.9.0",
+        exoplayer          : "2.2.19",
+        material_components: "1.3.0",
+        moshi              : "1.11.0",
+        nav                : "2.3.2",
+        rx_java            : "2.2.21",
+        rx_kotlin          : "2.4.0",
+        rx_binding         : "3.1.0",
+        rx_android         : "2.1.1",
+        store              : "4.0.0",
+        threeten           : "1.1.1",
+        junit              : "4.13.1",
+        pusher             : "2.2.1",
+        wire               : "3.4.0",
 ]
 ext.versions = versions
 
@@ -60,17 +61,18 @@ def androidxDependencies = [
         viewpager2       : "",
         recyclerview     : "",
         legacy_support_v4: "",
-        constraintlayout : "",
+        leanback         : "androidx.leanback:leanback:1.0.0",
+        constraintlayout : "androidx.constraintlayout:constraintlayout$versions.androidx.constraintlayout",
         preferences      : "androidx.preference:preference-ktx:$versions.androidx.preference"
 ]
 def rxBindings = [
-        binding           : "com.jakewharton.rxbinding3:rxbinding:$versions.rxBinding",
-        core              : "com.jakewharton.rxbinding3:rxbinding-core:$versions.rxBinding",
-        appcompat         : "com.jakewharton.rxbinding3:rxbinding-appcompat:$versions.rxBinding",
-        recyclerview      : "com.jakewharton.rxbinding3:rxbinding-recyclerview:$versions.rxBinding",
-        swiperefreshlayout: "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:$versions.rxBinding",
-        viewpager2        : "com.jakewharton.rxbinding3:rxbinding-viewpager2:$versions.rxBinding",
-        material          : "com.jakewharton.rxbinding3:rxbinding-material:$versions.rxBinding",
+        binding           : "com.jakewharton.rxbinding3:rxbinding:$versions.rx_binding",
+        core              : "com.jakewharton.rxbinding3:rxbinding-core:$versions.rx_binding",
+        appcompat         : "com.jakewharton.rxbinding3:rxbinding-appcompat:$versions.rx_binding",
+        recyclerview      : "com.jakewharton.rxbinding3:rxbinding-recyclerview:$versions.rx_binding",
+        swiperefreshlayout: "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:$versions.rx_binding",
+        viewpager2        : "com.jakewharton.rxbinding3:rxbinding-viewpager2:$versions.rx_binding",
+        material          : "com.jakewharton.rxbinding3:rxbinding-material:$versions.rx_binding",
 ]
 ext.deps = [
         kotlin    : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
@@ -88,6 +90,12 @@ ext.deps = [
                         android_compiler: "com.google.dagger:hilt-android-compiler:$versions.dagger"
                 ]
         ],
+        glide: [
+                core: "com.github.bumptech.glide:glide:$versions.glide",
+                okhttp: "com.github.bumptech.glide:okhttp3-integration:$versions.glide",
+                recyclerview: "com.github.bumptech.glide:recyclerview-integration:$versions.glide",
+                compiler: "com.github.bumptech.glide:compiler:$versions.glide"
+        ],
         moshi     : "com.squareup.moshi:moshi-kotlin:$versions.moshi",
         okhttp    : "com.squareup.okhttp3:okhttp:$versions.okhttp",
         retrofit  : [
@@ -103,6 +111,7 @@ ext.deps = [
                 ext   : "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
         ],
         jsr250    : 'javax.annotation:jsr250-api:1.0',
+        material  : "com.google.android.material:material:$versions.material_components",
         navigation: [
                 fragment: "androidx.navigation:navigation-fragment-ktx:$versions.nav",
                 ui      : "androidx.navigation:navigation-ui-ktx:$versions.nav"
@@ -118,7 +127,7 @@ ext.deps = [
                 rx      : "androidx.room:room-rxjava2:$versions.room"
         ],
         rx        : [
-                coroutines_interop: "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.4.0",
+                coroutines_interop: "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.4.0",
                 rx_java           : "io.reactivex.rxjava2:rxjava:$versions.rx_java",
                 rx_kotlin         : "io.reactivex.rxjava2:rxkotlin:$versions.rx_kotlin",
                 android           : "io.reactivex.rxjava2:rxandroid:$versions.rx_android",

@@ -5,23 +5,25 @@ import android.os.Parcelable
 import androidx.core.net.toUri
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
-import com.nytimes.android.external.store3.base.impl.room.StoreRoom
+import com.dropbox.android.external.store4.Store
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
-import io.reactivex.Observable
+import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.parcelize.Parcelize
-import me.mauricee.pontoon.domain.floatplane.ContentType
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.ext.doOnIo
-import me.mauricee.pontoon.ext.getAndFetch
-import me.mauricee.pontoon.data.local.PagedModel
+import me.mauricee.pontoon.data.local.video.VideoCreatorJoin
+import me.mauricee.pontoon.data.local.video.VideoDao
+import me.mauricee.pontoon.data.network.FloatPlaneApi
+import me.mauricee.pontoon.data.network.video.ContentType
+import me.mauricee.pontoon.repository.PagedModel
+import me.mauricee.pontoon.repository.util.store.getAndFetch
 import okhttp3.ResponseBody
 import javax.inject.Inject
 
-class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Video, String>,
-                                          private val relatedVideoStore: StoreRoom<List<Video>, String>,
+class VideoRepository @Inject constructor(private val videoStore: Store<String, VideoCreatorJoin>,
+                                          private val relatedVideoStore: Store<String, List<VideoCreatorJoin>>,
                                           private val videoDao: VideoDao,
                                           private val floatPlaneApi: FloatPlaneApi,
                                           private val searchCallbackFactory: SearchBoundaryCallback.Factory,
@@ -31,33 +33,36 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
 
     fun getVideos(unwatchedOnly: Boolean, vararg creatorIds: String): PagedModel<Video> {
         val callback = videoCallbackFactory.newInstance(*creatorIds)
-        val factory = if (unwatchedOnly) videoDao.getUnwatchedVideosByCreators(*creatorIds) else
-            videoDao.getVideoByCreators(*creatorIds)
+        val factory = (if (unwatchedOnly) videoDao.getUnwatchedVideosByCreators(*creatorIds) else
+            videoDao.getVideoByCreators(*creatorIds)).map { it.toModel() }
         return RxPagedListBuilder(factory, pageListConfig)
                 .setFetchScheduler(Schedulers.io())
                 .setNotifyScheduler(AndroidSchedulers.mainThread())
                 .setBoundaryCallback(callback)
-                .buildObservable()
-                .doOnDispose(callback::dispose)
+                .buildFlowable(BackpressureStrategy.LATEST)
                 .doOnTerminate(callback::dispose)
                 .let {
-                    PagedModel(it, callback.pagingState, callback::refresh)
+                    PagedModel(it,
+                            callback.pagingState.toFlowable(BackpressureStrategy.LATEST),
+                            callback::refresh)
                 }
     }
 
-    fun getVideo(videoId: String): Observable<Video> = videoStore.getAndFetch(videoId)
+    fun getVideo(videoId: String): Flowable<Video> = videoStore.getAndFetch(videoId)
+            .map(VideoCreatorJoin::toModel)
 
-    fun getRelatedVideos(video: String): Observable<List<Video>> = relatedVideoStore.get(video)
+    fun getRelatedVideos(video: String): Flowable<List<Video>> = relatedVideoStore.getAndFetch(video)
+            .map { it.map(VideoCreatorJoin::toModel) }
 
     fun search(query: String, vararg filteredSubs: String): PagedModel<Video> {
         val callback = searchCallbackFactory.newInstance(query, *filteredSubs)
-        return RxPagedListBuilder(videoDao.search("%$query%", *filteredSubs), pageListConfig)
+        return RxPagedListBuilder(videoDao.search("%$query%", *filteredSubs).map(VideoCreatorJoin::toModel), pageListConfig)
                 .setFetchScheduler(Schedulers.io())
                 .setNotifyScheduler(AndroidSchedulers.mainThread())
                 .setBoundaryCallback(callback)
-                .buildObservable()
-                .doOnDispose(callback::dispose)
-                .let { PagedModel(it, callback.pagingState, callback::refresh) }
+                .buildFlowable(BackpressureStrategy.LATEST)
+                .doOnTerminate(callback::dispose)
+                .let { PagedModel(it, callback.pagingState.toFlowable(BackpressureStrategy.LATEST), callback::refresh) }
     }
 
     fun getStream(videoId: String): Single<List<Stream>> = floatPlaneApi.getVideoContent(videoId, ContentType.vod).map { content ->
@@ -69,24 +74,14 @@ class VideoRepository @Inject constructor(private val videoStore: StoreRoom<Vide
         }
     }
 
-    //TODO
-    fun getDownloadLink(videoId: String, qualityIndex: Int): Single<String> = Single.never()
-
-    /*Observable.combineLatest<ResponseBody, String, String>(
-            floatPlaneApi.getVideoUrl(videoId, quality.name.replace("p", "")), edgeRepo.downloadHost.toObservable(),
-            BiFunction { t1, t2 ->
-                getUrlFromResponse(t2, t1).replace("/chunk.m3u8", "")
-            })
-            .singleOrError()*/
-
-    fun watchHistory(): Observable<PagedList<Video>> = videoDao.history().let {
-        RxPagedListBuilder(it, pageListConfig)
+    fun watchHistory(): Flowable<PagedList<Video>> = videoDao.history().let {
+        RxPagedListBuilder(it.map(VideoCreatorJoin::toModel), pageListConfig)
                 .setFetchScheduler(Schedulers.io())
                 .setNotifyScheduler(AndroidSchedulers.mainThread())
-                .buildObservable()
+                .buildFlowable(BackpressureStrategy.LATEST)
     }
 
-    fun addToWatchHistory(videoId: String): Completable = videoDao.setWatched(videoId).doOnIo()
+    fun addToWatchHistory(videoId: String): Completable = videoDao.setWatched(videoId)
 
     private fun getUrlFromResponse(host: String, responseBody: ResponseBody): String {
         val baseUri = responseBody.string().let { it.substring(1, it.length - 1) }.toUri()
@@ -103,6 +98,6 @@ data class Stream(val name: String,
                   val width: Int, val height: Int,
                   val url: String) : Parcelable
 
-data class Playback(val video: Video, val streams: List<Stream>)
+data class Playback(val video: VideoCreatorJoin, val streams: List<Stream>)
 
 operator fun List<Stream>.get(value: String): Stream? = firstOrNull { it.name == value }

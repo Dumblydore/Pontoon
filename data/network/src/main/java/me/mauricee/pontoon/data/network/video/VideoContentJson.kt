@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.data.network
+package me.mauricee.pontoon.data.network.video
 
 import com.squareup.moshi.Json
 

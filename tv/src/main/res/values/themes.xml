@@ -1,16 +1,435 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.Pontoon" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+<resources>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
+
+    <style name="AppTheme.Night" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
+
+    <style name="AppTheme.Amoled" parent="AppTheme" />
+
+    <style name="AppTheme.Launcher">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+<!--        <item name="android:windowBackground">@drawable/launch_screen</item>-->
     </style>
+
+    <style name="AppTheme.Text" parent="TextAppearance.AppCompat" />
+
+    <style name="AppTheme.Text.Header" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="AppTheme.Text.Subhead" parent="TextAppearance.MaterialComponents.Subtitle1" />
+
+    <style name="AppTheme.Text.Title" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Text.Subtitle" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="android:textColor">?android:textColorSecondary</item>
+    </style>
+
+    <style name="AppTheme.Text.Headline" parent="TextAppearance.AppCompat.Headline">
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Text.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Text.Headline2" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Text.Headline3" parent="TextAppearance.MaterialComponents.Headline3">
+        <item name="android:textSize">36sp</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Text.Headline4" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Text.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Button" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">8dp</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="backgroundTint">?colorPrimarySurface</item>
+    </style>
+
+
+    <style name="AppTheme.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="textAllCaps">false</item>
+        <item name="android:textColor">?android:textColorPrimaryInverse</item>
+        <item name="iconPadding">8dp</item>
+    </style>
+
+    <!--    <style name="AppTheme.Button.TextButton.Positive">-->
+    <!--        <item name="android:textColor">@color/color_bg_button_positive</item>-->
+    <!--        <item name="iconTint">@color/color_bg_button_positive</item>-->
+    <!--        <item name="rippleColor">@color/azul</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="AppTheme.Button.TextButton.Negative">-->
+    <!--        <item name="android:textColor">@color/color_bg_button_negative</item>-->
+    <!--        <item name="iconTint">@color/color_bg_button_negative</item>-->
+    <!--        <item name="rippleColor">@color/connectionRed</item>-->
+    <!--    </style>-->
+
+    <style name="AppTheme.Button.Icon" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">0dp</item>
+        <item name="cornerRadius">1000dp</item>
+        <item name="iconTint">?android:textColorPrimary</item>
+        <item name="rippleColor">?android:colorAccent</item>
+    </style>
+
+    <style name="Widget.AppTheme.Button.IconButton" parent="Widget.MaterialComponents.Button.TextButton" />
+
+    <!--    <style name="AppTheme.Button.OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">-->
+    <!--        <item name="android:textColor">@color/color_button_text_neutral</item>-->
+    <!--        <item name="android:textAllCaps">false</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="AppTheme.Button.OutlinedButton.Positive">-->
+    <!--        <item name="backgroundTint">@color/color_bg_outline_button_positive</item>-->
+    <!--        <item name="android:textColor">@color/color_text_button_outline_positive</item>-->
+    <!--        <item name="iconTint">@color/color_bg_button_positive</item>-->
+    <!--        <item name="rippleColor">@color/azul</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="AppTheme.Button.OutlinedButton.Negative">-->
+    <!--        <item name="backgroundTint">@color/color_bg_outline_button_negative</item>-->
+    <!--        <item name="android:textColor">@color/color_text_button_outline_negative</item>-->
+    <!--        <item name="iconTint">@color/color_bg_button_negative</item>-->
+    <!--        <item name="rippleColor">@color/connectionRed</item>-->
+    <!--    </style>-->
+
+    <style name="AppTheme.Text.Body" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Text.Small" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="AppTheme.Text.Medium" parent="AppTheme.Text.Body">
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="PrimaryDefault">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="PrimaryRed">
+        <item name="android:colorPrimary">@color/md_red_500</item>
+        <item name="colorPrimary">@color/md_red_500</item>
+        <item name="android:colorPrimaryDark">@color/md_red_700</item>
+        <item name="colorPrimaryDark">@color/md_red_700</item>
+        <!--<item name="colorPrimary">@color/md_red_100</item>-->
+    </style>
+
+    <style name="PrimaryPink">
+        <item name="android:colorPrimary">@color/md_pink_500</item>
+        <item name="colorPrimary">@color/md_pink_500</item>
+        <item name="android:colorPrimaryDark">@color/md_pink_700</item>
+        <item name="colorPrimaryDark">@color/md_pink_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_pink_100</item>-->
+    </style>
+
+    <style name="PrimaryPurple">
+        <item name="android:colorPrimary">@color/md_purple_500</item>
+        <item name="colorPrimary">@color/md_purple_500</item>
+        <item name="android:colorPrimaryDark">@color/md_purple_700</item>
+        <item name="colorPrimaryDark">@color/md_purple_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_purple_100</item>-->
+    </style>
+
+    <style name="PrimaryDeepPurple">
+        <item name="android:colorPrimary">@color/md_deep_purple_500</item>
+        <item name="colorPrimary">@color/md_deep_purple_500</item>
+        <item name="android:colorPrimaryDark">@color/md_deep_purple_700</item>
+        <item name="colorPrimaryDark">@color/md_deep_purple_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_deep_purple_100</item>-->
+    </style>
+
+    <style name="PrimaryIndigo">
+        <item name="android:colorPrimary">@color/md_indigo_500</item>
+        <item name="colorPrimary">@color/md_indigo_500</item>
+        <item name="android:colorPrimaryDark">@color/md_indigo_700</item>
+        <item name="colorPrimaryDark">@color/md_indigo_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_indigo_100</item>-->
+    </style>
+
+    <style name="PrimaryBlue">
+        <item name="android:colorPrimary">@color/md_blue_500</item>
+        <item name="colorPrimary">@color/md_blue_500</item>
+        <item name="android:colorPrimaryDark">@color/md_blue_700</item>
+        <item name="colorPrimaryDark">@color/md_blue_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_blue_100</item>-->
+    </style>
+
+    <style name="PrimaryLightBlue">
+        <item name="android:colorPrimary">@color/md_light_blue_500</item>
+        <item name="colorPrimary">@color/md_light_blue_500</item>
+        <item name="android:colorPrimaryDark">@color/md_light_blue_700</item>
+        <item name="colorPrimaryDark">@color/md_light_blue_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_light_blue_100</item>-->
+    </style>
+
+    <style name="PrimaryCyan">
+        <item name="android:colorPrimary">@color/md_cyan_500</item>
+        <item name="colorPrimary">@color/md_cyan_500</item>
+        <item name="android:colorPrimaryDark">@color/md_cyan_700</item>
+        <item name="colorPrimaryDark">@color/md_cyan_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_cyan_100</item>-->
+    </style>
+
+    <style name="PrimaryTeal">
+        <item name="android:colorPrimary">@color/md_teal_500</item>
+        <item name="colorPrimary">@color/md_teal_500</item>
+        <item name="android:colorPrimaryDark">@color/md_teal_700</item>
+        <item name="colorPrimaryDark">@color/md_teal_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_teal_100</item>-->
+    </style>
+
+    <style name="PrimaryGreen">
+        <item name="android:colorPrimary">@color/md_green_500</item>
+        <item name="colorPrimary">@color/md_green_500</item>
+        <item name="android:colorPrimaryDark">@color/md_green_700</item>
+        <item name="colorPrimaryDark">@color/md_green_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_green_100</item>-->
+    </style>
+
+    <style name="PrimaryLightGreen">
+        <item name="android:colorPrimary">@color/md_light_green_500</item>
+        <item name="colorPrimary">@color/md_light_green_500</item>
+        <item name="android:colorPrimaryDark">@color/md_light_green_700</item>
+        <item name="colorPrimaryDark">@color/md_light_green_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_light_green_100</item>-->
+    </style>
+
+    <style name="PrimaryLime">
+        <item name="android:colorPrimary">@color/md_lime_500</item>
+        <item name="colorPrimary">@color/md_lime_500</item>
+        <item name="android:colorPrimaryDark">@color/md_lime_700</item>
+        <item name="colorPrimaryDark">@color/md_lime_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_lime_100</item>-->
+    </style>
+
+    <style name="PrimaryYellow">
+        <item name="android:colorPrimary">@color/md_yellow_500</item>
+        <item name="colorPrimary">@color/md_yellow_500</item>
+        <item name="android:colorPrimaryDark">@color/md_yellow_700</item>
+        <item name="colorPrimaryDark">@color/md_yellow_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_yellow_100</item>-->
+    </style>
+
+    <style name="PrimaryAmber">
+        <item name="android:colorPrimary">@color/md_amber_500</item>
+        <item name="colorPrimary">@color/md_amber_500</item>
+        <item name="android:colorPrimaryDark">@color/md_amber_700</item>
+        <item name="colorPrimaryDark">@color/md_amber_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_amber_100</item>-->
+    </style>
+
+    <style name="PrimaryOrange">
+        <item name="android:colorPrimary">@color/md_orange_500</item>
+        <item name="colorPrimary">@color/md_orange_500</item>
+        <item name="android:colorPrimaryDark">@color/md_orange_700</item>
+        <item name="colorPrimaryDark">@color/md_orange_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_orange_100</item>-->
+    </style>
+
+    <style name="PrimaryDeepOrange">
+        <item name="android:colorPrimary">@color/md_deep_orange_500</item>
+        <item name="colorPrimary">@color/md_deep_orange_500</item>
+        <item name="android:colorPrimaryDark">@color/md_deep_orange_700</item>
+        <item name="colorPrimaryDark">@color/md_deep_orange_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_deep_orange_100</item>-->
+    </style>
+
+    <style name="PrimaryBrown">
+        <item name="android:colorPrimary">@color/md_brown_500</item>
+        <item name="colorPrimary">@color/md_brown_500</item>
+        <item name="android:colorPrimaryDark">@color/md_brown_700</item>
+        <item name="colorPrimaryDark">@color/md_brown_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_brown_100</item>-->
+    </style>
+
+    <style name="PrimaryGrey">
+        <item name="android:colorPrimary">@color/md_grey_500</item>
+        <item name="colorPrimary">@color/md_grey_500</item>
+        <item name="android:colorPrimaryDark">@color/md_grey_700</item>
+        <item name="colorPrimaryDark">@color/md_grey_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_grey_100</item>-->
+    </style>
+
+    <style name="PrimaryBlack" parent="PrimaryGrey">
+        <item name="android:colorPrimary">@color/md_black_1000</item>
+        <item name="colorPrimary">@color/md_black_1000</item>
+        <item name="android:colorPrimaryDark">@color/md_black_1000</item>
+        <item name="colorPrimaryDark">@color/md_black_1000</item>
+        <!--<item name="colorPrimaryLight">@color/md_grey_100</item>-->
+    </style>
+
+    <style name="PrimaryBlueGrey">
+        <item name="android:colorPrimary">@color/md_blue_grey_500</item>
+        <item name="colorPrimary">@color/md_blue_grey_500</item>
+        <item name="android:colorPrimaryDark">@color/md_blue_grey_700</item>
+        <item name="colorPrimaryDark">@color/md_blue_grey_700</item>
+        <!--<item name="colorPrimaryLight">@color/md_blue_grey_100</item>-->
+    </style>
+
+    <style name="AccentDefault">
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:textColorHighlight">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AccentRed">
+        <item name="android:colorAccent">@color/md_red_A200</item>
+        <item name="android:textColorHighlight">@color/md_red_A200</item>
+        <item name="colorAccent">@color/md_red_A200</item>
+        <!--<item name="colorAccentDark">@color/md_red_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_red_A100</item>-->
+    </style>
+
+    <style name="AccentPink">
+        <item name="android:colorAccent">@color/md_pink_A200</item>
+        <item name="android:textColorHighlight">@color/md_pink_A200</item>
+        <item name="colorAccent">@color/md_pink_A200</item>
+        <!--<item name="colorAccentDark">@color/md_pink_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_pink_A100</item>-->
+    </style>
+
+    <style name="AccentPurple">
+        <item name="android:colorAccent">@color/md_purple_A200</item>
+        <item name="android:textColorHighlight">@color/md_purple_A200</item>
+        <item name="colorAccent">@color/md_purple_A200</item>
+        <!--<item name="colorAccentDark">@color/md_purple_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_purple_A100</item>-->
+    </style>
+
+    <style name="AccentDeepPurple">
+        <item name="android:colorAccent">@color/md_deep_purple_A200</item>
+        <item name="android:textColorHighlight">@color/md_deep_purple_A200</item>
+        <item name="colorAccent">@color/md_deep_purple_A200</item>
+        <!--<item name="colorAccentDark">@color/md_deep_purple_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_deep_purple_A100</item>-->
+    </style>
+
+    <style name="AccentIndigo">
+        <item name="android:colorAccent">@color/md_indigo_A200</item>
+        <item name="android:textColorHighlight">@color/md_indigo_A200</item>
+        <item name="colorAccent">@color/md_indigo_A200</item>
+        <!--<item name="colorAccentDark">@color/md_indigo_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_indigo_A100</item>-->
+    </style>
+
+    <style name="AccentBlue">
+        <item name="android:colorAccent">@color/md_blue_A200</item>
+        <item name="android:textColorHighlight">@color/md_blue_A200</item>
+        <item name="colorAccent">@color/md_blue_A200</item>
+        <!--<item name="colorAccentDark">@color/md_blue_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_blue_A100</item>-->
+    </style>
+
+    <style name="AccentLightBlue">
+        <item name="android:colorAccent">@color/md_light_blue_A200</item>
+        <item name="android:textColorHighlight">@color/md_light_blue_A200</item>
+        <item name="colorAccent">@color/md_light_blue_A200</item>
+        <!--<item name="colorAccentDark">@color/md_light_blue_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_light_blue_A100</item>-->
+    </style>
+
+    <style name="AccentCyan">
+        <item name="android:colorAccent">@color/md_cyan_A200</item>
+        <item name="android:textColorHighlight">@color/md_cyan_A200</item>
+        <item name="colorAccent">@color/md_cyan_A200</item>
+        <!--<item name="colorAccentDark">@color/md_cyan_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_cyan_A100</item>-->
+    </style>
+
+    <style name="AccentTeal">
+        <item name="android:colorAccent">@color/md_teal_A200</item>
+        <item name="android:textColorHighlight">@color/md_teal_A200</item>
+        <item name="colorAccent">@color/md_teal_A200</item>
+        <!--<item name="colorAccentDark">@color/md_teal_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_teal_A100</item>-->
+    </style>
+
+    <style name="AccentGreen">
+        <item name="android:colorAccent">@color/md_green_A200</item>
+        <item name="android:textColorHighlight">@color/md_green_A200</item>
+        <item name="colorAccent">@color/md_green_A200</item>
+        <!--<item name="colorAccentDark">@color/md_green_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_green_A100</item>-->
+    </style>
+
+    <style name="AccentLightGreen">
+        <item name="android:colorAccent">@color/md_light_green_A200</item>
+        <item name="android:textColorHighlight">@color/md_light_green_A200</item>
+        <item name="colorAccent">@color/md_light_green_A200</item>
+        <!--<item name="colorAccentDark">@color/md_light_green_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_light_green_A100</item>-->
+    </style>
+
+    <style name="AccentLime">
+        <item name="android:colorAccent">@color/md_lime_A200</item>
+        <item name="android:textColorHighlight">@color/md_lime_A200</item>
+        <item name="colorAccent">@color/md_lime_A200</item>
+        <!--<item name="colorAccentDark">@color/md_lime_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_lime_A100</item>-->
+    </style>
+
+    <style name="AccentYellow">
+        <item name="android:colorAccent">@color/md_yellow_A200</item>
+        <item name="android:textColorHighlight">@color/md_yellow_A200</item>
+        <item name="colorAccent">@color/md_yellow_A200</item>
+        <!--<item name="colorAccentDark">@color/md_yellow_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_yellow_A100</item>-->
+    </style>
+
+    <style name="AccentAmber">
+        <item name="android:colorAccent">@color/md_amber_A200</item>
+        <item name="android:textColorHighlight">@color/md_amber_A200</item>
+        <item name="colorAccent">@color/md_amber_A200</item>
+        <!--<item name="colorAccentDark">@color/md_amber_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_amber_A100</item>-->
+    </style>
+
+    <style name="AccentOrange">
+        <item name="android:colorAccent">@color/md_orange_A200</item>
+        <item name="android:textColorHighlight">@color/md_orange_A200</item>
+        <item name="colorAccent">@color/md_orange_A200</item>
+        <!--<item name="colorAccentDark">@color/md_orange_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_orange_A100</item>-->
+    </style>
+
+    <style name="AccentDeepOrange">
+        <item name="android:colorAccent">@color/md_deep_orange_A200</item>
+        <item name="android:textColorHighlight">@color/md_deep_orange_A200</item>
+        <item name="colorAccent">@color/md_deep_orange_A200</item>
+        <!--<item name="colorAccentDark">@color/md_deep_orange_A400</item>-->
+        <!--<item name="colorAccentLight">@color/md_deep_orange_A100</item>-->
+    </style>
+
 </resources>

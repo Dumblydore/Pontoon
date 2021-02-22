@@ -3,10 +3,9 @@ package me.mauricee.pontoon.data.local.video
 import androidx.paging.DataSource
 import androidx.room.*
 import io.reactivex.Completable
-import io.reactivex.Observable
-import mauricee.me.pontoon.data.common.Diffable
+import io.reactivex.Flowable
 import me.mauricee.pontoon.data.local.BaseDao
-import me.mauricee.pontoon.data.local.creator.Creator
+import me.mauricee.pontoon.data.local.creator.CreatorUserJoin
 import me.mauricee.pontoon.data.local.creator.CreatorEntity
 import org.threeten.bp.Instant
 
@@ -26,16 +25,10 @@ data class VideoEntity(@PrimaryKey val id: String,
             ForeignKey(entity = VideoEntity::class, parentColumns = ["id"], childColumns = ["relatedVideoId"], onDelete = ForeignKey.CASCADE)])
 data class RelatedVideo(val originalVideoId: String, val relatedVideoId: String)
 
-data class Video(@Embedded
-                 val entity: VideoEntity,
-                 @Relation(parentColumn = "creator", entityColumn = "id", entity = CreatorEntity::class)
-                 val creator: Creator) : Diffable<String> {
-
-    @Ignore
-    override val id: String = entity.id
-
-    fun toBrowsableUrl(): String = "https://www.floatplane.com/video/$id"
-}
+data class VideoCreatorJoin(@Embedded
+                            val entity: VideoEntity,
+                            @Relation(parentColumn = "creator", entityColumn = "id", entity = CreatorEntity::class)
+                            val creator: CreatorUserJoin)
 
 @Dao
 abstract class VideoDao : BaseDao<VideoEntity>() {
@@ -46,28 +39,34 @@ abstract class VideoDao : BaseDao<VideoEntity>() {
     abstract fun getNumberOfVideosByCreator(creator: String): Int
 
     @Query("SELECT * FROM Videos WHERE id = :id")
-    abstract fun getVideo(id: String): Observable<Video>
+    abstract fun getVideo(id: String): Flowable<VideoCreatorJoin>
 
     @Query("SELECT * FROM Videos WHERE LOWER(title) LIKE LOWER(:query) AND creator in (:creators)")
-    abstract fun search(query: String, vararg creators: String): DataSource.Factory<Int, Video>
+    abstract fun search(query: String, vararg creators: String): DataSource.Factory<Int, VideoCreatorJoin>
 
     @Query("SELECT * FROM Videos WHERE creator IN (:creators) ORDER BY releaseDate DESC")
-    abstract fun getVideoByCreators(vararg creators: String): DataSource.Factory<Int, Video>
+    abstract fun getVideoByCreators(vararg creators: String): DataSource.Factory<Int, VideoCreatorJoin>
 
     @Query("SELECT * FROM Videos WHERE creator IN (:creators) AND watched IS NULL ORDER BY releaseDate DESC")
-    abstract fun getUnwatchedVideosByCreators(vararg creators: String): DataSource.Factory<Int, Video>
+    abstract fun getUnwatchedVideosByCreators(vararg creators: String): DataSource.Factory<Int, VideoCreatorJoin>
 
     @Query("SELECT * FROM Videos WHERE watched IS NOT NULL ORDER BY watched DESC")
-    abstract fun history(): DataSource.Factory<Int, Video>
+    abstract fun history(): DataSource.Factory<Int, VideoCreatorJoin>
 
     @Query("UPDATE Videos SET watched = :watched WHERE id = :id")
     abstract fun setWatched(id: String, watched: Instant = Instant.now()): Completable
 
     @Query("DELETE From Videos WHERE creator IN (:creators)")
-    abstract fun clearCreatorVideos(vararg creators: String) : Completable
+    abstract fun clearCreatorVideos(vararg creators: String): Completable
 
     @Query("SELECT * FROM Videos INNER JOIN RelatedVideos ON Videos.id=RelatedVideos.relatedVideoId WHERE RelatedVideos.originalVideoId=:videoId LIMIT 5")
-    abstract fun getRelatedVideos(videoId: String): Observable<List<Video>>
+    abstract fun getRelatedVideos(videoId: String): Flowable<List<VideoCreatorJoin>>
+
+    @Query("DELETE FROM Videos WHERE id=:videoId")
+    abstract fun removeVideo(videoId: String): Completable
+
+    @Query("DELETE FROM Videos")
+    abstract fun removeVideos(): Completable
 }
 
 @Dao

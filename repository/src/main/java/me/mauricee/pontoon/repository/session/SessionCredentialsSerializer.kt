@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.repository.session
 
 import androidx.datastore.core.Serializer
+import me.mauricee.pontoon.model.session.SessionCredentials
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.*

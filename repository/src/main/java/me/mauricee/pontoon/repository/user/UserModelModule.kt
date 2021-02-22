@@ -1,15 +1,16 @@
 package me.mauricee.pontoon.repository.user
 
-import com.nytimes.android.external.store3.base.impl.StalePolicy
-import com.nytimes.android.external.store3.base.impl.room.StoreRoom
+import com.dropbox.android.external.store4.Fetcher
+import com.dropbox.android.external.store4.Store
+import com.dropbox.android.external.store4.StoreBuilder
+import com.dropbox.store.rx2.ofSingle
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import io.reactivex.Single
 import me.mauricee.pontoon.data.local.PontoonDatabase
-import me.mauricee.pontoon.rx.RxTuple
+import me.mauricee.pontoon.data.network.FloatPlaneApi
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
@@ -21,10 +22,13 @@ object UserModelModule {
     fun PontoonDatabase.providesActivityDao() = activityDao
 
     @Provides
-    fun providesUserStoreRoom(api: FloatPlaneApi, userPersistor: UserPersistor): StoreRoom<User, String> = StoreRoom.from({ key ->
-        RxTuple.zipAsPair(api.getUsers(key), api.getActivity(key)).map { pair ->
-            val (user, activity) = pair
-            UserPersistor.Raw(user.users.first().user!!, activity.activity)
-        }
-    }, userPersistor, StalePolicy.NETWORK_BEFORE_STALE)
+    fun providesUserStoreRoom(api: FloatPlaneApi, userSourceOfTruth: UserSourceOfTruth): Store<String, User> {
+        return StoreBuilder.from(
+                Fetcher.ofSingle {
+                    Single.zip(api.getUsers(it), api.getActivity(it), { user, activity ->
+                        UserSourceOfTruth.Raw(user.users.first().user!!, activity.activity)
+                    })
+                }, userSourceOfTruth
+        ).build()
+    }
 }
