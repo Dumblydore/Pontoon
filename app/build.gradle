@@ -9,6 +9,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'de.jjohannes.missing-metadata-guava'
 apply plugin: 'com.squareup.wire'
 apply plugin: "androidx.navigation.safeargs"
+//apply plugin: 'com.github.triplet.play'
 
 if (applyAnalytics) {
     apply plugin: 'com.google.gms.google-services'
@@ -17,8 +18,8 @@ if (applyAnalytics) {
 }
 
 
-def major = 0
-def minor = 9
+def major = 1
+def minor = 0
 def patch = (project.findProperty('buildNumber') ?: "0").toInteger()
 
 Properties localProperties = new Properties()
