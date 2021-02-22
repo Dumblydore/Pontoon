@@ -1,1 +1,6 @@
+include ':tv'
+include ':ui'
+include ':repository'
+include ':data:local'
+include ':data:network'
 include ':app'
