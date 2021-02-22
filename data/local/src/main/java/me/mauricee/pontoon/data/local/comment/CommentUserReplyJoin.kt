@@ -10,7 +10,7 @@ import me.mauricee.pontoon.data.local.user.UserEntity
 import org.threeten.bp.Instant
 
 @Entity(tableName = "Comments")
-data class CommentEntity(@PrimaryKey val id: String,
+data class CommentEntity( val id: String,
                          val video: String,
                          val parent: String?,
                          val user: String,
@@ -29,9 +29,9 @@ enum class CommentInteractionType {
     Dislike
 }
 
-data class Comment(@Embedded val entity: CommentEntity,
-                   @Relation(parentColumn = "user", entityColumn = "id") val user: UserEntity,
-                   @Relation(parentColumn = "id", entityColumn = "parent", entity = CommentEntity::class) val replies: List<ChildComment>) : Diffable<String> {
+data class CommentUserReplyJoin(@Embedded val entity: CommentEntity,
+                                @Relation(parentColumn = "user", entityColumn = "id") val user: UserEntity,
+                                @Relation(parentColumn = "id", entityColumn = "parent", entity = CommentEntity::class) val replies: List<ChildComment>) : Diffable<String> {
     @Ignore
     override val id: String = entity.id
 }
@@ -45,13 +45,13 @@ data class ChildComment(@Embedded val entity: CommentEntity,
 @Dao
 abstract class CommentDao : BaseDao<CommentEntity>() {
     @Query("SELECT * FROM Comments WHERE video IS :videoId AND parent IS NULL")
-    abstract fun getCommentsOfVideo(videoId: String): DataSource.Factory<Int, Comment>
+    abstract fun getCommentsOfVideo(videoId: String): DataSource.Factory<Int, CommentUserReplyJoin>
 
     @Query("SELECT * FROM Comments WHERE parent IS :commentId")
     abstract fun getCommentsOfParent(commentId: String): Observable<List<ChildComment>>
 
     @Query("SELECT * FROM Comments Where id IS :commentId")
-    abstract fun getComment(commentId: String): Observable<Comment>
+    abstract fun getComment(commentId: String): Observable<CommentUserReplyJoin>
 
     @Query("UPDATE Comments SET userInteraction=:interaction WHERE Comments.id=:commentId")
     abstract fun setComment(commentId: String, interaction: CommentInteractionType?): Completable
