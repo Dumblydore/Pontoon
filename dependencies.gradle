@@ -1,0 +1,129 @@
+def androidx_versions = [
+        core             : "1.5.0-alpha05",
+        activity         : "1.2.0-beta02",
+        fragment         : "1.3.0-beta02",
+        cardview         : "1.0.0",
+        viewpager2       : "1.0.0",
+        appcompat        : "1.2.0",
+        recyclerview     : "1.2.0-beta01",
+        legacy_support_v4: ":1.0.0",
+        constraintlayout : "2.0.4",
+        data_store       : "1.0.0-alpha05",
+        preferences      : "1.1.1",
+]
+
+def versions = [
+        kotlin    : "1.4.20",
+        androidx  : androidx_versions,
+        paging    : "3.0.0-alpha10",
+        dagger    : "2.30.1",
+        room      : "2.3.0-alpha04",
+        lifecycle : "2.2.0",
+        glide     : "4.11.0",
+        camerax   : "1.0.0-beta12",
+        work      : "2.3.4",
+        beagle    : "2.3.6",
+        okhttp    : "4.9.0",
+        retrofit  : "2.9.0",
+        exoplayer : "2.2.19",
+        moshi     : "1.11.0",
+        nav       : "2.3.2",
+        rx_java   : "2.2.21",
+        rx_kotlin : "2.4.0",
+        rx_binding: "3.1.0",
+        rx_android: "2.1.1",
+        store     : "4.0.0",
+        threeten  : "1.1.1",
+        junit     : "4.13.1",
+        pusher    : "2.2.1",
+        wire      : "3.4.0",
+]
+ext.versions = versions
+
+ext.build_versions = [
+        min_sdk    : 28,
+        target_sdk : 30,
+        compile_sdk: 30,
+        ndk        : "21.3.6528147"
+]
+def androidxDependencies = [
+        activity         : "",
+        appcompat        : "",
+        cardview         : "",
+        data_store       : "androidx.datastore:datastore:$versions.androidx.data_store",
+        fragment         : "",
+        viewpager2       : "",
+        recyclerview     : "",
+        legacy_support_v4: "",
+        constraintlayout : "",
+        preferences      : "androidx.preference:preference-ktx:$versions.androidx.preference"
+]
+def rxBindings = [
+        binding           : "com.jakewharton.rxbinding3:rxbinding:$versions.rxBinding",
+        core              : "com.jakewharton.rxbinding3:rxbinding-core:$versions.rxBinding",
+        appcompat         : "com.jakewharton.rxbinding3:rxbinding-appcompat:$versions.rxBinding",
+        recyclerview      : "com.jakewharton.rxbinding3:rxbinding-recyclerview:$versions.rxBinding",
+        swiperefreshlayout: "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:$versions.rxBinding",
+        viewpager2        : "com.jakewharton.rxbinding3:rxbinding-viewpager2:$versions.rxBinding",
+        material          : "com.jakewharton.rxbinding3:rxbinding-material:$versions.rxBinding",
+]
+ext.deps = [
+        kotlin    : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
+        androidx  : androidxDependencies,
+        camerax   : [
+                core     : "androidx.camera:camera-core:$versions.camerax",
+                camera2  : "androidx.camera:camera-camera2:$versions.camerax",
+                lifecycle: "androidx.camera:camera-lifecycle:$versions.camerax",
+                view     : "androidx.camera:camera-view:1.0.0-alpha18"
+        ],
+        dagger    : [
+                core           : "com.google.dagger:dagger:$versions.dagger",
+                android        : "com.google.dagger:dagger-android:$versions.dagger",
+                android_support: "com.google.dagger:dagger-android-support:$versions.dagger",
+                compiler       : "com.google.dagger:dagger-compiler:$versions.dagger",
+                processor      : "com.google.dagger:dagger-android-processor:$versions.dagger"
+        ],
+        junit     : "junit:junit:$versions.junit",
+        moshi     : "com.squareup.moshi:moshi-kotlin:$versions.moshi",
+        retrofit  : [
+                core : "com.squareup.retrofit2:retrofit:$versions.retrofit",
+                moshi: "com.squareup.retrofit2:converter-moshi:$versions.retrofit",
+                rx   : "com.squareup.retrofit2:adapter-rxjava2:$versions.retrofit",
+        ],
+        exoplayer : [
+
+        ],
+        lifecycle : [
+                common: "androidx.lifecycle:lifecycle-common-java8:$versions.lifecycle",
+                ext   : "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
+        ],
+        jsr250    : 'javax.annotation:jsr250-api:1.0',
+        navigation: [
+                fragment: "androidx.navigation:navigation-fragment-ktx:$versions.nav",
+                ui      : "androidx.navigation:navigation-ui-ktx:$versions.nav"
+        ],
+        paging    : [
+                core: "androidx.paging:paging-runtime-ktx:$versions.paging",
+                rx  : "androidx.paging:paging-rxjava2:$versions.paging"
+        ],
+        room      : [
+                runtime : "androidx.room:room-runtime:$versions.room",
+                compiler: "androidx.room:room-compiler:$versions.room",
+                core    : "androidx.room:room-ktx:$versions.room",
+                rx      : "androidx.room:room-rxjava2:$versions.room"
+        ],
+        rx        : [
+                coroutines_interop: "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.4.0",
+                rx_java           : "io.reactivex.rxjava2:rxjava:$versions.rx_java",
+                rx_kotlin         : "io.reactivex.rxjava2:rxkotlin:$versions.rx_kotlin",
+                android           : "io.reactivex.rxjava2:rxandroid:$versions.rx_android",
+                replaying_share   : "com.jakewharton:replaying-share:3.0.0",
+                bindings          : rxBindings
+        ],
+        store     : [
+                core: "com.dropbox.mobile.store:store4:$versions.store",
+                rx  : "com.dropbox.mobile.store:store-rx2:$versions.store",
+        ],
+        threeten  : "com.jakewharton.threetenabp:threetenabp:$versions.threeten",
+        wire      : "com.squareup.wire:wire-runtime:$versions.wire"
+]

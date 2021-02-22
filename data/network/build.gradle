@@ -9,5 +9,10 @@ java {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation deps.kotlin
+    implementation deps.threeten
+    implementation deps.moshi
+    implementation deps.rx.rx_java
+    implementation deps.rx.rx_kotlin
+    implementation deps.retrofit.core
 }
