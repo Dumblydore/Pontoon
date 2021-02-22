@@ -8,14 +8,14 @@ def androidx_versions = [
         recyclerview     : "1.2.0-beta01",
         legacy_support_v4: ":1.0.0",
         constraintlayout : "2.0.4",
-        data_store       : "1.0.0-alpha05",
+        data_store       : "1.0.0-alpha06",
         preferences      : "1.1.1",
 ]
 
 def versions = [
-        kotlin    : "1.4.20",
+        kotlin    : "1.4.30",
         androidx  : androidx_versions,
-        paging    : "3.0.0-alpha10",
+        paging    : "2.1.2",
         dagger    : "2.30.1",
         room      : "2.3.0-alpha04",
         lifecycle : "2.2.0",
@@ -41,16 +41,20 @@ def versions = [
 ext.versions = versions
 
 ext.build_versions = [
-        min_sdk    : 28,
-        target_sdk : 30,
-        compile_sdk: 30,
-        ndk        : "21.3.6528147"
+        min_sdk      : 28,
+        target_sdk   : 30,
+        compile_sdk  : 30,
+        tools_version: "30.0.0",
+        ndk          : "21.3.6528147"
 ]
 def androidxDependencies = [
         activity         : "",
         appcompat        : "",
         cardview         : "",
-        data_store       : "androidx.datastore:datastore:$versions.androidx.data_store",
+        data_store       : [
+                core: "androidx.datastore:datastore:$androidx_versions.data_store",
+                rx  : "androidx.datastore:datastore-rxjava2:$androidx_versions.data_store"
+        ],
         fragment         : "",
         viewpager2       : "",
         recyclerview     : "",
@@ -83,7 +87,6 @@ ext.deps = [
                 compiler       : "com.google.dagger:dagger-compiler:$versions.dagger",
                 processor      : "com.google.dagger:dagger-android-processor:$versions.dagger"
         ],
-        junit     : "junit:junit:$versions.junit",
         moshi     : "com.squareup.moshi:moshi-kotlin:$versions.moshi",
         retrofit  : [
                 core : "com.squareup.retrofit2:retrofit:$versions.retrofit",
@@ -125,5 +128,14 @@ ext.deps = [
                 rx  : "com.dropbox.mobile.store:store-rx2:$versions.store",
         ],
         threeten  : "com.jakewharton.threetenabp:threetenabp:$versions.threeten",
-        wire      : "com.squareup.wire:wire-runtime:$versions.wire"
+        wire      : "com.squareup.wire:wire-runtime:$versions.wire",
+        test      : [
+                junit  : "junit:junit:$versions.junit",
+                android: [
+                        junit   : "androidx.test.ext:junit:1.1.1",
+                        espresso: [
+                                core: "androidx.test.espresso:espresso-core:3.3.0"
+                        ]
+                ]
+        ]
 ]
