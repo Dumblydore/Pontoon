@@ -1,17 +1,8 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Pontoon Beta Workflow
-
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ master ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,11 +25,12 @@ jobs:
       - name: Setup local.properties file
         run: |
           touch local.properties
-          echo "pontoon.castId=${{secrets.PONTOON_CAST_ID}}" >> local.properties
-          echo "release.keyAlias=${{secrets.SIGNING_RELEASE_KEY_ALIAS}}" >> local.properties
-          echo "release.keyPassword=${{secrets.SIGNING_RELEASE_KEY_PASSWORD}}" >> local.properties
-          echo "release.storeFile=${{ github.workspace }}/Pontoon.jks" >> local.properties
-          echo "release.storePassword=${{secrets.SIGNING_RELEASE_STORE_PASSWORD}}" >> local.properties
+          echo 'pontoon.castId=${{secrets.PONTOON_CAST_ID}}' >> local.properties
+          echo 'release.keyAlias=${{secrets.SIGNING_RELEASE_KEY_ALIAS}}' >> local.properties
+          echo 'release.keyPassword=${{secrets.SIGNING_RELEASE_KEY_PASSWORD}}' >> local.properties
+          echo 'release.storeFile=${{ github.workspace }}/Pontoon.jks' >> local.properties
+          echo 'release.storePassword=${{secrets.SIGNING_RELEASE_STORE_PASSWORD}}' >> local.properties
+          cat local.properties
       - name: Build apk
         run: ./gradlew clean test assembleRelease -P buildNumber=${{github.run_number}} -P enableAnalytics=true
       - name: Upload APK

@@ -1,55 +1,39 @@
-# This is a basic workflow to help you get started with Actions
 name: Pontoon Release Workflow
-
-# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-#  push:
-#    branches: [ master ]
-#  pull_request:
-#    branches: [ master ]
-
-  # Allows you to run this workflow manually from the Actions tab
+  create:
+    tags: [ v* ]
   workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: pulling keystore from aws
-      uses: prewk/s3-cp-action@master
+      - uses: prewk/s3-cp-action@master
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-west-2'
           SOURCE: '${{ secrets.RELEASE_GOOGLE_SERVICES_JSON }}'
-          DEST: './keystore.jks'
-      - name: pulling x from aws
-      uses: prewk/s3-cp-action@master
+          DEST: '${{ github.workspace }}/app/google-services.json'
+      - uses: prewk/s3-cp-action@master
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-west-2'
-          SOURCE: '${{ secrets.RELEASE_GOOGLE_SERVICES_JSON }}'
-          DEST: './app/google-services.json'
-      - name: pulling x from aws
-      uses: prewk/s3-cp-action@master
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'us-west-2'
-          SOURCE: '${{ secrets.RELEASE_GOOGLE_SERVICES_JSON }}'
-          DEST: './app/google-services.json'
+          SOURCE: '${{ secrets.KEYSTORE_LOCATION }}'
+          DEST: '${{ github.workspace }}/Pontoon.jks'
       - name: Setup local.properties file
-        run:  touch local.properties
-      - name: Build the app
-        run: ./gradlew build test
+        run: |
+          touch local.properties
+          echo "pontoon.castId=${{secrets.PONTOON_CAST_ID}}" >> local.properties
+          echo "release.keyAlias=${{secrets.SIGNING_RELEASE_KEY_ALIAS}}" >> local.properties
+          echo "release.keyPassword=${{secrets.SIGNING_RELEASE_KEY_PASSWORD}}" >> local.properties
+          echo "release.storeFile=${{ github.workspace }}/Pontoon.jks" >> local.properties
+          echo "release.storePassword=${{secrets.SIGNING_RELEASE_STORE_PASSWORD}}" >> local.properties
       - name: Build apk
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew clean test assembleRelease -P buildNumber=${{github.run_number}} -P enableAnalytics=true
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
           name: app
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/release/app-release.apk
