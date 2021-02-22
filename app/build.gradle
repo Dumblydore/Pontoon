@@ -9,7 +9,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'de.jjohannes.missing-metadata-guava'
 apply plugin: 'com.squareup.wire'
 apply plugin: "androidx.navigation.safeargs"
-apply plugin: 'com.github.triplet.play'
+//apply plugin: 'com.github.triplet.play'
 
 if (applyAnalytics) {
     apply plugin: 'com.google.gms.google-services'
