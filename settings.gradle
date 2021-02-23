@@ -1,3 +1,5 @@
+include ':feature:videos'
+include ':feature:login'
 include ':common:log'
 include ':data:common'
 include ':tv'

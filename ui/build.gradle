@@ -7,6 +7,9 @@ android {
     compileSdkVersion build_versions.compile_sdk
     buildToolsVersion build_versions.tools_version
 
+    buildFeatures {
+        viewBinding true
+    }
     defaultConfig {
         versionCode 1
         versionName "1.0"
@@ -36,13 +39,15 @@ dependencies {
     implementation project(":data:common")
 
     implementation deps.kotlin
-    
+
     implementation deps.androidx.appcompat
     implementation deps.androidx.core
     implementation deps.androidx.fragment
     implementation deps.androidx.lifecycle.common
     implementation deps.androidx.lifecycle.ext
     implementation deps.androidx.recyclerview
+
+    implementation deps.lazylayout
 
     implementation deps.rx.rx_java
     implementation deps.rx.rx_kotlin

@@ -42,8 +42,6 @@ interface AppModule {
     fun bindContext(application: Application): Context
 
     companion object {
-//        @Provides
-//        fun providesGson(): Gson = ThreeTenGsonAdapter.registerAll(GsonBuilder().setLenient()).create()
 
         @Provides
         fun provideMoshi() = Moshi.Builder()

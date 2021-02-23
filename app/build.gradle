@@ -84,6 +84,7 @@ dependencies {
     implementation project(":common:log")
     implementation project(":data:common")
     implementation project(":data:network")
+    implementation project(":feature:login")
     implementation project(":repository")
     implementation project(":ui")
 

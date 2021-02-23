@@ -1,8 +1,7 @@
-package me.mauricee.pontoon.ui.login
+package me.mauricee.me.pontoon.feature.login
 
 import io.reactivex.Observable
 import io.reactivex.Single
-import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.repository.session.LoginResult
 import me.mauricee.pontoon.repository.session.SessionRepository
 import me.mauricee.pontoon.ui.BaseContract
@@ -39,8 +38,8 @@ class LoginPresenter @Inject constructor(private val sessionRepository: SessionR
 
     private fun attemptLogin(username: String, password: String): Observable<LoginReducer> = Observable.defer {
         when {
-            username.isEmpty() -> LoginReducer.DisplayError(LoginError.MissingUsername).toObservable()
-            password.isEmpty() -> LoginReducer.DisplayError(LoginError.MissingPassword).toObservable()
+            username.isEmpty() -> Observable.just(LoginReducer.DisplayError(LoginError.MissingUsername))
+            password.isEmpty() -> Observable.just(LoginReducer.DisplayError(LoginError.MissingPassword))
             else -> loginWithCredentials(username, password)
         }
     }
@@ -70,9 +69,9 @@ class LoginPresenter @Inject constructor(private val sessionRepository: SessionR
     }
 
     private fun processLoginResult(result: LoginResult): Observable<LoginReducer> = when (result) {
-        LoginResult.Requires2FA -> LoginReducer.Requires2Fa.toObservable()
+        LoginResult.Requires2FA -> Observable.just(LoginReducer.Requires2Fa)
         LoginResult.Success -> noReduce { sendEvent(LoginEvent.NavigateToSession) }
-        is LoginResult.Error -> processError(result.exception).toObservable()
+        is LoginResult.Error -> Observable.just(processError(result.exception))
     }
 
     private fun processError(error: Throwable): LoginReducer = when (error) {

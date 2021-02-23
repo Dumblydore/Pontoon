@@ -11,11 +11,11 @@ import com.isupatches.wisefy.WiseFy
 import dagger.hilt.android.AndroidEntryPoint
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.theme.ThemeManager
-import me.mauricee.pontoon.databinding.ActivityMainNewBinding
+import me.mauricee.pontoon.databinding.ActivityMainBinding
 import me.mauricee.pontoon.ext.view.viewBinding
+import me.mauricee.pontoon.playback.Player
 import me.mauricee.pontoon.preferences.Preferences
 import me.mauricee.pontoon.repository.video.Video
-import me.mauricee.pontoon.playback.Player
 import javax.inject.Inject
 
 
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var prefs: Preferences
 
-    private val binding by viewBinding(ActivityMainNewBinding::inflate)
+    private val binding by viewBinding(ActivityMainBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)

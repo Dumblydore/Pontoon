@@ -1,9 +1,7 @@
-package me.mauricee.pontoon.ui.login
+package me.mauricee.me.pontoon.feature.login
 
 import androidx.annotation.StringRes
 import dagger.hilt.android.lifecycle.HiltViewModel
-import me.mauricee.pontoon.R
-import me.mauricee.pontoon.analytics.EventTracker
 import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
@@ -21,7 +19,7 @@ sealed class LoginReducer {
     data class DisplayError(val error: LoginError) : LoginReducer()
 }
 
-sealed class LoginAction : EventTracker.Action {
+sealed class LoginAction {
     data class Login(val username: String, val password: String) : LoginAction()
     data class LoginWithCookie(val cookie: String) : LoginAction()
     data class Activate(val code: String, val username: String) : LoginAction()

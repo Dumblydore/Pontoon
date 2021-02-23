@@ -2,11 +2,17 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id "androidx.navigation.safeargs"
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
     compileSdkVersion build_versions.compile_sdk
     buildToolsVersion build_versions.tools_version
+
+    buildFeatures {
+        viewBinding true
+    }
 
     defaultConfig {
         versionCode 1
@@ -36,14 +42,38 @@ dependencies {
     implementation project(":common:log")
     implementation project(":repository")
     implementation project(":ui")
+    implementation project(":feature:login")
+    implementation project(":feature:videos")
 
     implementation deps.kotlin
 
+    //  AndroidX
+    implementation deps.androidx.activity
+    implementation deps.androidx.appcompat
+    implementation deps.androidx.core
+    implementation deps.androidx.constraintlayout
+    implementation deps.androidx.fragment
     implementation deps.androidx.leanback
+    implementation deps.androidx.lifecycle.common
+    implementation deps.androidx.lifecycle.ext
+    implementation deps.androidx.lifecycle.livedata
+    implementation deps.androidx.lifecycle.viewmodel
+    implementation deps.androidx.media2.session
+    implementation deps.androidx.media2.player
+    implementation deps.androidx.media2.widget
+    implementation deps.androidx.mediarouter
+    implementation deps.androidx.navigation.fragment
+    implementation deps.androidx.navigation.ui
+    implementation deps.androidx.palette
+    implementation deps.androidx.preference
+    implementation deps.androidx.startup
+    implementation deps.androidx.recyclerview
+    implementation deps.material
 
+    // Glide
     implementation deps.glide.core
     implementation deps.glide.okhttp
-    implementation deps.glide.recyclerview
+    implementation(deps.glide.recyclerview) { transitive = false }
     kapt deps.glide.compiler
 
     implementation deps.dagger.core
@@ -54,11 +84,22 @@ dependencies {
     kapt deps.dagger.hilt.compiler
     kapt deps.dagger.hilt.android_compiler
 
+    // ExoPlayer
+    implementation deps.exoplayer.exoplayer_core
+    implementation deps.exoplayer.exoplayer_ui
+    implementation deps.exoplayer.extension_okhttp
+    implementation deps.exoplayer.extension_cast
+    implementation deps.exoplayer.exoplayer_hls
+    implementation deps.exoplayer.extension_media2
+
     implementation deps.rx.rx_java
     implementation deps.rx.rx_kotlin
     implementation deps.rx.android
     implementation deps.rx.relay
     implementation deps.rx.bindings.material
+    implementation deps.rx.bindings.leanback
+
+    implementation deps.retrofit.scalars
 
     implementation deps.material
 }

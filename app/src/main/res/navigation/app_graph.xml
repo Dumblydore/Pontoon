@@ -60,7 +60,7 @@
             tools:layout="@layout/fragment_web_login">
             <argument
                 android:name="site"
-                app:argType="me.mauricee.pontoon.ui.login.LoginWebsites" />
+                app:argType="me.mauricee.me.pontoon.feature.login.LoginWebsites" />
         </fragment>
         <action
             android:id="@+id/action_global_mainFragment"

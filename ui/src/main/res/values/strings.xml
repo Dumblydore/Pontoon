@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_privacy_policy">Privacy Policy</string>
+    <string name="error_general">Something happened, Not sure what it was.</string>
+    <string name="error_network_general">Something happened, not sure what it was (%s).</string>
+    <string name="retry">Try Again</string>
+    <string name="main_session_expired_body">Your session expired. You need to re-login.</string>
+    <string name="main_session_expired_title">Session Expired</string>
+</resources>
