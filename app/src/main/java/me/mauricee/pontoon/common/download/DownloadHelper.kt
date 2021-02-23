@@ -2,17 +2,14 @@ package me.mauricee.pontoon.common.download
 
 import android.app.DownloadManager
 import android.content.Context
-import android.net.Uri
 import androidx.core.content.getSystemService
-import com.vanniktech.rxpermission.RxPermission
 import io.reactivex.Single
-import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.repository.video.Video
+import me.mauricee.pontoon.repository.video.VideoRepository
 import javax.inject.Inject
 
 
 class DownloadHelper @Inject constructor(private val videoRepository: VideoRepository,
-                                         private val permissions: RxPermission,
                                          private val context: Context) {
 
     private val downloadManager: DownloadManager by lazy { context.getSystemService<DownloadManager>()!! }
@@ -35,7 +32,7 @@ class DownloadHelper @Inject constructor(private val videoRepository: VideoRepos
 //        Completable.fromAction { downloadManager.enqueue(it) }.andThen(Single.just(true))
 //    }
 
-    private fun generateFilename(video: Video, path: Uri): String =
-            "${video.entity.title.replace("\\W+".toRegex(), "_")}_${path.pathSegments.first { it.contains(".") }}"
-                    .toLowerCase()
+//    private fun generateFilename(video: Video, path: Uri): String =
+//            "${video.entity.title.replace("\\W+".toRegex(), "_")}_${path.pathSegments.first { it.contains(".") }}"
+//                    .toLowerCase()
 }

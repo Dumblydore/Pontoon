@@ -11,8 +11,8 @@ data class UserJson(@Json(name ="id") val id: String,
     @JsonClass(generateAdapter=true)
     data class Container(@Json(name ="id") val id: String?,
                          @Json(name ="user") val user: UserJson?,
-                         @Json(name ="needs2FA") val needs2Fa: Boolean)
+                         @Json(name ="needs2FA") val needs2Fa: Boolean?)
 
     @JsonClass(generateAdapter=true)
-    data class Response(@Json(name ="id") val id: String, @Json(name ="users") val users: List<Container>)
+    data class Response(@Json(name = "id") val id: String?, @Json(name = "users") val users: List<Container>)
 }

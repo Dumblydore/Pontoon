@@ -18,10 +18,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.scopes.ActivityRetainedScoped
-import io.lindstrom.m3u8.parser.MasterPlaylistParser
-import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.playback.converters.HlsMediaItemConverter
 import me.mauricee.pontoon.playback.providers.MediaItemProvider
+import me.mauricee.pontoon.repository.util.AuthInterceptor
 import me.mauricee.pontoon.rx.Optional
 import okhttp3.OkHttpClient
 import java.util.concurrent.Executors
@@ -29,10 +28,6 @@ import java.util.concurrent.Executors
 @Module
 @InstallIn(ActivityRetainedComponent::class)
 object PlaybackModule {
-
-    @Provides
-    @ActivityRetainedScoped
-    fun providesPlaylistParser() = MasterPlaylistParser()
 
     @Provides
     @ActivityRetainedScoped

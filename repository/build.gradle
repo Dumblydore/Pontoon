@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -34,48 +35,49 @@ android {
 }
 
 dependencies {
-    implementation project(":common:log")
-    implementation project(":data:common")
-    implementation project(":data:network")
-    implementation project(":data:local")
+    api project(":common:log")
+    api project(":data:common")
+    api project(":data:network")
+    api project(":data:local")
 
-    implementation deps.kotlin
+    api deps.kotlin
 
-    implementation deps.dagger.core
+    api deps.dagger.core
     kapt deps.dagger.compiler
 
-    implementation deps.dagger.hilt.core
-    implementation deps.dagger.hilt.navigation
+    api deps.dagger.hilt.core
+    api deps.dagger.hilt.navigation
     kapt deps.dagger.hilt.compiler
     kapt deps.dagger.hilt.android_compiler
 
-    implementation deps.rx.rx_java
-    implementation deps.rx.rx_kotlin
-    implementation deps.rx.android
-    implementation deps.rx.coroutines_interop
-    implementation deps.rx.relay
+    api deps.rx.rx_java
+    api deps.rx.rx_kotlin
+    api deps.rx.android
+    api deps.rx.coroutines_interop
+    api deps.rx.replaying_share
+    api deps.rx.relay
 
-    implementation deps.androidx.data_store.core
-    implementation deps.androidx.data_store.rx
+    api deps.androidx.data_store.core
+    api deps.androidx.data_store.rx
 
-    implementation deps.moshi
-    implementation deps.okhttp
+    api deps.moshi.core
+    api deps.okhttp.core
 
-    implementation deps.retrofit.core
-    implementation deps.retrofit.moshi
-    implementation deps.retrofit.rx
+    api deps.retrofit.core
+    api deps.retrofit.moshi
+    api deps.retrofit.rx
 
-    implementation deps.room.core
+    api deps.room.core
 
-    implementation deps.store.core
-    implementation deps.store.rx
+    api deps.store.core
+    api deps.store.rx
 
-    implementation deps.paging.core
-    implementation deps.paging.rx
+    api deps.paging.core
+    api deps.paging.rx
 
-    implementation deps.paging.core
+    api deps.paging.core
 
-    implementation deps.threeten
+    api deps.threeten
 
     testImplementation deps.test.junit
     androidTestImplementation deps.test.android.junit

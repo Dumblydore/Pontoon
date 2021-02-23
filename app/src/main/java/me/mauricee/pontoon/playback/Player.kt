@@ -11,7 +11,6 @@ import androidx.media2.session.MediaSession
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.google.android.exoplayer2.ext.media2.SessionPlayerConnector
-import com.google.android.exoplayer2.video.VideoListener
 import com.jakewharton.rx.replayingShare
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Completable
@@ -19,9 +18,9 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.parcelize.Parcelize
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.model.Diffable
-import me.mauricee.pontoon.model.preferences.Preferences
+import mauricee.me.pontoon.data.common.Diffable
+import me.mauricee.pontoon.common.log.logd
+import me.mauricee.pontoon.preferences.Preferences
 import me.mauricee.pontoon.rx.Optional
 import me.mauricee.pontoon.rx.exoplayer.VideoEvent
 import me.mauricee.pontoon.rx.exoplayer.observe

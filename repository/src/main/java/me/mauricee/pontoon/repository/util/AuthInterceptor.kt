@@ -10,15 +10,18 @@ import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.model.session.SessionCredentials
+import me.mauricee.pontoon.repository.session.SessionRepository.Companion.CfDuid
+import me.mauricee.pontoon.repository.session.SessionRepository.Companion.SailsSid
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import javax.inject.Inject
 
-internal class AuthInterceptor @Inject constructor(private val credentials: DataStore<SessionCredentials>) : Interceptor {
+class AuthInterceptor @Inject constructor(private val credentials: DataStore<SessionCredentials>) : Interceptor {
 
     @Volatile
     private var sid: String = ""
+
     @Volatile
     private var cfduid: String = ""
     private val sessionRelay: Relay<Unit> = PublishRelay.create()
@@ -58,10 +61,5 @@ internal class AuthInterceptor @Inject constructor(private val credentials: Data
         if (!response.isSuccessful && response.code == HTTP_FORBIDDEN) {
             sessionRelay.accept(Unit)
         }
-    }
-
-    companion object {
-        const val SailsSid = "sails.sid"
-        const val CfDuid = "__cfduid"
     }
 }

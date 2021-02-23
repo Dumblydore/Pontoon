@@ -4,8 +4,8 @@ import androidx.annotation.StringRes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.creator.Creator
-import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.repository.creator.Creator
+import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
@@ -31,7 +31,7 @@ interface CreatorListContract {
     }
 
     @HiltViewModel
-    class ViewModel @Inject constructor(p: CreatorListPresenter) : EventViewModel<State, Action, Event>(State(), p)
+    class ViewModel @Inject constructor(p: CreatorListPresenter) : BaseViewModel<State, Action, Event>(State(), p)
 
     enum class Errors(@StringRes val msg: Int) {
         Network(R.string.creators_list_error_noCreators)

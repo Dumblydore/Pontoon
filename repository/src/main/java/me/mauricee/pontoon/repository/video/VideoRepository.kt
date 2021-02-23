@@ -22,8 +22,8 @@ import me.mauricee.pontoon.repository.util.store.getAndFetch
 import okhttp3.ResponseBody
 import javax.inject.Inject
 
-class VideoRepository @Inject constructor(private val videoStore: Store<String, VideoCreatorJoin>,
-                                          private val relatedVideoStore: Store<String, List<VideoCreatorJoin>>,
+class VideoRepository @Inject constructor(private val videoStore: Store<String, Video>,
+                                          private val relatedVideoStore: Store<String, List<Video>>,
                                           private val videoDao: VideoDao,
                                           private val floatPlaneApi: FloatPlaneApi,
                                           private val searchCallbackFactory: SearchBoundaryCallback.Factory,
@@ -49,10 +49,8 @@ class VideoRepository @Inject constructor(private val videoStore: Store<String, 
     }
 
     fun getVideo(videoId: String): Flowable<Video> = videoStore.getAndFetch(videoId)
-            .map(VideoCreatorJoin::toModel)
 
     fun getRelatedVideos(video: String): Flowable<List<Video>> = relatedVideoStore.getAndFetch(video)
-            .map { it.map(VideoCreatorJoin::toModel) }
 
     fun search(query: String, vararg filteredSubs: String): PagedModel<Video> {
         val callback = searchCallbackFactory.newInstance(query, *filteredSubs)
@@ -82,6 +80,7 @@ class VideoRepository @Inject constructor(private val videoStore: Store<String, 
     }
 
     fun addToWatchHistory(videoId: String): Completable = videoDao.setWatched(videoId)
+            .subscribeOn(Schedulers.io())
 
     private fun getUrlFromResponse(host: String, responseBody: ResponseBody): String {
         val baseUri = responseBody.string().let { it.substring(1, it.length - 1) }.toUri()
@@ -97,7 +96,5 @@ data class Stream(val name: String,
                   val ordinal: Int,
                   val width: Int, val height: Int,
                   val url: String) : Parcelable
-
-data class Playback(val video: VideoCreatorJoin, val streams: List<Stream>)
 
 operator fun List<Stream>.get(value: String): Stream? = firstOrNull { it.name == value }

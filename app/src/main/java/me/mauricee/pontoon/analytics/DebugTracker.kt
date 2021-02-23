@@ -1,6 +1,6 @@
 package me.mauricee.pontoon.analytics
 
-import me.mauricee.pontoon.ext.logd
+import me.mauricee.pontoon.common.log.logd
 import javax.inject.Inject
 
 class DebugTracker @Inject constructor() : EventTracker.Tracker {

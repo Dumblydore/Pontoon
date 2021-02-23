@@ -6,14 +6,14 @@ import com.jakewharton.rx.replayingShare
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import me.mauricee.pontoon.common.PagingState
-import me.mauricee.pontoon.ext.logd
+import me.mauricee.pontoon.common.log.logd
 import me.mauricee.pontoon.ext.toDuration
-import me.mauricee.pontoon.model.comment.CommentRepository
-import me.mauricee.pontoon.model.user.UserRepository
-import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.model.video.VideoRepository
 import me.mauricee.pontoon.playback.Player
+import me.mauricee.pontoon.repository.comment.CommentRepository
+import me.mauricee.pontoon.repository.session.SessionRepository
+import me.mauricee.pontoon.repository.util.paging.PagingState
+import me.mauricee.pontoon.repository.video.Video
+import me.mauricee.pontoon.repository.video.VideoRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class PlayerPresenter @Inject constructor(private val player: Player,
-                                          private val userRepo: UserRepository,
+                                          private val sessionRepository: SessionRepository,
                                           private val videoRepo: VideoRepository,
                                           private val commentRepo: CommentRepository) : BasePresenter<PlayerState, PlayerReducer, PlayerAction, PlayerEvent>() {
 
@@ -93,8 +93,8 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     private fun handleOtherActions(video: Video, action: PlayerAction): Observable<PlayerReducer> = when (action) {
         PlayerAction.ViewCreator -> noReduce { /*mainNavigator.toCreator(video.creator.id) */ }
-        is PlayerAction.Like -> noReduce(commentRepo.like(action.comment.id))
-        is PlayerAction.Dislike -> noReduce(commentRepo.dislike(action.comment.id))
+        is PlayerAction.Like -> noReduce(commentRepo.like(action.comment.id).onErrorResumeNext { Completable.fromAction { sendEvent(PlayerEvent.OnCommentError) } })
+        is PlayerAction.Dislike -> noReduce(commentRepo.dislike(action.comment.id).onErrorResumeNext { Completable.fromAction { sendEvent(PlayerEvent.OnCommentError) } })
         is PlayerAction.Reply -> noReduce { sendEvent(PlayerEvent.PostComment(video.id, action.parent.id)) }
         is PlayerAction.ViewReplies -> noReduce { sendEvent(PlayerEvent.DisplayReplies(action.comment.id)) }
         is PlayerAction.ViewUser -> Observable.fromCallable {
@@ -120,7 +120,8 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     private fun loadVideoContents(video: Video): Observable<PlayerReducer> {
         val (commentPages, commentStates) = commentRepo.getComments(video.id)
-        return Observable.merge(listOf(videoRepo.getRelatedVideos(video.id).map<PlayerReducer>(PlayerReducer::DisplayRelatedVideo).onErrorReturnItem(PlayerReducer.DisplayRelatedVideosError(UiError(PlayerErrors.General.message))),
+        return Observable.merge(listOf(
+                videoRepo.getRelatedVideos(video.id).map<PlayerReducer>(PlayerReducer::DisplayRelatedVideo).onErrorReturnItem(PlayerReducer.DisplayRelatedVideosError(UiError(PlayerErrors.General.message))).toObservable(),
                 player.currentPosition.map<PlayerReducer>(PlayerReducer::UpdatePosition),
                 player.duration.map<PlayerReducer>(PlayerReducer::UpdateDuration),
                 player.supportedQuality.map<PlayerReducer>(PlayerReducer::DisplayQualityLevels),
@@ -130,8 +131,8 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                 player.previewUrl.map(PlayerReducer::DisplayPreview),
                 player.isBuffering.map(PlayerReducer::DisplayBuffer),
                 player.contentRatio.map(PlayerReducer::SetPlayerRatio),
-                commentPages.map<PlayerReducer>(PlayerReducer::DisplayComments),
-                commentStates.map(::mapCommentStates)
+                commentPages.map<PlayerReducer>(PlayerReducer::DisplayComments).toObservable(),
+                commentStates.map(::mapCommentStates).toObservable()
         ))
     }
 
@@ -161,6 +162,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
     else
         Observable.just(isVisible)).map(PlayerReducer::ControlsVisible)
 
-    private fun loadUser(): Observable<PlayerReducer> = userRepo.activeUser
-            .map { PlayerReducer.DisplayUser(it.entity) }
+    private fun loadUser(): Observable<PlayerReducer> = sessionRepository.activeUser
+            .map<PlayerReducer>(PlayerReducer::DisplayUser)
+            .toObservable()
 }

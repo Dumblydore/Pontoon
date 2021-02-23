@@ -43,7 +43,6 @@ class CommentBoundaryCallback private constructor(private val videoId: String,
                     commentDao.insert(flatComments)
                     PagingState.Completed
                 }
-//                .doOnError(::loge)
     }
 
     private fun getUsers(comments: List<CommentEntity>): Single<List<UserEntity>> = Observable.fromIterable(comments)

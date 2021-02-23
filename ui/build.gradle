@@ -33,15 +33,16 @@ android {
 
 dependencies {
     implementation project(":common:log")
+    implementation project(":data:common")
 
     implementation deps.kotlin
     
     implementation deps.androidx.appcompat
     implementation deps.androidx.core
     implementation deps.androidx.fragment
-
-    implementation deps.lifecycle.common
-    implementation deps.lifecycle.ext
+    implementation deps.androidx.lifecycle.common
+    implementation deps.androidx.lifecycle.ext
+    implementation deps.androidx.recyclerview
 
     implementation deps.rx.rx_java
     implementation deps.rx.rx_kotlin

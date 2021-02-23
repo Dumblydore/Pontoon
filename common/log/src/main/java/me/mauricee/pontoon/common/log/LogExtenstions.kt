@@ -1,23 +1,25 @@
 package me.mauricee.pontoon.common.log
 
+import timber.log.Timber
+
 fun Any.logd(message: String, exception: Throwable? = null) {
-//    Log.d(this.javaClass.simpleName, message, exception)
+    Timber.d(exception, message)
 }
 
 fun Any.logi(message: String, exception: Throwable? = null) {
-//    Log.i(this.javaClass.simpleName, message, exception)
+    Timber.i(exception, message)
 }
 
 fun Any.loge(exception: Throwable) = loge("", exception)
 
 fun Any.loge(message: String, exception: Throwable? = null) {
-//    Log.e(this.javaClass.simpleName, message, exception)
+    Timber.e(exception, message)
 }
 
 fun Any.logw(message: String, exception: Throwable? = null) {
-//    Log.w(this.javaClass.simpleName, message, exception)
+    Timber.w(exception, message)
 }
 
 fun Any.logwtf(message: String, exception: Throwable? = null) {
-//    Log.wtf(this.javaClass.simpleName, message, exception)
+    Timber.wtf(exception, message)
 }

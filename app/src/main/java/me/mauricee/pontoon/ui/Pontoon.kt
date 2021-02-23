@@ -14,6 +14,7 @@ import me.mauricee.pontoon.analytics.FirebaseTracker
 import me.mauricee.pontoon.analytics.PrivacyManager
 import me.mauricee.pontoon.common.theme.ThemeManager
 import okhttp3.OkHttpClient
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -42,6 +43,7 @@ class Pontoon : Application() {
         }
         if (BuildConfig.DEBUG) {
             EventTracker.trackers += debugTracker
+            Timber.plant(Timber.DebugTree())
         }
         AppCompatDelegate.setDefaultNightMode(PreferenceManager.getDefaultSharedPreferences(this).getInt(ThemeManager.DayNightModeKey, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM))
     }

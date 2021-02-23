@@ -3,7 +3,9 @@ package me.mauricee.pontoon.repository.session
 import androidx.datastore.core.DataStore
 import androidx.datastore.rxjava2.data
 import androidx.datastore.rxjava2.updateDataAsync
+import com.jakewharton.rx.ReplayingShare
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.SingleTransformer
 import me.mauricee.pontoon.data.network.FloatPlaneApi
@@ -12,6 +14,9 @@ import me.mauricee.pontoon.data.network.LoginRequest
 import me.mauricee.pontoon.data.network.activation.email.confirm.ConfirmationRequest
 import me.mauricee.pontoon.data.network.user.UserJson
 import me.mauricee.pontoon.model.session.SessionCredentials
+import me.mauricee.pontoon.repository.user.User
+import me.mauricee.pontoon.repository.user.toEntity
+import me.mauricee.pontoon.repository.user.toModel
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,6 +24,8 @@ import javax.inject.Singleton
 @Singleton
 class SessionRepository @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
                                             private val credentialStore: DataStore<SessionCredentials>) {
+
+    val activeUser: Single<User> by lazy { floatPlaneApi.self.map { it.toEntity().toModel() }.cache() }
 
     fun canLogin(): Single<Boolean> = credentialStore.data().map {
         it.username.isNotBlank() && it.password.isNotBlank()
@@ -52,7 +59,7 @@ class SessionRepository @Inject constructor(private val floatPlaneApi: FloatPlan
 
     private fun processLogin(): SingleTransformer<UserJson.Container, LoginResult> = SingleTransformer { stream ->
         stream.map {
-            if (it.needs2Fa) LoginResult.Requires2FA
+            if (it.needs2Fa == true) LoginResult.Requires2FA
             else LoginResult.Success
         }.onErrorReturn(LoginResult::Error)
     }
@@ -70,6 +77,10 @@ class SessionRepository @Inject constructor(private val floatPlaneApi: FloatPlan
         Single.fromCallable { credentials.copy(username = username, password = password) }
     }
 
+    companion object {
+        const val SailsSid = "sails.sid"
+        const val CfDuid = "__cfduid"
+    }
 }
 
 sealed class LoginResult {

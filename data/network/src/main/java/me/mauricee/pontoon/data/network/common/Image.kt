@@ -7,4 +7,4 @@ import com.squareup.moshi.JsonClass
 data class Image(@Json(name ="height") val height: Int,
                  @Json(name ="path") val path: String,
                  @Json(name ="width") val width: Int,
-                 @Json(name ="childImages") val childImages: List<Image>)
+                 @Json(name ="childImages") val childImages: List<Image>?)

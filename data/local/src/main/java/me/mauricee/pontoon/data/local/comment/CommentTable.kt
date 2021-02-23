@@ -18,10 +18,7 @@ data class CommentEntity(@PrimaryKey val id: String,
                          val dislikes: Int,
                          val postDate: Instant,
                          val text: String,
-                         val userInteraction: CommentInteractionType?) {
-    @Ignore
-    val score: Int = likes - dislikes
-}
+                         val userInteraction: CommentInteractionType?)
 
 enum class CommentInteractionType {
     Like,

@@ -1,8 +1,8 @@
 package me.mauricee.pontoon.ui.launch
 
 import io.reactivex.Observable
-import me.mauricee.pontoon.model.session.LoginResult
-import me.mauricee.pontoon.model.session.SessionRepository
+import me.mauricee.pontoon.repository.session.LoginResult
+import me.mauricee.pontoon.repository.session.SessionRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiState

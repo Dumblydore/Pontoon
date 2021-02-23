@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'kotlin'
+    id 'kotlin-kapt'
 }
 
 java {
@@ -11,7 +12,10 @@ java {
 dependencies {
     implementation deps.kotlin
     implementation deps.threeten
-    implementation deps.moshi
+
+    implementation deps.moshi.core
+    kapt deps.moshi.code_gen
+
     implementation deps.rx.rx_java
     implementation deps.rx.rx_kotlin
     implementation deps.retrofit.core

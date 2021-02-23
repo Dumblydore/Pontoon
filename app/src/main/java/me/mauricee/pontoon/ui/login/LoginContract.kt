@@ -4,12 +4,12 @@ import androidx.annotation.StringRes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(p: LoginPresenter) : EventViewModel<LoginState, LoginAction, LoginEvent>(LoginState(), p)
+class LoginViewModel @Inject constructor(p: LoginPresenter) : BaseViewModel<LoginState, LoginAction, LoginEvent>(LoginState(), p)
 
 data class LoginState(val uiState: UiState = UiState.Empty,
                       val prompt2FaCode: Boolean = false)

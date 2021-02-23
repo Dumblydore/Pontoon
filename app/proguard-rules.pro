@@ -22,7 +22,7 @@
 -dontwarn me.mauricee.pontoon.**
 -dontnote me.mauricee.pontoon.**
 -dontnote com.google.android.material.**
--dontwarn com.jakewharton.rxbinding2.**
+-dontwarn com.jakewharton.rxbinding3.**
 -keepattributes Signature
 
 -keep ,allowoptimization,allowobfuscation,allowshrinking public class me.mauricee.pontoon.** {

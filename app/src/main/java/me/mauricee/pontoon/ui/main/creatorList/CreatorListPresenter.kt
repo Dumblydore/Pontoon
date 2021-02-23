@@ -3,10 +3,10 @@ package me.mauricee.pontoon.ui.main.creatorList
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import me.mauricee.pontoon.model.DataModel
-import me.mauricee.pontoon.model.creator.Creator
-import me.mauricee.pontoon.model.creator.CreatorRepository
-import me.mauricee.pontoon.model.subscription.SubscriptionRepository
+import me.mauricee.pontoon.repository.DataModel
+import me.mauricee.pontoon.repository.creator.Creator
+import me.mauricee.pontoon.repository.creator.CreatorRepository
+import me.mauricee.pontoon.repository.subscription.SubscriptionRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
@@ -34,6 +34,7 @@ class CreatorListPresenter @Inject constructor(private val creatorRepository: Cr
         return model.get().map<CreatorListContract.Reducer>(CreatorListContract.Reducer::DisplayCreators)
                 .startWith(CreatorListContract.Reducer.Loading)
                 .onErrorReturn(::handleError)
+                .toObservable()
     }
 
     private fun handleActions(creators: DataModel<List<Creator>>, action: CreatorListContract.Action): Observable<CreatorListContract.Reducer> {

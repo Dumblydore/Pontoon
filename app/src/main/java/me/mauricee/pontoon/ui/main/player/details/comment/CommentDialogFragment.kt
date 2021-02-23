@@ -8,8 +8,8 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.widget.textChanges
+import com.jakewharton.rxbinding3.view.clicks
+import com.jakewharton.rxbinding3.widget.textChanges
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -58,7 +58,7 @@ class CommentDialogFragment : BottomSheetDialogFragment() {
                 .map { it.toString().isEmpty() }
                 .subscribe { binding.commentSubmit.isGone = it }
 
-        viewModel.state.mapDistinct { it.user?.entity }.notNull().observe(viewLifecycleOwner) {
+        viewModel.state.mapDistinct { it.user }.notNull().observe(viewLifecycleOwner) {
             GlideApp.with(this).load(it.profileImage).circleCrop()
                     .placeholder(R.drawable.ic_default_thumbnail)
                     .error(R.drawable.ic_default_thumbnail)

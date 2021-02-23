@@ -1,31 +1,44 @@
 def androidx_versions = [
-        core             : "1.5.0-alpha05",
-        activity         : "1.2.0-beta02",
-        fragment         : "1.3.0-beta02",
-        cardview         : "1.0.0",
-        viewpager2       : "1.0.0",
-        appcompat        : "1.2.0",
-        recyclerview     : "1.2.0-beta01",
-        legacy_support_v4: ":1.0.0",
-        constraintlayout : "2.0.4",
-        data_store       : "1.0.0-alpha06",
-        preferences      : "1.1.1",
+        core            : "1.5.0-beta01",
+        activity        : "1.2.0",
+        fragment        : "1.3.0",
+        cardview        : "1.0.0",
+        constraintlayout: "2.0.4",
+        data_store      : "1.0.0-alpha06",
+        appcompat       : "1.2.0",
+        recyclerview    : "1.2.0-beta01",
+        leanback        : "1.0.0",
+        media           : "1.2.1",
+        media2          : "1.1.2",
+        mediarouter     : "1.2.2",
+        palette         : "1.0.0",
+        preference      : "1.1.1",
+        startup         : "1.0.0",
+        viewpager2      : "1.0.0"
+]
+
+def firebase_versions = [
+        core       : "18.0.2",
+        crash      : "16.2.1",
+        crashlytics: "17.3.1",
+        perf       : "19.1.1"
 ]
 
 def versions = [
         kotlin             : "1.4.30",
         androidx           : androidx_versions,
+        firebase           : firebase_versions,
         paging             : "2.1.2",
         dagger             : "2.31.2-alpha",
         room               : "2.3.0-alpha04",
-        lifecycle          : "2.2.0",
+        lifecycle          : "2.3.0",
         glide              : "4.11.0",
         camerax            : "1.0.0-beta12",
         work               : "2.3.4",
         beagle             : "2.3.6",
         okhttp             : "4.9.1",
         retrofit           : "2.9.0",
-        exoplayer          : "2.2.19",
+        exoplayer          : "2.12.0",
         material_components: "1.3.0",
         moshi              : "1.11.0",
         nav                : "2.3.2",
@@ -48,22 +61,46 @@ ext.build_versions = [
         tools_version: "30.0.0",
         ndk          : "21.3.6528147"
 ]
+
 def androidxDependencies = [
-        activity         : "",
-        appcompat        : "androidx.appcompat:appcompat:1.2.0",
-        cardview         : "",
-        core             : "androidx.core:core-ktx:1.5.0-beta01",
-        data_store       : [
-                core: "androidx.datastore:datastore:$androidx_versions.data_store",
-                rx  : "androidx.datastore:datastore-rxjava2:$androidx_versions.data_store"
+        activity        : "androidx.activity:activity-ktx:$versions.androidx.activity",
+        appcompat       : "androidx.appcompat:appcompat:$versions.androidx.appcompat",
+        constraintlayout: "androidx.constraintlayout:constraintlayout:$versions.androidx.constraintlayout",
+        core            : "androidx.core:core-ktx:$versions.androidx.core",
+        data_store      : [
+                core: "androidx.datastore:datastore:$versions.androidx.data_store",
+                rx  : "androidx.datastore:datastore-rxjava2:$versions.androidx.data_store"
         ],
-        fragment         : "androidx.fragment:fragment-ktx:1.3.0",
-        viewpager2       : "",
-        recyclerview     : "",
-        legacy_support_v4: "",
-        leanback         : "androidx.leanback:leanback:1.0.0",
-        constraintlayout : "androidx.constraintlayout:constraintlayout$versions.androidx.constraintlayout",
-        preferences      : "androidx.preference:preference-ktx:$versions.androidx.preference"
+        fragment        : "androidx.fragment:fragment-ktx:$versions.androidx.fragment",
+        viewpager2      : "",
+        recyclerview    : "androidx.recyclerview:recyclerview:$versions.androidx.recyclerview",
+        leanback        : "androidx.leanback:leanback:$versions.androidx.leanback",
+        lifecycle       : [
+                common   : "androidx.lifecycle:lifecycle-common-java8:$versions.lifecycle",
+                livedata : "androidx.lifecycle:lifecycle-livedata-ktx:$versions.lifecycle",
+                ext      : "androidx.lifecycle:lifecycle-extensions:2.2.0",
+                viewmodel: "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.lifecycle",
+        ],
+        media2          : [
+                session: "androidx.media2:media2-session:$versions.androidx.media2",
+                player : "androidx.media2:media2-player:$versions.androidx.media2",
+                widget : "androidx.media2:media2-widget:$versions.androidx.media2"
+        ],
+        mediarouter     : "androidx.mediarouter:mediarouter:$versions.androidx.mediarouter",
+        navigation      : [
+                fragment: "androidx.navigation:navigation-fragment-ktx:$versions.nav",
+                ui      : "androidx.navigation:navigation-ui-ktx:$versions.nav"
+        ],
+        palette         : "androidx.palette:palette-ktx:$versions.androidx.palette",
+        preference      : "androidx.preference:preference-ktx:$versions.androidx.preference",
+        startup         : "androidx.startup:startup-runtime:$versions.androidx.startup"
+]
+
+def firebaseDependencies = [
+        core       : "com.google.firebase:firebase-core:$versions.firebase.core",
+        crash      : "com.google.firebase:firebase-crash:$versions.firebase.crash",
+        crashlytics: "com.google.firebase:firebase-crashlytics:$versions.firebase.crashlytics",
+        perf       : "com.google.firebase:firebase-perf:$versions.firebase.perf"
 ]
 def rxBindings = [
         binding           : "com.jakewharton.rxbinding3:rxbinding:$versions.rx_binding",
@@ -72,12 +109,15 @@ def rxBindings = [
         recyclerview      : "com.jakewharton.rxbinding3:rxbinding-recyclerview:$versions.rx_binding",
         swiperefreshlayout: "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:$versions.rx_binding",
         viewpager2        : "com.jakewharton.rxbinding3:rxbinding-viewpager2:$versions.rx_binding",
+        leanback          : "com.jakewharton.rxbinding3:rxbinding-leanback:$versions.rx_binding",
         material          : "com.jakewharton.rxbinding3:rxbinding-material:$versions.rx_binding",
 ]
 ext.deps = [
-        kotlin    : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
-        androidx  : androidxDependencies,
-        dagger    : [
+        about: "com.mikepenz:aboutlibraries:6.2.0-rc01",
+        androidx : androidxDependencies,
+        cast     : "com.google.android.gms:play-services-cast-framework:19.0.0",
+        kotlin   : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
+        dagger   : [
                 core           : "com.google.dagger:dagger:$versions.dagger",
                 android        : "com.google.dagger:dagger-android:$versions.dagger",
                 android_support: "com.google.dagger:dagger-android-support:$versions.dagger",
@@ -90,43 +130,50 @@ ext.deps = [
                         android_compiler: "com.google.dagger:hilt-android-compiler:$versions.dagger"
                 ]
         ],
-        glide: [
-                core: "com.github.bumptech.glide:glide:$versions.glide",
-                okhttp: "com.github.bumptech.glide:okhttp3-integration:$versions.glide",
+        firebase : firebaseDependencies,
+        glide    : [
+                core        : "com.github.bumptech.glide:glide:$versions.glide",
+                okhttp      : "com.github.bumptech.glide:okhttp3-integration:$versions.glide",
                 recyclerview: "com.github.bumptech.glide:recyclerview-integration:$versions.glide",
-                compiler: "com.github.bumptech.glide:compiler:$versions.glide"
+                compiler    : "com.github.bumptech.glide:compiler:$versions.glide"
         ],
-        moshi     : "com.squareup.moshi:moshi-kotlin:$versions.moshi",
-        okhttp    : "com.squareup.okhttp3:okhttp:$versions.okhttp",
-        retrofit  : [
-                core : "com.squareup.retrofit2:retrofit:$versions.retrofit",
-                moshi: "com.squareup.retrofit2:converter-moshi:$versions.retrofit",
-                rx   : "com.squareup.retrofit2:adapter-rxjava2:$versions.retrofit",
+        lazylayout      : "com.github.Dumblydore:LazyLayout:master-SNAPSHOT",
+        moshi    : [
+                core    : "com.squareup.moshi:moshi-kotlin:$versions.moshi",
+                code_gen: "com.squareup.moshi:moshi-kotlin-codegen:$versions.moshi"
         ],
-        exoplayer : [
-
+        okhttp   : [
+                core   : "com.squareup.okhttp3:okhttp:$versions.okhttp",
+                logging: "com.squareup.okhttp3:logging-interceptor:$versions.okhttp",
         ],
-        lifecycle : [
-                common: "androidx.lifecycle:lifecycle-common-java8:$versions.lifecycle",
-                ext   : "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
+        retrofit : [
+                core   : "com.squareup.retrofit2:retrofit:$versions.retrofit",
+                moshi  : "com.squareup.retrofit2:converter-moshi:$versions.retrofit",
+                rx     : "com.squareup.retrofit2:adapter-rxjava2:$versions.retrofit",
+                scalars: "com.squareup.retrofit2:converter-scalars:$versions.retrofit",
         ],
-        jsr250    : 'javax.annotation:jsr250-api:1.0',
-        material  : "com.google.android.material:material:$versions.material_components",
-        navigation: [
-                fragment: "androidx.navigation:navigation-fragment-ktx:$versions.nav",
-                ui      : "androidx.navigation:navigation-ui-ktx:$versions.nav"
+        exoplayer: [
+                exoplayer_core        : "com.google.android.exoplayer:exoplayer-core:$versions.exoplayer",
+                exoplayer_ui          : "com.google.android.exoplayer:exoplayer-ui:$versions.exoplayer",
+                extension_okhttp      : "com.google.android.exoplayer:extension-okhttp:$versions.exoplayer",
+                extension_cast        : "com.google.android.exoplayer:extension-cast:$versions.exoplayer",
+                exoplayer_hls         : "com.google.android.exoplayer:exoplayer-hls:$versions.exoplayer",
+                extension_mediasession: "com.google.android.exoplayer:extension-mediasession:$versions.exoplayer",
+                extension_media2      : "com.google.android.exoplayer:extension-media2:$versions.exoplayer"
         ],
-        paging    : [
+        jsr250   : 'javax.annotation:jsr250-api:1.0',
+        material : "com.google.android.material:material:$versions.material_components",
+        paging   : [
                 core: "androidx.paging:paging-runtime-ktx:$versions.paging",
                 rx  : "androidx.paging:paging-rxjava2:$versions.paging"
         ],
-        room      : [
+        room     : [
                 runtime : "androidx.room:room-runtime:$versions.room",
                 compiler: "androidx.room:room-compiler:$versions.room",
                 core    : "androidx.room:room-ktx:$versions.room",
                 rx      : "androidx.room:room-rxjava2:$versions.room"
         ],
-        rx        : [
+        rx       : [
                 coroutines_interop: "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.4.0",
                 rx_java           : "io.reactivex.rxjava2:rxjava:$versions.rx_java",
                 rx_kotlin         : "io.reactivex.rxjava2:rxkotlin:$versions.rx_kotlin",
@@ -135,19 +182,23 @@ ext.deps = [
                 relay             : "com.jakewharton.rxrelay2:rxrelay:2.0.0",
                 bindings          : rxBindings
         ],
-        store     : [
+        store    : [
                 core: "com.dropbox.mobile.store:store4:$versions.store",
                 rx  : "com.dropbox.mobile.store:store-rx2:$versions.store",
         ],
-        threeten  : "com.jakewharton.threetenabp:threetenabp:$versions.threeten",
-        wire      : "com.squareup.wire:wire-runtime:$versions.wire",
-        test      : [
+        timber   : "com.jakewharton.timber:timber:4.7.1",
+        threeten : "com.jakewharton.threetenabp:threetenabp:$versions.threeten",
+        wire     : "com.squareup.wire:wire-runtime:$versions.wire",
+        wisefy   : "com.isupatches:wisefy:3.0.1",
+        test     : [
                 junit  : "junit:junit:$versions.junit",
+                mockk  : "io.mockk:mockk:1.9.3",
                 android: [
                         junit   : "androidx.test.ext:junit:1.1.1",
                         espresso: [
                                 core: "androidx.test.espresso:espresso-core:3.3.0"
-                        ]
+                        ],
+                        runner  : 'androidx.test:runner:1.3.0'
                 ]
         ]
 ]

@@ -4,11 +4,10 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
-import me.mauricee.pontoon.data.local.video.VideoCreatorJoin
 import me.mauricee.pontoon.data.local.video.VideoDao
+import me.mauricee.pontoon.data.network.FloatPlaneApi
 import me.mauricee.pontoon.repository.util.paging.BaseBoundaryCallback
 import me.mauricee.pontoon.repository.util.paging.PagingState
-import me.mauricee.pontoon.data.network.FloatPlaneApi
 import javax.inject.Inject
 
 class VideoBoundaryCallback(private val api: FloatPlaneApi,

@@ -29,7 +29,8 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
         return PagedModel(pagedList, callback.pagingState.toFlowable(BackpressureStrategy.LATEST), callback::refresh)
     }
 
-    fun getComment(commentId: String): Observable<CommentUserReplyJoin> = commentDao.getComment(commentId)
+    fun getComment(commentId: String): Observable<Comment> = commentDao.getComment(commentId)
+            .map(CommentUserReplyJoin::toModel)
 
     fun postComment(message: String, postId: String, parentCommentId: String?) = if (parentCommentId.isNullOrEmpty())
         post(message, postId)
@@ -56,7 +57,7 @@ class CommentRepository @Inject constructor(private val commentDao: CommentDao,
             CommentInteractionType.Dislike -> CommentInteraction.Type.Dislike
             null -> null
         }
-        if (interaction == null || comment.entity.userInteraction == interaction)
+        if (interaction == null || comment.userInteraction == interaction)
             floatPlaneApi.clearInteraction(ClearInteraction(commentId)).andThen(commentDao.setComment(commentId, null))
         else floatPlaneApi.setComment(CommentInteraction(commentId, interactionJson!!)).andThen(commentDao.setComment(commentId, interaction))
     }

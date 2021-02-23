@@ -15,6 +15,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ModelModule {
     @Provides
+    fun providesSessionCredentialsSerializer() = SessionCredentialsSerializer()
+
+    @Provides
     @Singleton
     fun providesDatabase(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb")
             .fallbackToDestructiveMigration()

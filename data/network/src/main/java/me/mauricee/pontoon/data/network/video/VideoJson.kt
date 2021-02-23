@@ -5,16 +5,17 @@ import com.squareup.moshi.JsonClass
 import me.mauricee.pontoon.data.network.common.Image
 import org.threeten.bp.Instant
 
-@JsonClass(generateAdapter=true)
-data class VideoJson(@Json(name ="creator") val creator: String,
-                     @Json(name ="description") val description: String,
-                     @Json(name ="duration") val duration: Long,
-                     @Json(name ="guid") val guid: String,
-                     @Json(name ="private") val isPrivate: Boolean,
-                     @Json(name ="releaseDate") val releaseDate: Instant?,
-                     @Json(name ="tags") val tags: List<String>,
-                     @Json(name ="thumbnail") val thumbnail: Image?,
-                     @Json(name ="title") val title: String) {
+@JsonClass(generateAdapter = true)
+data class VideoJson(
+        @Json(name = "guid") val guid: String,
+        @Json(name = "creator") val creator: String,
+        @Json(name = "title") val title: String,
+        @Json(name = "description") val description: String,
+        @Json(name = "duration") val duration: Long,
+        @Json(name = "private") val isPrivate: Boolean?,
+        @Json(name = "releaseDate") val releaseDate: Instant?,
+        @Json(name = "tags") val tags: List<String>?,
+        @Json(name = "thumbnail") val thumbnail: Image?) {
     val defaultThumbnail: String
         get() = thumbnail?.path ?: ""
 }

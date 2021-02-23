@@ -1,4 +1,4 @@
-package me.mauricee.pontoon.model.preferences
+package me.mauricee.pontoon.preferences
 
 import android.content.SharedPreferences
 import com.isupatches.wisefy.WiseFy
