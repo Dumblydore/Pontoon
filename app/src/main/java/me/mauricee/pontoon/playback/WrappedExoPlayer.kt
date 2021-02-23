@@ -13,7 +13,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
-import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.common.log.loge
 import java.io.IOException
 import javax.inject.Inject
 

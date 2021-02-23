@@ -13,8 +13,8 @@ import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.databinding.ActivityMainNewBinding
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.model.preferences.Preferences
-import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.preferences.Preferences
+import me.mauricee.pontoon.repository.video.Video
 import me.mauricee.pontoon.playback.Player
 import javax.inject.Inject
 
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
 fun Activity.shareVideo(video: Video) {
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
-        putExtra(Intent.EXTRA_SUBJECT, video.entity.title)
+        putExtra(Intent.EXTRA_SUBJECT, video.title)
         putExtra(Intent.EXTRA_TEXT, video.toBrowsableUrl())
     }
     startActivity(Intent.createChooser(shareIntent, getString(R.string.player_share)))

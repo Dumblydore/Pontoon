@@ -8,9 +8,9 @@ import androidx.media2.common.UriMediaItem
 import androidx.media2.session.MediaSession
 import com.google.android.exoplayer2.ext.media2.SessionCallbackBuilder
 import dagger.hilt.android.scopes.ActivityRetainedScoped
-import me.mauricee.pontoon.model.video.Stream
-import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.repository.video.Stream
+import me.mauricee.pontoon.repository.video.Video
+import me.mauricee.pontoon.repository.video.VideoRepository
 import me.mauricee.pontoon.playback.Player
 import me.mauricee.pontoon.playback.PontoonMetadata
 import me.mauricee.pontoon.rx.RxTuple
@@ -29,7 +29,7 @@ class MediaItemProvider @Inject constructor(private val videoRepository: VideoRe
                         val defaultStream = getDefaultQualityLevel(quality, streams)
                         UriMediaItem.Builder(defaultStream.url.toUri())
                                 .setStartPosition(0)
-                                .setEndPosition(video.entity.duration * 1000L)
+                                .setEndPosition(video.duration * 1000L)
                                 .setMetadata(toMediaMetaData(mediaId, video, defaultStream, streams))
                                 .build()
                     }.blockingGet()
@@ -43,13 +43,13 @@ class MediaItemProvider @Inject constructor(private val videoRepository: VideoRe
 
     private fun toMediaMetaData(mediaId: String, video: Video, defaultStream: Stream, streams: List<Stream>): MediaMetadata = MediaMetadata.Builder()
             .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId)
-            .putString(MediaMetadata.METADATA_KEY_ART_URI, video.entity.thumbnail)
-            .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, video.entity.title)
-            .putText(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION, video.entity.description)
-            .putText(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, video.creator.entity.name)
-            .putString(MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI, video.entity.thumbnail)
-            .putString(MediaMetadata.METADATA_KEY_TITLE, video.entity.title)
-            .putLong(MediaMetadata.METADATA_KEY_DURATION, video.entity.duration * 1000L)
+            .putString(MediaMetadata.METADATA_KEY_ART_URI, video.thumbnail)
+            .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, video.title)
+            .putText(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION, video.description)
+            .putText(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, video.creator.name)
+            .putString(MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI, video.thumbnail)
+            .putString(MediaMetadata.METADATA_KEY_TITLE, video.title)
+            .putLong(MediaMetadata.METADATA_KEY_DURATION, video.duration * 1000L)
             .setExtras(Bundle().apply {
                 putString(PontoonMetadata.TimeLineUri, "https://cms.linustechtips.com/get/sprite/by_guid/${video.id}")
                 putParcelable(PontoonMetadata.CurrentQualityLevelKey, Player.Quality(defaultStream.name, defaultStream.url))

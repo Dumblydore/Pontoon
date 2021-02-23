@@ -6,7 +6,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.ConcatAdapter
-import com.jakewharton.rxbinding2.support.v4.widget.refreshes
+import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
@@ -19,7 +19,7 @@ import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.model.user.activity.ActivityEntity
+import me.mauricee.pontoon.repository.user.activity.UserActivity
 import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.assistedViewModel
 import javax.inject.Inject
@@ -76,7 +76,7 @@ class UserFragment : BaseFragment(R.layout.fragment_user) {
         }
     }
 
-    private fun bind(view: ItemActivityCommentBinding, activity: ActivityEntity) {
+    private fun bind(view: ItemActivityCommentBinding, activity: UserActivity) {
         view.itemTitle.text = getString(R.string.activity_comment_context)
         view.itemComment.text = activity.comment
     }

@@ -1,0 +1,254 @@
+<resources>
+    <string name="app_name">tv</string>
+    <string name="browse_title">Videos by Your Company</string>
+    <string name="related_movies">Related Videos</string>
+    <string name="grid_view">Grid View</string>
+    <string name="error_fragment">Error Fragment</string>
+    <string name="personal_settings">Personal Settings</string>
+    <string name="watch_trailer_1">Watch trailer</string>
+    <string name="watch_trailer_2">FREE</string>
+    <string name="rent_1">Rent By Day</string>
+    <string name="rent_2">From $1.99</string>
+    <string name="buy_1">Buy and Own</string>
+    <string name="buy_2">AT $9.99</string>
+    <string name="movie">Movie</string>
+
+    <!-- Error messages -->
+    <string name="error_fragment_message">An error occurred</string>
+    <string name="dismiss_error">Dismiss</string>
+    <!-- Login -->
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="login_token">Token</string>
+    <string name="login_login">Login</string>
+    <string name="login_signup">Not a member?</string>
+    <string name="login_privacy">@string/settings_privacy_policy</string>
+    <string name="login_error_missingUsername">Enter Username.</string>
+    <string name="login_error_missingPassword">Enter Password.</string>
+
+    <string name="login_error_network_connection">Check your connection.</string>
+
+    <string name="login_error_network_unknown">@string/error_network_general</string>
+    <string name="login_error_network_service">There\'s an issue with the service, try again later (%s).</string>
+    <string name="login_error_network_credentials">Invalid login, check your credentials (%s).</string>
+    <string name="login_error_invalid_authCode">Invalid token.</string>
+    <string name="login_error_network_activation">There was an issue activating your account.</string>
+
+    <string name="login_error_general">@string/error_general</string>
+
+    <string name="lttLogin_error">Could not log in. Please try again later.</string>
+
+    <!-- Home -->
+    <string name="videos_toolbar_title">Subscriptions</string>
+    <string name="item_view_all">View All</string>
+    <string name="home_subtitle_suffix">%o subscriptions</string>
+    <string name="subscriptions_videos_subhead">Videos</string>
+
+    <string name="subscriptions_error_noSubscriptions">No Subscriptions Available.</string>
+    <string name="subscriptions_error_noVideos">No videos available.</string>
+    <string name="subscriptions_error_network">Unable to load Videos.</string>
+    <string name="subscriptions_error_general">@string/error_general</string>
+
+    <string name="video_error_network">Unable to load Videos</string>
+    <string name="video_error_service">No Videos available</string>
+    <string name="video_error_general">@string/error_general</string>
+
+    <!-- Player -->
+    <string name="action_share">Share</string>
+    <string name="action_quality">Quality</string>
+    <string name="action_download">Download</string>
+    <string name="player_error_default">Video could not be played.</string>
+
+    <!-- Details -->
+    <string name="details_postDate">Posted %s.</string>
+    <string name="details_commentLiked">You liked %s\'s comment.</string>
+    <string name="details_commentDisliked">You disliked %s\'s comment.</string>
+    <string name="details_error_commentPost">Error posting comment.</string>
+    <string name="details_commentPosted">Comment posted!</string>
+    <string name="details_comment_positiveDelta">+%x</string>
+    <string name="details_comment_negativeDelta">-%x</string>
+    <string name="details_comment_hint">Add a comment…</string>
+    <string name="details_comment_header">Commenting as %s</string>
+
+    <string name="details_error_noComments">No comments.</string>
+    <string name="details_error_noRelatedVideos">Couldn\'t load related videos.</string>
+    <string name="details_error_general">@string/error_general</string>
+    <string name="details_error_like">Failed to like comment.</string>
+    <string name="details_error_dislike">Failed to dislike comment.</string>
+
+    <plurals name="details_comment_replies">
+        <item quantity="one">View Reply</item>
+        <item quantity="other">View %x replies</item>
+    </plurals>
+
+    <!-- Replies -->
+    <string name="replies_header">%s\'s replies</string>
+    <string name="reply_subhead">Replying to %s</string>
+
+    <string name="replies_error">Failed to load replies</string>
+    <string name="replies_error_cleared">Error occurred</string>
+    <string name="replies_error_like">@string/details_error_like</string>
+    <string name="replies_error_dislike">@string/details_error_dislike</string>
+
+    <!-- All Creators -->
+    <string name="creators_title">Creators</string>
+    <string name="creators_list_error_noCreators">Could not load creators</string>
+    <string name="creator_list_unsubscribed">You are not subscribed to this user.</string>
+
+    <!-- Creator -->
+    <string name="creator_error_noCreator">Couldn\'t load creator.</string>
+    <string name="creator_error_noVideos">This creator has no videos.</string>
+    <string name="creator_error_general">@string/error_general</string>
+
+    <!-- User -->
+    <string name="tab_activity">Activity</string>
+    <string name="tab_playlist">Playlist</string>
+    <string name="tab_subscriptions">Subscriptions</string>
+
+    <!--History-->
+    <string name="history_title">History</string>
+    <string name="history_error_noVideos">You haven\'t watched any videos</string>
+    <string name="history_error_general">@string/error_general</string>
+
+    <!-- Main Drawer -->
+    <string name="action_profile">My Profile</string>
+    <string name="action_prefs">Preferences</string>
+    <string name="action_logout">Logout</string>
+    <string name="action_nightMode">Night Mode</string>
+
+    <!-- Main Bottom Nav-->
+    <string name="nav_videos">Videos</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_history">History</string>
+
+    <!-- Search -->
+    <string name="search_hint">Search by Title</string>
+    <string name="search_error_noText"> </string>
+    <string name="search_error_noResults">No results for search</string>
+    <string name="search_error_network">Network error, try again later.</string>
+    <string name="search_error_general">@string/error_general</string>
+
+    <!-- User -->
+    <string name="user_error_user">Couldn\'t load user data</string>
+    <string name="user_error_activity">Couldn\'t load user activity</string>
+    <string name="user_error_noSubscriptions">s% isn\'t sharing their subscriptions with you at the moment.</string>
+    <string name="user_error_playback">Could\'nt load video.</string>
+    <string name="user_error_general">@string/error_general</string>
+
+    <!-- Settings -->
+    <string name="settings_root_title">Preferences</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_screen">Base Theme</string>
+    <string name="settings_theme">Primary Color</string>
+    <string name="settings_accent_color">Accent Color</string>
+    <string name="settings_general">General</string>
+    <string name="settings_hide">Hide Watched Videos From Subscription Feed"</string>
+    <string name="settings_refresh_edges">Refresh edges</string>
+    <string name="settings_refresh_edges_description">Try this if videos aren\'t loading.</string>
+    <string name="settings_privacy">Privacy</string>
+    <string name="settings_privacy_policy">Privacy Policy</string>
+
+    <string name="settings_quality_cell">Quality over Cellular</string>
+    <string name="settings_quality_wifi">Quality over Wifi"</string>
+    <string name="settings_misc">Misc."</string>
+    <string name="settings_about">About"</string>
+
+    <string name="settings_notch">Use notch area</string>
+    <string name="settings_pip">Picture-in-Picture</string>
+    <string name="settings_analytics">Enable Analytics</string>
+
+    <string-array name="settings_pip_options">
+        <item>Always</item>
+        <item>Only When Playing</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="settings_pip_options_values">
+        <item>Always</item>
+        <item>OnlyWhenPlaying</item>
+        <item>Never</item>
+    </string-array>
+
+    <string name="settings_night_mode_behavior">Night Mode Behavior</string>
+    <string-array name="settings_night_mode_behavior_options">
+        <item>User Controlled</item>
+        <item>Automatic</item>
+        <item>System Controlled</item>
+    </string-array>
+    <string-array name="settings_night_mode_behavior_values">
+        <item>User</item>
+        <item>Automatic</item>
+        <item>System</item>
+    </string-array>
+
+    <string name="settings_night_mode_amoled">Use AMOLED Night Mode</string>
+    <string name="settings_night_mode_amoled_summary">Special night mode optimized for AMOLED devices</string>
+
+    <string name="settings_night_mode_power">Enable Night Mode during Battery Saver Mode</string>
+    <!-- About -->
+    <string name="aboutLibraries_description_showIcon">true</string>
+    <string name="aboutLibraries_description_showVersion">true</string>
+    <string name="aboutLibraries_description_text">Made with ❤</string>
+
+    <!-- Quality -->
+    <string name="quality_1080">1080p</string>
+    <string name="quality_720">720p</string>
+    <string name="quality_480">480p</string>
+    <string name="quality_360">360p</string>
+
+    <string-array name="settings_quality">
+        <item>@string/quality_1080</item>
+        <item>@string/quality_720</item>
+        <item>@string/quality_480</item>
+        <item>@string/quality_360</item>
+    </string-array>
+    <string-array name="settings_quality_values">
+        <item>1080p</item>
+        <item>720p</item>
+        <item>480p</item>
+        <item>360p</item>
+    </string-array>
+
+    <!-- Download -->
+    <string name="download_start">Starting Download</string>
+    <string name="download_error">Error Downloading video</string>
+
+    <!-- User -->
+    <string name="activity_comment_context">Posed a comment</string>
+
+    <!-- Play Icon -->
+    <string name="play_icon_upper_path_data">M 44 32 L 44 64 L 100 64 L 100 64 Z</string>
+    <string name="play_icon_bottom_path_data">M 44 96 L 44 64 L 100 64 L 100 64 Z</string>
+
+    <!-- Pause Icon -->
+    <string name="pause_icon_upper_path_data">M 32 40 L 32 56  L 96 56 L 96 40 Z</string>
+    <string name="pause_icon_bottom_path_data">M 32 88 L 32 72 L 96 72 L 96 88 Z</string>
+
+    <!-- Groups -->
+    <string name="play_icon_group_top">upperpart</string>
+    <string name="play_icon_group_bottom">bottompart</string>
+    <string name="play_icon_group_parts">parts</string>
+
+    <!-- Path Name -->
+    <string name="play_icon_top_path_name">upper</string>
+    <string name="play_icon_bottom_path_name">bottom</string>
+
+    <!-- Analytics prompt-->
+    <string name="analytics_prompt_title">Allow Analytics</string>
+    <string name="analytics_prompt_message">This app tracks Non Personally Identifiable Information to better understand how our app is behaving features are being used. You can always change tracking in the settings.</string>
+    <string name="analytics_prompt_positive">Allow</string>
+    <string name="analytics_prompt_negative">Deny</string>
+    <string name="analytics_prompt_neutral">Learn More</string>
+
+    <!-- Misc -->
+    <string name="error_general">Something happened, Not sure what it was.</string>
+    <string name="error_network_general">Something happened, not sure what it was (%s).</string>
+    <string name="lazy_error_retry">@string/retry</string>
+    <string name="retry">Try Again</string>
+    <string name="filter_view_http_floatplane">Floatplane Web Filter</string>
+    <string name="main_session_expired_body">Your session expired. You need to re-login.</string>
+    <string name="main_session_expired_title">Session Expired</string>
+    <string name="player_share">Share Video</string>
+    <string name="download_notification">Downloading %s</string>
+    <string name="user_container_subtitle">%s\'s Activity</string>
+
+</resources>

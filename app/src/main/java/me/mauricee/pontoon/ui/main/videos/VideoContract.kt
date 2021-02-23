@@ -5,9 +5,9 @@ import androidx.paging.PagedList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.creator.Creator
-import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.repository.creator.Creator
+import me.mauricee.pontoon.repository.video.Video
+import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
@@ -46,4 +46,4 @@ sealed class VideoEvent {
 }
 
 @HiltViewModel
-class VideoViewModel @Inject constructor(p: VideoPresenter) : EventViewModel<VideoState, VideoAction, VideoEvent>(VideoState(), p)
+class VideoViewModel @Inject constructor(p: VideoPresenter) : BaseViewModel<VideoState, VideoAction, VideoEvent>(VideoState(), p)

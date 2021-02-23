@@ -18,16 +18,17 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.jakewharton.rxbinding2.support.design.widget.itemSelections
-import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.widget.SeekBarProgressChangeEvent
-import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
-import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
-import com.jakewharton.rxbinding2.widget.changeEvents
+import com.jakewharton.rxbinding3.material.itemSelections
+import com.jakewharton.rxbinding3.view.clicks
+import com.jakewharton.rxbinding3.widget.SeekBarProgressChangeEvent
+import com.jakewharton.rxbinding3.widget.SeekBarStartChangeEvent
+import com.jakewharton.rxbinding3.widget.SeekBarStopChangeEvent
+import com.jakewharton.rxbinding3.widget.changeEvents
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.SessionGraphDirections.*
+import me.mauricee.pontoon.common.log.logd
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.databinding.FragmentMainBinding
 import me.mauricee.pontoon.ext.*
@@ -84,9 +85,9 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             when (it) {
                 is SeekBarStartChangeEvent -> isSeeking = true
                 is SeekBarProgressChangeEvent -> {
-                    if (it.fromUser()) {
-                        binding.expandedPreview.progress = it.progress()
-                        pendingSeek = it.progress() * 1000L
+                    if (it.fromUser) {
+                        binding.expandedPreview.progress = it.progress
+                        pendingSeek = it.progress * 1000L
                     }
                 }
                 is SeekBarStopChangeEvent -> {
@@ -134,10 +135,10 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             binding.collapsedProgress.progress = it
         }
         playerViewModel.state.mapDistinct(PlayerState::viewMode).observe(viewLifecycleOwner, ::handlePlayerViewMode)
-        playerViewModel.state.mapDistinct { it.video?.entity?.title }.notNull().observe(viewLifecycleOwner) {
+        playerViewModel.state.mapDistinct { it.video?.title }.notNull().observe(viewLifecycleOwner) {
             binding.collapsedDetailsTitle.text = it
         }
-        playerViewModel.state.mapDistinct { it.video?.creator?.entity?.name }.notNull().observe(viewLifecycleOwner) {
+        playerViewModel.state.mapDistinct { it.video?.creator?.name }.notNull().observe(viewLifecycleOwner) {
             binding.collapsedDetailsSubtitle.text = it
         }
         playerViewModel.state.mapDistinct { it.isPlaying }.notNull()

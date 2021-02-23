@@ -19,7 +19,7 @@ import io.reactivex.functions.Function3
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.ext.with
-import me.mauricee.pontoon.model.preferences.Preferences
+import me.mauricee.pontoon.preferences.Preferences
 import me.mauricee.pontoon.rx.preferences.watchString
 import javax.inject.Inject
 
@@ -38,7 +38,7 @@ class ThemeManager @Inject constructor(private val context: Context,
         set(value) {
             style = when (value) {
                 BaseTheme.Light -> Style.Light(style.primary, style.accent)
-                BaseTheme.Black-> Style.Black(style.primary, style.accent)
+                BaseTheme.Black -> Style.Black(style.primary, style.accent)
             }
         }
         get() = style.theme
@@ -70,7 +70,7 @@ class ThemeManager @Inject constructor(private val context: Context,
         }
 
     private val sylePreference
-        get() = Observable.combineLatest<BaseTheme, PrimaryColor, AccentColor, Style>(
+        get() = Observable.combineLatest(
                 preferences.watchString(ThemeKey, true).map(BaseTheme.Companion::fromString),
                 preferences.watchString(PrimaryColorKey, true).map(PrimaryColor.Companion::fromString),
                 preferences.watchString(AccentColorKey, true).map(AccentColor.Companion::fromString),

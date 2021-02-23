@@ -5,15 +5,11 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
-import android.view.ViewGroup
-import android.widget.Button
 import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.core.view.children
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import me.mauricee.pontoon.R
-import me.mauricee.pontoon.ext.logd
 import kotlin.math.roundToInt
 
 class ClickThroughMotionLayout @JvmOverloads constructor(

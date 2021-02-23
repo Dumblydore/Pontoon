@@ -5,7 +5,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding2.support.v7.widget.queryTextChanges
+import com.jakewharton.rxbinding3.appcompat.queryTextChanges
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R

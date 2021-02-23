@@ -4,8 +4,8 @@ import androidx.annotation.IdRes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.user.User
-import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.repository.user.User
+import me.mauricee.pontoon.ui.BaseViewModel
 import javax.inject.Inject
 
 interface MainContract {
@@ -50,5 +50,5 @@ interface MainContract {
     }
 
     @HiltViewModel
-    class ViewModel @Inject constructor(p: MainPresenter) : EventViewModel<State, Action, Event>(State(), p)
+    class ViewModel @Inject constructor(p: MainPresenter) : BaseViewModel<State, Action, Event>(State(), p)
 }

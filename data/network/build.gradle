@@ -1,0 +1,22 @@
+plugins {
+    id 'java-library'
+    id 'kotlin'
+    id 'kotlin-kapt'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+}
+
+dependencies {
+    implementation deps.kotlin
+    implementation deps.threeten
+
+    implementation deps.moshi.core
+    kapt deps.moshi.code_gen
+
+    implementation deps.rx.rx_java
+    implementation deps.rx.rx_kotlin
+    implementation deps.retrofit.core
+}

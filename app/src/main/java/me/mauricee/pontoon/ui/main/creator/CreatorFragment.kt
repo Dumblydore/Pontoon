@@ -11,7 +11,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
-import com.jakewharton.rxbinding2.support.v4.widget.refreshes
+import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
@@ -21,7 +21,7 @@ import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.databinding.FragmentCreatorBinding
 import me.mauricee.pontoon.ext.*
 import me.mauricee.pontoon.ext.view.viewBinding
-import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.repository.video.Video
 import me.mauricee.pontoon.rx.glide.PaletteSingle
 import me.mauricee.pontoon.rx.glide.toPalette
 import me.mauricee.pontoon.ui.BaseFragment
@@ -68,10 +68,10 @@ class CreatorFragment : BaseFragment(R.layout.fragment_creator) {
 
         binding.creatorList.adapter = videoAdapter
 
-        viewModel.state.mapDistinct { it.creator?.entity?.name }.notNull().observe(viewLifecycleOwner) {
+        viewModel.state.mapDistinct { it.creator?.name }.notNull().observe(viewLifecycleOwner) {
             binding.creatorToolbar.title = it
         }
-        viewModel.state.mapDistinct { it.creator?.user?.profileImage }.notNull().observe(viewLifecycleOwner) {
+        viewModel.state.mapDistinct { it.creator?.owner?.profileImage }.notNull().observe(viewLifecycleOwner) {
             subscriptions += Glide.with(this).asBitmap().load(it).toPalette()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

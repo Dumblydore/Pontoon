@@ -11,12 +11,12 @@ import androidx.fragment.app.viewModels
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.Glide
 import com.google.android.gms.cast.framework.CastButtonFactory
-import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding3.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.log.logd
 import me.mauricee.pontoon.databinding.FragmentPlayerBinding
-import me.mauricee.pontoon.ext.logd
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull

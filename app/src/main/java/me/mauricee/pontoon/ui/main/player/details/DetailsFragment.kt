@@ -15,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.SimpleBindingAdapter
+import me.mauricee.pontoon.common.log.logd
 import me.mauricee.pontoon.databinding.FragmentDetailsBinding
 import me.mauricee.pontoon.databinding.ItemDetailsPostCommentBinding
 import me.mauricee.pontoon.databinding.ItemDetailsVideoBinding
@@ -24,8 +25,8 @@ import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.glide.GlideApp
-import me.mauricee.pontoon.model.user.UserEntity
-import me.mauricee.pontoon.model.video.Video
+import me.mauricee.pontoon.repository.user.User
+import me.mauricee.pontoon.repository.video.Video
 import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.main.player.*
 import org.threeten.bp.format.DateTimeFormatter
@@ -84,7 +85,7 @@ class DetailsFragment : BaseFragment(R.layout.fragment_details) {
         }
     }
 
-    private fun displayCurrentUser(view: ItemDetailsPostCommentBinding, user: UserEntity) {
+    private fun displayCurrentUser(view: ItemDetailsPostCommentBinding, user: User) {
         GlideApp.with(this).load(user.profileImage).circleCrop()
                 .placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
@@ -92,23 +93,23 @@ class DetailsFragment : BaseFragment(R.layout.fragment_details) {
     }
 
     private fun displayVideoInfo(view: ItemDetailsVideoBinding, info: Video) {
-        info.entity.apply {
+        info.apply {
             view.playerTitle.text = title
-            view.playerSubtitle.text = info.creator.entity.name
+            view.playerSubtitle.text = info.creator.name
             view.playerDescription.text = description
             view.playerReleaseDate.text = getString(R.string.details_postDate, DateUtils.getRelativeTimeSpanString(releaseDate.toEpochMilli()))
             Linkify.addLinks(view.playerDescription, Linkify.WEB_URLS)
         }
-        GlideApp.with(this).load(info.creator.user.profileImage).circleCrop()
+        GlideApp.with(this).load(info.creator.owner.profileImage).circleCrop()
                 .placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
                 .into(view.playerSmallIcon)
     }
 
     private fun bindRelatedVideo(itemView: ItemVideoListBinding, video: Video) {
-        itemView.itemTitle.text = video.entity.title
-        itemView.itemDescription.text = video.creator.entity.name
-        GlideApp.with(itemView.root).load(video.entity.thumbnail)
+        itemView.itemTitle.text = video.title
+        itemView.itemDescription.text = video.creator.name
+        GlideApp.with(itemView.root).load(video.thumbnail)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
@@ -119,6 +120,7 @@ class DetailsFragment : BaseFragment(R.layout.fragment_details) {
         when (playerEvent) {
             PlayerEvent.OnCommentSuccess -> Snackbar.make(requireView(), R.string.details_commentPosted, Snackbar.LENGTH_LONG).show()
             PlayerEvent.OnCommentError -> Snackbar.make(requireView(), R.string.details_error_commentPost, Snackbar.LENGTH_LONG).show()
+            else -> logd("Unhandled event ${playerEvent::class.java.simpleName}")
         }
     }
 }

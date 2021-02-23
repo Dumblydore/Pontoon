@@ -18,7 +18,7 @@ import me.mauricee.pontoon.databinding.ItemUserHeaderBinding
 import me.mauricee.pontoon.ext.animateStatusBarColor
 import me.mauricee.pontoon.ext.updateAsInt
 import me.mauricee.pontoon.glide.GlideApp
-import me.mauricee.pontoon.model.user.UserEntity
+import me.mauricee.pontoon.repository.user.User
 import me.mauricee.pontoon.rx.glide.toPalette
 import me.mauricee.pontoon.ui.preferences.darken
 
@@ -26,7 +26,7 @@ internal class UserHeaderAdapter(private val themeManager: ThemeManager,
                                  private val toolbar: Toolbar,
                                  private val fragment: UserFragment) : RecyclerView.Adapter<UserHeaderAdapter.VieWHolder>() {
 
-    var user: UserEntity? = null
+    var user: User? = null
         set(value) {
             field = value
             notifyItemChanged(0)

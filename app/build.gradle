@@ -7,7 +7,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'de.jjohannes.missing-metadata-guava'
-apply plugin: 'com.squareup.wire'
 apply plugin: "androidx.navigation.safeargs"
 //apply plugin: 'com.github.triplet.play'
 
@@ -19,13 +18,26 @@ if (applyAnalytics) {
 
 
 def major = 1
-def minor = 0
+def minor = 1
 def patch = (project.findProperty('buildNumber') ?: "0").toInteger()
 
 Properties localProperties = new Properties()
 localProperties.load(project.rootProject.file("local.properties").newDataInputStream())
 
 android {
+    compileSdkVersion build_versions.compile_sdk
+    defaultConfig {
+        applicationId "me.mauricee.pontoon"
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+        versionCode((major * 100) + (minor * 100) + patch)
+        versionName "$major.$minor.$patch"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username", "")}\""
+        resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password", "")}\""
+        resValue 'string', 'cast_id', "\"${localProperties.getProperty("pontoon.castId", "")}\""
+        javaCompileOptions.annotationProcessorOptions.arguments['dagger.hilt.disableModulesHaveInstallInCheck'] = 'true'
+    }
     buildFeatures {
         viewBinding true
     }
@@ -36,19 +48,6 @@ android {
             storeFile file(localProperties.getProperty("release.storeFile", "~/"))
             storePassword localProperties.getProperty("release.storePassword", "")
         }
-    }
-    compileSdkVersion 30
-    defaultConfig {
-        applicationId "me.mauricee.pontoon"
-        minSdkVersion 24
-        targetSdkVersion 30
-        versionCode((major * 100) + (minor * 100) + patch)
-        versionName "$major.$minor.$patch"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        resValue 'string', 'default_user', "\"${localProperties.getProperty("pontoon.username", "")}\""
-        resValue 'string', 'default_pass', "\"${localProperties.getProperty("pontoon.password", "")}\""
-        resValue 'string', 'cast_id', "\"${localProperties.getProperty("pontoon.castId", "")}\""
-        javaCompileOptions.annotationProcessorOptions.arguments['dagger.hilt.disableModulesHaveInstallInCheck'] = 'true'
     }
     buildTypes {
         release {
@@ -74,9 +73,6 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
-    sourceSets {
-        main.java.srcDirs += "$project.buildDir/generated/source/wire"
-    }
     testOptions {
         unitTests.returnDefaultValues = true
     }
@@ -84,133 +80,105 @@ android {
 
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    //  Modules
+    implementation project(":common:log")
+    implementation project(":data:common")
+    implementation project(":data:network")
+    implementation project(":repository")
+    implementation project(":ui")
 
     //  Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation deps.kotlin
 
-    //  Google
-    implementation "androidx.core:core-ktx:1.5.0-beta01"
-    implementation "androidx.fragment:fragment-ktx:1.3.0"
-    implementation "androidx.preference:preference-ktx:1.1.1"
+    //  AndroidX
+    implementation deps.androidx.activity
+    implementation deps.androidx.appcompat
+    implementation deps.androidx.core
+    implementation deps.androidx.constraintlayout
+    implementation deps.androidx.fragment
+    implementation deps.androidx.lifecycle.common
+    implementation deps.androidx.lifecycle.ext
+    implementation deps.androidx.lifecycle.livedata
+    implementation deps.androidx.lifecycle.viewmodel
+    implementation deps.androidx.media2.session
+    implementation deps.androidx.media2.player
+    implementation deps.androidx.media2.widget
+    implementation deps.androidx.mediarouter
+    implementation deps.androidx.navigation.fragment
+    implementation deps.androidx.navigation.ui
+    implementation deps.androidx.palette
+    implementation deps.androidx.preference
+    implementation deps.androidx.startup
+    implementation deps.androidx.recyclerview
+    implementation deps.material
 
-    implementation "androidx.appcompat:appcompat:1.2.0"
-    implementation "androidx.recyclerview:recyclerview:1.2.0-beta01"
-    implementation "androidx.core:core-ktx:1.3.2"
-    implementation "androidx.media:media:1.2.1"
-    implementation "androidx.palette:palette-ktx:$google_support_version"
-    implementation "androidx.mediarouter:mediarouter:1.2.2"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation "com.google.android.material:material:$material_components_version"
+    //  Dagger
+    api deps.dagger.core
+    kapt deps.dagger.compiler
 
-    //    Google Play
-    implementation('com.google.firebase:firebase-core:18.0.2')
-    implementation('com.google.firebase:firebase-crash:16.2.1')
-    implementation 'com.google.firebase:firebase-crashlytics:17.3.1'
-    implementation('com.google.firebase:firebase-perf:19.1.1')
-    implementation 'com.google.android.gms:play-services-cast-framework:19.0.0'
-
-    // Kotlin
-    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
-    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
-
-    //  UI
-    implementation 'com.ncapdevi:frag-nav:2.4.0'
-    implementation "com.mikepenz:aboutlibraries:6.2.0-rc01"
-    implementation 'com.github.Dumblydore:LazyLayout:master-SNAPSHOT'
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-    implementation "com.jakewharton.rxbinding2:rxbinding-kotlin:$rx_binding_version"
-    implementation "com.jakewharton.rxbinding2:rxbinding-design-kotlin:$rx_binding_version"
-    implementation "com.jakewharton.rxbinding2:rxbinding-support-v4-kotlin:$rx_binding_version"
-    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7-kotlin:$rx_binding_version"
-
-    //  RX
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
-    implementation 'com.jakewharton.rx2:replaying-share-kotlin:2.2.0'
-
-    //  Glide
-    implementation "com.github.bumptech.glide:glide:$glide_version"
-    implementation "com.github.bumptech.glide:okhttp3-integration:$glide_version"
-    implementation("com.github.bumptech.glide:recyclerview-integration:$glide_version") {
-        transitive = false
-    }
-    kapt "com.github.bumptech.glide:compiler:$glide_version"
-
-    //  Utils
-    implementation 'io.lindstrom:m3u8-parser:0.17'
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
-    implementation('org.aaronhe:threetenbp-gson-adapter:1.0.2') {
-        transitive = false
-    }
-
-    //Dagger
-    implementation "com.google.dagger:dagger:$dagger_version"
-    implementation "com.google.dagger:dagger-android-support:2.31.2"
-    implementation "com.google.dagger:hilt-android:$dagger_version"
-    implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0-alpha03'
-    kapt 'androidx.hilt:hilt-compiler:1.0.0-alpha03'
-    kapt "com.google.dagger:hilt-android-compiler:$dagger_version"
+    api deps.dagger.hilt.core
+    api deps.dagger.hilt.navigation
+    kapt deps.dagger.hilt.compiler
+    kapt deps.dagger.hilt.android_compiler
 
     // ExoPlayer
-    implementation "com.google.android.exoplayer:exoplayer-core:$exo_player_version"
-    implementation "com.google.android.exoplayer:exoplayer-ui:$exo_player_version"
-    implementation "com.google.android.exoplayer:extension-okhttp:$exo_player_version"
-    implementation "com.google.android.exoplayer:extension-cast:$exo_player_version"
-    implementation "com.google.android.exoplayer:exoplayer-hls:$exo_player_version"
-    implementation "com.google.android.exoplayer:extension-mediasession:$exo_player_version"
-    implementation "com.google.android.exoplayer:extension-media2:$exo_player_version"
-    implementation "androidx.startup:startup-runtime:1.0.0"
+    implementation deps.exoplayer.exoplayer_core
+    implementation deps.exoplayer.exoplayer_ui
+    implementation deps.exoplayer.extension_okhttp
+    implementation deps.exoplayer.extension_cast
+    implementation deps.exoplayer.exoplayer_hls
+    implementation deps.exoplayer.extension_media2
 
-    //  Architecture Components
-    implementation "androidx.room:room-runtime:$arch_components_version"
-    implementation "androidx.room:room-rxjava2:$arch_components_version"
-    implementation "androidx.paging:paging-runtime-ktx:$arch_components_pagination_version"
-    implementation "androidx.paging:paging-rxjava2-ktx:$arch_components_pagination_version"
+    //  Glide
+    implementation deps.glide.core
+    implementation deps.glide.okhttp
+    implementation(deps.glide.recyclerview) { transitive = false }
+    kapt deps.glide.compiler
+
+    //  Google Play
+    implementation deps.firebase.core
+    implementation deps.firebase.crash
+    implementation deps.firebase.crashlytics
+    implementation deps.firebase.perf
+    implementation deps.cast
+
 
     //   Networking
-    implementation "com.isupatches:wisefy:3.0.1"
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.nytimes.android:store3:3.1.1'
-    implementation 'com.vanniktech:rxpermission:0.7.0'
-    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-scalars:$retrofitVersion"
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    implementation deps.okhttp.core
+    implementation deps.okhttp.logging
+    implementation deps.retrofit.core
+    implementation deps.retrofit.moshi
+    implementation deps.retrofit.rx
+    implementation deps.retrofit.scalars
+    implementation deps.wisefy
 
-    // DataStore
-    implementation "androidx.datastore:datastore:1.0.0-alpha06"
-    implementation "androidx.datastore:datastore-rxjava2:1.0.0-alpha06"
-    implementation 'com.google.crypto.tink:tink-android:1.5.0'
-    implementation "com.squareup.wire:wire-runtime:3.5.0"
+    //  RX
+    implementation deps.rx.rx_java
+    implementation deps.rx.rx_kotlin
+    implementation deps.rx.android
+    implementation deps.rx.relay
+    implementation deps.rx.replaying_share
 
-    // MediaSession
-    implementation "androidx.media2:media2-session:$media_version"
-    implementation "androidx.media2:media2-player:$media_version"
-    implementation "androidx.media2:media2-widget:$media_version"
+    implementation deps.rx.bindings.appcompat
+    implementation deps.rx.bindings.binding
+    implementation deps.rx.bindings.material
+    implementation deps.rx.bindings.swiperefreshlayout
+
+    //  UI
+    implementation deps.about
+    implementation deps.lazylayout
+
+    //  Utils
+    implementation deps.timber
+    implementation deps.threeten
 
     //  Tests
-    testImplementation 'junit:junit:4.12'
-    testImplementation "io.mockk:mockk:1.9.3"
-//    testImplementation "android.arch.persistence.room:testing:$arch_components_version"
+    testImplementation deps.test.junit
+    testImplementation deps.test.mockk
 
     //  Android tests
-    androidTestImplementation 'androidx.test:runner:1.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
-    //  Processors
-    kapt "androidx.room:room-compiler:$arch_components_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:2.31.2"
-}
-
-wire {
-    kotlin {}
+    androidTestImplementation deps.test.android.runner
+    androidTestImplementation deps.test.android.espresso.core
 }
 
 if (project.hasProperty('kapt')) {

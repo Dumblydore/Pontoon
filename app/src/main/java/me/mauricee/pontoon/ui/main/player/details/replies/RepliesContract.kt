@@ -6,11 +6,9 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.comment.ChildComment
-import me.mauricee.pontoon.model.comment.Comment
-import me.mauricee.pontoon.model.comment.CommentEntity
-import me.mauricee.pontoon.model.user.User
-import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.repository.comment.Comment
+import me.mauricee.pontoon.repository.user.User
+import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.UiState
 
 interface RepliesContract {
@@ -19,14 +17,14 @@ interface RepliesContract {
 
     data class State(val uiState: UiState = UiState.Empty,
                      val parentComment: Comment? = null,
-                     val comments: List<ChildComment> = emptyList(),
+                     val comments: List<Comment> = emptyList(),
                      val user: User? = null)
 
     sealed class Reducer {
         object Loading : Reducer()
         data class Error(val type: ErrorType = ErrorType.General) : Reducer()
         data class CurrentUser(val user: User) : Reducer()
-        data class Replies(val parent: Comment, val comments: List<ChildComment>) : Reducer()
+        data class Replies(val parent: Comment, val comments: List<Comment>) : Reducer()
     }
 
     sealed class Action : EventTracker.Action {
@@ -49,7 +47,7 @@ interface RepliesContract {
         Cleared(R.string.replies_error_cleared),
     }
 
-    class ViewModel @AssistedInject constructor(@Assisted p: RepliesPresenter) : EventViewModel<State, Action, Event>(State(), p) {
+    class ViewModel @AssistedInject constructor(@Assisted p: RepliesPresenter) : BaseViewModel<State, Action, Event>(State(), p) {
         @AssistedFactory
         interface Factory {
             fun create(p: RepliesPresenter): ViewModel

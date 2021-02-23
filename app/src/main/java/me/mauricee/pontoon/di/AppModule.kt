@@ -7,14 +7,12 @@ import android.content.SharedPreferences
 import android.net.wifi.WifiManager
 import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
+import android.util.Log
 import androidx.paging.PagedList
 import androidx.preference.PreferenceManager
 import com.google.android.exoplayer2.util.Util
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.isupatches.wisefy.WiseFy
-import com.vanniktech.rxpermission.RealRxPermission
-import com.vanniktech.rxpermission.RxPermission
+import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -22,16 +20,17 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.analytics.FirebaseNetworkInterceptor
-import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
+import me.mauricee.pontoon.common.InstantAdapter
+import me.mauricee.pontoon.data.network.FloatPlaneApi
+import me.mauricee.pontoon.repository.util.AuthInterceptor
 import okhttp3.OkHttpClient
-import org.aaronhe.threetengson.ThreeTenGsonAdapter
+import okhttp3.logging.HttpLoggingInterceptor
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -43,26 +42,37 @@ interface AppModule {
     fun bindContext(application: Application): Context
 
     companion object {
+//        @Provides
+//        fun providesGson(): Gson = ThreeTenGsonAdapter.registerAll(GsonBuilder().setLenient()).create()
+
         @Provides
-        fun providesGson(): Gson = ThreeTenGsonAdapter.registerAll(GsonBuilder().setLenient()).create()
+        fun provideMoshi() = Moshi.Builder()
+                .add(InstantAdapter())
+                .build()
+
+        @Provides
+        fun Moshi.provideConverterFactory() = MoshiConverterFactory.create(this)
 
         @Provides
         fun providesRxJavaCallAdapterFactory(): RxJava2CallAdapterFactory =
                 RxJava2CallAdapterFactory.createAsync()
 
-        @Provides
-        fun providesGsonConverterFactory(gson: Gson): GsonConverterFactory =
-                GsonConverterFactory.create(gson)
+//        @Provides
+//        fun providesGsonConverterFactory(gson: Gson): GsonConverterFactory =
+//                GsonConverterFactory.create(gson)
 
         @Provides
         fun providesHttpClient(): OkHttpClient = OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(15, TimeUnit.SECONDS)
                 .writeTimeout(15, TimeUnit.SECONDS)
+                .addInterceptor(HttpLoggingInterceptor {
+                    Log.d("HttpLogger", it)
+                })
                 .build()
 
         @Provides
-        fun providesFloatPlaneApi(converterFactory: GsonConverterFactory,
+        fun providesFloatPlaneApi(converterFactory: MoshiConverterFactory,
                                   authInterceptor: AuthInterceptor,
                                   firebaseNetworkInterceptor: FirebaseNetworkInterceptor,
                                   callFactory: RxJava2CallAdapterFactory, client: OkHttpClient): FloatPlaneApi = client.newBuilder().addInterceptor(authInterceptor)
@@ -111,9 +121,6 @@ interface AppModule {
 
         @Provides
         fun providesWiseFy(context: Context): WiseFy = WiseFy.Brains(context).getSmarts()
-
-        @Provides
-        fun providesRxPermission(context: Context): RxPermission = RealRxPermission.getInstance(context)
 
     }
 }

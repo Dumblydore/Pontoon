@@ -3,7 +3,7 @@ package me.mauricee.pontoon.ui.main.history
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import com.jakewharton.rxbinding2.support.v7.widget.navigationClicks
+import com.jakewharton.rxbinding3.appcompat.navigationClicks
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
