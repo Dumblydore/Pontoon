@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="me.mauricee.pontoon.tv.login.LoginFragment"
-        tools:layout="@layout/fragment_login" >
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_browseFragment"
             app:destination="@id/browseFragment" />
@@ -16,5 +16,17 @@
     <fragment
         android:id="@+id/browseFragment"
         android:name="me.mauricee.pontoon.tv.browse.BrowseFragment"
-        android:label="BrowseFragment" />
+        android:label="BrowseFragment">
+        <action
+            android:id="@+id/action_browseFragment_to_detailHostFragment"
+            app:destination="@id/detailHostFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailHostFragment"
+        android:name="me.mauricee.pontoon.tv.detail.DetailHostFragment"
+        android:label="DetailHostFragment" >
+        <argument
+            android:name="videoId"
+            app:argType="string" />
+    </fragment>
 </navigation>

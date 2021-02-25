@@ -44,12 +44,13 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
     }
 
     private val actions: Observable<LoginAction>
-        get() = Observable.merge(listOf(binding.loginLttForum.clicks().map { LoginAction.LttLogin },
-                binding.loginDiscord.clicks().map { LoginAction.DiscordLogin },
+        get() = Observable.merge(listOf(/*binding.loginLttForum.clicks().map { LoginAction.LttLogin },*/
+//                binding.loginDiscord.clicks().map { LoginAction.DiscordLogin },
                 binding.loginLogin.clicks().map { loginAction },
                 binding.loginPasswordEdit.editorActionEvents().map { loginAction },
                 binding.loginTokenEdit.editorActionEvents().map { loginAction },
-                binding.loginPrivacy.clicks().map { LoginAction.PrivacyPolicy }))
+//                binding.loginPrivacy.clicks().map { LoginAction.PrivacyPolicy }
+        ))
 //                .compose(emitActivationArgs())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,13 +93,13 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
     private fun displayLoadingState(isLoading: Boolean) {
         binding.loginLogin.isEnabled = !isLoading
         if (isLoading) {
-            binding.loginLogin.icon = loadingDrawable
-            binding.loginLogin.iconGravity = ExtendedFloatingActionButton.ICON_GRAVITY_END
+//            binding.loginLogin.icon = loadingDrawable
+//            binding.loginLogin.iconGravity = ExtendedFloatingActionButton.ICON_GRAVITY_END
             loadingDrawable.start()
-            binding.loginLogin.shrink()
+//            binding.loginLogin.shrink()
         } else {
             loadingDrawable.stop()
-            binding.loginLogin.extend(listener)
+//            binding.loginLogin.extend(listener)
         }
     }
 

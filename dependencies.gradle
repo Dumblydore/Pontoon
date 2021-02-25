@@ -113,11 +113,11 @@ def rxBindings = [
         material          : "com.jakewharton.rxbinding3:rxbinding-material:$versions.rx_binding",
 ]
 ext.deps = [
-        about: "com.mikepenz:aboutlibraries:6.2.0-rc01",
-        androidx : androidxDependencies,
-        cast     : "com.google.android.gms:play-services-cast-framework:19.0.0",
-        kotlin   : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
-        dagger   : [
+        about     : "com.mikepenz:aboutlibraries:6.2.0-rc01",
+        androidx  : androidxDependencies,
+        cast      : "com.google.android.gms:play-services-cast-framework:19.0.0",
+        kotlin    : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
+        dagger    : [
                 core           : "com.google.dagger:dagger:$versions.dagger",
                 android        : "com.google.dagger:dagger-android:$versions.dagger",
                 android_support: "com.google.dagger:dagger-android-support:$versions.dagger",
@@ -130,29 +130,29 @@ ext.deps = [
                         android_compiler: "com.google.dagger:hilt-android-compiler:$versions.dagger"
                 ]
         ],
-        firebase : firebaseDependencies,
-        glide    : [
+        firebase  : firebaseDependencies,
+        glide     : [
                 core        : "com.github.bumptech.glide:glide:$versions.glide",
                 okhttp      : "com.github.bumptech.glide:okhttp3-integration:$versions.glide",
                 recyclerview: "com.github.bumptech.glide:recyclerview-integration:$versions.glide",
                 compiler    : "com.github.bumptech.glide:compiler:$versions.glide"
         ],
-        lazylayout      : "com.github.Dumblydore:LazyLayout:master-SNAPSHOT",
-        moshi    : [
+        lazylayout: "com.github.Dumblydore:LazyLayout:master-SNAPSHOT",
+        moshi     : [
                 core    : "com.squareup.moshi:moshi-kotlin:$versions.moshi",
                 code_gen: "com.squareup.moshi:moshi-kotlin-codegen:$versions.moshi"
         ],
-        okhttp   : [
+        okhttp    : [
                 core   : "com.squareup.okhttp3:okhttp:$versions.okhttp",
                 logging: "com.squareup.okhttp3:logging-interceptor:$versions.okhttp",
         ],
-        retrofit : [
+        retrofit  : [
                 core   : "com.squareup.retrofit2:retrofit:$versions.retrofit",
                 moshi  : "com.squareup.retrofit2:converter-moshi:$versions.retrofit",
                 rx     : "com.squareup.retrofit2:adapter-rxjava2:$versions.retrofit",
                 scalars: "com.squareup.retrofit2:converter-scalars:$versions.retrofit",
         ],
-        exoplayer: [
+        exoplayer : [
                 exoplayer_core        : "com.google.android.exoplayer:exoplayer-core:$versions.exoplayer",
                 exoplayer_ui          : "com.google.android.exoplayer:exoplayer-ui:$versions.exoplayer",
                 extension_okhttp      : "com.google.android.exoplayer:extension-okhttp:$versions.exoplayer",
@@ -161,19 +161,20 @@ ext.deps = [
                 extension_mediasession: "com.google.android.exoplayer:extension-mediasession:$versions.exoplayer",
                 extension_media2      : "com.google.android.exoplayer:extension-media2:$versions.exoplayer"
         ],
-        jsr250   : 'javax.annotation:jsr250-api:1.0',
-        material : "com.google.android.material:material:$versions.material_components",
-        paging   : [
-                core: "androidx.paging:paging-runtime-ktx:$versions.paging",
-                rx  : "androidx.paging:paging-rxjava2:$versions.paging"
+        jsr250    : 'javax.annotation:jsr250-api:1.0',
+        material  : "com.google.android.material:material:$versions.material_components",
+        paging    : [
+                core    : "androidx.paging:paging-runtime-ktx:$versions.paging",
+                rx      : "androidx.paging:paging-rxjava2:$versions.paging",
+                leanback: "androidx.leanback:leanback-paging:$versions.paging"
         ],
-        room     : [
+        room      : [
                 runtime : "androidx.room:room-runtime:$versions.room",
                 compiler: "androidx.room:room-compiler:$versions.room",
                 core    : "androidx.room:room-ktx:$versions.room",
                 rx      : "androidx.room:room-rxjava2:$versions.room"
         ],
-        rx       : [
+        rx        : [
                 coroutines_interop: "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.4.0",
                 rx_java           : "io.reactivex.rxjava2:rxjava:$versions.rx_java",
                 rx_kotlin         : "io.reactivex.rxjava2:rxkotlin:$versions.rx_kotlin",
@@ -182,15 +183,15 @@ ext.deps = [
                 relay             : "com.jakewharton.rxrelay2:rxrelay:2.0.0",
                 bindings          : rxBindings
         ],
-        store    : [
+        store     : [
                 core: "com.dropbox.mobile.store:store4:$versions.store",
                 rx  : "com.dropbox.mobile.store:store-rx2:$versions.store",
         ],
-        timber   : "com.jakewharton.timber:timber:4.7.1",
-        threeten : "com.jakewharton.threetenabp:threetenabp:$versions.threeten",
-        wire     : "com.squareup.wire:wire-runtime:$versions.wire",
-        wisefy   : "com.isupatches:wisefy:3.0.1",
-        test     : [
+        timber    : "com.jakewharton.timber:timber:4.7.1",
+        threeten  : "com.jakewharton.threetenabp:threetenabp:$versions.threeten",
+        wire      : "com.squareup.wire:wire-runtime:$versions.wire",
+        wisefy    : "com.isupatches:wisefy:3.0.1",
+        test      : [
                 junit  : "junit:junit:$versions.junit",
                 mockk  : "io.mockk:mockk:1.9.3",
                 android: [

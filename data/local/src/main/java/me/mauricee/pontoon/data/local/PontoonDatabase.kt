@@ -24,7 +24,7 @@ import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
 
 @TypeConverters(value = [InstantTypeConverter::class])
-@Database(entities = [UserEntity::class, ActivityEntity::class, CreatorEntity::class, VideoEntity::class, CommentEntity::class, SubscriptionEntity::class, RelatedVideo::class], version = 4, exportSchema = false)
+@Database(entities = [UserEntity::class, ActivityEntity::class, CreatorEntity::class, VideoEntity::class, CommentEntity::class, SubscriptionEntity::class, RelatedVideo::class], version = 5, exportSchema = false)
 abstract class PontoonDatabase : RoomDatabase() {
     abstract val userDao: UserDao
     abstract val activityDao: ActivityDao

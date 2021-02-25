@@ -16,6 +16,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import me.mauricee.pontoon.data.network.FloatPlaneApi
+import me.mauricee.pontoon.data.network.util.InstantAdapter
 import me.mauricee.pontoon.repository.util.AuthInterceptor
 import me.mauricee.pontoon.tv.BuildConfig
 import okhttp3.OkHttpClient
@@ -38,7 +39,7 @@ interface TvModule {
     companion object {
         @Provides
         fun provideMoshi() = Moshi.Builder()
-//            .add(InstantAdapter())
+                .add(InstantAdapter())
                 .build()
 
         @Provides

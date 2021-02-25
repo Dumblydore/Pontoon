@@ -19,5 +19,5 @@ class CreatorRepository @Inject constructor(private val allCreatorStore: Store<U
     fun getCreator(id: String): Flowable<Creator> = creatorStore.getAndFetch(id)
 }
 
-internal fun CreatorJson.toEntity(): CreatorEntity = CreatorEntity(id, title, urlname, about, description, owner)
-internal fun CreatorListItem.toEntity(): CreatorEntity = CreatorEntity(id, title, urlname, about, description, owner.id)
+internal fun CreatorJson.toEntity(): CreatorEntity = CreatorEntity(id, title, urlname, about, description, cover?.path, owner)
+internal fun CreatorListItem.toEntity(): CreatorEntity = CreatorEntity(id, title, urlname, about, description, cover?.path, owner.id)

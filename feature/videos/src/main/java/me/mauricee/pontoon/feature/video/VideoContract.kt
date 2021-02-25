@@ -3,6 +3,7 @@ package me.mauricee.pontoon.feature.video
 import androidx.annotation.StringRes
 import androidx.paging.PagedList
 import dagger.hilt.android.lifecycle.HiltViewModel
+import me.mauricee.pontoon.common.log.logd
 import me.mauricee.pontoon.feature.R
 import me.mauricee.pontoon.repository.creator.Creator
 import me.mauricee.pontoon.repository.video.Video
@@ -45,4 +46,8 @@ sealed class VideoEvent {
 }
 
 @HiltViewModel
-class VideoViewModel @Inject constructor(p: VideoPresenter) : BaseViewModel<VideoState, VideoAction, VideoEvent>(VideoState(), p)
+class VideoViewModel @Inject constructor(p: VideoPresenter) : BaseViewModel<VideoState, VideoAction, VideoEvent>(VideoState(), p) {
+    override fun onCleared() {
+        logd("Cleared!")
+    }
+}

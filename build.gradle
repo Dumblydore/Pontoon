@@ -2,11 +2,6 @@
 
 buildscript {
     apply from: 'dependencies.gradle'
-    ext {
-        versions.kotlin = '1.4.30'
-        versions.kotlin = '1.4.30'
-    }
-
     repositories {
         google()
         jcenter()

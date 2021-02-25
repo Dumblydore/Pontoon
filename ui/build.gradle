@@ -53,4 +53,5 @@ dependencies {
     implementation deps.rx.rx_kotlin
     implementation deps.rx.android
     implementation deps.rx.relay
+    implementation deps.rx.replaying_share
 }

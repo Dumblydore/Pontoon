@@ -13,6 +13,7 @@ class CreatorEntity(@PrimaryKey
                     val urlName: String,
                     val about: String,
                     val description: String,
+                    val coverImage: String?,
                     val owner: String)
 
 data class CreatorUserJoin(@Embedded val entity: CreatorEntity,

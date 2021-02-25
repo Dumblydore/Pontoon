@@ -64,7 +64,8 @@ dependencies {
     implementation deps.androidx.mediarouter
     implementation deps.androidx.navigation.fragment
     implementation deps.androidx.navigation.ui
-    implementation deps.androidx.palette
+    implementation deps.paging.core
+    implementation deps.paging.rx
     implementation deps.androidx.preference
     implementation deps.androidx.startup
     implementation deps.androidx.recyclerview
