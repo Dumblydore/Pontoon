@@ -174,7 +174,7 @@ ext.deps = [
                 rx      : "androidx.room:room-rxjava2:$versions.room"
         ],
         rx       : [
-                coroutines_interop: "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.4.0",
+                coroutines_interop: "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.4.2-native-mt",
                 rx_java           : "io.reactivex.rxjava2:rxjava:$versions.rx_java",
                 rx_kotlin         : "io.reactivex.rxjava2:rxkotlin:$versions.rx_kotlin",
                 android           : "io.reactivex.rxjava2:rxandroid:$versions.rx_android",
