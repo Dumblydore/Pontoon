@@ -173,7 +173,7 @@ dependencies {
     implementation "androidx.paging:paging-rxjava2-ktx:$arch_components_pagination_version"
 
     //   Networking
-    implementation "com.isupatches:wisefy:3.0.1"
+    implementation "com.isupatches:wisefy:4.0.0"
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.nytimes.android:store3:3.1.1'
     implementation 'com.vanniktech:rxpermission:0.7.0'
