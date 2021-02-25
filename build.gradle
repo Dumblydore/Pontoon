@@ -7,7 +7,7 @@ buildscript {
     ext.exo_player_version = '2.12.0'
     ext.rx_binding_version = '2.2.0'
     ext.nav_version = "2.3.3"
-    ext.retrofitVersion = '2.5.0'
+    ext.retrofitVersion = '2.9.0'
     ext.google_support_version = '1.0.0'
     ext.material_components_version = '1.3.0'
     ext.arch_components_version = '2.2.6'
