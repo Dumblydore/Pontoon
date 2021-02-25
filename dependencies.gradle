@@ -194,7 +194,7 @@ ext.deps = [
                 junit  : "junit:junit:$versions.junit",
                 mockk  : "io.mockk:mockk:1.9.3",
                 android: [
-                        junit   : "androidx.test.ext:junit:1.1.1",
+                        junit   : "androidx.test.ext:junit:1.1.2",
                         espresso: [
                                 core: "androidx.test.espresso:espresso-core:3.3.0"
                         ],
