@@ -50,7 +50,7 @@ def versions = [
         threeten           : "1.1.1",
         junit              : "4.13.1",
         pusher             : "2.2.1",
-        wire               : "3.4.0",
+        wire               : "3.6.0",
 ]
 ext.versions = versions
 
