@@ -161,7 +161,7 @@ ext.deps = [
                 extension_mediasession: "com.google.android.exoplayer:extension-mediasession:$versions.exoplayer",
                 extension_media2      : "com.google.android.exoplayer:extension-media2:$versions.exoplayer"
         ],
-        jsr250   : 'javax.annotation:jsr250-api:1.0',
+        jsr250   : 'javax.annotation:jsr250-api:1.0-20050927.133100',
         material : "com.google.android.material:material:$versions.material_components",
         paging   : [
                 core: "androidx.paging:paging-runtime-ktx:$versions.paging",
