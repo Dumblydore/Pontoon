@@ -48,7 +48,7 @@ def versions = [
         rx_android         : "2.1.1",
         store              : "4.0.0",
         threeten           : "1.1.1",
-        junit              : "4.13.1",
+        junit              : "4.13.2",
         pusher             : "2.2.1",
         wire               : "3.4.0",
 ]
