@@ -192,7 +192,7 @@ ext.deps = [
         wisefy   : "com.isupatches:wisefy:3.0.1",
         test     : [
                 junit  : "junit:junit:$versions.junit",
-                mockk  : "io.mockk:mockk:1.9.3",
+                mockk  : "io.mockk:mockk:1.10.6",
                 android: [
                         junit   : "androidx.test.ext:junit:1.1.2",
                         espresso: [
