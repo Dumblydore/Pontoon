@@ -178,7 +178,7 @@ ext.deps = [
                 rx_java           : "io.reactivex.rxjava2:rxjava:$versions.rx_java",
                 rx_kotlin         : "io.reactivex.rxjava2:rxkotlin:$versions.rx_kotlin",
                 android           : "io.reactivex.rxjava2:rxandroid:$versions.rx_android",
-                replaying_share   : "com.jakewharton.rx2:replaying-share-kotlin:2.0.0",
+                replaying_share   : "com.jakewharton.rx2:replaying-share-kotlin:2.2.0",
                 relay             : "com.jakewharton.rxrelay2:rxrelay:2.0.0",
                 bindings          : rxBindings
         ],
