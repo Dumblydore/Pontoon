@@ -3,7 +3,6 @@ package me.mauricee.pontoon.repository.creator
 import com.dropbox.android.external.store4.Store
 import io.reactivex.Flowable
 import me.mauricee.pontoon.data.local.creator.CreatorEntity
-import me.mauricee.pontoon.data.local.creator.CreatorUserJoin
 import me.mauricee.pontoon.data.network.creator.info.CreatorJson
 import me.mauricee.pontoon.data.network.creator.list.CreatorListItem
 import me.mauricee.pontoon.repository.DataModel
@@ -19,5 +18,12 @@ class CreatorRepository @Inject constructor(private val allCreatorStore: Store<U
     fun getCreator(id: String): Flowable<Creator> = creatorStore.getAndFetch(id)
 }
 
-internal fun CreatorJson.toEntity(): CreatorEntity = CreatorEntity(id, title, urlname, about, description, owner)
-internal fun CreatorListItem.toEntity(): CreatorEntity = CreatorEntity(id, title, urlname, about, description, owner.id)
+internal fun CreatorJson.toEntity(): CreatorEntity = CreatorEntity(id, title, urlname, about,
+        description, owner,
+        liveStream?.title,
+        liveStream?.description,
+        liveStream?.thumbnail?.path,
+        liveStream?.streamPath,
+        liveStream?.offline?.thumbnail?.path)
+
+internal fun CreatorListItem.toEntity(): CreatorEntity = CreatorEntity(id, title, urlname, about, description, owner.id, null, null, null, null, null)

@@ -131,6 +131,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                 player.previewUrl.map(PlayerReducer::DisplayPreview),
                 player.isBuffering.map(PlayerReducer::DisplayBuffer),
                 player.contentRatio.map(PlayerReducer::SetPlayerRatio),
+                commentRepo.liveStreamChat().toObservable().flatMap { noReduce { logd("Websocket event: $it") } },
                 commentPages.map<PlayerReducer>(PlayerReducer::DisplayComments).toObservable(),
                 commentStates.map(::mapCommentStates).toObservable()
         ))

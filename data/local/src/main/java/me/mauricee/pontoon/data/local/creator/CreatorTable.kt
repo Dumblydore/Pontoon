@@ -13,7 +13,12 @@ class CreatorEntity(@PrimaryKey
                     val urlName: String,
                     val about: String,
                     val description: String,
-                    val owner: String)
+                    val owner: String,
+                    val liveStreamTitle: String?,
+                    val liveStreamDescription: String?,
+                    val liveStreamThumbnail: String?,
+                    val liveStreamPath: String?,
+                    val offlineImage: String?)
 
 data class CreatorUserJoin(@Embedded val entity: CreatorEntity,
                            @Relation(parentColumn = "owner", entityColumn = "id") val user: UserEntity)

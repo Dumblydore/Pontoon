@@ -10,8 +10,17 @@ data class Creator(override val id: String,
                    val urlName: String,
                    val about: String,
                    val description: String,
-                   val owner: User) : Diffable<String>
+                   val owner: User,
+                   val liveStream: LiveStream?) : Diffable<String>
 
 fun CreatorUserJoin.toModel(): Creator {
-    return Creator(entity.id, entity.name, entity.urlName, entity.about, entity.description, user.toModel())
+    return Creator(entity.id, entity.name, entity.urlName, entity.about, entity.description, user.toModel(),
+            LiveStream(
+                    entity.liveStreamTitle!!,
+                    entity.description!!,
+                    entity.liveStreamThumbnail!!,
+                    entity.liveStreamPath!!,
+                    entity.offlineImage!!,
+            )
+    )
 }

@@ -9,15 +9,20 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import me.mauricee.pontoon.data.local.comment.*
 import me.mauricee.pontoon.data.network.FloatPlaneApi
+import me.mauricee.pontoon.data.network.creator.livestream.ChatWebSocketSession
 import me.mauricee.pontoon.data.network.video.comment.*
 import me.mauricee.pontoon.repository.PagedModel
 import me.mauricee.pontoon.repository.user.toModel
+import okhttp3.OkHttpClient
 import javax.inject.Inject
 
-class CommentRepository @Inject constructor(private val commentDao: CommentDao,
+class CommentRepository @Inject constructor(private val client: OkHttpClient,
+                                            private val commentDao: CommentDao,
                                             private val floatPlaneApi: FloatPlaneApi,
                                             private val pageListConfig: PagedList.Config,
                                             private val commentBoundaryCallbackFactory: CommentBoundaryCallback.Factory) {
+
+    fun liveStreamChat() = ChatWebSocketSession(client).connect().subscribeOn(Schedulers.io())
 
     fun getComments(videoId: String): PagedModel<Comment> {
         val callback = commentBoundaryCallbackFactory.newInstance(videoId)
