@@ -25,6 +25,7 @@ sealed class PlayerAction : EventTracker.Action {
     object TogglePlayPause : PlayerAction()
     object ToggleControls : PlayerAction()
     object Pause : PlayerAction()
+    object RunInBackground : PlayerAction()
     data class SeekTo(val position: Long) : PlayerAction()
     data class SetControlVisibility(val controlsVisible: Boolean) : PlayerAction()
     data class SetViewMode(val viewMode: ViewMode) : PlayerAction()
@@ -88,6 +89,7 @@ sealed class PlayerEvent {
     data class DisplayReplies(val commentId: String) : PlayerEvent()
     object OnCommentSuccess : PlayerEvent()
     object OnCommentError : PlayerEvent()
+    object RunInBackground : PlayerEvent()
     data class DisplayCreator(val creator: Creator) : PlayerEvent()
     data class DisplayUser(val user: User) : PlayerEvent()
 }

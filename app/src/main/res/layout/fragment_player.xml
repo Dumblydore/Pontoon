@@ -11,7 +11,7 @@
         android:id="@+id/controlsGroup"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:constraint_referenced_ids="playerControlPlayPause,playerControlQuality,playerControlsFullscreen,playerControlsTimestamp,playerControlCast" />
+        app:constraint_referenced_ids="playerControlPlayPause,playerControlMenu,playerControlQuality,playerControlsFullscreen,playerControlsTimestamp,playerControlCast" />
 
     <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
         android:id="@+id/playerContent"
@@ -44,6 +44,14 @@
         android:layout_height="0dp"
         android:mediaRouteTypes="user"
         app:mediaRouteButtonTint="?colorOnPrimarySurface" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playerControlMenu"
+        style="@style/AppTheme.Button.Icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:icon="@drawable/ic_overflow"
+        app:iconTint="?colorOnPrimarySurface" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/playerControlPlayPause"

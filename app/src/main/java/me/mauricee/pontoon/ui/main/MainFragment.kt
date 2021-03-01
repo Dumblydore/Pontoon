@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.ui.main
 
 import android.animation.ValueAnimator
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -114,6 +115,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 }
                 is PlayerEvent.PostComment -> childNavController.navigate(actionGlobalCommentDialogFragment(it.videoId, it.comment))
                 is PlayerEvent.DisplayReplies -> childNavController.navigate(actionGlobalRepliesDialogFragment(it.commentId))
+                PlayerEvent.RunInBackground -> runInBackground()
                 else -> logd("Unhandled: ${it::class.java.simpleName}")
             }
         }
@@ -144,6 +146,14 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
         playerViewModel.state.mapDistinct { it.isPlaying }.notNull()
                 .map { if (it) R.drawable.ic_pause else R.drawable.ic_play }
                 .observe(viewLifecycleOwner, binding.collapsedDetailsPlayPause::setIconResource)
+    }
+
+    private fun runInBackground() {
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags += Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(intent)
     }
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {

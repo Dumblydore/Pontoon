@@ -41,6 +41,9 @@
     <string name="action_quality">Quality</string>
     <string name="action_download">Download</string>
     <string name="player_error_default">Video could not be played.</string>
+    <array name="player_overflow">
+        <item>Play in background</item>
+    </array>
 
     <!-- Details -->
     <string name="details_postDate">Posted %s.</string>

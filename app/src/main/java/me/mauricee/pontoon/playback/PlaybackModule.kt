@@ -12,12 +12,14 @@ import com.google.android.exoplayer2.ext.media2.SessionCallbackBuilder
 import com.google.android.exoplayer2.ext.media2.SessionPlayerConnector
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.gms.cast.framework.CastContext
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.scopes.ActivityRetainedScoped
+import me.mauricee.pontoon.R
 import me.mauricee.pontoon.playback.converters.HlsMediaItemConverter
 import me.mauricee.pontoon.playback.providers.MediaItemProvider
 import me.mauricee.pontoon.repository.util.AuthInterceptor
@@ -87,5 +89,9 @@ object PlaybackModule {
     fun Context.providesMediaController(session: MediaSession): MediaController = MediaController.Builder(this)
             .setSessionToken(session.token)
             .build()
+
+//    @Provides
+//    @ActivityRetainedScoped
+//    fun providesPlayerNotificationManager(adapter: PlayerDescriptionAdapter, context: Context): PlayerNotificationManager =
 
 }

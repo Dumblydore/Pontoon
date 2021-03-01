@@ -20,6 +20,7 @@ class ClickThroughMotionLayout @JvmOverloads constructor(
             R.id.playerControlsFullscreen,
             R.id.playerControlQuality,
             R.id.playerControlsExpand,
+            R.id.playerControlMenu,
             R.id.playerControlCast)
     private var startX: Int = 0
     private var startY: Int = 0

@@ -116,6 +116,10 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         PlayerAction.ToggleControls,
         is PlayerAction.SetControlVisibility,
         is PlayerAction.PlayVideo -> throw RuntimeException("Should not reach this branch !(${action.javaClass.simpleName}))")
+        PlayerAction.RunInBackground -> noReduce {
+            player.startNotification()
+            sendEvent(PlayerEvent.RunInBackground)
+        }
     }
 
     private fun loadVideoContents(video: Video): Observable<PlayerReducer> {

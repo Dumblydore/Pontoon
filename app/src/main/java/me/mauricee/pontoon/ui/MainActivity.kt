@@ -46,8 +46,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (player.isReadyForPiP) goIntoPip()
-        else player.pause().blockingAwait()
+        when {
+            player.isShowingNotification -> {
+            }//Do Nothing
+            player.isReadyForPiP -> goIntoPip()
+            else -> player.pause().blockingAwait()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        player.stopNotification()
     }
 
     private fun goIntoPip() {

@@ -20,6 +20,8 @@ import me.mauricee.pontoon.databinding.FragmentPlayerBinding
 import me.mauricee.pontoon.ext.map
 import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
+import me.mauricee.pontoon.ext.view.dp
+import me.mauricee.pontoon.ext.view.px
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.playback.Player
 import me.mauricee.pontoon.ui.BaseFragment
@@ -29,13 +31,15 @@ import javax.inject.Inject
 class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.TransitionListener {
 
     @Inject
-    lateinit var newPlayer: Player
+    lateinit var player: Player
     private val viewModel: PlayerViewModel by viewModels({ requireActivity() })
     private val binding by viewBinding(FragmentPlayerBinding::bind)
 
     private val qualityAdapter by lazy { ArrayAdapter<Player.Quality>(requireContext(), R.layout.item_popup) }
-    private val popupWindow by lazy { ListPopupWindow(requireContext(), null, R.attr.listPopupWindowStyle).apply { setAdapter(qualityAdapter) } }
-    private var startTime = 0L
+    private val menuAdapter by lazy { ArrayAdapter(requireContext(), R.layout.item_popup, resources.getStringArray(R.array.player_overflow)) }
+    private val qualityWindow by lazy { ListPopupWindow(requireContext(), null, R.attr.listPopupWindowStyle).apply { setAdapter(qualityAdapter) } }
+    private val menuWindow by lazy { ListPopupWindow(requireContext(), null, R.attr.listPopupWindowStyle).apply { setAdapter(menuAdapter) } }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
@@ -43,22 +47,32 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        newPlayer.bindToTexture(binding.playerSurface)
+        player.bindToTexture(binding.playerSurface)
 
         CastButtonFactory.setUpMediaRouteButton(requireContext(), binding.playerControlCast)
 
         binding.root.addTransitionListener(this)
-        popupWindow.anchorView = binding.playerControlQuality
+        qualityWindow.anchorView = binding.playerControlQuality
+        menuWindow.apply {
+            setContentWidth(256.px)
+            anchorView = binding.playerControlMenu
+        }
 
         binding.playerContent.setAspectRatioListener { targetAspectRatio, naturalAspectRatio, aspectRatioMismatch ->
             logd("target: $targetAspectRatio, natural: $naturalAspectRatio mismatch: $aspectRatioMismatch")
         }
 
-        popupWindow.setOnItemClickListener { _, _, position, _ ->
+        menuWindow.setOnItemClickListener { _, _, position, _ ->
+            when (position) {
+                0 -> viewModel.sendAction(PlayerAction.RunInBackground)
+            }
+        }
+        qualityWindow.setOnItemClickListener { _, _, position, _ ->
             qualityAdapter.getItem(position)?.let {
                 viewModel.sendAction(PlayerAction.SetQuality(it))
             }
         }
+        subscriptions += binding.playerControlMenu.clicks().subscribe { menuWindow.show() }
         subscriptions += binding.playerControlsExpand.clicks()
                 .map { PlayerAction.SetViewMode(ViewMode.Collapsed) }
                 .subscribe(viewModel::sendAction)
@@ -68,14 +82,14 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
         subscriptions += binding.playerControlPlayPause.clicks()
                 .map { PlayerAction.TogglePlayPause }
                 .subscribe(viewModel::sendAction)
-        subscriptions += binding.playerControlQuality.clicks().subscribe { popupWindow.show() }
+        subscriptions += binding.playerControlQuality.clicks().subscribe { qualityWindow.show() }
 
         viewModel.state.mapDistinct(PlayerState::currentQualityLevel).observe(viewLifecycleOwner) {
             binding.playerControlQuality.apply {
                 isGone = it == null
                 text = it?.label
             }
-            popupWindow.setSelection(qualityAdapter.getPosition(it))
+            qualityWindow.setSelection(qualityAdapter.getPosition(it))
         }
         viewModel.state.mapDistinct { it.qualityLevels.toList() }.observe(viewLifecycleOwner) {
             qualityAdapter.apply {
@@ -93,7 +107,11 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), MotionLayout.Tran
                 if (it) {
                     binding.controlsGroup.isGone = false
                     binding.root.transitionToStart()
-                } else binding.root.transitionToEnd()
+                } else {
+                    binding.root.transitionToEnd()
+                    menuWindow.dismiss()
+                    qualityWindow.dismiss()
+                }
             }
         }
         viewModel.state.mapDistinct { it.isPlaying }.notNull()
