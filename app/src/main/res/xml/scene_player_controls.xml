@@ -40,6 +40,14 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:alpha="1"
+            app:layout_constraintEnd_toStartOf="@id/playerControlMenu"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibilityMode="ignore" />
+        <Constraint
+            android:id="@+id/playerControlMenu"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:alpha="1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:visibilityMode="ignore" />
@@ -119,6 +127,14 @@
             app:visibilityMode="ignore" />
         <Constraint
             android:id="@+id/playerControlCast"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:alpha="0"
+            app:layout_constraintEnd_toStartOf="@id/playerControlMenu"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibilityMode="ignore" />
+        <Constraint
+            android:id="@+id/playerControlMenu"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:alpha="0"

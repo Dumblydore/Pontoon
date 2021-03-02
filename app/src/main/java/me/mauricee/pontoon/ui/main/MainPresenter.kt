@@ -4,29 +4,25 @@ import androidx.appcompat.app.AppCompatDelegate
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
-import me.mauricee.pontoon.domain.floatplane.FloatPlaneApi
-import me.mauricee.pontoon.model.PontoonDatabase
-import me.mauricee.pontoon.model.creator.Creator
-import me.mauricee.pontoon.model.session.SessionRepository
-import me.mauricee.pontoon.model.subscription.SubscriptionRepository
-import me.mauricee.pontoon.model.user.User
-import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.data.network.FloatPlaneApi
 import me.mauricee.pontoon.playback.Player
+import me.mauricee.pontoon.repository.creator.Creator
+import me.mauricee.pontoon.repository.session.SessionRepository
+import me.mauricee.pontoon.repository.subscription.SubscriptionRepository
+import me.mauricee.pontoon.repository.user.User
+import me.mauricee.pontoon.repository.util.AuthInterceptor
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(private val sessionRepository: SessionRepository,
-                                        private val userRepository: UserRepository,
                                         private val subscriptionRepository: SubscriptionRepository,
                                         private val floatPlaneApi: FloatPlaneApi,
                                         private val player: Player,
-                                        private val pontoonDatabase: PontoonDatabase,
                                         private val authInterceptor: AuthInterceptor) : BasePresenter<MainContract.State, MainContract.Reducer, MainContract.Action, MainContract.Event>() {
 
     override fun onViewAttached(view: BaseContract.View<MainContract.Action>): Observable<MainContract.Reducer> {
-        return userRepository.activeUser.switchMap { user ->
+        return sessionRepository.activeUser.flatMapObservable { user ->
             Observable.merge(getUser(user), view.actions.flatMap { handleActions(user, it) })
         }.mergeWith(sessionExpirations())
 
@@ -48,6 +44,7 @@ class MainPresenter @Inject constructor(private val sessionRepository: SessionRe
     }
 
     private fun getUser(user: User): Observable<MainContract.Reducer> = subscriptionRepository.subscriptions.get()
+            .toObservable()
             .map(List<Creator>::size).onErrorReturnItem(0)
             .map { MainContract.Reducer.DisplayUser(user, it) }
 
@@ -56,7 +53,6 @@ class MainPresenter @Inject constructor(private val sessionRepository: SessionRe
 
     private fun logout() = Completable.merge(listOf(
             player.stop(),
-            sessionRepository.logout(),
-            Completable.fromAction { pontoonDatabase.clearAllTables() }
+            sessionRepository.logout()
     )).andThen(noReduce { sendEvent(MainContract.Event.NavigateToLoginScreen) }).subscribeOn(Schedulers.io())
 }

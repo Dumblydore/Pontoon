@@ -8,7 +8,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import me.mauricee.pontoon.ext.loge
+import me.mauricee.pontoon.common.log.loge
 
 abstract class BaseBoundaryCallback<T : Any> : PagedList.BoundaryCallback<T>(), Disposable {
     val pagingState: Observable<PagingState>

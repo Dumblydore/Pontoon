@@ -1,0 +1,65 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'com.squareup.wire'
+}
+
+android {
+    compileSdkVersion build_versions.compile_sdk
+    buildToolsVersion build_versions.tools_version
+
+    defaultConfig {
+        versionCode 1
+        versionName "1.0"
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    sourceSets {
+        main.java.srcDirs += "$project.buildDir/generated/source/wire"
+    }
+}
+
+dependencies {
+    implementation deps.kotlin
+
+    implementation deps.rx.rx_java
+    implementation deps.rx.rx_kotlin
+
+    implementation deps.androidx.data_store.core
+    implementation deps.androidx.data_store.rx
+
+    implementation deps.room.runtime
+    implementation deps.room.core
+    implementation deps.room.rx
+    kapt deps.room.compiler
+
+    implementation deps.paging.core
+
+    implementation deps.threeten
+
+    implementation deps.wire
+
+    testImplementation deps.test.junit
+    androidTestImplementation deps.test.android.junit
+}
+
+wire {
+    kotlin {}
+}

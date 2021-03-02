@@ -4,8 +4,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import io.reactivex.Observable
-import me.mauricee.pontoon.model.comment.CommentRepository
-import me.mauricee.pontoon.model.user.UserRepository
+import me.mauricee.pontoon.repository.comment.CommentRepository
+import me.mauricee.pontoon.repository.session.SessionRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
@@ -13,9 +13,10 @@ import me.mauricee.pontoon.ui.UiState
 
 class RepliesPresenter @AssistedInject constructor(@Assisted private val args: RepliesContract.Args,
                                                    private val commentRepository: CommentRepository,
-                                                   private val userRepository: UserRepository) : BasePresenter<RepliesContract.State, RepliesContract.Reducer, RepliesContract.Action, RepliesContract.Event>() {
+                                                   private val sessionRepository: SessionRepository) : BasePresenter<RepliesContract.State, RepliesContract.Reducer, RepliesContract.Action, RepliesContract.Event>() {
     override fun onViewAttached(view: BaseContract.View<RepliesContract.Action>): Observable<RepliesContract.Reducer> {
-        return Observable.merge(userRepository.activeUser.map(RepliesContract.Reducer::CurrentUser),
+        return Observable.merge(sessionRepository.activeUser.map(RepliesContract.Reducer::CurrentUser)
+                .toObservable(),
                 loadReplies()
         )
     }

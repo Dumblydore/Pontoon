@@ -11,20 +11,20 @@ import androidx.core.text.util.LinkifyCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseListAdapter
+import me.mauricee.pontoon.data.local.comment.CommentInteractionType
 import me.mauricee.pontoon.databinding.ItemCommentBinding
-import me.mauricee.pontoon.domain.floatplane.CommentInteraction
 import me.mauricee.pontoon.glide.GlideApp
-import me.mauricee.pontoon.model.Diffable
-import me.mauricee.pontoon.model.comment.Comment
+import me.mauricee.pontoon.repository.comment.Comment
 import me.mauricee.pontoon.ui.main.player.PlayerAction
+import me.mauricee.pontoon.ui.util.diff.DiffableItemCallback
 import javax.inject.Inject
 
-class CommentAdapter @Inject constructor(context: Context) : BaseListAdapter<PlayerAction, Comment, CommentAdapter.ViewHolder>(Diffable.ItemCallback()) {
+class CommentAdapter @Inject constructor(context: Context) : BaseListAdapter<PlayerAction, Comment, CommentAdapter.ViewHolder>(DiffableItemCallback()) {
     private val primaryColor = ContextCompat.getColor(context, R.color.md_grey_600)
     private val positiveColor = ContextCompat.getColor(context, R.color.colorPositive)
     private val negativeColor = ContextCompat.getColor(context, R.color.colorNegative)
@@ -54,19 +54,19 @@ class CommentAdapter @Inject constructor(context: Context) : BaseListAdapter<Pla
 
         fun bind(comment: Comment) {
             binding.apply {
-                val commentScore = comment.entity.score
+                val commentScore = comment.score
                 itemTitle.text = comment.user.username
-                itemComment.text = comment.entity.text
+                itemComment.text = comment.text
                 LinkifyCompat.addLinks(itemComment, Linkify.WEB_URLS)
                 itemThumbText.isVisible = commentScore != 0
                 itemThumbText.text = "${if (commentScore > 0) "+" else ""} $commentScore"
                 itemViewReplies.isVisible = comment.replies.isNotEmpty()
                 itemViewReplies.text = itemView.context.resources.getQuantityString(R.plurals.details_comment_replies, comment.replies.size, comment.replies.size)
 
-                val (likeTint, dislikeTint) = when (comment.entity.userInteraction) {
-                    CommentInteraction.Type.Like -> positiveColor to primaryColor
-                    CommentInteraction.Type.Dislike -> primaryColor to negativeColor
-                    null -> primaryColor to primaryColor
+                val (likeTint, dislikeTint) = when (comment.userInteraction) {
+                    CommentInteractionType.Like -> positiveColor to primaryColor
+                    CommentInteractionType.Dislike -> primaryColor to negativeColor
+                    else -> primaryColor to primaryColor
                 }
 
                 DrawableCompat.setTint(itemThumbUp.icon.mutate(), likeTint)

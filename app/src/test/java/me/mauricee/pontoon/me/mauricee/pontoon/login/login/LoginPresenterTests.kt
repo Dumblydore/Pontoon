@@ -7,8 +7,8 @@ import io.reactivex.Single
 import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.MockkRule
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.SchedulerRule
-import me.mauricee.pontoon.model.session.LoginResult
-import me.mauricee.pontoon.model.session.SessionRepository
+import me.mauricee.pontoon.repository.session.LoginResult
+import me.mauricee.pontoon.repository.session.SessionRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.login.LoginAction

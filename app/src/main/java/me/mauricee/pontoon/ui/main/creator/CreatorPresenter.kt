@@ -4,9 +4,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import io.reactivex.Observable
-import me.mauricee.pontoon.common.PagingState
-import me.mauricee.pontoon.model.creator.CreatorRepository
-import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.repository.util.paging.PagingState
+import me.mauricee.pontoon.repository.creator.CreatorRepository
+import me.mauricee.pontoon.repository.video.VideoRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
@@ -21,9 +21,9 @@ class CreatorPresenter @AssistedInject constructor(@Assisted private val args: C
         val creator = creatorRepository.getCreator(args.creator)
                 .map<CreatorContract.Reducer>(CreatorContract.Reducer::DisplayCreator)
                 .onErrorReturn { CreatorContract.Reducer.Error(CreatorContract.Errors.Network) }
-        return Observable.merge(pages.map(CreatorContract.Reducer::DisplayVideos),
-                states.map(::processState),
-                creator, view.actions.flatMap { handleActions(refresh, it) })
+        return Observable.merge(pages.map(CreatorContract.Reducer::DisplayVideos).toObservable(),
+                states.map(::processState).toObservable(),
+                creator.toObservable(), view.actions.flatMap { handleActions(refresh, it) })
     }
 
     override fun onReduce(state: CreatorContract.State, reducer: CreatorContract.Reducer): CreatorContract.State {

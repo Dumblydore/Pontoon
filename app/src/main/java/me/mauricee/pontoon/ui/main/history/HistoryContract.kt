@@ -5,15 +5,15 @@ import androidx.paging.PagedList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.video.Video
-import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.repository.video.Video
+import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
 interface HistoryContract {
 
     @HiltViewModel
-    class ViewModel @Inject constructor(p: HistoryPresenter) : EventViewModel<State, Action, Nothing>(State(), p)
+    class ViewModel @Inject constructor(p: HistoryPresenter) : BaseViewModel<State, Action, Nothing>(State(), p)
 
     data class State(val uiState: UiState = UiState.Empty,
                      val videos: PagedList<Video>? = null)

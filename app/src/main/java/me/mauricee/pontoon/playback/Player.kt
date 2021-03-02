@@ -1,5 +1,6 @@
 package me.mauricee.pontoon.playback
 
+import android.content.Context
 import android.os.Parcelable
 import android.util.Rational
 import android.view.TextureView
@@ -11,7 +12,7 @@ import androidx.media2.session.MediaSession
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.google.android.exoplayer2.ext.media2.SessionPlayerConnector
-import com.google.android.exoplayer2.video.VideoListener
+import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.jakewharton.rx.replayingShare
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import io.reactivex.Completable
@@ -19,9 +20,10 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.parcelize.Parcelize
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.model.Diffable
-import me.mauricee.pontoon.model.preferences.Preferences
+import mauricee.me.pontoon.data.common.Diffable
+import me.mauricee.pontoon.R
+import me.mauricee.pontoon.common.log.logd
+import me.mauricee.pontoon.preferences.Preferences
 import me.mauricee.pontoon.rx.Optional
 import me.mauricee.pontoon.rx.exoplayer.VideoEvent
 import me.mauricee.pontoon.rx.exoplayer.observe
@@ -36,6 +38,8 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
                                  private val session: MediaSession,
                                  private val controller: MediaController,
                                  private val castPlayer: Optional<CastPlayer>,
+                                 private val descriptionAdapter: PlayerDescriptionAdapter,
+                                 private val context: Context,
                                  private val prefs: Preferences) {
 
     private var qualityLevel: String = prefs.defaultQualityLevel
@@ -77,7 +81,10 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
     val isLocalPlayer: Boolean
         get() = exoPlayer.activePlayer is SimpleExoPlayer
 
-    val isReadyForPiP
+    val isShowingNotification: Boolean
+        get() = notificationManager != null
+
+    val isReadyForPiP: Boolean
         get() = when (prefs.pictureInPicture) {
             Preferences.PictureInPicture.Always -> isLocalPlayer && controller.currentMediaItem != null
             Preferences.PictureInPicture.OnlyWhenPlaying -> isLocalPlayer && exoPlayer.isPlaying
@@ -113,6 +120,8 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
                 .cast(VideoEvent.OnVideoSizeChanged::class.java)
                 .map { Rational(it.width, it.height) }
 
+    private var notificationManager: PlayerNotificationManager? = null
+
     fun playItem(videoId: String): Completable = Completable.fromAction {
         controller.seekTo(0)
         controller.setMediaItem("$videoId:$qualityLevel")
@@ -141,6 +150,20 @@ class Player @Inject constructor(private val exoPlayer: WrappedExoPlayer,
                 ?: ""
         controller.setMediaItem("$mediaId:${quality.label}")
         qualityLevel = quality.label
+    }
+
+    fun startNotification() {
+        notificationManager = PlayerNotificationManager.createWithNotificationChannel(
+                context, "Pontoon", R.string.app_name, R.string.app_name, 101, descriptionAdapter).apply {
+            setPlayer(exoPlayer)
+            setUseNavigationActions(false)
+            setMediaSessionToken(session.sessionCompatToken)
+        }
+    }
+
+    fun stopNotification() {
+        notificationManager?.setPlayer(null)
+        notificationManager = null
     }
 
     fun release() {

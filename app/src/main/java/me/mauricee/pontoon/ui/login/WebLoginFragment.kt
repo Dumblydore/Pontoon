@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.navArgs
-import com.jakewharton.rxbinding2.support.v7.widget.RxToolbar
+import com.jakewharton.rxbinding3.appcompat.navigationClicks
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
@@ -33,7 +33,7 @@ class WebLoginFragment : BaseFragment(R.layout.fragment_web_login) {
         super.onViewCreated(view, savedInstanceState)
         setupWebview()
         binding.loginWebview.loadUrl(args.site.url)
-        subscriptions += RxToolbar.navigationClicks(binding.loginToolbar).subscribe { requireActivity().onBackPressed() }
+        subscriptions += binding.loginToolbar.navigationClicks().subscribe { requireActivity().onBackPressed() }
     }
 
     private fun setupWebview() {

@@ -2,7 +2,7 @@ package me.mauricee.pontoon.ui.preferences.settings
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.ui.BaseViewModel
 import javax.inject.Inject
 
 interface SettingsContract {
@@ -25,5 +25,5 @@ interface SettingsContract {
     }
 
     @HiltViewModel
-    class ViewModel @Inject constructor(p: SettingsPresenter) : EventViewModel<State, Action, Event>(State(), p)
+    class ViewModel @Inject constructor(p: SettingsPresenter) : BaseViewModel<State, Action, Event>(State(), p)
 }

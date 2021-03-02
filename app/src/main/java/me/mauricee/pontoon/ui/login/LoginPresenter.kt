@@ -2,10 +2,9 @@ package me.mauricee.pontoon.ui.login
 
 import io.reactivex.Observable
 import io.reactivex.Single
-import me.mauricee.pontoon.domain.floatplane.AuthInterceptor
 import me.mauricee.pontoon.ext.toObservable
-import me.mauricee.pontoon.model.session.LoginResult
-import me.mauricee.pontoon.model.session.SessionRepository
+import me.mauricee.pontoon.repository.session.LoginResult
+import me.mauricee.pontoon.repository.session.SessionRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
@@ -56,8 +55,8 @@ class LoginPresenter @Inject constructor(private val sessionRepository: SessionR
         val cookies = cookieStr.split(";").associate { cookie ->
             cookie.split("=").let { it.first() to it.last() }
         }
-        val cfuIdKey = cookies.keys.first { it.contains(AuthInterceptor.CfDuid) }
-        val sailsKey = cookies.keys.first { it.contains(AuthInterceptor.SailsSid) }
+        val cfuIdKey = cookies.keys.first { it.contains(SessionRepository.CfDuid) }
+        val sailsKey = cookies.keys.first { it.contains(SessionRepository.SailsSid) }
         sessionRepository.loginWithCookie(cfuIdKey, sailsKey)
     }.flatMapObservable(::processLoginResult).startWith(LoginReducer.Loading)
 

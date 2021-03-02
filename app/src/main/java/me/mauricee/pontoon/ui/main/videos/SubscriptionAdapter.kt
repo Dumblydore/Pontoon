@@ -5,18 +5,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.common.BaseListAdapter
 import me.mauricee.pontoon.databinding.ItemEndUserBubbleBinding
 import me.mauricee.pontoon.databinding.ItemUserBubbleBinding
 import me.mauricee.pontoon.glide.GlideApp
-import me.mauricee.pontoon.model.Diffable
-import me.mauricee.pontoon.model.creator.Creator
+import me.mauricee.pontoon.repository.creator.Creator
+import me.mauricee.pontoon.ui.util.diff.DiffableItemCallback
 import javax.inject.Inject
 
-class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoAction, Creator, SubscriptionAdapter.ViewHolder>(Diffable.ItemCallback()) {
+class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoAction, Creator, SubscriptionAdapter.ViewHolder>(DiffableItemCallback()) {
 
     override fun getItemViewType(position: Int): Int {
         return if (position == itemCount - 1) R.layout.item_end_user_bubble else R.layout.item_user_bubble
@@ -42,7 +42,7 @@ class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoAction, C
         }
 
         override fun bind(creator: Creator) {
-            GlideApp.with(itemView).load(creator.user.profileImage).circleCrop()
+            GlideApp.with(itemView).load(creator.owner.profileImage).circleCrop()
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .into(binding.itemIconSmall)
         }
@@ -59,7 +59,7 @@ class SubscriptionAdapter @Inject constructor() : BaseListAdapter<VideoAction, C
         }
 
         override fun bind(creator: Creator) {
-            GlideApp.with(itemView).load(creator.user.profileImage).circleCrop()
+            GlideApp.with(itemView).load(creator.owner.profileImage).circleCrop()
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .into(binding.itemIconSmall)
         }

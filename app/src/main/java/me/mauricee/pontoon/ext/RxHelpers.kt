@@ -3,7 +3,7 @@ package me.mauricee.pontoon.ext
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import java.lang.IllegalStateException
+import me.mauricee.pontoon.common.log.loge
 
 class RxHelpers {
 

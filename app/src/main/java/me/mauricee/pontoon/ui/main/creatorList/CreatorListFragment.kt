@@ -7,7 +7,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding2.support.v4.widget.refreshes
+import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
@@ -20,7 +20,7 @@ import me.mauricee.pontoon.ext.mapDistinct
 import me.mauricee.pontoon.ext.notNull
 import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.glide.GlideApp
-import me.mauricee.pontoon.model.creator.Creator
+import me.mauricee.pontoon.repository.creator.Creator
 import me.mauricee.pontoon.ui.BaseFragment
 import me.mauricee.pontoon.ui.main.creatorList.CreatorListFragmentDirections.actionGlobalCreatorFragment
 
@@ -68,8 +68,8 @@ class CreatorListFragment : BaseFragment(R.layout.fragment_creator_list) {
     }
 
     private fun bindCreator(binding: ItemCreatorCardBinding, creator: Creator) {
-        binding.itemTitle.text = creator.entity.name
-        GlideApp.with(binding.root).load(creator.user.profileImage)
+        binding.itemTitle.text = creator.name
+        GlideApp.with(binding.root).load(creator.owner.profileImage)
                 .placeholder(R.drawable.ic_default_thumbnail)
                 .error(R.drawable.ic_default_thumbnail)
                 .transition(DrawableTransitionOptions.withCrossFade())

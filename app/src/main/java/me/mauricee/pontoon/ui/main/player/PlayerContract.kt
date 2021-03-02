@@ -5,18 +5,18 @@ import androidx.annotation.StringRes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.analytics.EventTracker
-import me.mauricee.pontoon.model.comment.Comment
-import me.mauricee.pontoon.model.creator.CreatorEntity
-import me.mauricee.pontoon.model.user.UserEntity
-import me.mauricee.pontoon.model.video.Video
 import me.mauricee.pontoon.playback.Player
-import me.mauricee.pontoon.ui.EventViewModel
+import me.mauricee.pontoon.repository.comment.Comment
+import me.mauricee.pontoon.repository.creator.Creator
+import me.mauricee.pontoon.repository.user.User
+import me.mauricee.pontoon.repository.video.Video
+import me.mauricee.pontoon.ui.BaseViewModel
 import me.mauricee.pontoon.ui.UiError
 import me.mauricee.pontoon.ui.UiState
 import javax.inject.Inject
 
 @HiltViewModel
-class PlayerViewModel @Inject constructor(p: PlayerPresenter) : EventViewModel<PlayerState, PlayerAction, PlayerEvent>(PlayerState(), p)
+class PlayerViewModel @Inject constructor(p: PlayerPresenter) : BaseViewModel<PlayerState, PlayerAction, PlayerEvent>(PlayerState(), p)
 
 sealed class PlayerAction : EventTracker.Action {
     object ViewCreator : PlayerAction()
@@ -25,6 +25,7 @@ sealed class PlayerAction : EventTracker.Action {
     object TogglePlayPause : PlayerAction()
     object ToggleControls : PlayerAction()
     object Pause : PlayerAction()
+    object RunInBackground : PlayerAction()
     data class SeekTo(val position: Long) : PlayerAction()
     data class SetControlVisibility(val controlsVisible: Boolean) : PlayerAction()
     data class SetViewMode(val viewMode: ViewMode) : PlayerAction()
@@ -33,12 +34,12 @@ sealed class PlayerAction : EventTracker.Action {
     data class Reply(val parent: Comment) : PlayerAction()
     data class Dislike(val comment: Comment) : PlayerAction()
     data class ViewReplies(val comment: Comment) : PlayerAction()
-    data class ViewUser(val user: UserEntity) : PlayerAction()
+    data class ViewUser(val user: User) : PlayerAction()
     data class SetQuality(val quality: Player.Quality) : PlayerAction()
 }
 
 data class PlayerState(val videoState: UiState = UiState.Empty,
-                       val user: UserEntity? = null,
+                       val user: User? = null,
                        val video: Video? = null,
                        val isPlaying: Boolean? = null,
                        val controlsVisible: Boolean? = null,
@@ -66,7 +67,7 @@ sealed class PlayerReducer {
     data class UpdatePosition(val position: Long) : PlayerReducer()
     data class UpdateDuration(val duration: Long) : PlayerReducer()
     data class UpdatePlayingState(val isPlaying: Boolean) : PlayerReducer()
-    data class DisplayUser(val user: UserEntity) : PlayerReducer()
+    data class DisplayUser(val user: User) : PlayerReducer()
     data class DisplayTimelinePreview(val previewUrl: String) : PlayerReducer()
     data class DisplayCurrentQualityLevel(val qualityLevel: Player.Quality) : PlayerReducer()
     data class DisplayQualityLevels(val qualityLevels: Set<Player.Quality>) : PlayerReducer()
@@ -88,8 +89,9 @@ sealed class PlayerEvent {
     data class DisplayReplies(val commentId: String) : PlayerEvent()
     object OnCommentSuccess : PlayerEvent()
     object OnCommentError : PlayerEvent()
-    data class DisplayCreator(val creator: CreatorEntity) : PlayerEvent()
-    data class DisplayUser(val user: UserEntity) : PlayerEvent()
+    object RunInBackground : PlayerEvent()
+    data class DisplayCreator(val creator: Creator) : PlayerEvent()
+    data class DisplayUser(val user: User) : PlayerEvent()
 }
 
 enum class ViewMode {

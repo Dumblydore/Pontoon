@@ -1,11 +1,12 @@
 package me.mauricee.pontoon.ui.main.search
 
+import io.reactivex.Flowable
 import io.reactivex.Observable
-import me.mauricee.pontoon.common.PagingState
-import me.mauricee.pontoon.ext.logd
-import me.mauricee.pontoon.model.creator.Creator
-import me.mauricee.pontoon.model.subscription.SubscriptionRepository
-import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.repository.util.paging.PagingState
+import me.mauricee.pontoon.common.log.logd
+import me.mauricee.pontoon.repository.creator.Creator
+import me.mauricee.pontoon.repository.subscription.SubscriptionRepository
+import me.mauricee.pontoon.repository.video.VideoRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
@@ -17,7 +18,7 @@ class SearchPresenter @Inject constructor(private val subscriptionRepository: Su
 
 
     override fun onViewAttached(view: BaseContract.View<SearchAction>): Observable<SearchReducer> {
-        return subscriptionRepository.subscriptions.get().map { it.map(Creator::id) }
+        return subscriptionRepository.subscriptions.get().toObservable().map { it.map(Creator::id) }
                 .switchMap { creators -> view.actions.switchMap { handleActions(creators, it) } }
                 .doOnNext { logd("Reducer: ${it::class.java.simpleName}") }
     }
@@ -42,7 +43,9 @@ class SearchPresenter @Inject constructor(private val subscriptionRepository: Su
 
     private fun query(creators: List<String>, query: String): Observable<SearchReducer> {
         val (pages, state) = videoRepository.search(query, *creators.toTypedArray())
-        return Observable.merge(pages.map(SearchReducer::UpdateVideos), state.map(::handlePageState))
+        return Flowable.merge(pages.map(SearchReducer::UpdateVideos), state.map(::handlePageState))
+                .toObservable()
+
     }
 
     private fun handlePageState(state: PagingState): SearchReducer = when (state) {

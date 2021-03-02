@@ -1,12 +1,14 @@
 package me.mauricee.pontoon.ui.main.videos
 
+import android.util.Log
 import com.jakewharton.rx.replayingShare
+import io.reactivex.Flowable
 import io.reactivex.Observable
-import me.mauricee.pontoon.common.PagingState
-import me.mauricee.pontoon.model.creator.Creator
-import me.mauricee.pontoon.model.preferences.Preferences
-import me.mauricee.pontoon.model.subscription.SubscriptionRepository
-import me.mauricee.pontoon.model.video.VideoRepository
+import me.mauricee.pontoon.preferences.Preferences
+import me.mauricee.pontoon.repository.creator.Creator
+import me.mauricee.pontoon.repository.subscription.SubscriptionRepository
+import me.mauricee.pontoon.repository.util.paging.PagingState
+import me.mauricee.pontoon.repository.video.VideoRepository
 import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.BasePresenter
 import me.mauricee.pontoon.ui.UiError
@@ -26,8 +28,9 @@ class VideoPresenter @Inject constructor(private val subscriptionRepository: Sub
                     .startWith(false)
                     .switchMap { fresh ->
                         if (fresh) subscriptions.fetch().toObservable()
-                        else subscriptions.get()
-                    }.switchMap { load(displayUnwatchedVideos, it) }.onErrorReturnItem(VideoReducer.ScreenError(UiError(VideoErrors.Network.msg)))
+                        else subscriptions.get().toObservable()
+                    }.switchMap { load(displayUnwatchedVideos, it) }
+//                    .onErrorReturnItem(VideoReducer.ScreenError(UiError(VideoErrors.Network.msg)))
             val otherActions = actions.filter { it !is VideoAction.Refresh }
                     .flatMap { handleAction(it) }
             Observable.merge(refreshes, otherActions)
@@ -47,8 +50,9 @@ class VideoPresenter @Inject constructor(private val subscriptionRepository: Sub
 
     private fun load(displayUnwatchedVideos: Boolean, subs: List<Creator>): Observable<VideoReducer> {
         val (pages, states) = videoRepository.getVideos(displayUnwatchedVideos, *subs.map(Creator::id).toTypedArray())
-        return Observable.merge(pages.map(VideoReducer::FetchedVideos), states.map(::mapPagingStates))
+        return Flowable.merge(pages.map(VideoReducer::FetchedVideos), states.map(::mapPagingStates))
                 .startWith(VideoReducer.FetchedSubscriptions(subs))
+                .toObservable()
     }
 
     private fun handleAction(action: VideoAction): Observable<VideoReducer> {

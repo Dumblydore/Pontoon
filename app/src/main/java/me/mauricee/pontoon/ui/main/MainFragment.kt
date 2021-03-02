@@ -1,6 +1,7 @@
 package me.mauricee.pontoon.ui.main
 
 import android.animation.ValueAnimator
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -18,16 +19,17 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.jakewharton.rxbinding2.support.design.widget.itemSelections
-import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.widget.SeekBarProgressChangeEvent
-import com.jakewharton.rxbinding2.widget.SeekBarStartChangeEvent
-import com.jakewharton.rxbinding2.widget.SeekBarStopChangeEvent
-import com.jakewharton.rxbinding2.widget.changeEvents
+import com.jakewharton.rxbinding3.material.itemSelections
+import com.jakewharton.rxbinding3.view.clicks
+import com.jakewharton.rxbinding3.widget.SeekBarProgressChangeEvent
+import com.jakewharton.rxbinding3.widget.SeekBarStartChangeEvent
+import com.jakewharton.rxbinding3.widget.SeekBarStopChangeEvent
+import com.jakewharton.rxbinding3.widget.changeEvents
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxkotlin.plusAssign
 import me.mauricee.pontoon.R
 import me.mauricee.pontoon.SessionGraphDirections.*
+import me.mauricee.pontoon.common.log.logd
 import me.mauricee.pontoon.common.theme.ThemeManager
 import me.mauricee.pontoon.databinding.FragmentMainBinding
 import me.mauricee.pontoon.ext.*
@@ -84,9 +86,9 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             when (it) {
                 is SeekBarStartChangeEvent -> isSeeking = true
                 is SeekBarProgressChangeEvent -> {
-                    if (it.fromUser()) {
-                        binding.expandedPreview.progress = it.progress()
-                        pendingSeek = it.progress() * 1000L
+                    if (it.fromUser) {
+                        binding.expandedPreview.progress = it.progress
+                        pendingSeek = it.progress * 1000L
                     }
                 }
                 is SeekBarStopChangeEvent -> {
@@ -113,6 +115,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 }
                 is PlayerEvent.PostComment -> childNavController.navigate(actionGlobalCommentDialogFragment(it.videoId, it.comment))
                 is PlayerEvent.DisplayReplies -> childNavController.navigate(actionGlobalRepliesDialogFragment(it.commentId))
+                PlayerEvent.RunInBackground -> runInBackground()
                 else -> logd("Unhandled: ${it::class.java.simpleName}")
             }
         }
@@ -134,15 +137,23 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             binding.collapsedProgress.progress = it
         }
         playerViewModel.state.mapDistinct(PlayerState::viewMode).observe(viewLifecycleOwner, ::handlePlayerViewMode)
-        playerViewModel.state.mapDistinct { it.video?.entity?.title }.notNull().observe(viewLifecycleOwner) {
+        playerViewModel.state.mapDistinct { it.video?.title }.notNull().observe(viewLifecycleOwner) {
             binding.collapsedDetailsTitle.text = it
         }
-        playerViewModel.state.mapDistinct { it.video?.creator?.entity?.name }.notNull().observe(viewLifecycleOwner) {
+        playerViewModel.state.mapDistinct { it.video?.creator?.name }.notNull().observe(viewLifecycleOwner) {
             binding.collapsedDetailsSubtitle.text = it
         }
         playerViewModel.state.mapDistinct { it.isPlaying }.notNull()
                 .map { if (it) R.drawable.ic_pause else R.drawable.ic_play }
                 .observe(viewLifecycleOwner, binding.collapsedDetailsPlayPause::setIconResource)
+    }
+
+    private fun runInBackground() {
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags += Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(intent)
     }
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
