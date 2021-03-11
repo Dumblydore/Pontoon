@@ -30,7 +30,7 @@ def versions = [
         firebase           : firebase_versions,
         paging             : "2.1.2",
         dagger             : "2.31.2-alpha",
-        room               : "2.3.0-alpha04",
+        room               : "2.3.0-beta03",
         lifecycle          : "2.3.0",
         glide              : "4.11.0",
         camerax            : "1.0.0-beta12",
