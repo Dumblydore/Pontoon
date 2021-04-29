@@ -1,0 +1,73 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+  target-branch: dev/1.1
+  reviewers:
+  - Dumblydore
+  ignore:
+  - dependency-name: com.squareup.wire:wire-gradle-plugin
+    versions:
+    - 3.6.1
+  - dependency-name: com.squareup.wire:wire-runtime
+    versions:
+    - 3.6.1
+  - dependency-name: com.mikepenz:aboutlibraries
+    versions:
+    - 8.8.2
+    - 8.8.4
+  - dependency-name: com.google.firebase:firebase-crashlytics-gradle
+    versions:
+    - 2.5.1
+  - dependency-name: org.jetbrains.kotlinx:kotlinx-coroutines-rx2
+    versions:
+    - 1.4.2-native-mt
+  - dependency-name: androidx.room:room-rxjava2
+    versions:
+    - 2.3.0-beta02
+  - dependency-name: androidx.room:room-ktx
+    versions:
+    - 2.3.0-beta02
+  - dependency-name: androidx.room:room-compiler
+    versions:
+    - 2.3.0-beta02
+  - dependency-name: androidx.room:room-runtime
+    versions:
+    - 2.3.0-beta02
+  - dependency-name: com.google.dagger:dagger-android-support
+    versions:
+    - "2.32"
+  - dependency-name: de.jjohannes.gradle:missing-metadata-guava
+    versions:
+    - "0.3"
+  - dependency-name: com.isupatches:wisefy
+    versions:
+    - 4.0.0
+  - dependency-name: com.github.bumptech.glide:compiler
+    versions:
+    - 4.12.0
+  - dependency-name: com.github.bumptech.glide:recyclerview-integration
+    versions:
+    - 4.12.0
+  - dependency-name: com.github.bumptech.glide:okhttp3-integration
+    versions:
+    - 4.12.0
+  - dependency-name: com.github.bumptech.glide:glide
+    versions:
+    - 4.12.0
+  - dependency-name: com.squareup.retrofit2:converter-scalars
+    versions:
+    - 2.9.0
+  - dependency-name: com.squareup.retrofit2:converter-gson
+    versions:
+    - 2.9.0
+  - dependency-name: com.squareup.retrofit2:adapter-rxjava2
+    versions:
+    - 2.9.0
+  - dependency-name: com.squareup.retrofit2:retrofit
+    versions:
+    - 2.9.0
