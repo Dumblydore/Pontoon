@@ -113,7 +113,7 @@ def rxBindings = [
         material          : "com.jakewharton.rxbinding3:rxbinding-material:$versions.rx_binding",
 ]
 ext.deps = [
-        about: "com.mikepenz:aboutlibraries:8.8.3",
+        about: "com.mikepenz:aboutlibraries:8.9.1",
         androidx : androidxDependencies,
         cast     : "com.google.android.gms:play-services-cast-framework:19.0.0",
         kotlin   : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
