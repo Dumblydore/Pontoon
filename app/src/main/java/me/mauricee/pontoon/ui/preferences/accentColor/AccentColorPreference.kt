@@ -51,7 +51,6 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
         @Inject
         lateinit var themeManager: ThemeManager
 
-        private val binding by viewBinding(PreferenceBaseThemeBinding::bind)
         private lateinit var selectedAccentColor: AccentColor
         private lateinit var selection: Disposable
 
@@ -68,6 +67,7 @@ class AccentColorPreference(context: Context, attrs: AttributeSet?, defStyleAttr
 
         override fun onBindDialogView(view: View) {
             super.onBindDialogView(view)
+            val binding = PreferenceBaseThemeBinding.bind(view)
             binding.preferenceBaseThemes.adapter = adapter
             binding.preferenceBaseThemes.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             selection = adapter.actions.subscribe { selectedAccentColor = it }

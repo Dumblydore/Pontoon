@@ -73,8 +73,8 @@ private class PlayerCallbackObservable(private val executor: Executor, private v
             }
         }
 
-        override fun onCurrentMediaItemChanged(player: SessionPlayer, item: MediaItem) {
-            if (!isDisposed()) {
+        override fun onCurrentMediaItemChanged(player: SessionPlayer, item: MediaItem?) {
+            if (!isDisposed() && item != null) {
                 observer.onNext(SessionPlayerEvent.CurrentMediaItemChangedEvent(player, item))
             }
         }

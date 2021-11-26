@@ -17,14 +17,28 @@ import me.mauricee.pontoon.databinding.PreferenceBaseThemeBinding
 import me.mauricee.pontoon.ext.view.viewBinding
 import javax.inject.Inject
 
-class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
-        DialogPreference(context, attrs, defStyleAttr, defStyleRes) {
+class BaseThemePreference(
+    context: Context,
+    attrs: AttributeSet?,
+    defStyleAttr: Int,
+    defStyleRes: Int
+) :
+    DialogPreference(context, attrs, defStyleAttr, defStyleRes) {
 
     constructor(context: Context) : this(context, null)
 
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, R.attr.dialogPreferenceStyle)
+    constructor(context: Context, attrs: AttributeSet?) : this(
+        context,
+        attrs,
+        R.attr.dialogPreferenceStyle
+    )
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, defStyleAttr)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(
+        context,
+        attrs,
+        defStyleAttr,
+        defStyleAttr
+    )
 
     var theme: BaseTheme = BaseTheme.Light
         set(value) {
@@ -48,12 +62,12 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
     class Fragment : PreferenceDialogFragmentCompat() {
         @Inject
         lateinit var adapter: BaseThemeAdapter
+
         @Inject
         lateinit var themeManager: ThemeManager
 
         private lateinit var selectedTheme: BaseTheme
         private lateinit var selection: Disposable
-        private val binding by viewBinding(PreferenceBaseThemeBinding::bind)
 
         override fun onDialogClosed(positiveResult: Boolean) {
             if (positiveResult) {
@@ -68,6 +82,7 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
 
         override fun onBindDialogView(view: View) {
             super.onBindDialogView(view)
+            val binding = PreferenceBaseThemeBinding.bind(view)
             binding.preferenceBaseThemes.adapter = adapter
             binding.preferenceBaseThemes.layoutManager = GridLayoutManager(requireContext(), 3)
             selection = adapter.actions.subscribe { selectedTheme = it }
@@ -75,7 +90,8 @@ class BaseThemePreference(context: Context, attrs: AttributeSet?, defStyleAttr: 
         }
 
         companion object {
-            fun newInstance(key: String): Fragment = Fragment().apply { arguments = bundleOf(ARG_KEY to key) }
+            fun newInstance(key: String): Fragment =
+                Fragment().apply { arguments = bundleOf(ARG_KEY to key) }
         }
     }
 

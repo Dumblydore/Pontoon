@@ -23,7 +23,8 @@ class PlayerDescriptionAdapter @Inject constructor(
     }
 
     override fun createCurrentContentIntent(player: Player): PendingIntent? {
-        return PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), PendingIntent.FLAG_NO_CREATE)
+        return PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE)
     }
 
     override fun getCurrentContentText(player: Player): CharSequence? {
