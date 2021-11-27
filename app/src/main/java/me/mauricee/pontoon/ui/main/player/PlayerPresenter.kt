@@ -89,7 +89,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
 
     private fun handleControlVisibilityActions(action: PlayerAction) = when (action) {
         is PlayerAction.SetControlVisibility -> setControls(action.controlsVisible)
-        PlayerAction.ToggleControls -> setControls(state.controlsVisible?.let { !it } ?: true)
+        PlayerAction.ToggleControls -> if (state.viewMode == ViewMode.Expanded) setControls(state.controlsVisible?.let { !it } ?: true) else Observable.empty()
         else -> throw RuntimeException("Should not reach this branch !(${action.javaClass.simpleName}))")
     }
 
