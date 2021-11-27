@@ -5,7 +5,9 @@ import android.app.PictureInPictureParams
 import android.content.Intent
 import android.os.Bundle
 import android.util.Rational
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
 import com.isupatches.wisefy.WiseFy
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,6 +18,8 @@ import me.mauricee.pontoon.ext.view.viewBinding
 import me.mauricee.pontoon.preferences.Preferences
 import me.mauricee.pontoon.repository.video.Video
 import me.mauricee.pontoon.playback.Player
+import me.mauricee.pontoon.ui.main.player.PlayerAction
+import me.mauricee.pontoon.ui.main.player.PlayerViewModel
 import javax.inject.Inject
 
 
@@ -35,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var prefs: Preferences
 
     private val binding by viewBinding(ActivityMainNewBinding::inflate)
+    private val playerViewModel: PlayerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -60,10 +65,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goIntoPip() {
+        playerViewModel.sendAction(PlayerAction.SetControlVisibility(false))
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val params = PictureInPictureParams.Builder()
-                    .setAspectRatio(Rational(16, 9))
-                    .build()
+                .setAspectRatio(Rational(16, 9))
+                .build()
             enterPictureInPictureMode(params)
         } else {
             enterPictureInPictureMode()

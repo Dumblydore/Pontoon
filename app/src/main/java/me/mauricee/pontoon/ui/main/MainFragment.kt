@@ -1,10 +1,12 @@
 package me.mauricee.pontoon.ui.main
 
 import android.animation.ValueAnimator
+import android.app.PictureInPictureParams
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -21,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.jakewharton.rxbinding3.material.itemSelections
 import com.jakewharton.rxbinding3.view.clicks
+import com.jakewharton.rxbinding3.view.layoutChanges
 import com.jakewharton.rxbinding3.widget.SeekBarProgressChangeEvent
 import com.jakewharton.rxbinding3.widget.SeekBarStartChangeEvent
 import com.jakewharton.rxbinding3.widget.SeekBarStopChangeEvent
@@ -49,6 +52,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
     @Inject
     lateinit var themeManager: ThemeManager
 
+    private val rect = Rect()
     private val viewModel: MainContract.ViewModel by viewModels({ requireActivity() })
     private val playerViewModel: PlayerViewModel by viewModels({ requireActivity() })
 
@@ -100,7 +104,15 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 }
             }
         }
-
+        subscriptions += binding.player.layoutChanges()
+            .subscribe {
+                binding.player.getGlobalVisibleRect(rect)
+                requireActivity().setPictureInPictureParams(
+                    PictureInPictureParams.Builder()
+                        .setSourceRectHint(rect)
+                        .build()
+                )
+            }
         subscriptions += binding.main.playerClicks.map { PlayerAction.ToggleControls }
             .subscribe(playerViewModel::sendAction)
 
