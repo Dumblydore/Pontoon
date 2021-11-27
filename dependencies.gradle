@@ -3,7 +3,7 @@ def androidx_versions = [
         activity        : "1.2.0",
         fragment        : "1.3.0",
         cardview        : "1.0.0",
-        constraintlayout: "2.0.4",
+        constraintlayout: "2.1.2",
         data_store      : "1.0.0-alpha06",
         appcompat       : "1.2.0",
         recyclerview    : "1.2.0-beta01",

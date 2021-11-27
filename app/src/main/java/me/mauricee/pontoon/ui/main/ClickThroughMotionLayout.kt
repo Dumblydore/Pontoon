@@ -38,7 +38,9 @@ class ClickThroughMotionLayout @JvmOverloads constructor(
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         val view = findViewById<View>(R.id.playerTouchBox)
 
-        if (isInBounds(view, ev) && !whitelistedViews.map { findViewById<View>(it) }.any { isInBounds(it, ev) }) {
+        if (isInBounds(view, ev) && !whitelistedViews
+                .mapNotNull(this::findViewById)
+                .any { isInBounds(it, ev) }) {
             when (ev.action) {
                 MotionEvent.ACTION_DOWN -> {
                     startX = ev.x.roundToInt()
@@ -66,6 +68,6 @@ class ClickThroughMotionLayout @JvmOverloads constructor(
     private fun isAClick(startX: Int, endX: Int, startY: Int, endY: Int): Boolean {
         val differenceX = Math.abs(startX - endX)
         val differenceY = Math.abs(startY - endY)
-        return !/* =5 */(differenceX > 200 || differenceY > 200)
+        return !(differenceX > 200 || differenceY > 200)
     }
 }

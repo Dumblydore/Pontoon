@@ -70,17 +70,19 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        logd("test: dismissed=${R.id.dismissed} | expanded=${R.id.expanded} | fullscreen=${R.id.fullscreen} | collapsed=${R.id.collapsed} |dismissing=${R.id.dismissing}")
+
         NavigationUI.setupWithNavController(binding.mainNav, childNavController)
         windowController = WindowInsetsControllerCompat(requireActivity().window, view)
         binding.main.addTransitionListener(this)
 
         subscriptions += binding.collapsedDetailsPlayPause.clicks()
-                .map { PlayerAction.TogglePlayPause }
-                .subscribe(playerViewModel::sendAction)
+            .map { PlayerAction.TogglePlayPause }
+            .subscribe(playerViewModel::sendAction)
 
         subscriptions += binding.mainDrawer.itemSelections()
-                .map { MainContract.Action.fromNavDrawer(it.itemId) }
-                .subscribe(viewModel::sendAction)
+            .map { MainContract.Action.fromNavDrawer(it.itemId) }
+            .subscribe(viewModel::sendAction)
 
         subscriptions += binding.playerProgress.changeEvents().skipInitialValue().subscribe {
             when (it) {
@@ -100,7 +102,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
         }
 
         subscriptions += binding.main.playerClicks.map { PlayerAction.ToggleControls }
-                .subscribe(playerViewModel::sendAction)
+            .subscribe(playerViewModel::sendAction)
 
         viewModel.events.observe(viewLifecycleOwner, ::handleEvents)
         playerViewModel.events.observe(viewLifecycleOwner) {
@@ -113,39 +115,49 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                     childNavController.navigate(actionGlobalCreatorFragment(it.creator.id))
                     playerViewModel.sendAction(PlayerAction.SetViewMode(ViewMode.Collapsed))
                 }
-                is PlayerEvent.PostComment -> childNavController.navigate(actionGlobalCommentDialogFragment(it.videoId, it.comment))
-                is PlayerEvent.DisplayReplies -> childNavController.navigate(actionGlobalRepliesDialogFragment(it.commentId))
+                is PlayerEvent.PostComment -> childNavController.navigate(
+                    actionGlobalCommentDialogFragment(it.videoId, it.comment)
+                )
+                is PlayerEvent.DisplayReplies -> childNavController.navigate(
+                    actionGlobalRepliesDialogFragment(it.commentId)
+                )
                 PlayerEvent.RunInBackground -> runInBackground()
                 else -> logd("Unhandled: ${it::class.java.simpleName}")
             }
         }
-        playerViewModel.state.mapDistinct(PlayerState::controlsVisible).notNull().observe(viewLifecycleOwner) {
-            currentThumbAnimation = if (binding.main.currentState == R.id.fullscreen)
-                animateProgress(if (it) 1f else 0f)
-            else
-                animateThumb(if (it) 255 else 0)
-            currentThumbAnimation?.start()
-            binding.main.allowPlayerClick = it
-        }
-        playerViewModel.state.mapDistinct(PlayerState::duration).map { (it / 1000).toInt() }.observe(viewLifecycleOwner) {
-            binding.playerProgress.max = it
-            binding.collapsedProgress.max = it
-            binding.expandedPreview.duration = it
-        }
-        playerViewModel.state.mapDistinct(PlayerState::position).map { (it / 1000).toInt() }.observe(viewLifecycleOwner) {
-            binding.playerProgress.progress = it
-            binding.collapsedProgress.progress = it
-        }
-        playerViewModel.state.mapDistinct(PlayerState::viewMode).observe(viewLifecycleOwner, ::handlePlayerViewMode)
-        playerViewModel.state.mapDistinct { it.video?.title }.notNull().observe(viewLifecycleOwner) {
-            binding.collapsedDetailsTitle.text = it
-        }
-        playerViewModel.state.mapDistinct { it.video?.creator?.name }.notNull().observe(viewLifecycleOwner) {
-            binding.collapsedDetailsSubtitle.text = it
-        }
+        playerViewModel.state.mapDistinct(PlayerState::controlsVisible).notNull()
+            .observe(viewLifecycleOwner) {
+                currentThumbAnimation = if (binding.main.currentState == R.id.fullscreen)
+                    animateProgress(if (it) 1f else 0f)
+                else
+                    animateThumb(if (it) 255 else 0)
+                currentThumbAnimation?.start()
+                binding.main.allowPlayerClick = it
+            }
+        playerViewModel.state.mapDistinct(PlayerState::duration).map { (it / 1000).toInt() }
+            .observe(viewLifecycleOwner) {
+                binding.playerProgress.max = it
+                binding.collapsedProgress.max = it
+                binding.expandedPreview.duration = it
+            }
+        playerViewModel.state.mapDistinct(PlayerState::position).map { (it / 1000).toInt() }
+            .observe(viewLifecycleOwner) {
+                binding.playerProgress.progress = it
+                binding.collapsedProgress.progress = it
+            }
+        playerViewModel.state.mapDistinct(PlayerState::viewMode)
+            .observe(viewLifecycleOwner, ::handlePlayerViewMode)
+        playerViewModel.state.mapDistinct { it.video?.title }.notNull()
+            .observe(viewLifecycleOwner) {
+                binding.collapsedDetailsTitle.text = it
+            }
+        playerViewModel.state.mapDistinct { it.video?.creator?.name }.notNull()
+            .observe(viewLifecycleOwner) {
+                binding.collapsedDetailsSubtitle.text = it
+            }
         playerViewModel.state.mapDistinct { it.isPlaying }.notNull()
-                .map { if (it) R.drawable.ic_pause else R.drawable.ic_play }
-                .observe(viewLifecycleOwner, binding.collapsedDetailsPlayPause::setIconResource)
+            .map { if (it) R.drawable.ic_pause else R.drawable.ic_play }
+            .observe(viewLifecycleOwner, binding.collapsedDetailsPlayPause::setIconResource)
     }
 
     private fun runInBackground() {
@@ -207,7 +219,8 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 binding.playerProgress.isGone = false
                 binding.main.setTransition(R.id.transition_active)
                 binding.main.transitionToEnd()
-                animations += requireActivity().animateStatusBarColor(oldStatusBarColor).apply { start() }
+                animations += requireActivity().animateStatusBarColor(oldStatusBarColor)
+                    .apply { start() }
             }
             ViewMode.PictureInPicture -> {
                 binding.mainContainerPreview.isGone = true
@@ -234,10 +247,16 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
     private fun handleEvents(event: MainContract.Event) {
         when (event) {
             is MainContract.Event.TriggerNightMode -> themeManager.toggleNightMode()
-            is MainContract.Event.NavigateToUser -> childNavController.navigate(actionGlobalUserFragment(event.user.id))
+            is MainContract.Event.NavigateToUser -> childNavController.navigate(
+                actionGlobalUserFragment(event.user.id)
+            )
             MainContract.Event.ToggleMenu -> toggleDrawer()
-            MainContract.Event.NavigateToPreferences -> findNavController().navigate(actionMainFragmentToSettingsFragment())
-            MainContract.Event.NavigateToLoginScreen -> findNavController().navigate(actionMainFragmentToLoginGraph())
+            MainContract.Event.NavigateToPreferences -> findNavController().navigate(
+                actionMainFragmentToSettingsFragment()
+            )
+            MainContract.Event.NavigateToLoginScreen -> findNavController().navigate(
+                actionMainFragmentToLoginGraph()
+            )
             MainContract.Event.CloseMenu -> binding.root.closeDrawer(binding.mainDrawer)
             MainContract.Event.SessionExpired -> onSessionExpired()
         }
@@ -245,11 +264,11 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
 
     private fun onSessionExpired() {
         AlertDialog.Builder(requireContext())
-                .setTitle(R.string.main_session_expired_title)
-                .setMessage(R.string.main_session_expired_body)
-                .setPositiveButton(android.R.string.ok) { _, _ -> viewModel.sendAction(MainContract.Action.Expired) }
-                .setCancelable(false)
-                .create().show()
+            .setTitle(R.string.main_session_expired_title)
+            .setMessage(R.string.main_session_expired_body)
+            .setPositiveButton(android.R.string.ok) { _, _ -> viewModel.sendAction(MainContract.Action.Expired) }
+            .setCancelable(false)
+            .create().show()
     }
 
     private fun toggleDrawer() {
@@ -290,7 +309,8 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
             binding.root.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
             windowController.hide(WindowInsetsCompat.Type.systemBars())
-            windowController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            windowController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             binding.root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
     }
@@ -321,7 +341,10 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
         }
     }
 
-    override fun onTransitionStarted(p0: MotionLayout, p1: Int, p2: Int) {}
+    override fun onTransitionStarted(p0: MotionLayout, startId: Int, endId: Int) {
+        if (endId == R.id.collapsed)
+            playerViewModel.sendAction(PlayerAction.SetControlVisibility(false))
+    }
 
     override fun onTransitionChange(p0: MotionLayout, p1: Int, p2: Int, p3: Float) {}
 

@@ -77,11 +77,13 @@ class PlayerPresenter @Inject constructor(private val player: Player,
             .andThen(videoRepo.getVideo(videoId).firstOrError())
 
     private fun handleSetViewMode(state: PlayerState, newViewMode: ViewMode): PlayerState {
+        val controlsVisibility = if (newViewMode == ViewMode.Collapsed || newViewMode == ViewMode.Dismissed)
+            false else state.controlsVisible
         return when {
             state.viewMode == newViewMode -> state
             //  To prevent going from pip into fullscreen
             state.viewMode == ViewMode.PictureInPicture && newViewMode == ViewMode.Fullscreen -> state
-            else -> state.copy(viewMode = newViewMode)
+            else -> state.copy(viewMode = newViewMode, controlsVisible = controlsVisibility)
         }
     }
 

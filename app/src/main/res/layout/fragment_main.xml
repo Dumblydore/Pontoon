@@ -21,7 +21,6 @@
         android:layout_height="match_parent"
         app:layoutDescription="@xml/scene_player">
 
-
         <ImageView
             android:id="@+id/main.container.preview"
             android:layout_width="0dp"
