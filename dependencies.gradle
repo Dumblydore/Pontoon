@@ -29,7 +29,7 @@ def versions = [
         androidx           : androidx_versions,
         firebase           : firebase_versions,
         paging             : "2.1.2",
-        dagger             : "2.40.2",
+        dagger             : "2.40.4",
         room               : "2.4.0-beta02",
         lifecycle          : "2.3.0",
         glide              : "4.12.0",

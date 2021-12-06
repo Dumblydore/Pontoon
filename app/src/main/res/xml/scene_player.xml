@@ -16,6 +16,10 @@
             app:touchRegionId="@id/playerTouchBox" />
     </Transition>
     <Transition
+        android:id="@+id/transition_active_collapse"
+        app:constraintSetEnd="@id/collapsed"
+        app:constraintSetStart="@+id/dismissing" />
+    <Transition
         app:constraintSetEnd="@id/dismissing"
         app:constraintSetStart="@id/collapsed"
         app:duration="250">

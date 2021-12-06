@@ -229,10 +229,15 @@ class MainFragment : BaseFragment(R.layout.fragment_main), MotionLayout.Transiti
                 binding.mainContainerPreview.isGone = true
                 binding.mainContainer.isGone = false
                 binding.playerProgress.isGone = false
-                binding.main.setTransition(R.id.transition_active)
-                binding.main.transitionToEnd()
-                animations += requireActivity().animateStatusBarColor(oldStatusBarColor)
-                    .apply { start() }
+                if (currentMode == ViewMode.Dismissed) {
+                    binding.main.setTransition(R.id.transition_active_collapse)
+                    binding.main.transitionToEnd()
+                } else {
+                    binding.main.setTransition(R.id.transition_active)
+                    binding.main.transitionToEnd()
+                    animations += requireActivity().animateStatusBarColor(oldStatusBarColor)
+                        .apply { start() }
+                }
             }
             ViewMode.PictureInPicture -> {
                 binding.mainContainerPreview.isGone = true
