@@ -1,6 +1,5 @@
 package me.mauricee.pontoon.ui.main.videos
 
-import android.util.Log
 import com.jakewharton.rx.replayingShare
 import io.reactivex.Flowable
 import io.reactivex.Observable

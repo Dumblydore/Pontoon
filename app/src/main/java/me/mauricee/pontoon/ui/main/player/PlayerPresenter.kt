@@ -30,8 +30,9 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         val actions = view.actions.replayingShare().doOnNext { logd("action: ${it.javaClass.simpleName}") }
         val playVideo = actions.filter { it is PlayerAction.PlayVideo }
                 .cast(PlayerAction.PlayVideo::class.java)
-                .concatMapSingle { setupVideo(it.videoId) }
-                .switchMap { video ->
+                .concatMapSingle { setupVideo(it.videoId).map {vid -> it.initialMode to vid } }
+                .switchMap { pair ->
+                    val (mode, video) = pair
                     val controlActions = actions.filter {
                         it is PlayerAction.SetControlVisibility || it is PlayerAction.ToggleControls
                     }.switchMap(::handleControlVisibilityActions)
@@ -39,7 +40,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
                         it !is PlayerAction.PlayVideo && it !is PlayerAction.SetControlVisibility && it !is PlayerAction.ToggleControls
                     }.flatMap { handleOtherActions(video, it) }
                     Observable.merge(loadVideoContents(video), controlActions, otherActions)
-                            .startWith(PlayerReducer.DisplayVideo(video))
+                            .startWith(PlayerReducer.DisplayVideo(video, mode))
                             .onErrorReturnItem(PlayerReducer.DisplayVideoError(UiError(PlayerErrors.General.message)))
                 }.startWith(PlayerReducer.Loading)
 
@@ -50,7 +51,7 @@ class PlayerPresenter @Inject constructor(private val player: Player,
         PlayerReducer.Loading -> state.copy(videoState = UiState.Loading, relatedVideosState = UiState.Loading)
         is PlayerReducer.DisplayQualityLevels -> state.copy(qualityLevels = reducer.qualityLevels)
         is PlayerReducer.DisplayComments -> state.copy(commentState = UiState.Success, comments = reducer.comments)
-        is PlayerReducer.DisplayVideo -> state.copy(viewMode = ViewMode.Expanded, videoState = UiState.Success, video = reducer.video)
+        is PlayerReducer.DisplayVideo -> state.copy(viewMode = reducer.viewMode, videoState = UiState.Success, video = reducer.video)
         is PlayerReducer.DisplayRelatedVideo -> state.copy(relatedVideosState = UiState.Success, relatedVideos = reducer.videos)
         is PlayerReducer.UpdateViewMode -> state.copy(viewMode = reducer.viewMode)
         is PlayerReducer.DisplayVideoError -> state.copy(videoState = UiState.Failed(reducer.error))

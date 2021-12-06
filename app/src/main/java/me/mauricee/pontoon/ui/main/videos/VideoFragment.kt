@@ -24,6 +24,7 @@ import me.mauricee.pontoon.ui.main.MainContract
 import me.mauricee.pontoon.ui.main.VideoPageAdapter
 import me.mauricee.pontoon.ui.main.player.PlayerAction
 import me.mauricee.pontoon.ui.main.player.PlayerViewModel
+import me.mauricee.pontoon.ui.main.player.ViewMode
 import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionGlobalCreatorFragment
 import me.mauricee.pontoon.ui.main.videos.VideoFragmentDirections.actionVideoFragmentToCreatorListFragment
 import me.mauricee.pontoon.ui.shareVideo
@@ -57,10 +58,17 @@ class VideoFragment : BaseFragment(R.layout.fragment_videos) {
         super.onViewCreated(view, savedInstanceState)
         binding.videosList.apply {
             adapter = pageAdapter
-            addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+            addItemDecoration(
+                DividerItemDecoration(
+                    requireContext(),
+                    DividerItemDecoration.VERTICAL
+                )
+            )
         }
-        viewModel.state.mapDistinct(VideoState::subscriptions).observe(viewLifecycleOwner, subscriptionAdapter::submitList)
-        viewModel.state.mapDistinct(VideoState::videos).observe(viewLifecycleOwner, videoAdapter::submitList)
+        viewModel.state.mapDistinct(VideoState::subscriptions)
+            .observe(viewLifecycleOwner, subscriptionAdapter::submitList)
+        viewModel.state.mapDistinct(VideoState::videos)
+            .observe(viewLifecycleOwner, videoAdapter::submitList)
 
         viewModel.state.mapDistinct { it.screenState.error }.notNull().observe(viewLifecycleOwner) {
             binding.videosContainerLazy.errorText = it.text(requireContext())
@@ -76,20 +84,22 @@ class VideoFragment : BaseFragment(R.layout.fragment_videos) {
         }
 
         subscriptions += binding.videosToolbar.navigationClicks()
-                .map { MainContract.Action.ToggleMenu }
-                .subscribe(mainViewModel::sendAction)
+            .map { MainContract.Action.ToggleMenu }
+            .subscribe(mainViewModel::sendAction)
         subscriptions += binding.videosContainer.refreshes().map { VideoAction.Refresh }
-                .subscribe(viewModel::sendAction)
+            .subscribe(viewModel::sendAction)
         subscriptions += videoAdapter.actions.map { PlayerAction.PlayVideo(it.id) }
-                .subscribe(playerViewModel::sendAction)
+            .subscribe(playerViewModel::sendAction)
         subscriptions += subscriptionAdapter.actions
-                .subscribe(viewModel::sendAction)
+            .subscribe(viewModel::sendAction)
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         videoAdapter.contextVideo?.let { video: Video ->
             when (item.itemId) {
                 R.id.action_share -> requireActivity().shareVideo(video)
+                R.id.action_fullscreen -> playerViewModel.sendAction(PlayerAction.PlayVideo(video.id,initialMode = ViewMode.Fullscreen))
+                R.id.action_collapsed -> playerViewModel.sendAction(PlayerAction.PlayVideo(video.id,initialMode = ViewMode.Collapsed))
                 else -> null
             }
         }

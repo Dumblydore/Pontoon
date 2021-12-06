@@ -32,7 +32,7 @@ def versions = [
         dagger             : "2.40.2",
         room               : "2.4.0-beta02",
         lifecycle          : "2.3.0",
-        glide              : "4.11.0",
+        glide              : "4.12.0",
         camerax            : "1.0.0-beta12",
         work               : "2.3.4",
         beagle             : "2.3.6",

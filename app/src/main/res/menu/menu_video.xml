@@ -6,6 +6,14 @@
         android:icon="@drawable/ic_share"
         android:title="@string/action_share"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_fullscreen"
+        android:title="Play in fullscreen"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_collapsed"
+        android:title="Play in collapsed player"
+        app:showAsAction="ifRoom" />
 <!--    <item-->
 <!--        android:id="@+id/action_download"-->
 <!--        android:icon="@drawable/ic_settings"-->
