@@ -1,12 +1,11 @@
 def androidx_versions = [
-        core            : "1.5.0-beta01",
-        activity        : "1.2.0",
-        fragment        : "1.3.0",
-        cardview        : "1.0.0",
+        core            : "1.7.0",
+        activity        : "1.4.0",
+        fragment        : "1.4.1",
         constraintlayout: "2.0.4",
-        data_store      : "1.0.0-alpha06",
-        appcompat       : "1.2.0",
-        recyclerview    : "1.2.0-beta01",
+        data_store      : "1.0.0",
+        appcompat       : "1.3.0",
+        recyclerview    : "1.2.1",
         leanback        : "1.0.0",
         media           : "1.2.1",
         media2          : "1.1.2",
@@ -25,11 +24,11 @@ def firebase_versions = [
 ]
 
 def versions = [
-        kotlin             : "1.4.31",
+        kotlin             : "1.6.10",
         androidx           : androidx_versions,
         firebase           : firebase_versions,
         paging             : "2.1.2",
-        dagger             : "2.31.2-alpha",
+        dagger             : "2.40.5",
         room               : "2.3.0-alpha04",
         lifecycle          : "2.3.0",
         glide              : "4.11.0",
@@ -38,9 +37,9 @@ def versions = [
         beagle             : "2.3.6",
         okhttp             : "4.9.1",
         retrofit           : "2.9.0",
-        exoplayer          : "2.12.0",
+        exoplayer          : "2.16.1",
         material_components: "1.3.0",
-        moshi              : "1.11.0",
+        moshi              : "1.13.0",
         nav                : "2.3.3",
         rx_java            : "2.2.21",
         rx_kotlin          : "2.4.0",
@@ -56,8 +55,8 @@ ext.versions = versions
 
 ext.build_versions = [
         min_sdk      : 28,
-        target_sdk   : 30,
-        compile_sdk  : 30,
+        target_sdk   : 31,
+        compile_sdk  : 31,
         tools_version: "30.0.0",
         ndk          : "21.3.6528147"
 ]
@@ -120,13 +119,12 @@ ext.deps = [
         dagger   : [
                 core           : "com.google.dagger:dagger:$versions.dagger",
                 android        : "com.google.dagger:dagger-android:$versions.dagger",
-                android_support: "com.google.dagger:dagger-android-support:$versions.dagger",
                 compiler       : "com.google.dagger:dagger-compiler:$versions.dagger",
                 processor      : "com.google.dagger:dagger-android-processor:$versions.dagger",
                 hilt           : [
                         core            : "com.google.dagger:hilt-android:$versions.dagger",
-                        navigation      : 'androidx.hilt:hilt-navigation-fragment:1.0.0-alpha03',
-                        compiler        : 'androidx.hilt:hilt-compiler:1.0.0-alpha03',
+                        navigation      : 'androidx.hilt:hilt-navigation-fragment:1.0.0',
+                        compiler        : 'androidx.hilt:hilt-compiler:1.0.0',
                         android_compiler: "com.google.dagger:hilt-android-compiler:$versions.dagger"
                 ]
         ],

@@ -1,13 +1,10 @@
 package me.mauricee.pontoon.repository.session
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.rxjava2.data
-import androidx.datastore.rxjava2.updateDataAsync
-import com.jakewharton.rx.ReplayingShare
+import androidx.datastore.rxjava2.RxDataStore
 import io.reactivex.Completable
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.SingleTransformer
+import kotlinx.coroutines.rx2.await
 import me.mauricee.pontoon.data.network.FloatPlaneApi
 import me.mauricee.pontoon.data.network.LoginAuthToken
 import me.mauricee.pontoon.data.network.LoginRequest
@@ -23,13 +20,13 @@ import javax.inject.Singleton
 
 @Singleton
 class SessionRepository @Inject constructor(private val floatPlaneApi: FloatPlaneApi,
-                                            private val credentialStore: DataStore<SessionCredentials>) {
+                                            private val credentialStore: RxDataStore<SessionCredentials>) {
 
     val activeUser: Single<User> by lazy { floatPlaneApi.self.map { it.toEntity().toModel() }.cache() }
 
-    fun canLogin(): Single<Boolean> = credentialStore.data().map {
+    suspend fun canLogin(): Boolean = credentialStore.data().map {
         it.username.isNotBlank() && it.password.isNotBlank()
-    }.first(false)
+    }.first(false).await()
 
     fun loginWithStoredCredentials(): Single<LoginResult> = credentialStore.data().firstOrError()
             .flatMap { loginWithCredentials(it.username, it.password) }

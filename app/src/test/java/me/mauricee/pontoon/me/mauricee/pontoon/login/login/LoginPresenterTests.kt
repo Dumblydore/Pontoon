@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import io.reactivex.Single
-import me.mauricee.pontoon.ext.toObservable
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.MockkRule
 import me.mauricee.pontoon.me.mauricee.pontoon.rule.SchedulerRule
 import me.mauricee.pontoon.repository.session.LoginResult
@@ -13,7 +12,7 @@ import me.mauricee.pontoon.ui.BaseContract
 import me.mauricee.pontoon.ui.UiState
 import me.mauricee.pontoon.ui.login.LoginAction
 import me.mauricee.pontoon.ui.login.LoginEvent
-import me.mauricee.pontoon.ui.login.LoginPresenter
+import me.mauricee.pontoon.ui.login.LoginViewModel
 import me.mauricee.pontoon.ui.login.LoginState
 import org.junit.Before
 import org.junit.Rule
@@ -38,11 +37,11 @@ class LoginPresenterTests {
     @MockK
     lateinit var view: BaseContract.View<LoginAction>
 
-    private lateinit var presenter: LoginPresenter
+    private lateinit var presenter: LoginViewModel
 
     @Before
     fun setUp() {
-        presenter = LoginPresenter(mockAccountManagerHelper)
+        presenter = LoginViewModel(mockAccountManagerHelper)
     }
 
     @Test

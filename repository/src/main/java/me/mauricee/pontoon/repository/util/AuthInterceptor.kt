@@ -1,8 +1,6 @@
 package me.mauricee.pontoon.repository.util
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.rxjava2.data
-import androidx.datastore.rxjava2.updateDataAsync
+import androidx.datastore.rxjava2.RxDataStore
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
@@ -17,7 +15,7 @@ import okhttp3.Response
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import javax.inject.Inject
 
-class AuthInterceptor @Inject constructor(private val credentials: DataStore<SessionCredentials>) : Interceptor {
+class AuthInterceptor @Inject constructor(private val credentials: RxDataStore<SessionCredentials>) : Interceptor {
 
     @Volatile
     private var sid: String = ""

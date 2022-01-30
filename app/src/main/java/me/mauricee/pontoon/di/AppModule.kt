@@ -18,7 +18,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import me.mauricee.pontoon.BuildConfig
 import me.mauricee.pontoon.analytics.FirebaseNetworkInterceptor
 import me.mauricee.pontoon.common.InstantAdapter
 import me.mauricee.pontoon.data.network.FloatPlaneApi
@@ -42,8 +41,6 @@ interface AppModule {
     fun bindContext(application: Application): Context
 
     companion object {
-//        @Provides
-//        fun providesGson(): Gson = ThreeTenGsonAdapter.registerAll(GsonBuilder().setLenient()).create()
 
         @Provides
         fun provideMoshi() = Moshi.Builder()
@@ -99,9 +96,9 @@ interface AppModule {
         fun providesPowerManager(context: Context): PowerManager =
                 context.getSystemService(Context.POWER_SERVICE) as PowerManager
 
-        @Provides
-        fun providesUserAgent(context: Context): String =
-                Util.getUserAgent(context, BuildConfig.APPLICATION_ID)
+//        @Provides
+//        fun providesUserAgent(context: Context): String =
+//                Util.getUserAgent(context, BuildConfig.APPLICATION_ID)
 
 
         @Provides

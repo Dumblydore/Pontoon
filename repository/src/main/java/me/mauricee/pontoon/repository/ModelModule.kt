@@ -1,7 +1,7 @@
 package me.mauricee.pontoon.repository
 
 import android.content.Context
-import androidx.datastore.createDataStore
+import androidx.datastore.rxjava2.rxDataStore
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -14,16 +14,20 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ModelModule {
-    @Provides
-    fun providesSessionCredentialsSerializer() = SessionCredentialsSerializer()
+    private val Context.datastore by rxDataStore(
+        "credentials",
+        SessionCredentialsSerializer
+    )
 
     @Provides
     @Singleton
-    fun providesDatabase(context: Context) = Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb")
+    fun providesDatabase(context: Context) =
+        Room.databaseBuilder(context, PontoonDatabase::class.java, "pontoondb")
             .fallbackToDestructiveMigration()
             .build()
 
     @Provides
     @Singleton
-    fun Context.providesSessionCredentialsDataStore(serializerFactory: SessionCredentialsSerializer) = createDataStore("credentials", serializerFactory)
+    fun Context.providesSessionCredentialsDataStore() = datastore
+
 }

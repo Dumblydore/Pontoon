@@ -66,13 +66,6 @@ android {
             versionNameSuffix '-debug'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
     testOptions {
         unitTests.returnDefaultValues = true
     }
@@ -85,7 +78,7 @@ dependencies {
     implementation project(":data:common")
     implementation project(":data:network")
     implementation project(":repository")
-    implementation project(":ui")
+    implementation project(":ui:common")
 
     //  Kotlin
     implementation deps.kotlin

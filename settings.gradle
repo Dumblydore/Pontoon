@@ -1,8 +1,18 @@
-include ':common:log'
-include ':data:common'
+// Apps
+include ':app'
 include ':tv'
-include ':ui'
+
+// Repository
 include ':repository'
+
+//Data
+include ':data:common'
 include ':data:local'
 include ':data:network'
-include ':app'
+
+//Features
+include ':ui:common'
+include ':ui:launch'
+
+// Misc
+include ':common:log'
